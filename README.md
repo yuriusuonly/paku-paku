@@ -138,6 +138,8 @@ become healthy.
 ├── .gitignore
 ├── png/
 │   └── logo.png
+├── svg/
+│   └── logo.svg
 ├── src/
 │   ├── app/
 │   │   ├── _layout.js
