@@ -5,12 +5,6 @@
   <circle cx="512" cy="512" r="484" fill="#B5121B"/>
   <circle cx="512" cy="512" r="484" fill="none" stroke="#141414" stroke-width="24"/>
 
-  <!-- Chopsticks -->
-  <g stroke="#141414" stroke-width="26" stroke-linecap="round">
-    <line x1="638" y1="238" x2="840" y2="168"/>
-    <line x1="662" y1="282" x2="858" y2="212"/>
-  </g>
-
   <!-- Black lacquered bento box -->
   <rect x="196" y="292" width="632" height="460" rx="60" fill="#141414"/>
   <rect x="240" y="336" width="544" height="372" rx="36" fill="#C8102E"/>
@@ -18,23 +12,4 @@
   <!-- Compartment dividers -->
   <rect x="500" y="336" width="20" height="372" fill="#141414"/>
   <rect x="520" y="510" width="252" height="20" fill="#141414"/>
-
-  <!-- Rice -->
-  <rect x="266" y="362" width="214" height="320" rx="24" fill="#F7EBD2"/>
-
-  <!-- Umeboshi -->
-  <circle cx="373" cy="452" r="44" fill="#B5121B"/>
-
-  <!-- Nori -->
-  <rect x="316" y="548" width="114" height="78" rx="10" fill="#141414"/>
-
-  <!-- Takoyaki -->
-  <circle cx="584" cy="402" r="38" fill="#141414"/>
-  <circle cx="666" cy="390" r="32" fill="#141414"/>
-  <circle cx="626" cy="462" r="36" fill="#141414"/>
-
-  <!-- Tamagoyaki -->
-  <rect x="560" y="574" width="172" height="92" rx="18" fill="#141414"/>
-  <rect x="578" y="592" width="136" height="16" rx="8" fill="#B5121B"/>
-  <rect x="578" y="618" width="136" height="16" rx="8" fill="#B5121B"/>
 </svg>
