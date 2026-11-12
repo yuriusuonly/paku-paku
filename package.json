@@ -1,0 +1,37 @@
+{
+  "name": "paku-paku",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "expo:start": "set -a && . ./.env && set +a && expo start --clear --port $URL_PORT",
+    "expo:start:tunnel": "expo start --clear --tunnel",
+    "expo:build": "expo export --platform web --output-dir build",
+    "expo:serve": "set -a && . ./.env && set +a && expo serve build --port $URL_PORT",
+    "opencode": "set -a && . ./.env && set +a && opencode",
+    "caddy": "caddy run --config Caddyfile --envfile .env",
+    "caddy:trust": "caddy trust",
+    "docker:build": "docker compose build --no-cache",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker": "npm run docker:build && npm run docker:up && npm run docker:logs",
+    "github:secrets": "set -a && . ./.env && set +a && gh secret set DOT_ENV --repo \"$GH_REPO\" < .env",
+    "github:remote": "set -a && . ./.env && set +a && git remote add origin \"$GH_REPO\"",
+    "github:deploy": "set -a && . ./.env && set +a && npm run github:secrets && git -c \"credential.helper=!gh auth git-credential\" push origin HEAD",
+    "eas:initialize": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && npx --yes eas-cli init",
+    "eas:deploy": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --export-dir build"
+  },
+  "dependencies": {
+    "babel-preset-expo": "~58.0.24",
+    "expo": "^58.0.23",
+    "expo-font": "~58.0.11",
+    "expo-router": "~58.0.30",
+    "expo-system-ui": "~58.0.7",
+    "nativewind": "^4.2.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-web": "^0.21.4",
+    "tailwindcss": "^3.4.17"
+  }
+}
