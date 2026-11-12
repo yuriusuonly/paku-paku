@@ -47,6 +47,7 @@ export default function App({ config }) {
           apiRoutes: true
         }
       ]
-    ]
+    ],
+    owner: process.env.EAS_PROJECT_OWNER
   };
 }
