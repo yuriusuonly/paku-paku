@@ -1,5 +1,6 @@
 import config from "../shared/config.js";
 import logo from "../../png/logo.png";
+import maskableLogo from "../../png/logo-maskable.png";
 
 /**
  * PWA manifest web API route (`src/app/manifest.json+api.js`): serves a
@@ -14,10 +15,11 @@ import logo from "../../png/logo.png";
  * @property {string} src Icon asset URI.
  * @property {string} sizes Icon size specifier (e.g. `"1024x1024"`).
  * @property {string} type Icon MIME type.
+ * @property {string} purpose Icon purpose hint (`"any"` or `"maskable"`).
  */
 
 /**
- * Manifest document for `/manifest.json` (name, description, display, icon).
+ * Manifest document for `/manifest.json` (name, description, display, icons).
  *
  * @typedef {object} PwaManifest
  * @property {string} [name] Full app name from shared config.
@@ -33,6 +35,10 @@ import logo from "../../png/logo.png";
 /**
  * Default Web App Manifest built from shared config and the repo logo.
  *
+ * The `any` icon keeps the transparent badge for normal use; the `maskable`
+ * icon is full-bleed so platforms can crop it to their preferred shape without
+ * clipping the bento mark.
+ *
  * @type {PwaManifest}
  */
 const manifest = {
@@ -45,7 +51,14 @@ const manifest = {
     {
       src: logo.uri,
       sizes: "1024x1024",
-      type: "image/png"
+      type: "image/png",
+      purpose: "any"
+    },
+    {
+      src: maskableLogo.uri,
+      sizes: "1024x1024",
+      type: "image/png",
+      purpose: "maskable"
     }
   ]
 };

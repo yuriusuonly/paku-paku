@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Paku Paku maskable bento box icon</title>
+
+  <!-- Full-bleed red background so the platform can apply any mask -->
+  <rect width="1024" height="1024" fill="#B5121B"/>
+
+  <defs>
+    <mask id="bento-frame-maskable">
+      <rect x="196" y="292" width="632" height="460" rx="60" fill="#FFFFFF"/>
+      <rect x="240" y="336" width="544" height="372" rx="36" fill="#000000"/>
+    </mask>
+  </defs>
+
+  <!-- Black lacquered bento box frame; the interior shows the red background -->
+  <rect x="196" y="292" width="632" height="460" rx="60" fill="#141414" mask="url(#bento-frame-maskable)"/>
+
+  <!-- Compartment dividers -->
+  <rect x="500" y="336" width="20" height="372" fill="#141414"/>
+  <rect x="520" y="510" width="264" height="20" fill="#141414"/>
+</svg>

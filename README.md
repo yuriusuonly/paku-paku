@@ -108,7 +108,7 @@ become healthy.
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
-| `/manifest.json` | `src/app/manifest.json+api.js` | PWA Web App Manifest. |
+| `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
 | `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
 
@@ -137,9 +137,11 @@ become healthy.
 ├── .env
 ├── .gitignore
 ├── png/
-│   └── logo.png
+│   ├── logo.png
+│   └── logo-maskable.png
 ├── svg/
-│   └── logo.svg
+│   ├── logo.svg
+│   └── logo-maskable.svg
 ├── src/
 │   ├── app/
 │   │   ├── _layout.js
