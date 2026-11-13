@@ -57,7 +57,7 @@ export function Header() {
             </Pressable>
           </>
         ) : (
-          <Link href="/sign-in" asChild>
+          <Link href="/signin" asChild>
             <Pressable className={`rounded-full ${cx.bgPrimary} px-4 py-2`}>
               <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>
                 Sign in

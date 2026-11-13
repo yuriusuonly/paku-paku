@@ -1,1 +1,1 @@
-export { GET, POST } from "../../../endpoints/sign-in/index.js";
+export { GET, POST } from "../../../endpoints/signin/index.js";

@@ -7,7 +7,7 @@ import { signOut } from "../../repositories/auth-repository.js";
 
 /**
  * Composed sign-out endpoint handlers.
- * @module endpoints/sign-out/index
+ * @module endpoints/signout/index
  */
 
 function signOutResponse() {

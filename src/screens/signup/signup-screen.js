@@ -107,7 +107,7 @@ export default function SignUpScreen() {
               autoComplete="new-password"
             />
 
-            <Alert variant="error" message={localError || storeError} />
+            <Alert variant="error" message={localError || storeError} tooltip />
             <Alert variant="success" message={success} />
 
             <Button
@@ -120,7 +120,7 @@ export default function SignUpScreen() {
 
           <View className="mt-6 flex-row items-center gap-2">
             <Text className={`font-outfit text-sm ${cx.textInk70}`}>Already have an account?</Text>
-            <Link href="/sign-in" asChild>
+            <Link href="/signin" asChild>
               <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign in</Text>
             </Link>
           </View>

@@ -9,7 +9,7 @@ import { signIn } from "../../repositories/auth-repository.js";
 
 /**
  * Composed sign-in endpoint handlers.
- * @module endpoints/sign-in/index
+ * @module endpoints/signin/index
  */
 
 export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;

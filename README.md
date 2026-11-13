@@ -204,7 +204,7 @@ containers themselves are not part of the app compose stack. |
 | Route | Source | Purpose |
 | --- | --- | --- |
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/sign-in` | `src/app/sign-in/index.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
+| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
 | `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin dashboard (protected). |
 | `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items-screen.js` | Admin menu items management (protected). |
@@ -214,10 +214,10 @@ containers themselves are not part of the app compose stack. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/menu-items` | `src/app/api/menu-items/+api.js` | Menu items listing and admin create (`GET`/`POST`). |
 | `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
-| `/api/sign-up` | `src/app/api/sign-up/+api.js` | Signs up a customer account and returns session/profile when available. |
-| `/api/sign-in` | `src/app/api/sign-in/+api.js` | Username/password sign-in; returns session tokens and profile. |
+| `/api/signup` | `src/app/api/signup/+api.js` | Signs up a customer account and returns session/profile when available. |
+| `/api/signin` | `src/app/api/signin/+api.js` | Username/password sign-in; returns session tokens and profile. |
 | `/api/session` | `src/app/api/session/+api.js` | Validates bearer token and returns the current profile. |
-| `/api/sign-out` | `src/app/api/sign-out/+api.js` | Revokes the current session. |
+| `/api/signout` | `src/app/api/signout/+api.js` | Revokes the current session. |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list (bearer token + admin role). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
@@ -260,7 +260,7 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── +html.js
 │   │   ├── +not-found.js
 │   │   ├── index.js
-│   │   ├── sign-in/
+│   │   ├── signin/
 │   │   │   └── index.js
 │   │   ├── signup/
 │   │   │   └── index.js
@@ -275,11 +275,11 @@ containers themselves are not part of the app compose stack. |
 │   │   │   │   └── profiles+api.js
 │   │   │   ├── session/
 │   │   │   │   └── +api.js
-│   │   │   ├── sign-in/
+│   │   │   ├── signin/
 │   │   │   │   └── +api.js
-│   │   │   ├── sign-out/
+│   │   │   ├── signout/
 │   │   │   │   └── +api.js
-│   │   │   ├── sign-up/
+│   │   │   ├── signup/
 │   │   │   │   └── +api.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── +api.js
@@ -304,11 +304,11 @@ containers themselves are not part of the app compose stack. |
 │   │   │   └── index.js
 │   │   ├── session/
 │   │   │   └── index.js
-│   │   ├── sign-in/
+│   │   ├── signin/
 │   │   │   └── index.js
-│   │   ├── sign-out/
+│   │   ├── signout/
 │   │   │   └── index.js
-│   │   ├── sign-up/
+│   │   ├── signup/
 │   │   │   └── index.js
 │   │   └── health.js
 │   ├── interceptors/

@@ -13,7 +13,7 @@ import { apiRequest } from "../shared/network/transport.js";
  * @returns {Promise<{user: object, session: {access_token: string, refresh_token: string, expires_at?: number, expires_in?: number, token_type?: string}}>} Session payload.
  */
 export function signIn(credentials) {
-  return apiRequest(api.endpoints.signIn, {
+  return apiRequest(api.endpoints.signin, {
     method: "POST",
     body: credentials
   });
@@ -38,7 +38,7 @@ export function getSession(token) {
  * @returns {Promise<{user: object, session?: object | null}>} Sign-up payload.
  */
 export function signUp(credentials) {
-  return apiRequest(api.endpoints.signUp, {
+  return apiRequest(api.endpoints.signup, {
     method: "POST",
     body: credentials
   });
@@ -51,7 +51,7 @@ export function signUp(credentials) {
  * @returns {Promise<null>} Resolves when the session is revoked.
  */
 export function signOut(token) {
-  return apiRequest(api.endpoints.signOut, {
+  return apiRequest(api.endpoints.signout, {
     method: "POST",
     token
   });

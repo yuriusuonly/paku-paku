@@ -10,7 +10,7 @@ import { signUp } from "../../repositories/auth-repository.js";
 
 /**
  * Composed sign-up endpoint handlers.
- * @module endpoints/sign-up/index
+ * @module endpoints/signup/index
  */
 
 export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;

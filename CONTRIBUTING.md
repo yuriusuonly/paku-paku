@@ -62,7 +62,7 @@ flowchart TD
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/database/instance.js` — never hardcode URLs/keys or add a cross-environment fallback.
 - Use `getSupabase()` (or server helpers) from `src/database/instance.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
-- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run expo:build` and, when the local stack is running, by hitting `/api/menu-items`, `/api/sign-in`, `/api/sign-up`, `/api/session`, and `/api/sign-out`.
+- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run expo:build` and, when the local stack is running, by hitting `/api/menu-items`, `/api/signin`, `/api/signup`, `/api/session`, and `/api/signout`.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
 - Apply migrations to the hosted database with `npm run supabase:link` and `npm run supabase:push` using `SUPABASE_ACCESS_TOKEN` from `.env` for non-interactive CLI auth (or run `npx --yes supabase login` once locally as needed). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
 
@@ -124,7 +124,7 @@ flowchart LR
 ## Verification
 - No lint/test/typecheck scripts are configured. Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` if touching container/runtime config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
-- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/sign-in` with `{"username":"root","password":"root"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/sign-out` should revoke the session.
+- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/signin` with `{"username":"root","password":"admin"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).

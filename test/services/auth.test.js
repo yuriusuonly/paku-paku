@@ -14,10 +14,10 @@ afterEach(() => {
 });
 
 describe("services/auth", () => {
-  test("signIn posts credentials to sign-in endpoint", async () => {
+  test("signIn posts credentials to signin endpoint", async () => {
     const payload = { user: { id: "u1" }, session: { access_token: "a", refresh_token: "r" } };
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/sign-in");
+      expect(path).toBe("/api/signin");
       expect(options.method).toBe("POST");
       expect(options.headers["Content-Type"]).toBe("application/json");
       expect(JSON.parse(options.body)).toEqual({ username: "root", password: "root" });
@@ -43,10 +43,10 @@ describe("services/auth", () => {
     expect(result).toEqual(payload);
   });
 
-  test("signUp posts credentials to sign-up endpoint", async () => {
+  test("signUp posts credentials to signup endpoint", async () => {
     const payload = { user: { id: "u2" }, session: null };
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/sign-up");
+      expect(path).toBe("/api/signup");
       expect(options.method).toBe("POST");
       expect(JSON.parse(options.body)).toEqual({ username: "alice", password: "secret1" });
       return jsonResponse(payload, 201);
@@ -59,7 +59,7 @@ describe("services/auth", () => {
 
   test("signOut posts with bearer token", async () => {
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/sign-out");
+      expect(path).toBe("/api/signout");
       expect(options.method).toBe("POST");
       expect(options.headers.Authorization).toBe("Bearer token-123");
       expect(options.body).toBeUndefined();
