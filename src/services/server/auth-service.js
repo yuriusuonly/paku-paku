@@ -1,8 +1,8 @@
-import { getBearerToken } from "../shared/api.js";
+import { getBearerToken } from "../../shared/api.js";
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
-} from "../shared/supabase-server.js";
+} from "../../shared/supabase-server.js";
 import {
   getProfileByUserId,
   loginEmailForUsername,

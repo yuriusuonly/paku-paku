@@ -1,9 +1,8 @@
-import RootScreen from "../screens/root.js";
+import HomeScreen from "../screens/home.js";
 
 /**
- * Home route (`src/app/index.js`): thin Expo Router route re-exporting the
- * screen from `src/screens/root.js`.
+ * Home route (`src/app/index.js`): storefront/menu landing page.
  * @module app/index
  */
 
-export default RootScreen;
+export default HomeScreen;

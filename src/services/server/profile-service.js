@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "../shared/supabase-server.js";
+import { createSupabaseServerClient } from "../../shared/supabase-server.js";
 
 /**
  * Profile service: domain rules and data access for app profiles.

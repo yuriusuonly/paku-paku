@@ -1,5 +1,5 @@
 import { errorResponse, methodNotAllowed } from "../../../shared/api.js";
-import { signOut } from "../../../services/auth-service.js";
+import { signOut } from "../../../services/server/auth-service.js";
 
 /**
  * Sign-out endpoint: revokes the current session in GoTrue.

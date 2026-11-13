@@ -1,5 +1,5 @@
 import { errorResponse, jsonResponse, methodNotAllowed } from "../../shared/api.js";
-import { listMenuItems } from "../../services/menu-service.js";
+import { listMenuItems } from "../../services/server/menu-service.js";
 
 /**
  * Public menu endpoint. RLS limits results to available items.

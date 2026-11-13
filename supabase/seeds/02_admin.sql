@@ -1,4 +1,4 @@
--- Administrator account: username `root`, password `R0.t`.
+-- Administrator account: username `root`, password `root`.
 -- The Auth email is internal and derived from the username; the static bcrypt
 -- hash keeps the seed independent of pgcrypto. Re-running the seed restores
 -- this password, which is intended for local development.
@@ -29,7 +29,7 @@ values (
   'authenticated',
   'authenticated',
   'root@paku-paku.local',
-  '$2b$10$Fs1J0z6ECaSe4MkLgG/E/.7Zotu8.kPI9zLg6eyWOXbXqJkuiW/ii',
+  '$2b$10$q9v8GgLjx2M92IJr32yCn.D7lXVZiHLrWi.iqjNMmRvdLD1dpGzCK',
   now(),
   '{"provider":"email","providers":["email"]}',
   '{"username":"root"}',

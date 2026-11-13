@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "../shared/supabase-server.js";
+import { createSupabaseServerClient } from "../../shared/supabase-server.js";
 
 /**
  * Menu service: read operations for storefront menu data.

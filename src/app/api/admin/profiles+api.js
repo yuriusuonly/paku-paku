@@ -1,6 +1,6 @@
 import { errorResponse, jsonResponse, methodNotAllowed } from "../../../shared/api.js";
-import { authenticateAdmin } from "../../../services/auth-service.js";
-import { listProfiles } from "../../../services/profile-service.js";
+import { authenticateAdmin } from "../../../services/server/auth-service.js";
+import { listProfiles } from "../../../services/server/profile-service.js";
 
 /**
  * Admin-only profiles endpoint.

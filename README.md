@@ -11,8 +11,9 @@ Common Meanings & Uses:
 
 ## Expo web app
 
-An intentionally empty Expo web application: a minimal home screen plus the same
-web/CI/runtime scaffold used by the sibling `yuriusuonly` workspace.
+A web-only Expo Router application with a Supabase-backed menu, username/password
+authentication, admin profiles view, and API routes, packaged for local
+development, Docker, and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
   React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, plain
@@ -87,7 +88,7 @@ npm run supabase:stop
 ```
 
 `supabase:reset` reapplies migrations and seeds the sample menu plus the
-administrator account (`username: root`, `password: R0.t`, role `admin`).
+administrator account (`username: root`, `password: root`, role `admin`).
 Authentication is username/password; the app derives an internal Supabase Auth
 email (`root@paku-paku.local`) and never exposes it through the API. The seed
 stores a static bcrypt hash so it does not depend on `pgcrypto`; rerunning the
@@ -201,7 +202,9 @@ containers themselves are not part of the app compose stack. |
 
 | Route | Source | Purpose |
 | --- | --- | --- |
-| `/` | `src/app/index.js` → `src/screens/root.js` | Minimal starter screen. |
+| `/` | `src/app/index.js` → `src/screens/home.js` | Storefront home with menu loaded from `/api/menu-items`. |
+| `/sign-in` | `src/app/sign-in.js` → `src/screens/sign-in.js` | Username/password sign-in. |
+| `/admin` | `src/app/admin.js` → `src/screens/admin.js` | Admin-only profiles view (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
@@ -250,7 +253,9 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── _layout.js
 │   │   ├── +html.js
 │   │   ├── +not-found.js
+│   │   ├── admin.js
 │   │   ├── index.js
+│   │   ├── sign-in.js
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   └── profiles+api.js
@@ -263,14 +268,29 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── manifest.json+api.js
 │   │   ├── robots.txt+api.js
 │   │   └── service-worker.js+api.js
+│   ├── components/
+│   │   ├── alert.js
+│   │   ├── button.js
+│   │   ├── container.js
+│   │   ├── header.js
+│   │   └── text-field.js
 │   ├── screens/
-│   │   └── root.js
+│   │   ├── admin.js
+│   │   ├── home.js
+│   │   └── sign-in.js
 │   ├── services/
-│   │   ├── auth-service.js
-│   │   ├── menu-service.js
-│   │   └── profile-service.js
+│   │   ├── client/
+│   │   │   ├── admin-client.js
+│   │   │   ├── auth-client.js
+│   │   │   ├── http.js
+│   │   │   └── menu-client.js
+│   │   └── server/
+│   │       ├── auth-service.js
+│   │       ├── menu-service.js
+│   │       └── profile-service.js
 │   ├── stores/
-│   │   └── app-store.js
+│   │   ├── app-store.js
+│   │   └── auth-store.js
 │   ├── shared/
 │   │   ├── api.js
 │   │   ├── config.js
@@ -288,4 +308,4 @@ containers themselves are not part of the app compose stack. |
 │       └── 02_admin.sql
 └── ttf/
     └── Outfit-VariableFont_wght.ttf
-``` |
+```

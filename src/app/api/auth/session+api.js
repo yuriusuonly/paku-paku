@@ -1,5 +1,5 @@
 import { errorResponse, jsonResponse, methodNotAllowed } from "../../../shared/api.js";
-import { getSession } from "../../../services/auth-service.js";
+import { getSession } from "../../../services/server/auth-service.js";
 
 /**
  * Current-session endpoint: validates bearer token and returns the profile.

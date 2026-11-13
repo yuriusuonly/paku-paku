@@ -67,7 +67,8 @@ flowchart TD
 ### API routes & auth
 
 - Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`). Routes are the HTTP/controller layer: parse input, call services, and map service results to responses.
-- Put API business/use-case logic in `src/services/` (`auth-service.js`, `menu-service.js`, `profile-service.js`). Services own auth/profile/menu workflows and data access coordination; they return transport-agnostic results.
+- Put server-side API business/use-case logic in `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`). Services own auth/profile/menu workflows and data access coordination; they return transport-agnostic results. Keep them outside `src/app/` so Expo Router does not treat them as routes.
+- Put client-side API callers in `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`) and shared client state in `src/stores/` (Zustand).
 - Use `src/shared/supabase-server.js` as server-side Supabase infrastructure (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.
 - Use `src/shared/api.js` for JSON/no-store responses and request parsing. Usernames are public; the internal Auth email (`<username>@paku-paku.local`) is never exposed.
 - Never put a service-role key in client or server route code; server routes use the anon key plus forwarded user tokens so RLS applies. |
@@ -92,7 +93,7 @@ flowchart LR
 ## Verification
 - No lint/test/typecheck scripts are configured. Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` if touching container/runtime config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
-- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/auth/sign-in` with `{"username":"root","password":"R0.t"}` should return a session/profile, `GET /api/auth/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/auth/sign-out` should revoke the session. |
+- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/auth/sign-in` with `{"username":"root","password":"root"}` should return a session/profile, `GET /api/auth/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/auth/sign-out` should revoke the session.
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).

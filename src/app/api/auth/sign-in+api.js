@@ -4,7 +4,7 @@ import {
   methodNotAllowed,
   readJsonBody
 } from "../../../shared/api.js";
-import { signIn } from "../../../services/auth-service.js";
+import { signIn } from "../../../services/server/auth-service.js";
 
 /**
  * Username/password sign-in endpoint.

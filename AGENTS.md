@@ -6,7 +6,7 @@
 - Plain JavaScript codebase: no TypeScript dependency and no lint/test/typecheck scripts. Types are documented with JSDoc (`@module`, `@typedef`/`@type`, `@param`, `@returns` — never `@example`).
 - Data: Supabase. Development and local static builds use the **local** Supabase stack (PostgreSQL in Docker, `supabase/` config + migrations); Expo Hosting deploys use the **hosted** Supabase project. There is no cross-environment fallback.
 - Auth/API: Expo Router API routes under `src/app/api/` handle authentication/authorization and data access. Server routes select Supabase at runtime via `src/shared/supabase-server.js` (anon key + forwarded user tokens, RLS enforced); never use or expose a service-role key.
-- The app is intentionally minimal: `src/screens/root.js` is the starter screen. Add routes and screens following the conventions below.
+- The app includes storefront, sign-in, and admin screens (`src/screens/home.js`, `sign-in.js`, `admin.js`) backed by Expo Router API routes and Supabase. Keep routes, services, stores, and docs consistent when extending it.
 
 ## Commands (from `package.json`)
 - `npm run expo:start` — starts the dev server on `$URL_PORT` after sourcing `.env`; requires `.env`.
@@ -23,9 +23,10 @@
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `+not-found.js`, `+html.js`). Screens live under `src/screens/`; the home screen is `src/screens/root.js`.
 - Shared modules live under `src/shared/`: `config.js` (client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers).
-- API business logic lives under `src/services/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the service/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, call services, map results to responses).
+- Server-side API services live under `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the business/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, call services, map results to responses). (Kept outside `src/app/` so Expo Router does not treat them as routes.)
+- Client-side API callers live under `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`).
 - Client state stores live under `src/stores/` (Zustand).
-- Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`R0.t`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
+- Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.
 - Assets: `png/logo.png` (full-size transparent-background favicon/PWA icon), `png/logo-maskable.png` (transparent-background, safe-zone maskable PWA icon), `svg/logo.svg` and `svg/logo-maskable.svg` (editable sources), `ttf/Outfit-VariableFont_wght.ttf` (custom font loaded in `src/app/_layout.js`).
