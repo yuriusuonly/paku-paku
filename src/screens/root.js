@@ -134,12 +134,12 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer>
-      <View className="flex-1 overflow-hidden">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
         <Header />
 
-        <View className="flex-1 w-full items-center justify-center py-2">
-          <View className="w-full flex-1 flex-col items-stretch gap-4 md:flex-row md:items-stretch md:gap-8">
-            <View className="w-full flex-1 items-center justify-center text-center md:items-start md:text-left">
+        <View className="w-full items-center justify-center py-2">
+          <View className="w-full flex-col-reverse items-stretch gap-4 md:flex-row md:items-center md:gap-8">
+            <View className="w-full items-center justify-start text-center md:flex-1 md:items-start md:justify-center md:text-left">
               <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
                 {config.title}
               </Text>
@@ -147,7 +147,7 @@ export default function HomeScreen() {
                 {config.description}
               </Text>
             </View>
-            <View className="w-full flex-1 items-center justify-center overflow-hidden rounded-3xl min-h-[180px] md:min-h-0">
+            <View className="w-full items-center justify-end overflow-hidden rounded-3xl md:flex-1 md:justify-center">
               <Image
                 source={logo}
                 accessibilityLabel={`${config.title} logo`}
@@ -162,7 +162,7 @@ export default function HomeScreen() {
         {!authReady ? (
           <CircularProgress message="Checking your session..." />
         ) : null}
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }
