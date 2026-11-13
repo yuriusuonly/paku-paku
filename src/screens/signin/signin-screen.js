@@ -50,6 +50,8 @@ export default function SignInScreen() {
     if (emailMissing || emailInvalid || passwordMissing) {
       setFieldErrors({ email: emailMissing || emailInvalid, password: passwordMissing });
       setLocalError(emailInvalid ? "Enter a valid email address." : "Enter your email and password.");
+      setEmail("");
+      setPassword("");
       return;
     }
 
@@ -61,6 +63,8 @@ export default function SignInScreen() {
     if (!result.ok) {
       setFieldErrors({ email: true, password: true });
       setLocalError(result.error || "Unable to sign in.");
+      setEmail("");
+      setPassword("");
     }
   };
 
