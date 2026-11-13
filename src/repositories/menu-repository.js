@@ -9,7 +9,7 @@ import { createDatabaseClient } from "../database/instance.js";
  * @module repositories/menu-repository
  */
 
-const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort_order, created_at";
+const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort_order, created_at, updated_at";
 
 /**
  * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.
@@ -108,7 +108,7 @@ export async function updateMenuItem(client, id, input) {
   const database = resolveClient(client);
   const { data, error } = await database
     .from("menu_items")
-    .update(input)
+    .update({ ...input, updated_at: new Date().toISOString() })
     .eq("id", id)
     .select(MENU_ITEM_SELECT)
     .single();

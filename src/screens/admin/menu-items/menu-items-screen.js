@@ -26,8 +26,23 @@ const columns = [
   { key: "sort_order", label: "Sort", width: 90 },
   { key: "is_available", label: "Available", width: 130 },
   { key: "description", label: "Description", width: 320 },
-  { key: "id", label: "Item ID", width: 320 }
+  { key: "id", label: "Item ID", width: 320 },
+  { key: "created_at", label: "Created at", width: 220 },
+  { key: "updated_at", label: "Updated at", width: 220 }
 ];
+
+/**
+ * Formats an ISO timestamp for display.
+ *
+ * @param {string | null | undefined} value - Timestamp value.
+ * @returns {string} Formatted timestamp or placeholder.
+ */
+function formatAuditTimestamp(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString();
+}
 
 /**
  * Inline editable text cell for menu item fields.
@@ -395,6 +410,10 @@ export default function AdminMenuItemsScreen() {
                   >
                     {columns.map((column, index) => {
                       const rawValue = item[column.key];
+                      const displayValue =
+                        column.key === "created_at" || column.key === "updated_at"
+                          ? formatAuditTimestamp(rawValue)
+                          : (rawValue ?? "-");
                       const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
                       const isEditable = ["name", "description", "price_cents", "sort_order"].includes(column.key);
                       const isStatus = column.key === "is_available";
@@ -445,7 +464,7 @@ export default function AdminMenuItemsScreen() {
                               selectable
                               className={`font-outfit text-sm ${column.key === "name" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
                             >
-                              {String(rawValue ?? "-")}
+                              {String(displayValue)}
                             </Text>
                           )}
                         </View>
