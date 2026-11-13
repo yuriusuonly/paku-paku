@@ -319,9 +319,9 @@ export default function AdminMenuItemsScreen() {
 
         <View className={`mt-4 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
           <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>New item</Text>
-          <TextField label="Name" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
+          <TextField label="Name (*)" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
           <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" multiline numberOfLines={4} />
-          <TextField label="Price (cents)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
+          <TextField label="Price (cents) (*)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
           <TextField label="Sort order (optional)" value={form.sort_order} onChangeText={(v) => setForm((f) => ({ ...f, sort_order: v }))} placeholder="Auto" keyboardType="numeric" />
           <View className="flex-row items-center gap-3">
             <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />

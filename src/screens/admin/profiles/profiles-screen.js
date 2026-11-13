@@ -215,13 +215,13 @@ export default function AdminProfilesScreen() {
             Create a customer account and profile.
           </Text>
           <TextField
-            label="Email"
+            label="Email (*)"
             value={form.email}
             onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
             placeholder="example@email.com"
           />
           <TextField
-            label="Password"
+            label="Password (*)"
             value={form.password}
             onChangeText={(v) => setForm((f) => ({ ...f, password: v }))}
             placeholder="At least 6 characters"
