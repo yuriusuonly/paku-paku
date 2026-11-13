@@ -7,7 +7,7 @@
     "expo:start:tunnel": "expo start --clear --tunnel",
     "expo:build": "expo export --platform web --output-dir build && mkdir -p build/client/png && cp png/logo.png png/logo-maskable.png build/client/png/",
     "expo:serve": "set -a && . ./.env && set +a && expo serve build --port $URL_PORT",
-    "opencode": "set -a && . ./.env && set +a && opencode",
+    "opencode": "set -a && . ./.env && set +a && exec opencode",
     "caddy": "caddy run --config Caddyfile --envfile .env",
     "caddy:trust": "caddy trust",
     "supabase:start": "npx --yes supabase start",
