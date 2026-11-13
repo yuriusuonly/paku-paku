@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { Text, View } from "react-native";
+import { Alert } from "../../components/alert.js";
 import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
@@ -122,9 +123,7 @@ export default function SignInScreen() {
             error={fieldErrors.password || showStoreError}
           />
 
-          {errorMessage ? (
-            <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
-          ) : null}
+          <Alert variant="error" message={errorMessage} />
 
           <Button
             label="Sign in"

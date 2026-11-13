@@ -174,9 +174,7 @@ export default function SignUpScreen() {
             error={fieldErrors.confirmPassword || showStoreError}
           />
 
-          {errorMessage ? (
-            <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
-          ) : null}
+          <Alert variant="error" message={errorMessage} />
           <Alert variant="success" message={success} />
 
           {recoveryCode ? (

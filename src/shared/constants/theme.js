@@ -65,9 +65,9 @@ export const cx = {
 
 // Build class maps that reference the constants above (no stray hex in consumers).
 cx.alert = {
-  error: `${cx.borderPrimary20} ${cx.textError}`,
-  success: `border-emerald-200 text-emerald-800`,
-  info: `${cx.borderSubtle} ${cx.textInk80}`
+  error: `${cx.borderPrimary20} ${cx.bgPrimarySoft} ${cx.textError}`,
+  success: cx.successAlert,
+  info: `${cx.borderSubtle} ${cx.bgSurfaceSoft} ${cx.textInk80}`
 };
 
 export const theme = { colors, alpha, cx };

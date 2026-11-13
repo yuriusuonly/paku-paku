@@ -93,7 +93,7 @@ export default function RecoverScreen() {
             autoComplete="new-password"
           />
 
-          {error ? <Text className={`font-outfit text-sm ${cx.textError}`}>{error}</Text> : null}
+          <Alert variant="error" message={error} />
           <Alert variant="success" message={success} />
 
           {success ? (
