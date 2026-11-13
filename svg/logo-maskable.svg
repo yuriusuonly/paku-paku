@@ -1,14 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <title>Paku Paku maskable bento box icon</title>
   <defs>
-    <linearGradient id="woodBase" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ddb07a"/>
-      <stop offset="100%" stop-color="#b8834d"/>
+    <linearGradient id="woodBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e2b983"/>
+      <stop offset="45%" stop-color="#c98d4f"/>
+      <stop offset="100%" stop-color="#b8793f"/>
     </linearGradient>
-    <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="24" height="24">
-      <rect width="24" height="24" fill="url(#woodBase)"/>
-      <rect x="0" y="0" width="4" height="24" fill="#a96f3d" fill-opacity="0.18"/>
-      <rect x="12" y="0" width="2" height="24" fill="#f1d3a6" fill-opacity="0.12"/>
+    <linearGradient id="woodSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff1d8" stop-opacity="0.18"/>
+      <stop offset="55%" stop-color="#fff1d8" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#6b3f1d" stop-opacity="0.12"/>
+    </linearGradient>
+    <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="120" height="80">
+      <rect width="120" height="80" fill="url(#woodBase)"/>
+      <rect width="120" height="80" fill="url(#woodSheen)"/>
+      <path d="M0 10 C 20 6, 40 14, 60 10 S 100 6, 120 12" stroke="#8a5528" stroke-opacity="0.18" stroke-width="3" fill="none"/>
+      <path d="M0 24 C 18 18, 36 30, 58 24 S 96 18, 120 26" stroke="#f3d7ad" stroke-opacity="0.12" stroke-width="2" fill="none"/>
+      <path d="M0 38 C 22 34, 44 44, 66 38 S 98 32, 120 40" stroke="#7a4922" stroke-opacity="0.16" stroke-width="3" fill="none"/>
+      <path d="M0 52 C 16 46, 34 58, 56 52 S 92 46, 120 54" stroke="#e8c796" stroke-opacity="0.10" stroke-width="2" fill="none"/>
+      <path d="M0 66 C 24 62, 46 72, 68 66 S 100 60, 120 68" stroke="#8f5a2d" stroke-opacity="0.14" stroke-width="3" fill="none"/>
+      <ellipse cx="34" cy="30" rx="7" ry="3.5" fill="#7a4a24" fill-opacity="0.10"/>
+      <ellipse cx="86" cy="58" rx="6" ry="3" fill="#6f431f" fill-opacity="0.08"/>
     </pattern>
   </defs>
 
