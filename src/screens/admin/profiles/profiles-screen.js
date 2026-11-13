@@ -347,16 +347,24 @@ export default function AdminProfilesScreen() {
                                 <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
                               ) : null}
                             </Pressable>
-                          ) : isRole || isStatus ? (
-                            <View
-                              className={`self-start rounded-full px-3 py-1 ${
-                                isAdminRole || (isStatus && isActive) ? cx.bgPrimarySoft : cx.bgSurfaceMuted
-                              }`}
+                          ) : isStatus ? (
+                            <Pressable
+                              onPress={() => { void toggleActive(profile); }}
+                              disabled={updatingId === profile.id || isSelf}
+                              className={`self-start rounded-full px-3 py-1 ${isActive ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                             >
                               <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${
-                                  isAdminRole || (isStatus && isActive) ? cx.textPrimary : cx.textInk70
-                                }`}
+                                className={`font-outfit text-xs font-semibold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}
+                              >
+                                {String(displayValue)}
+                              </Text>
+                            </Pressable>
+                          ) : isRole ? (
+                            <View
+                              className={`self-start rounded-full px-3 py-1 ${isAdminRole ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
+                            >
+                              <Text
+                                className={`font-outfit text-xs font-semibold uppercase ${isAdminRole ? cx.textPrimary : cx.textInk70}`}
                               >
                                 {String(displayValue)}
                               </Text>
