@@ -239,9 +239,11 @@ export default function AdminProfilesScreen() {
             <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
             {syncing ? <CircularProgress size="small" /> : null}
           </View>
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>
-            {loading ? "Loading..." : syncing ? "Syncing changes..." : `${profiles.length} total`}
-          </Text>
+          {loading || syncing ? (
+            <CircularProgress size="small" />
+          ) : (
+            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{profiles.length} total</Text>
+          )}
         </View>
 
         <View className="mb-3 flex-row items-center gap-3">
@@ -353,11 +355,15 @@ export default function AdminProfilesScreen() {
                               disabled={updatingId === profile.id || isSelf}
                               className={`self-start rounded-full px-3 py-1 ${isActive ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                             >
-                              <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}
-                              >
-                                {String(displayValue)}
-                              </Text>
+                              {updatingId === profile.id ? (
+                                <CircularProgress size="small" />
+                              ) : (
+                                <Text
+                                  className={`font-outfit text-xs font-semibold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}
+                                >
+                                  {String(displayValue)}
+                                </Text>
+                              )}
                             </Pressable>
                           ) : isRole ? (
                             <View

@@ -298,9 +298,11 @@ export default function AdminMenuItemsScreen() {
             <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Menu items</Text>
             {syncing ? <CircularProgress size="small" /> : null}
           </View>
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>
-            {loading ? "Loading..." : syncing ? "Syncing changes..." : `${sorted.length} total`}
-          </Text>
+          {loading || syncing ? (
+            <CircularProgress size="small" />
+          ) : (
+            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{sorted.length} total</Text>
+          )}
         </View>
 
         <View className="mb-3 flex-row items-center gap-3">
@@ -402,11 +404,15 @@ export default function AdminMenuItemsScreen() {
                               disabled={savingCell === `${item.id}:is_available`}
                               className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                             >
-                              <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
-                              >
-                                {rawValue ? "available" : "hidden"}
-                              </Text>
+                              {savingCell === `${item.id}:is_available` ? (
+                                <CircularProgress size="small" />
+                              ) : (
+                                <Text
+                                  className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
+                                >
+                                  {rawValue ? "available" : "hidden"}
+                                </Text>
+                              )}
                             </Pressable>
                           ) : isEditable ? (
                             <InlineEditableCell

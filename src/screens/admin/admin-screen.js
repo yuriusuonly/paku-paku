@@ -26,11 +26,14 @@ function StatItem({ label, value, loading = false }) {
       <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
         {label}
       </Text>
-      <View className="mt-2 flex-row items-center gap-2">
-        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
-          {loading ? "—" : value}
-        </Text>
-        {loading ? <CircularProgress size="small" /> : null}
+      <View className="mt-2 min-h-[36px] flex-row items-center">
+        {loading ? (
+          <CircularProgress size="small" />
+        ) : (
+          <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
+            {value}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -118,7 +121,7 @@ export default function AdminScreen() {
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
             <View className="mb-4 flex-row items-start justify-between gap-4">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
-              {menuBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
+              {menuBusy ? <CircularProgress size="small" /> : null}
             </View>
             <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
@@ -137,7 +140,7 @@ export default function AdminScreen() {
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
             <View className="mb-4 flex-row items-start justify-between gap-4">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
-              {profilesBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
+              {profilesBusy ? <CircularProgress size="small" /> : null}
             </View>
             <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
