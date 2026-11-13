@@ -47,7 +47,7 @@ export default function SignInScreen() {
     const passwordMissing = !password;
     if (usernameMissing || passwordMissing) {
       setFieldErrors({ username: usernameMissing, password: passwordMissing });
-      setLocalError("Enter your username and password.");
+      setLocalError("Enter your email and password.");
       return;
     }
 
@@ -86,20 +86,20 @@ export default function SignInScreen() {
           Sign in
         </Text>
         <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
-          Use your account username and password.
+          Use your account email and password.
         </Text>
 
         <View className="mt-8 gap-4">
           <TextField
-            label="Username"
+            label="Email"
             value={username}
             onChangeText={(value) => {
               setUsername(value);
               if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
             }}
-            placeholder="root"
+            placeholder="example@email.com"
             autoCapitalize="none"
-            autoComplete="username"
+            autoComplete="email"
             error={fieldErrors.username || showStoreError}
           />
           <TextField
@@ -109,7 +109,7 @@ export default function SignInScreen() {
               setPassword(value);
               if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
             }}
-            placeholder="••••"
+            placeholder="******"
             secureTextEntry
             enablePasswordToggle
             autoComplete="password"
