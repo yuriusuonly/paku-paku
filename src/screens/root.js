@@ -80,8 +80,8 @@ export default function HomeScreen() {
     <>
       <Header />
 
-      <View className={`${showMenuSection ? "mb-10 py-8" : "flex-1 py-4"} items-center justify-center`}>
-        <View className="w-full flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
+      <View className={`${showMenuSection ? "mb-10 py-8" : "flex-1 py-2"} items-center justify-center`}>
+        <View className="w-full flex-col items-center gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
           <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
             <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
               {config.title}
@@ -91,12 +91,14 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="w-full flex-1 items-center justify-center">
-            <Image
-              source={logo}
-              accessibilityLabel={`${config.title} logo`}
-              resizeMode="contain"
-              className="aspect-square w-full max-w-[200px] md:max-w-[320px]"
-            />
+            <View className="aspect-square w-full max-w-[180px] overflow-hidden md:max-w-[320px]">
+              <Image
+                source={logo}
+                accessibilityLabel={`${config.title} logo`}
+                resizeMode="cover"
+                className="h-full w-full"
+              />
+            </View>
           </View>
         </View>
       </View>
