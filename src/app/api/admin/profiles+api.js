@@ -1,1 +1,1 @@
-export { GET, POST } from "../../../endpoints/admin/profiles.js";
+export { GET, POST, PATCH } from "../../../endpoints/admin/profiles.js";
