@@ -76,33 +76,33 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
         <Header />
 
-        <View className="mb-10 flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
-          <View className="w-full flex-1">
-            <Text className={`font-outfit text-4xl md:text-6xl font-black tracking-tight ${cx.textInk}`}>
-              {config.title}
-            </Text>
-            <Text className={`font-outfit mt-4 max-w-2xl text-base md:text-lg leading-relaxed ${cx.textInk70}`}>
-              {config.description}
-            </Text>
-          </View>
-          <View className="w-full items-center justify-center md:w-auto md:flex-1">
-            <Image
-              source={logo}
-              accessibilityLabel={`${config.title} logo`}
-              resizeMode="contain"
-              className="h-48 w-48 md:h-72 md:w-72"
-            />
+        <View className="min-h-[70vh] flex-1 items-center justify-center py-8">
+          <View className="w-full flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
+            <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
+              <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
+                {config.title}
+              </Text>
+              <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
+                {config.description}
+              </Text>
+            </View>
+            <View className="w-full flex-1 items-center justify-center">
+              <Image
+                source={logo}
+                accessibilityLabel={`${config.title} logo`}
+                resizeMode="contain"
+                className="aspect-square w-full max-w-[220px] md:max-w-[360px]"
+              />
+            </View>
           </View>
         </View>
 
         {!authReady ? (
           <CircularProgress message="Checking your session..." />
-        ) : !isAuthenticated ? (
-          <Alert variant="info" message="Sign in to view the menu." />
-        ) : (
+        ) : !isAuthenticated ? null : (
           <>
             <View className="mb-4 flex-row items-end justify-between">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>

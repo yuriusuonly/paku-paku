@@ -53,7 +53,7 @@ export function Header() {
             ) : null}
             <Pressable
               onPress={onSignOut}
-              className={`rounded-full ${cx.bgInk} px-4 py-2`}
+              className={`rounded-full ${cx.bgPrimary} px-4 py-2`}
             >
               <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>
                 Sign out
