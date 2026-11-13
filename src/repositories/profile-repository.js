@@ -72,6 +72,7 @@ export async function listProfiles(database) {
   const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
+    .neq("username", "root")
     .order("username", { ascending: true });
 
   if (error) {

@@ -6,11 +6,18 @@ import { notifyBackgroundError } from "./notification-store.js";
 const friendlyError = (error, fallback) =>
   error && typeof error.message === "string" && error.message.trim() ? error.message : fallback;
 
+function isVisibleProfile(profile) {
+  return profile?.username !== "root";
+}
+
 function sortProfiles(items) {
   return [...items].sort((a, b) => String(a.username || "").localeCompare(String(b.username || "")));
 }
 
 function upsertProfile(items, profile) {
+  if (!isVisibleProfile(profile)) {
+    return items.filter((entry) => entry.id !== profile?.id && entry.username !== "root");
+  }
   const index = items.findIndex((entry) => entry.id === profile.id);
   if (index === -1) {
     return sortProfiles([...items, profile]);
@@ -40,7 +47,12 @@ export const useProfilesStore = create((set, get) => ({
     set({ loading: !isRefresh, syncing: isRefresh, error: null });
     try {
       const data = await getProfiles(token);
-      set({ profiles: sortProfiles(data.profiles || []), loading: false, syncing: false, error: null });
+      set({
+        profiles: sortProfiles((data.profiles || []).filter(isVisibleProfile)),
+        loading: false,
+        syncing: false,
+        error: null
+      });
     } catch (error) {
       const message = friendlyError(error, "Could not load profiles. Please try again.");
       set({ loading: false, syncing: false, error: message });
