@@ -28,12 +28,12 @@ export default function SignUpScreen() {
   const storeError = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false, confirmPassword: false });
+  const [fieldErrors, setFieldErrors] = useState({ email: false, password: false, confirmPassword: false });
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
@@ -47,28 +47,30 @@ export default function SignUpScreen() {
     setLocalError("");
     setSuccess("");
 
-    const usernameMissing = !username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const emailMissing = !trimmedEmail;
+    const emailInvalid = trimmedEmail ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) : false;
     const passwordMissing = !password;
     const confirmPasswordMissing = !confirmPassword;
-    if (usernameMissing || passwordMissing || confirmPasswordMissing) {
-      setFieldErrors({ username: usernameMissing, password: passwordMissing, confirmPassword: confirmPasswordMissing });
-      setLocalError("Enter an email, password, and password confirmation.");
+    if (emailMissing || emailInvalid || passwordMissing || confirmPasswordMissing) {
+      setFieldErrors({ email: emailMissing || emailInvalid, password: passwordMissing, confirmPassword: confirmPasswordMissing });
+      setLocalError(emailInvalid ? "Enter a valid email address." : "Enter an email, password, and password confirmation.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setFieldErrors({ username: false, password: true, confirmPassword: true });
+      setFieldErrors({ email: false, password: true, confirmPassword: true });
       setLocalError("Passwords do not match.");
       return;
     }
 
-    setFieldErrors({ username: false, password: false, confirmPassword: false });
+    setFieldErrors({ email: false, password: false, confirmPassword: false });
     setSubmitting(true);
-    const result = await signUp({ username, password });
+    const result = await signUp({ email: trimmedEmail, password });
     setSubmitting(false);
 
     if (!result.ok) {
-      setFieldErrors({ username: true, password: true, confirmPassword: true });
+      setFieldErrors({ email: true, password: true, confirmPassword: true });
       setLocalError(result.error || "Unable to create account.");
       return;
     }
@@ -108,15 +110,15 @@ export default function SignUpScreen() {
         <View className="mt-8 gap-4">
           <TextField
             label="Email"
-            value={username}
+            value={email}
             onChangeText={(value) => {
-              setUsername(value);
-              if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
+              setEmail(value);
+              if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: false }));
             }}
             placeholder="example@email.com"
             autoCapitalize="none"
             autoComplete="email"
-            error={fieldErrors.username || showStoreError}
+            error={fieldErrors.email || showStoreError}
           />
           <TextField
             label="Password"

@@ -27,11 +27,11 @@ export default function SignInScreen() {
   const storeError = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false });
+  const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
@@ -43,21 +43,23 @@ export default function SignInScreen() {
     clearError();
     setLocalError("");
 
-    const usernameMissing = !username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const emailMissing = !trimmedEmail;
     const passwordMissing = !password;
-    if (usernameMissing || passwordMissing) {
-      setFieldErrors({ username: usernameMissing, password: passwordMissing });
-      setLocalError("Enter your email and password.");
+    const emailInvalid = trimmedEmail ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) : false;
+    if (emailMissing || emailInvalid || passwordMissing) {
+      setFieldErrors({ email: emailMissing || emailInvalid, password: passwordMissing });
+      setLocalError(emailInvalid ? "Enter a valid email address." : "Enter your email and password.");
       return;
     }
 
-    setFieldErrors({ username: false, password: false });
+    setFieldErrors({ email: false, password: false });
     setSubmitting(true);
-    const result = await signIn({ username, password });
+    const result = await signIn({ email: trimmedEmail, password });
     setSubmitting(false);
 
     if (!result.ok) {
-      setFieldErrors({ username: true, password: true });
+      setFieldErrors({ email: true, password: true });
       setLocalError(result.error || "Unable to sign in.");
     }
   };
@@ -92,15 +94,15 @@ export default function SignInScreen() {
         <View className="mt-8 gap-4">
           <TextField
             label="Email"
-            value={username}
+            value={email}
             onChangeText={(value) => {
-              setUsername(value);
-              if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
+              setEmail(value);
+              if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: false }));
             }}
             placeholder="example@email.com"
             autoCapitalize="none"
             autoComplete="email"
-            error={fieldErrors.username || showStoreError}
+            error={fieldErrors.email || showStoreError}
           />
           <TextField
             label="Password"

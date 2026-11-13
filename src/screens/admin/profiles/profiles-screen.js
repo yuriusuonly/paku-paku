@@ -17,7 +17,7 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/profiles/profiles-screen
  */
 
-const emptyForm = { username: "", password: "" };
+const emptyForm = { email: "", password: "" };
 
 /**
  * Formats an ISO timestamp for display.
@@ -99,10 +99,10 @@ export default function AdminProfilesScreen() {
   const saveUser = async () => {
     if (!token) return;
     setLocalError("");
-    const username = form.username.trim().toLowerCase();
+    const email = form.email.trim().toLowerCase();
     const password = form.password;
-    if (!/^[a-z0-9][a-z0-9_.-]{2,31}$/.test(username)) {
-      setLocalError("Choose a valid email/username (3-32 chars, lowercase letters, numbers, ., _, -).");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setLocalError("Enter a valid email address.");
       return;
     }
     if (password.length < 6) {
@@ -111,7 +111,7 @@ export default function AdminProfilesScreen() {
     }
     setSaving(true);
     try {
-      await createUser(token, { username, password });
+      await createUser(token, { email, password });
       setForm(emptyForm);
       showSuccess("User created.");
     } catch (e) {
@@ -216,9 +216,9 @@ export default function AdminProfilesScreen() {
           </Text>
           <TextField
             label="Email"
-            value={form.username}
-            onChangeText={(v) => setForm((f) => ({ ...f, username: v }))}
-            placeholder="customer01"
+            value={form.email}
+            onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
+            placeholder="example@email.com"
           />
           <TextField
             label="Password"
@@ -226,6 +226,7 @@ export default function AdminProfilesScreen() {
             onChangeText={(v) => setForm((f) => ({ ...f, password: v }))}
             placeholder="At least 6 characters"
             secureTextEntry
+            enablePasswordToggle
           />
           <View className="flex-row items-center gap-3">
             <Button label="Create user" onPress={saveUser} loading={saving} />

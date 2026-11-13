@@ -12,35 +12,29 @@ import { signIn } from "../../repositories/auth-repository.js";
  * @module endpoints/signin/index
  */
 
-export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;
-const LOGIN_EMAIL_DOMAIN = "paku-paku.local";
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function normalizeUsername(value) {
+function normalizeEmail(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
-
-function loginEmailForUsername(username) {
-  return `${username}@${LOGIN_EMAIL_DOMAIN}`;
 }
 
 async function parseSignInRequest(request) {
   const body = await readJsonBody(request);
 
   if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with username and password.");
+    throw badRequest("invalid_body", "Expected a JSON object with email and password.");
   }
 
-  const username = normalizeUsername(body.username);
+  const email = normalizeEmail(body.email ?? body.username);
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!USERNAME_PATTERN.test(username) || password.length === 0) {
-    throw badRequest("invalid_credentials", "Enter a valid username and password.");
+  if (!EMAIL_PATTERN.test(email) || password.length === 0) {
+    throw badRequest("invalid_credentials", "Enter a valid email and password.");
   }
 
   return {
-    username,
-    password,
-    email: loginEmailForUsername(username)
+    email,
+    password
   };
 }
 

@@ -22,7 +22,7 @@ export function getProfiles(token) {
  * Creates a customer user/profile as an administrator.
  *
  * @param {string} token - Access token for an admin session.
- * @param {{username: string, password: string}} input - User payload.
+ * @param {{email: string, password: string}} input - User payload.
  * @returns {Promise<{profile: object}>} Created profile payload.
  */
 export function createProfileUser(token, input) {

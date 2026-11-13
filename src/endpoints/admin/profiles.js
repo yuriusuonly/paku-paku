@@ -15,35 +15,41 @@ import { createManagedUser } from "../../repositories/auth-repository.js";
  * @module endpoints/admin/profiles
  */
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;
-const LOGIN_EMAIL_DOMAIN = "paku-paku.local";
 
-function normalizeUsername(value) {
+function normalizeEmail(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
-function loginEmailForUsername(username) {
-  return `${username}@${LOGIN_EMAIL_DOMAIN}`;
+function deriveUsername(email) {
+  const local = email.split("@")[0] || "user";
+  let username = local.replace(/[^a-z0-9_.-]/g, "").toLowerCase();
+  if (!/^[a-z0-9]/.test(username)) username = `u${username}`;
+  username = username.slice(0, 32);
+  if (username.length < 3) username = (username + "user").slice(0, 32);
+  if (!USERNAME_PATTERN.test(username)) username = "user";
+  return username;
 }
 
 async function parseCreateUserRequest(request) {
   const body = await readJsonBody(request);
   if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with username and password.");
+    throw badRequest("invalid_body", "Expected a JSON object with email and password.");
   }
 
-  const username = normalizeUsername(body.username);
+  const email = normalizeEmail(body.email ?? body.username);
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!USERNAME_PATTERN.test(username)) {
-    throw badRequest("invalid_username", "Choose a valid username (3-32 chars, lowercase letters, numbers, ., _, -).");
+  if (!EMAIL_PATTERN.test(email)) {
+    throw badRequest("invalid_email", "Enter a valid email address.");
   }
 
   if (password.length < 6) {
     throw badRequest("invalid_password", "Password must be at least 6 characters.");
   }
 
-  return { username, password, email: loginEmailForUsername(username) };
+  return { username: deriveUsername(email), password, email };
 }
 
 async function parseUpdateProfileRequest(request) {

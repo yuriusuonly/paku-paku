@@ -136,7 +136,7 @@ export const useAuthStore = create((set, get) => ({
   /**
    * Signs in and persists the returned session.
    *
-   * @param {{username: string, password: string}} credentials - Sign-in credentials.
+   * @param {{email: string, password: string}} credentials - Sign-in credentials.
    * @returns {Promise<{ok: boolean, error?: string}>} Result for the caller/UI.
    */
   signIn: async (credentials) => {
@@ -163,7 +163,7 @@ export const useAuthStore = create((set, get) => ({
   /**
    * Signs up a new customer account and persists the session when returned.
    *
-   * @param {{username: string, password: string}} credentials - Sign-up credentials.
+   * @param {{email: string, password: string}} credentials - Sign-up credentials.
    * @returns {Promise<{ok: boolean, error?: string}>} Result for the caller/UI.
    */
   signUp: async (credentials) => {

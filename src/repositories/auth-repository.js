@@ -37,7 +37,7 @@ export async function signIn({ email, password }) {
     if (error?.status === 429) {
       throw tooManyRequests("rate_limited", "Too many sign-in attempts. Try again later.");
     }
-    throw unauthorized("invalid_credentials", "Invalid username or password.");
+    throw unauthorized("invalid_credentials", "Invalid email or password.");
   }
 
   const authenticated = createDatabaseClient({
@@ -152,7 +152,7 @@ export async function signUp({ username, email, password }) {
       throw tooManyRequests("rate_limited", "Too many sign-up attempts. Try again later.");
     }
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
-      throw badRequest("username_taken", "That username is already taken.");
+      throw badRequest("username_taken", "That email or username is already taken.");
     }
     throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }
@@ -218,7 +218,7 @@ export async function createManagedUser(adminDatabase, { username, email, passwo
       throw tooManyRequests("rate_limited", "Too many sign-up attempts. Try again later.");
     }
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
-      throw badRequest("username_taken", "That username is already taken.");
+      throw badRequest("username_taken", "That email or username is already taken.");
     }
     throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }

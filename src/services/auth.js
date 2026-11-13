@@ -7,9 +7,9 @@ import { apiRequest } from "../shared/network/transport.js";
  */
 
 /**
- * Signs in with username and password.
+ * Signs in with email and password.
  *
- * @param {{username: string, password: string}} credentials - Sign-in credentials.
+ * @param {{email: string, password: string}} credentials - Sign-in credentials.
  * @returns {Promise<{user: object, session: {access_token: string, refresh_token: string, expires_at?: number, expires_in?: number, token_type?: string}}>} Session payload.
  */
 export function signIn(credentials) {
@@ -34,7 +34,7 @@ export function getSession(token) {
 /**
  * Signs up a new customer account.
  *
- * @param {{username: string, password: string}} credentials - Sign-up credentials.
+ * @param {{email: string, password: string}} credentials - Sign-up credentials.
  * @returns {Promise<{user: object, session?: object | null}>} Sign-up payload.
  */
 export function signUp(credentials) {
