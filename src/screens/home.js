@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { Alert } from "../components/alert.js";
-import { Button } from "../components/button.js";
 import { Header } from "../components/header.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
@@ -30,7 +28,6 @@ function formatPrice(cents) {
  * @returns {JSX.Element} Home screen.
  */
 export default function HomeScreen() {
-  const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const session = useAuthStore((state) => state.session);
   const authStatus = useAuthStore((state) => state.status);
@@ -111,15 +108,10 @@ export default function HomeScreen() {
         {!authReady ? (
           <Alert variant="info" message="Checking your session..." />
         ) : !isAuthenticated ? (
-          <View className="gap-4">
-            <Alert
-              variant="info"
-              message="Sign in to view the menu."
-            />
-            <View className="self-start">
-              <Button label="Sign in" onPress={() => router.push("/sign-in")} />
-            </View>
-          </View>
+          <Alert
+            variant="info"
+            message="Sign in to view the menu."
+          />
         ) : (
           <>
             <View className="mb-4 flex-row items-end justify-between">
