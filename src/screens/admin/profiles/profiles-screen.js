@@ -227,11 +227,12 @@ export default function AdminProfilesScreen() {
               </View>
 
               {profiles.map((profile, rowIndex) => {
+                const rowKey = String(profile.id ?? `row-${rowIndex}`);
                 const isSelf = profile.id === user?.id;
                 const isActive = profile.is_active !== false;
                 return (
                   <View
-                    key={profile.id}
+                    key={rowKey}
                     className={`flex-row ${rowIndex < profiles.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
                   >
                     {columns.map((column, index) => {
@@ -250,7 +251,7 @@ export default function AdminProfilesScreen() {
 
                       return (
                         <View
-                          key={`${profile.id}-${column.key}`}
+                          key={`${rowKey}-${column.key}`}
                           style={{ width: column.width }}
                           className={`justify-center px-4 py-3 ${cellBorder}`}
                         >
