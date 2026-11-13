@@ -80,8 +80,8 @@ export default function AdminScreen() {
   const menuStats = useMemo(() => {
     const total = menuItems.length;
     const available = menuItems.filter((item) => item.is_available).length;
-    const hidden = total - available;
-    return { total, available, hidden };
+    const unavailable = total - available;
+    return { total, available, unavailable };
   }, [menuItems]);
 
   const profileStats = useMemo(() => {
@@ -126,7 +126,7 @@ export default function AdminScreen() {
             <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
               <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
-              <StatItem label="Hidden" value={menuStats.hidden} loading={menuCountLoading} />
+              <StatItem label="Unavailable" value={menuStats.unavailable} loading={menuCountLoading} />
             </View>
             <View className="mt-6">
               <Link href="/admin/menu-items" asChild>

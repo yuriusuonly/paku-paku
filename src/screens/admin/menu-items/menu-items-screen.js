@@ -219,7 +219,7 @@ export default function AdminMenuItemsScreen() {
     setSavingCell(cellKey);
     try {
       await updateItem(token, item.id, { is_available: !item.is_available });
-      showSuccess(item.is_available ? "Menu item hidden." : "Menu item made available.");
+      showSuccess(item.is_available ? "Menu item made unavailable." : "Menu item made available.");
     } catch (e) {
       const message = e?.message || "Could not update the menu item. Please try again.";
       setLocalError(message);
@@ -407,7 +407,7 @@ export default function AdminMenuItemsScreen() {
                                 <Text
                                   className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
                                 >
-                                  {rawValue ? "available" : "hidden"}
+                                  {rawValue ? "available" : "unavailable"}
                                 </Text>
                               )}
                             </Pressable>
