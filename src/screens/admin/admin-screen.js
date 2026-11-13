@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
-import { Button } from "../../components/button.js";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
@@ -23,11 +22,11 @@ import { cx } from "../../shared/constants/theme.js";
  */
 function StatItem({ label, value, loading = false }) {
   return (
-    <View className={`min-w-[140px] flex-1 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+    <View className="min-w-[140px] flex-1">
       <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
         {label}
       </Text>
-      <View className="mt-2 flex-row items-end justify-between">
+      <View className="mt-2 flex-row items-center gap-2">
         <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
           {loading ? "—" : value}
         </Text>
@@ -121,14 +120,16 @@ export default function AdminScreen() {
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
               {menuBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
             </View>
-            <View className="flex-row flex-wrap gap-3">
+            <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
               <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
               <StatItem label="Hidden" value={menuStats.hidden} loading={menuCountLoading} />
             </View>
-            <View className="mt-6 flex-row justify-end">
+            <View className="mt-6">
               <Link href="/admin/menu-items" asChild>
-                <Button label="Open menu items audit" />
+                <Pressable>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open menu items audit →</Text>
+                </Pressable>
               </Link>
             </View>
           </View>
@@ -138,16 +139,18 @@ export default function AdminScreen() {
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
               {profilesBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
             </View>
-            <View className="flex-row flex-wrap gap-3">
+            <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
               <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
               <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
               <StatItem label="Admins" value={profileStats.admins} loading={profileCountLoading} />
               <StatItem label="Customers" value={profileStats.customers} loading={profileCountLoading} />
             </View>
-            <View className="mt-6 flex-row justify-end">
+            <View className="mt-6">
               <Link href="/admin/profiles" asChild>
-                <Button label="Open profiles audit" />
+                <Pressable>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open profiles audit →</Text>
+                </Pressable>
               </Link>
             </View>
           </View>
