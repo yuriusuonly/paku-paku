@@ -2,12 +2,13 @@ import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../network/middleware.js";
-import { signOut } from "../../../repositories/auth-repository.js";
-import { signOutResponse } from "../../../responses/auth-sign-out.js";
+import { parseSignUpRequest } from "../../../requests/sign-up.js";
+import { signUp } from "../../../repositories/auth-repository.js";
+import { signUpResponse } from "../../../responses/sign-up.js";
 
 /**
- * Sign-out endpoint.
- * @module app/api/auth/sign-out+api
+ * Customer sign-up endpoint.
+ * @module app/api/sign-up/+api
  */
 
 const route = withMiddleware(
@@ -15,8 +16,8 @@ const route = withMiddleware(
   errorInterceptor,
   methodInterceptor("POST")
 )(async (context) => {
-  await signOut(context.request);
-  return signOutResponse();
+  const input = await parseSignUpRequest(context.request);
+  return signUpResponse(await signUp(input));
 });
 
 export { route as GET, route as POST };

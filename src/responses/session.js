@@ -1,8 +1,8 @@
 import { jsonResponse } from "../network/response.js";
 
 /**
- * Response shaping for `GET /api/auth/session`.
- * @module responses/auth-session
+ * Response shaping for `GET /api/session`.
+ * @module responses/session
  */
 
 /**

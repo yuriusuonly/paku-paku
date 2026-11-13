@@ -214,10 +214,10 @@ containers themselves are not part of the app compose stack. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/menu-items` | `src/app/api/menu-items/+api.js` | Menu items listing and admin create (`GET`/`POST`). |
 | `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
-| `/api/auth/signup` | `src/app/api/auth/signup+api.js` | Signs up a customer account and returns session/profile when available. |
-| `/api/auth/sign-in` | `src/app/api/auth/sign-in+api.js` | Username/password sign-in; returns session tokens and profile. |
-| `/api/auth/session` | `src/app/api/auth/session+api.js` | Validates bearer token and returns the current profile. |
-| `/api/auth/sign-out` | `src/app/api/auth/sign-out+api.js` | Revokes the current session. |
+| `/api/sign-up` | `src/app/api/sign-up/+api.js` | Signs up a customer account and returns session/profile when available. |
+| `/api/sign-in` | `src/app/api/sign-in/+api.js` | Username/password sign-in; returns session tokens and profile. |
+| `/api/session` | `src/app/api/session/+api.js` | Validates bearer token and returns the current profile. |
+| `/api/sign-out` | `src/app/api/sign-out/+api.js` | Revokes the current session. |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list (bearer token + admin role). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
@@ -273,11 +273,14 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   └── profiles+api.js
-│   │   │   ├── auth/
-│   │   │   │   ├── signup+api.js
-│   │   │   │   ├── session+api.js
-│   │   │   │   ├── sign-in+api.js
-│   │   │   │   └── sign-out+api.js
+│   │   │   ├── session/
+│   │   │   │   └── +api.js
+│   │   │   ├── sign-in/
+│   │   │   │   └── +api.js
+│   │   │   ├── sign-out/
+│   │   │   │   └── +api.js
+│   │   │   ├── sign-up/
+│   │   │   │   └── +api.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── +api.js
 │   │   │   │   └── [id]+api.js
@@ -321,18 +324,18 @@ containers themselves are not part of the app compose stack. |
 │   │   └── profile-repository.js
 │   ├── requests/
 │   │   ├── admin-profiles.js
-│   │   ├── auth-signup.js
-│   │   ├── auth-session.js
-│   │   ├── auth-sign-in.js
-│   │   ├── auth-sign-out.js
+│   │   ├── session.js
+│   │   ├── sign-in.js
+│   │   ├── sign-out.js
+│   │   ├── sign-up.js
 │   │   ├── health.js
 │   │   └── menu-items.js
 │   ├── responses/
 │   │   ├── admin-profiles.js
-│   │   ├── auth-signup.js
-│   │   ├── auth-session.js
-│   │   ├── auth-sign-in.js
-│   │   ├── auth-sign-out.js
+│   │   ├── session.js
+│   │   ├── sign-in.js
+│   │   ├── sign-out.js
+│   │   ├── sign-up.js
 │   │   ├── health.js
 │   │   └── menu-items.js
 │   ├── screens/

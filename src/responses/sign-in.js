@@ -1,8 +1,8 @@
 import { jsonResponse } from "../network/response.js";
 
 /**
- * Response shaping for `POST /api/auth/sign-in`.
- * @module responses/auth-sign-in
+ * Response shaping for `POST /api/sign-in`.
+ * @module responses/sign-in
  */
 
 /**

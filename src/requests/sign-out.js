@@ -1,6 +1,6 @@
 /**
- * Request handling for `POST /api/auth/sign-out`.
- * @module requests/auth-sign-out
+ * Request handling for `POST /api/sign-out`.
+ * @module requests/sign-out
  */
 
 /**

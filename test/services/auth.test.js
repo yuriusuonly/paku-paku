@@ -14,10 +14,10 @@ afterEach(() => {
 });
 
 describe("services/auth", () => {
-  test("signIn posts credentials to auth sign-in endpoint", async () => {
+  test("signIn posts credentials to sign-in endpoint", async () => {
     const payload = { user: { id: "u1" }, session: { access_token: "a", refresh_token: "r" } };
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/auth/sign-in");
+      expect(path).toBe("/api/sign-in");
       expect(options.method).toBe("POST");
       expect(options.headers["Content-Type"]).toBe("application/json");
       expect(JSON.parse(options.body)).toEqual({ username: "root", password: "root" });
@@ -32,7 +32,7 @@ describe("services/auth", () => {
   test("getSession sends bearer token to session endpoint", async () => {
     const payload = { user: { id: "u1", username: "root" } };
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/auth/session");
+      expect(path).toBe("/api/session");
       expect(options.method).toBe("GET");
       expect(options.headers.Authorization).toBe("Bearer token-123");
       return jsonResponse(payload, 200);
@@ -43,10 +43,10 @@ describe("services/auth", () => {
     expect(result).toEqual(payload);
   });
 
-  test("signUp posts credentials to auth signup endpoint", async () => {
+  test("signUp posts credentials to sign-up endpoint", async () => {
     const payload = { user: { id: "u2" }, session: null };
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/auth/signup");
+      expect(path).toBe("/api/sign-up");
       expect(options.method).toBe("POST");
       expect(JSON.parse(options.body)).toEqual({ username: "alice", password: "secret1" });
       return jsonResponse(payload, 201);
@@ -59,7 +59,7 @@ describe("services/auth", () => {
 
   test("signOut posts with bearer token", async () => {
     globalThis.fetch = mock(async (path, options) => {
-      expect(path).toBe("/api/auth/sign-out");
+      expect(path).toBe("/api/sign-out");
       expect(options.method).toBe("POST");
       expect(options.headers.Authorization).toBe("Bearer token-123");
       expect(options.body).toBeUndefined();

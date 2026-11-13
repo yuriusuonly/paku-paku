@@ -4,11 +4,11 @@ import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../network/middleware.js";
 import { getSession } from "../../../repositories/auth-repository.js";
-import { sessionResponse } from "../../../responses/auth-session.js";
+import { sessionResponse } from "../../../responses/session.js";
 
 /**
  * Current-session endpoint.
- * @module app/api/auth/session+api
+ * @module app/api/session/+api
  */
 
 const route = withMiddleware(

@@ -23,6 +23,6 @@ describe("network/http apiRequest", () => {
   test("returns null for 204 responses", async () => {
     globalThis.fetch = mock(async () => new Response(null, { status: 204 }));
     const { apiRequest } = await import("../../src/network/http.js");
-    expect(await apiRequest("/api/auth/sign-out", { method: "POST" })).toBeNull();
+    expect(await apiRequest("/api/sign-out", { method: "POST" })).toBeNull();
   });
 });

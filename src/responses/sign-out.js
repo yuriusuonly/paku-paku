@@ -1,8 +1,8 @@
 import { noContent } from "../network/response.js";
 
 /**
- * Response shaping for `POST /api/auth/sign-out`.
- * @module responses/auth-sign-out
+ * Response shaping for `POST /api/sign-out`.
+ * @module responses/sign-out
  */
 
 /**
