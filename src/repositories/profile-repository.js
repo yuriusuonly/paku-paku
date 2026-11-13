@@ -72,7 +72,7 @@ export async function listProfiles(database) {
   const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
-    .neq("email", "root@paku-paku")
+    .neq("email", "root@paku-paku.official")
     .order("email", { ascending: true });
 
   if (error) {

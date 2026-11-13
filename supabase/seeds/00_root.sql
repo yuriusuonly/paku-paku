@@ -1,4 +1,4 @@
--- Administrator account: email `root@paku-paku`, password `admin`.
+-- Administrator account: email `root@paku-paku.official`, password `admin`.
 -- The static bcrypt hash keeps the seed independent of pgcrypto. Re-running the
 -- seed restores this password, which is intended for local development.
 insert into auth.users (
@@ -27,11 +27,11 @@ values (
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  'root@paku-paku',
+  'root@paku-paku.official',
   '$2b$10$DKsSCmPnbsvDO/yC1MUYyuZJfhD3oh7MtVHAjvK0eeYsz4jnDFHI.',
   now(),
   '{"provider":"email","providers":["email"]}',
-  '{"email":"root@paku-paku"}',
+  '{"email":"root@paku-paku.official"}',
   now(),
   now(),
   '',
@@ -66,7 +66,7 @@ values (
   gen_random_uuid(),
   '00000000-0000-0000-0000-000000000000',
   '00000000-0000-0000-0000-000000000000',
-  '{"sub":"00000000-0000-0000-0000-000000000000","email":"root@paku-paku","email_verified":true,"phone_verified":false}',
+  '{"sub":"00000000-0000-0000-0000-000000000000","email":"root@paku-paku.official","email_verified":true,"phone_verified":false}',
   'email',
   now(),
   now(),
@@ -78,7 +78,7 @@ set
   updated_at = excluded.updated_at;
 
 insert into public.profiles (id, email, role)
-values ('00000000-0000-0000-0000-000000000000', 'root@paku-paku', 'admin')
+values ('00000000-0000-0000-0000-000000000000', 'root@paku-paku.official', 'admin')
 on conflict (id) do update
 set
   email = excluded.email,
