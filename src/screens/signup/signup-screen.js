@@ -8,18 +8,18 @@ import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 
 /**
- * Customer registration screen.
+ * Customer sign-up screen.
  * @module screens/signup/signup-screen
  */
 
 /**
- * Registration form.
+ * Sign-up form.
  *
- * @returns {JSX.Element} Register screen.
+ * @returns {JSX.Element} Sign-up screen.
  */
-export default function RegisterScreen() {
+export default function SignUpScreen() {
   const router = useRouter();
-  const register = useAuthStore((state) => state.register);
+  const signUp = useAuthStore((state) => state.signUp);
   const user = useAuthStore((state) => state.user);
   const status = useAuthStore((state) => state.status);
   const hydrated = useAuthStore((state) => state.hydrated);
@@ -49,7 +49,7 @@ export default function RegisterScreen() {
     }
 
     setSubmitting(true);
-    const result = await register({ username, password });
+    const result = await signUp({ username, password });
     setSubmitting(false);
 
     if (!result.ok) {
@@ -73,10 +73,10 @@ export default function RegisterScreen() {
           </Link>
 
           <Text className="font-outfit text-3xl md:text-4xl font-black tracking-tight text-[#161823]">
-            Create account
+            Sign up
           </Text>
           <Text className="font-outfit mt-3 text-base leading-relaxed text-[#161823]/70">
-            Register a customer account to sign in.
+            Sign up for a customer account to sign in.
           </Text>
 
           <View className="mt-8 gap-4">
@@ -101,7 +101,7 @@ export default function RegisterScreen() {
             <Alert variant="success" message={success} />
 
             <Button
-              label="Create account"
+              label="Sign up"
               onPress={onSubmit}
               loading={submitting || status === "loading"}
               className="mt-2"

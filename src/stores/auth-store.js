@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getSession, register as registerApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
+import { getSession, signUp as signUpApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 
 /**
  * Authentication/session store.
@@ -145,16 +145,16 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Registers a new customer account and persists the session when returned.
+   * Signs up a new customer account and persists the session when returned.
    *
-   * @param {{username: string, password: string}} credentials - Registration credentials.
+   * @param {{username: string, password: string}} credentials - Sign-up credentials.
    * @returns {Promise<{ok: boolean, error?: string}>} Result for the caller/UI.
    */
-  register: async (credentials) => {
+  signUp: async (credentials) => {
     set({ status: "loading", error: null });
 
     try {
-      const data = await registerApi(credentials);
+      const data = await signUpApi(credentials);
       if (data.session) {
         writeStoredSession(data.session);
         set({

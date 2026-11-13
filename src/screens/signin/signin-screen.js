@@ -102,8 +102,8 @@ export default function SignInScreen() {
 
           <View className="mt-6 flex-row items-center gap-2">
             <Text className="font-outfit text-sm text-[#161823]/70">Need an account?</Text>
-            <Link href="/register" asChild>
-              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Create one</Text>
+            <Link href="/signup" asChild>
+              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Sign up</Text>
             </Link>
           </View>
 

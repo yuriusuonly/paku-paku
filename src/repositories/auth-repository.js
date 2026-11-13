@@ -132,13 +132,13 @@ export async function authenticateAdmin(request) {
 }
 
 /**
- * Registers a new customer account and creates its profile.
+ * Signs up a new customer account and creates its profile.
  *
- * @param {{username: string, email: string, password: string}} input - Registration payload.
- * @returns {Promise<{user: object, session: object | null}>} Registration result.
+ * @param {{username: string, email: string, password: string}} input - Sign-up payload.
+ * @returns {Promise<{user: object, session: object | null}>} Sign-up result.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
-export async function register({ username, email, password }) {
+export async function signUp({ username, email, password }) {
   let supabase;
   try {
     supabase = createSupabaseServerClient();
@@ -161,12 +161,12 @@ export async function register({ username, email, password }) {
   if (error || !data.user) {
     const message = (error?.message || "").toLowerCase();
     if (error?.status === 429) {
-      throw tooManyRequests("rate_limited", "Too many registration attempts. Try again later.");
+      throw tooManyRequests("rate_limited", "Too many sign-up attempts. Try again later.");
     }
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
       throw badRequest("username_taken", "That username is already taken.");
     }
-    throw badGateway("registration_failed", "Could not create the account.", error);
+    throw badGateway("signup_failed", "Could not create the account.", error);
   }
 
   // If email confirmations are enabled, no session is returned; profile creation requires an authenticated session.

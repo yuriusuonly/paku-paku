@@ -2,8 +2,8 @@ import { badRequest } from "../errors/bad-request.js";
 import { readJsonBody } from "../network/request.js";
 
 /**
- * Request handling/validation for `POST /api/auth/register`.
- * @module requests/auth-register
+ * Request handling/validation for `POST /api/auth/signup`.
+ * @module requests/auth-signup
  */
 
 export const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;
@@ -26,13 +26,13 @@ export function loginEmailForUsername(username) {
 }
 
 /**
- * Parses and validates a registration request.
+ * Parses and validates a sign-up request.
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{username: string, password: string, email: string}>} Validated payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On invalid request.
  */
-export async function parseRegisterRequest(request) {
+export async function parseSignUpRequest(request) {
   const body = await readJsonBody(request);
 
   if (!body) {

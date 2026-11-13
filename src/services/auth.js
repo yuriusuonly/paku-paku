@@ -32,13 +32,13 @@ export function getSession(token) {
 }
 
 /**
- * Registers a new customer account.
+ * Signs up a new customer account.
  *
- * @param {{username: string, password: string}} credentials - Registration credentials.
- * @returns {Promise<{user: object, session?: object | null}>} Registration payload.
+ * @param {{username: string, password: string}} credentials - Sign-up credentials.
+ * @returns {Promise<{user: object, session?: object | null}>} Sign-up payload.
  */
-export function register(credentials) {
-  return apiRequest(api.endpoints.authRegister, {
+export function signUp(credentials) {
+  return apiRequest(api.endpoints.authSignUp, {
     method: "POST",
     body: credentials
   });
