@@ -51,6 +51,7 @@ export const cx = {
   bgPrimary: "bg-[#FE2C55]",
   bgInk: "bg-[#161823]",
   bgPrimarySoft: "bg-[#FE2C55]/10",
+  borderPrimary: "border-[#FE2C55]",
   borderPrimary20: "border-[#FE2C55]/20",
   borderPrimary30: "border-[#FE2C55]/30",
   textError: "text-[#9f1239]",

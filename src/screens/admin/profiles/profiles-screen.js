@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
@@ -33,13 +33,13 @@ function formatAuditTimestamp(value) {
 }
 
 const columns = [
+  { key: "select", label: "", width: 56 },
   { key: "username", label: "Username", width: 160 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
   { key: "id", label: "User ID", width: 320 },
   { key: "created_at", label: "Created at", width: 220 },
-  { key: "updated_at", label: "Updated at", width: 220 },
-  { key: "actions", label: "Actions", width: 170 }
+  { key: "updated_at", label: "Updated at", width: 220 }
 ];
 
 /**
@@ -67,6 +67,8 @@ export default function AdminProfilesScreen() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [localError, setLocalError] = useState("");
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
@@ -143,6 +145,49 @@ export default function AdminProfilesScreen() {
     }
   };
 
+  const toggleSelected = (id) => {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
+    );
+  };
+
+  const toggleSelectedActive = async () => {
+    if (!token || selectedIds.length === 0) return;
+    setLocalError("");
+    setBulkUpdating(true);
+    let updatedCount = 0;
+    const remaining = [...selectedIds];
+    try {
+      for (const id of selectedIds) {
+        const profile = profiles.find((item) => item.id === id);
+        if (!profile) {
+          remaining.shift();
+          continue;
+        }
+        if (profile.id === user?.id) {
+          remaining.shift();
+          continue;
+        }
+        await setProfileActive(token, profile.id, !profile.is_active);
+        updatedCount += 1;
+        remaining.shift();
+      }
+      setSelectedIds(remaining);
+      if (updatedCount > 0) {
+        showSuccess(`${updatedCount} profile${updatedCount === 1 ? "" : "s"} updated.`);
+      } else {
+        showError("No selected profiles could be updated.");
+      }
+    } catch (e) {
+      setSelectedIds(remaining);
+      const message = e?.message || "Could not update selected profiles. Please try again.";
+      setLocalError(message);
+      showError(message);
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   const showInitialLoading = loading && profiles.length === 0;
 
   return (
@@ -197,6 +242,19 @@ export default function AdminProfilesScreen() {
           <Text className={`font-outfit text-sm ${cx.textInk50}`}>
             {loading ? "Loading..." : syncing ? "Syncing changes..." : `${profiles.length} total`}
           </Text>
+        </View>
+
+        <View className="mb-3 flex-row items-center gap-3">
+          <Button
+            label="Toggle active"
+            variant="ghost"
+            onPress={toggleSelectedActive}
+            loading={bulkUpdating}
+            disabled={selectedIds.length === 0 || bulkUpdating}
+          />
+          {selectedIds.length > 0 ? (
+            <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
+          ) : null}
         </View>
 
         {showInitialLoading ? <CircularProgress message="Loading profiles..." /> : null}
@@ -255,14 +313,17 @@ export default function AdminProfilesScreen() {
                           style={{ width: column.width }}
                           className={`justify-center px-4 py-3 ${cellBorder}`}
                         >
-                          {column.key === "actions" ? (
-                            <Button
-                              label={isActive ? "Deactivate" : "Activate"}
-                              variant="ghost"
-                              onPress={() => toggleActive(profile)}
-                              loading={updatingId === profile.id}
-                              disabled={isSelf || updatingId === profile.id}
-                            />
+                          {column.key === "select" ? (
+                            <Pressable
+                              onPress={() => toggleSelected(profile.id)}
+                              accessibilityRole="checkbox"
+                              accessibilityState={{ checked: selectedIds.includes(profile.id) }}
+                              className={`h-5 w-5 items-center justify-center rounded border ${selectedIds.includes(profile.id) ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
+                            >
+                              {selectedIds.includes(profile.id) ? (
+                                <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                              ) : null}
+                            </Pressable>
                           ) : isRole || isStatus ? (
                             <View
                               className={`self-start rounded-full px-3 py-1 ${

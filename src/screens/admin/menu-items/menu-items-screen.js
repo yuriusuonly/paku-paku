@@ -20,13 +20,13 @@ import { cx } from "../../../shared/constants/theme.js";
 const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true };
 
 const columns = [
+  { key: "select", label: "", width: 56 },
   { key: "name", label: "Name", width: 180 },
   { key: "price_cents", label: "Price (cents)", width: 140 },
   { key: "sort_order", label: "Sort", width: 90 },
   { key: "is_available", label: "Available", width: 130 },
   { key: "description", label: "Description", width: 320 },
-  { key: "id", label: "Item ID", width: 320 },
-  { key: "actions", label: "Actions", width: 140 }
+  { key: "id", label: "Item ID", width: 320 }
 ];
 
 /**
@@ -95,7 +95,8 @@ export default function AdminMenuItemsScreen() {
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
 
@@ -228,19 +229,32 @@ export default function AdminMenuItemsScreen() {
     }
   };
 
-  const remove = async (id) => {
-    if (!token) return;
+  const toggleSelected = (id) => {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
+    );
+  };
+
+  const removeSelected = async () => {
+    if (!token || selectedIds.length === 0) return;
     setLocalError("");
-    setDeletingId(id);
+    setBulkDeleting(true);
+    let deletedCount = 0;
     try {
-      await removeItem(token, id);
-      showSuccess("Menu item deleted.");
+      for (const id of selectedIds) {
+        await removeItem(token, id);
+        deletedCount += 1;
+      }
+      setSelectedIds([]);
+      showSuccess(`${deletedCount} menu item${deletedCount === 1 ? "" : "s"} deleted.`);
     } catch (e) {
-      const message = e?.message || "Could not delete the menu item. Please try again.";
+      const remaining = selectedIds.slice(deletedCount);
+      setSelectedIds(remaining);
+      const message = e?.message || "Could not delete selected menu items. Please try again.";
       setLocalError(message);
       showError(message);
     } finally {
-      setDeletingId(null);
+      setBulkDeleting(false);
     }
   };
 
@@ -289,6 +303,19 @@ export default function AdminMenuItemsScreen() {
           </Text>
         </View>
 
+        <View className="mb-3 flex-row items-center gap-3">
+          <Button
+            label="Delete selected"
+            variant="ghost"
+            onPress={removeSelected}
+            loading={bulkDeleting}
+            disabled={selectedIds.length === 0 || bulkDeleting}
+          />
+          {selectedIds.length > 0 ? (
+            <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
+          ) : null}
+        </View>
+
         {showInitialLoading ? <CircularProgress message="Loading menu items..." /> : null}
 
         {!loading && !error && sorted.length === 0 ? (
@@ -335,16 +362,17 @@ export default function AdminMenuItemsScreen() {
                           style={{ width: column.width }}
                           className={`justify-center px-4 py-3 ${cellBorder}`}
                         >
-                          {column.key === "actions" ? (
-                            <View className="flex-row flex-wrap gap-2">
-                              <Button
-                                label="Delete"
-                                variant="ghost"
-                                onPress={() => remove(item.id)}
-                                loading={deletingId === item.id}
-                                disabled={deletingId === item.id}
-                              />
-                            </View>
+                          {column.key === "select" ? (
+                            <Pressable
+                              onPress={() => toggleSelected(item.id)}
+                              accessibilityRole="checkbox"
+                              accessibilityState={{ checked: selectedIds.includes(item.id) }}
+                              className={`h-5 w-5 items-center justify-center rounded border ${selectedIds.includes(item.id) ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
+                            >
+                              {selectedIds.includes(item.id) ? (
+                                <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                              ) : null}
+                            </Pressable>
                           ) : isStatus ? (
                             <Pressable
                               onPress={() => { void toggleAvailable(item); }}
