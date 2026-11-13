@@ -16,7 +16,7 @@ import { cx } from "../../shared/constants/theme.js";
  */
 
 /**
- * Small stat display inside the dashboard card.
+ * Small stat display inside a dashboard card.
  *
  * @param {{label: string, value: string | number, loading?: boolean}} props
  * @returns {JSX.Element}
@@ -101,7 +101,6 @@ export default function AdminScreen() {
 
   const menuBusy = menuLoading || menuSyncing;
   const profilesBusy = profilesLoading || profilesSyncing;
-  const isSyncing = menuBusy || profilesBusy;
   const menuCountLoading = menuLoading && menuItems.length === 0;
   const profileCountLoading = profilesLoading && profiles.length === 0;
 
@@ -116,28 +115,29 @@ export default function AdminScreen() {
           </Text>
         </View>
 
-        <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
-          <View className="mb-6 flex-row items-start justify-between gap-4">
-            <View className="flex-1">
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Live overview</Text>
-              <Text className={`font-outfit mt-2 text-sm ${cx.textInk70}`}>
-                Real-time counts for menu items and profiles.
-              </Text>
+        <View className="gap-6">
+          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
+            <View className="mb-4 flex-row items-start justify-between gap-4">
+              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
+              {menuBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
             </View>
-            {isSyncing ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
-          </View>
-
-          <View className="mb-6">
-            <Text className={`font-outfit mb-3 text-lg font-bold ${cx.textInk}`}>Menu items</Text>
             <View className="flex-row flex-wrap gap-3">
               <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
               <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
               <StatItem label="Hidden" value={menuStats.hidden} loading={menuCountLoading} />
             </View>
+            <View className="mt-6 flex-row justify-end">
+              <Link href="/admin/menu-items" asChild>
+                <Button label="Open menu items audit" />
+              </Link>
+            </View>
           </View>
 
-          <View className="mb-6">
-            <Text className={`font-outfit mb-3 text-lg font-bold ${cx.textInk}`}>Profiles</Text>
+          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
+            <View className="mb-4 flex-row items-start justify-between gap-4">
+              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
+              {profilesBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
+            </View>
             <View className="flex-row flex-wrap gap-3">
               <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
               <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
@@ -145,12 +145,11 @@ export default function AdminScreen() {
               <StatItem label="Admins" value={profileStats.admins} loading={profileCountLoading} />
               <StatItem label="Customers" value={profileStats.customers} loading={profileCountLoading} />
             </View>
-          </View>
-
-          <View className="flex-row justify-end">
-            <Link href="/admin/menu-items" asChild>
-              <Button label="Open menu items audit" />
-            </Link>
+            <View className="mt-6 flex-row justify-end">
+              <Link href="/admin/profiles" asChild>
+                <Button label="Open profiles audit" />
+              </Link>
+            </View>
           </View>
         </View>
       </ScrollView>
