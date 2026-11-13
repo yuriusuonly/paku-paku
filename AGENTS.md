@@ -22,7 +22,8 @@
 ## Project structure / conventions
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `+not-found.js`, `+html.js`). Screens live under `src/screens/`; the home screen is `src/screens/root.js`.
-- Shared modules live under `src/shared/`: `config.js` (client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client selector), `api.js` (response helpers), `api-auth.js` (auth/profile/role helpers).
+- Shared modules live under `src/shared/`: `config.js` (client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers).
+- API business logic lives under `src/services/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the service/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, call services, map results to responses).
 - Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`R0.t`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.

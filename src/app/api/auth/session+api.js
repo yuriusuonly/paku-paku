@@ -1,9 +1,8 @@
-import { jsonResponse, methodNotAllowed } from "../../../shared/api.js";
-import { authenticateRequest, publicProfile } from "../../../shared/api-auth.js";
+import { errorResponse, jsonResponse, methodNotAllowed } from "../../../shared/api.js";
+import { getSession } from "../../../services/auth-service.js";
 
 /**
- * Current-session endpoint (`src/app/api/auth/session+api.js`): validates the
- * bearer token and returns the caller's public profile.
+ * Current-session endpoint: validates bearer token and returns the profile.
  * @module app/api/auth/session+api
  */
 
@@ -11,18 +10,16 @@ import { authenticateRequest, publicProfile } from "../../../shared/api-auth.js"
  * GET handler for `/api/auth/session`.
  *
  * @param {Request} request - Incoming request with an `Authorization: Bearer <token>` header.
- * @returns {Promise<Response>} The authenticated profile, or a standardized 401/403 error.
+ * @returns {Promise<Response>} Authenticated profile or an error response.
  */
 export async function GET(request) {
-  const auth = await authenticateRequest(request);
+  const result = await getSession(request);
 
-  if (auth.error) {
-    return auth.error;
+  if (!result.ok) {
+    return errorResponse(result.status, result.code, result.message);
   }
 
-  return jsonResponse({
-    user: publicProfile(auth.profile)
-  });
+  return jsonResponse(result.data);
 }
 
 /**

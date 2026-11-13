@@ -265,9 +265,12 @@ containers themselves are not part of the app compose stack. |
 │   │   └── service-worker.js+api.js
 │   ├── screens/
 │   │   └── root.js
+│   ├── services/
+│   │   ├── auth-service.js
+│   │   ├── menu-service.js
+│   │   └── profile-service.js
 │   ├── shared/
 │   │   ├── api.js
-│   │   ├── api-auth.js
 │   │   ├── config.js
 │   │   ├── supabase.js
 │   │   └── supabase-server.js

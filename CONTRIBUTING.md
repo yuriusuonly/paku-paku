@@ -66,9 +66,10 @@ flowchart TD
 
 ### API routes & auth
 
-- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`).
-- Server routes must create request-scoped clients via `src/shared/supabase-server.js` (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.
-- Use `src/shared/api.js` for JSON/no-store responses and `src/shared/api-auth.js` for bearer auth, profile loading, and admin checks. Usernames are public; the internal Auth email (`<username>@paku-paku.local`) is never exposed.
+- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`). Routes are the HTTP/controller layer: parse input, call services, and map service results to responses.
+- Put API business/use-case logic in `src/services/` (`auth-service.js`, `menu-service.js`, `profile-service.js`). Services own auth/profile/menu workflows and data access coordination; they return transport-agnostic results.
+- Use `src/shared/supabase-server.js` as server-side Supabase infrastructure (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.
+- Use `src/shared/api.js` for JSON/no-store responses and request parsing. Usernames are public; the internal Auth email (`<username>@paku-paku.local`) is never exposed.
 - Never put a service-role key in client or server route code; server routes use the anon key plus forwarded user tokens so RLS applies. |
 
 ```mermaid

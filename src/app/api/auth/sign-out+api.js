@@ -1,9 +1,8 @@
-import { errorResponse, getBearerToken, methodNotAllowed } from "../../../shared/api.js";
-import { getSupabaseServerConfig } from "../../../shared/supabase-server.js";
+import { errorResponse, methodNotAllowed } from "../../../shared/api.js";
+import { signOut } from "../../../services/auth-service.js";
 
 /**
- * Sign-out endpoint (`src/app/api/auth/sign-out+api.js`): revokes the current
- * session in GoTrue. Sign-out is idempotent from the client's perspective.
+ * Sign-out endpoint: revokes the current session in GoTrue.
  * @module app/api/auth/sign-out+api
  */
 
@@ -11,40 +10,13 @@ import { getSupabaseServerConfig } from "../../../shared/supabase-server.js";
  * POST handler for `/api/auth/sign-out`.
  *
  * @param {Request} request - Incoming request with an `Authorization: Bearer <token>` header.
- * @returns {Promise<Response>} `204 No Content` when the session is revoked or already invalid.
+ * @returns {Promise<Response>} `204 No Content` on success, or an error response.
  */
 export async function POST(request) {
-  const token = getBearerToken(request);
+  const result = await signOut(request);
 
-  if (!token) {
-    return errorResponse(401, "unauthorized", "Missing bearer token.");
-  }
-
-  let config;
-  try {
-    config = getSupabaseServerConfig();
-  } catch {
-    return errorResponse(503, "supabase_unconfigured", "Supabase is not configured for server routes.");
-  }
-
-  try {
-    const response = await fetch(`${config.url}/auth/v1/logout?scope=global`, {
-      method: "POST",
-      headers: {
-        apikey: config.anonKey,
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: "{}"
-    });
-
-    // 401 means the token was already invalid, which is still a successful
-    // sign-out for the caller. Other upstream failures are reported as 502.
-    if (!response.ok && response.status !== 401) {
-      return errorResponse(502, "sign_out_failed", "Could not revoke the session.");
-    }
-  } catch {
-    return errorResponse(502, "sign_out_failed", "Could not revoke the session.");
+  if (!result.ok) {
+    return errorResponse(result.status, result.code, result.message);
   }
 
   return new Response(null, {
