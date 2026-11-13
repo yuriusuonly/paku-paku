@@ -311,6 +311,15 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── database-upstream.js
 │   │   ├── too-many-requests.js
 │   │   └── unauthorized.js
+│   ├── endpoints/
+│   │   ├── admin-profiles.js
+│   │   ├── health.js
+│   │   ├── menu-item.js
+│   │   ├── menu-items.js
+│   │   ├── session.js
+│   │   ├── sign-in.js
+│   │   ├── sign-out.js
+│   │   └── sign-up.js
 │   ├── interceptors/
 │   │   ├── authentication-interceptor.js
 │   │   ├── authorization-interceptor.js

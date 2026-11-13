@@ -51,7 +51,8 @@ flowchart TD
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create API routes with Expo Router `+api` naming. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/menu-items/[id]+api.js`. Use `export function GET()` (and other HTTP verbs when needed), receiving a web `Request` and returning a `Response`.
+1. Create an endpoint composition module in `src/endpoints/` that wires the middleware pipeline (`src/network/middleware.js`, `src/interceptors/*`), request validation (`src/requests/*`), repositories (`src/repositories/*`), and response shaping (`src/responses/*`), and export the HTTP method handlers.
+2. Create a thin Expo Router `+api` wrapper under `src/app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/menu-items/[id]+api.js`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
 
