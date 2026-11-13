@@ -369,8 +369,7 @@ containers themselves are not part of the app compose stack. |
 │   │   │   ├── too-many-requests.js
 │   │   │   └── unauthorized.js
 │   │   └── network/
-│   │       ├── context.js
-│   │       ├── transport.js
+│   │   │       ├── transport.js
 │   │       ├── middleware.js
 │   │       ├── request.js
 │   │       └── response.js

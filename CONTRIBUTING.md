@@ -93,7 +93,7 @@ flowchart LR
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
-- **`src/interceptors/`**: cross-cutting interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/network/middleware.js` and request context from `src/shared/network/context.js`.
+- **`src/interceptors/`**: cross-cutting interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/network/middleware.js` and request context from `src/shared/network/request.js`.
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
 
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
