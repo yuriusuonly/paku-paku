@@ -80,7 +80,7 @@ export const useProfilesStore = create((set, get) => ({
       if (data?.profile) {
         set((s) => ({ profiles: upsertProfile(s.profiles, data.profile) }));
       }
-      return data?.profile;
+      return data;
     } catch (error) {
       const message = friendlyError(error, "Could not create the user. Please try again.");
       set({ error: message });

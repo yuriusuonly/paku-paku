@@ -72,6 +72,7 @@ export default function AdminProfilesScreen() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
+  const [createdRecoveryCode, setCreatedRecoveryCode] = useState("");
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -101,6 +102,7 @@ export default function AdminProfilesScreen() {
   const saveUser = async () => {
     if (!token) return;
     setLocalError("");
+    setCreatedRecoveryCode("");
     const email = form.email.trim().toLowerCase();
     const password = form.password;
     const emailError = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -113,9 +115,10 @@ export default function AdminProfilesScreen() {
     setFieldErrors({ email: false, password: false });
     setSaving(true);
     try {
-      await createUser(token, { email, password });
+      const data = await createUser(token, { email, password });
       setForm(emptyForm);
       setFieldErrors({ email: false, password: false });
+      setCreatedRecoveryCode(data?.recovery_code || "");
       showSuccess("User created.");
     } catch (e) {
       const message = e?.message || "Could not create the user. Please try again.";
@@ -125,6 +128,18 @@ export default function AdminProfilesScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const copyCreatedRecoveryCode = async () => {
+    if (!createdRecoveryCode) return;
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(createdRecoveryCode);
+        showSuccess("Recovery code copied.");
+        return;
+      }
+    } catch {}
+    showError("Could not copy the recovery code. Please copy it manually.");
   };
 
   const toggleActive = async (profile) => {
@@ -242,8 +257,21 @@ export default function AdminProfilesScreen() {
           />
           <View className="flex-row items-center gap-3">
             <Button label="Create user" onPress={saveUser} loading={saving} />
-            <Button label="Clear" variant="ghost" onPress={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); }} />
+            <Button label="Clear" variant="ghost" onPress={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); setCreatedRecoveryCode(""); }} />
           </View>
+          {createdRecoveryCode ? (
+            <View className={`mt-2 gap-2 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
+                Recovery code (show once)
+              </Text>
+              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
+                {createdRecoveryCode}
+              </Text>
+              <Pressable onPress={copyCreatedRecoveryCode} className="self-start">
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </View>
 
         <View className="mt-8 mb-3 flex-row items-center justify-between">
