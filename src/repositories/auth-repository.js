@@ -1,8 +1,8 @@
 import { getBearerToken } from "../network/request.js";
 import { badRequest } from "../errors/bad-request.js";
 import { forbidden } from "../errors/forbidden.js";
-import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
-import { supabaseUpstream } from "../errors/supabase-upstream.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { databaseUpstream } from "../errors/database-upstream.js";
 import { tooManyRequests } from "../errors/too-many-requests.js";
 import { unauthorized } from "../errors/unauthorized.js";
 import {
@@ -28,7 +28,7 @@ export async function signIn({ email, password }) {
   try {
     database = createDatabaseClient();
   } catch (error) {
-    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
   }
 
   const { data, error } = await database.auth.signInWithPassword({ email, password });
@@ -75,7 +75,7 @@ export async function authenticate(request) {
   try {
     database = createDatabaseClient({ accessToken: token });
   } catch (error) {
-    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
   }
 
   const { data: userData, error: userError } = await database.auth.getUser(token);
@@ -135,10 +135,10 @@ export async function signUp({ username, email, password }) {
   try {
     database = createDatabaseClient();
   } catch (error) {
-    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
   }
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await database.auth.signUp({
     email,
     password,
     options: {
@@ -154,7 +154,7 @@ export async function signUp({ username, email, password }) {
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
       throw badRequest("username_taken", "That username is already taken.");
     }
-    throw supabaseUpstream("signup_failed", "Could not create the account.", error);
+    throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }
 
   // If email confirmations are enabled, no session is returned; profile creation requires an authenticated session.
@@ -173,7 +173,7 @@ export async function signUp({ username, email, password }) {
     .single();
 
   if (profileError || !profile) {
-    throw supabaseUpstream("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
+    throw databaseUpstream("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
   }
 
   return {
@@ -206,7 +206,7 @@ export async function signOut(request) {
   try {
     config = getDatabaseServerConfig();
   } catch (error) {
-    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
   }
 
   try {
@@ -221,12 +221,12 @@ export async function signOut(request) {
     });
 
     if (!response.ok && response.status !== 401) {
-      throw supabaseUpstream("sign_out_failed", "Could not revoke the session.");
+      throw databaseUpstream("sign_out_failed", "Could not revoke the session.");
     }
   } catch (error) {
     if (error && error.isAppError) {
       throw error;
     }
-    throw supabaseUpstream("sign_out_failed", "Could not revoke the session.", error);
+    throw databaseUpstream("sign_out_failed", "Could not revoke the session.", error);
   }
 }

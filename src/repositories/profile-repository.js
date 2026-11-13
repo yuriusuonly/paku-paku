@@ -1,4 +1,4 @@
-import { supabaseUpstream } from "../errors/supabase-upstream.js";
+import { databaseUpstream } from "../errors/database-upstream.js";
 import { forbidden } from "../errors/forbidden.js";
 import { internalError } from "../errors/internal.js";
 
@@ -64,13 +64,13 @@ export async function findProfileByUserId(database, userId) {
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On query failure.
  */
 export async function listProfiles(database) {
-  const { data, error } = await supabase
+  const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
     .order("username", { ascending: true });
 
   if (error) {
-    throw supabaseUpstream("profiles_unavailable", "Could not load profiles.", error);
+    throw databaseUpstream("profiles_unavailable", "Could not load profiles.", error);
   }
 
   return {

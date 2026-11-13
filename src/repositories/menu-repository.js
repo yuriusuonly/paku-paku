@@ -1,7 +1,7 @@
 import { badRequest } from "../errors/bad-request.js";
 import { notFound } from "../errors/not-found.js";
-import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
-import { supabaseUpstream } from "../errors/supabase-upstream.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { databaseUpstream } from "../errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
 
 /**
@@ -14,7 +14,7 @@ const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort
 /**
  * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.
  * @returns {import("../database/instance.js").DatabaseClient} Resolved client.
- * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When Supabase is unavailable.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When the database is unavailable.
  */
 function resolveClient(client) {
   if (client) {
@@ -23,7 +23,7 @@ function resolveClient(client) {
   try {
     return createDatabaseClient();
   } catch (error) {
-    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
   }
 }
 
@@ -42,7 +42,7 @@ export async function listMenuItems(client) {
     .order("sort_order", { ascending: true });
 
   if (error) {
-    throw supabaseUpstream("menu_unavailable", "Could not load the menu.", error);
+    throw databaseUpstream("menu_unavailable", "Could not load the menu.", error);
   }
 
   return { items: data || [] };
@@ -65,7 +65,7 @@ export async function createMenuItem(client, input) {
     .single();
 
   if (error) {
-    throw supabaseUpstream("menu_item_create_failed", "Could not create the menu item.", error);
+    throw databaseUpstream("menu_item_create_failed", "Could not create the menu item.", error);
   }
 
   return { item: data };
@@ -100,7 +100,7 @@ export async function updateMenuItem(client, id, input) {
     if (error.code === "PGRST116") {
       throw notFound("menu_item_not_found", "Menu item not found.");
     }
-    throw supabaseUpstream("menu_item_update_failed", "Could not update the menu item.", error);
+    throw databaseUpstream("menu_item_update_failed", "Could not update the menu item.", error);
   }
 
   return { item: data };
@@ -131,7 +131,7 @@ export async function deleteMenuItem(client, id) {
     if (error.code === "PGRST116") {
       throw notFound("menu_item_not_found", "Menu item not found.");
     }
-    throw supabaseUpstream("menu_item_delete_failed", "Could not delete the menu item.", error);
+    throw databaseUpstream("menu_item_delete_failed", "Could not delete the menu item.", error);
   }
 
   return { id: data.id };

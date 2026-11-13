@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
-import { supabase as databaseConfig } from "../shared/config.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { database as databaseConfig } from "../shared/config.js";
 
 /**
  * Database client instance and runtime selection.
@@ -33,7 +33,7 @@ export function getDatabaseClient() {
   if (!databaseConfig.url || !databaseConfig.anonKey) {
     const environment = databaseConfig.isHosted ? "hosted" : "local";
     const prefix = databaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
-    throw supabaseUnconfigured(
+    throw databaseUnconfigured(
       `Database ${environment} environment is not configured. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
     );
   }
@@ -60,7 +60,7 @@ export function getDatabaseServerConfig() {
   if (!databaseConfig.serverUrl || !databaseConfig.serverAnonKey) {
     const environment = databaseConfig.isHosted ? "hosted" : "local";
     const prefix = databaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
-    throw supabaseUnconfigured(
+    throw databaseUnconfigured(
       `Database ${environment} environment is not configured for server routes. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
     );
   }

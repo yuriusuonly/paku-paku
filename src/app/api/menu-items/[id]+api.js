@@ -21,7 +21,7 @@ const PATCH = withMiddleware(
 )(async (context) => {
   const input = await parseUpdateMenuItemRequest(context.request);
   return menuItemResponse(
-    await updateMenuItem(context.locals.auth.supabase, context.params.id, input)
+    await updateMenuItem(context.locals.auth.database, context.params.id, input)
   );
 });
 
@@ -32,7 +32,7 @@ const DELETE = withMiddleware(
   authorizationInterceptor
 )(async (context) =>
   menuItemDeletedResponse(
-    await deleteMenuItem(context.locals.auth.supabase, context.params.id)
+    await deleteMenuItem(context.locals.auth.database, context.params.id)
   )
 );
 

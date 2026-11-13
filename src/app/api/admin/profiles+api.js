@@ -16,6 +16,6 @@ const route = withMiddleware(
   errorInterceptor,
   methodInterceptor("GET"),
   authorizationInterceptor
-)(async (context) => adminProfilesResponse(await listProfiles(context.locals.auth.supabase)));
+)(async (context) => adminProfilesResponse(await listProfiles(context.locals.auth.database)));
 
 export { route as GET, route as POST };

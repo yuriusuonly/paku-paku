@@ -1,6 +1,6 @@
 /**
  * Application configuration composed from environment variables.
- * This module is the single source of truth for app, API, and Supabase settings.
+ * This module is the single source of truth for app, API, and database settings.
  * @module shared/config
  */
 
@@ -21,12 +21,12 @@
  */
 
 /**
- * @typedef {object} SupabaseConfig
+ * @typedef {object} DatabaseConfig
  * @property {string} target - `local` or `hosted`.
  * @property {boolean} isHosted - Whether target is hosted.
- * @property {string | undefined} url - Client-facing Supabase API URL for selected target.
+ * @property {string | undefined} url - Client-facing database API URL for selected target.
  * @property {string | undefined} anonKey - Client-facing anon key for selected target.
- * @property {string | undefined} serverUrl - Server-side Supabase API URL for selected target.
+ * @property {string | undefined} serverUrl - Server-side database API URL for selected target.
  * @property {string | undefined} serverAnonKey - Server-side anon key for selected target.
  */
 
@@ -36,12 +36,12 @@
  * @property {string | undefined} description
  * @property {string | undefined} version
  * @property {ApiConfig} api
- * @property {SupabaseConfig} supabase
+ * @property {DatabaseConfig} database
  */
 
 const apiBasePath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "/api";
-const supabaseTarget = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted" ? "hosted" : "local";
-const isHosted = supabaseTarget === "hosted";
+const databaseTarget = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted" ? "hosted" : "local";
+const isHosted = databaseTarget === "hosted";
 
 /**
  * Centralized API configuration.
@@ -64,12 +64,12 @@ export const api = {
 const runningInDocker = process.env.RUNNING_IN_DOCKER === "1";
 
 /**
- * Centralized Supabase configuration.
+ * Centralized database configuration.
  *
- * @type {SupabaseConfig}
+ * @type {DatabaseConfig}
  */
-export const supabase = {
-  target: supabaseTarget,
+export const database = {
+  target: databaseTarget,
   isHosted,
   url: isHosted ? process.env.EXPO_PUBLIC_SUPABASE_URL : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL,
   anonKey: isHosted
@@ -95,7 +95,7 @@ const config = {
   description: process.env.EXPO_PUBLIC_DESCRIPTION,
   version: process.env.EXPO_PUBLIC_VERSION,
   api,
-  supabase
+  database
 };
 
 export default config;

@@ -19,7 +19,7 @@ const GET = withMiddleware(
   errorInterceptor,
   methodInterceptor("GET"),
   authenticationInterceptor
-)(async (context) => menuItemsResponse(await listMenuItems(context.locals.auth.supabase)));
+)(async (context) => menuItemsResponse(await listMenuItems(context.locals.auth.database)));
 
 const POST = withMiddleware(
   logInterceptor,
@@ -28,7 +28,7 @@ const POST = withMiddleware(
   authorizationInterceptor
 )(async (context) => {
   const input = await parseCreateMenuItemRequest(context.request);
-  return menuItemCreatedResponse(await createMenuItem(context.locals.auth.supabase, input));
+  return menuItemCreatedResponse(await createMenuItem(context.locals.auth.database, input));
 });
 
 export { GET, POST };
