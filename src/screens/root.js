@@ -95,12 +95,11 @@ export default function HomeScreen() {
           <>
             <View className="mb-4 flex-row items-end justify-between">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
-              <View className="flex-row items-center gap-2">
-                {syncing && !loading ? <CircularProgress size="small" /> : null}
-                <Text className={`font-outfit text-sm ${cx.textInk50}`}>
-                  {loading ? "Loading..." : syncing ? "Updating..." : `${items.length} items`}
-                </Text>
-              </View>
+              {loading || syncing ? (
+                <CircularProgress size="small" />
+              ) : (
+                <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
+              )}
             </View>
 
             {error ? <Alert variant="error" message={error} /> : null}

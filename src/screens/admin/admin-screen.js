@@ -51,13 +51,11 @@ export default function AdminScreen() {
 
   const menuItems = useMenuStore((s) => s.items);
   const menuLoading = useMenuStore((s) => s.loading);
-  const menuSyncing = useMenuStore((s) => s.syncing);
   const fetchMenuItems = useMenuStore((s) => s.fetchItems);
   const subscribeMenu = useMenuStore((s) => s.subscribe);
 
   const profiles = useProfilesStore((s) => s.profiles);
   const profilesLoading = useProfilesStore((s) => s.loading);
-  const profilesSyncing = useProfilesStore((s) => s.syncing);
   const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
   const subscribeProfiles = useProfilesStore((s) => s.subscribe);
 
@@ -101,8 +99,6 @@ export default function AdminScreen() {
     );
   }
 
-  const menuBusy = menuLoading || menuSyncing;
-  const profilesBusy = profilesLoading || profilesSyncing;
   const menuCountLoading = menuLoading && menuItems.length === 0;
   const profileCountLoading = profilesLoading && profiles.length === 0;
 
@@ -119,9 +115,8 @@ export default function AdminScreen() {
 
         <View className="gap-6">
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
-            <View className="mb-4 flex-row items-start justify-between gap-4">
+            <View className="mb-4">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
-              {menuBusy ? <CircularProgress size="small" /> : null}
             </View>
             <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
@@ -138,9 +133,8 @@ export default function AdminScreen() {
           </View>
 
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
-            <View className="mb-4 flex-row items-start justify-between gap-4">
+            <View className="mb-4">
               <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
-              {profilesBusy ? <CircularProgress size="small" /> : null}
             </View>
             <View className="flex-row flex-wrap gap-x-6 gap-y-4">
               <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
