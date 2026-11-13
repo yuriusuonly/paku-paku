@@ -78,7 +78,7 @@ export default function AdminProfilesScreen() {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!isAdmin) router.replace(status === "authenticated" ? "/" : "/signin");
+    if (!isAdmin) router.replace(status === "authenticated" ? "/menu" : "/signin");
   }, [hydrated, isAdmin, status, router]);
 
   useEffect(() => {

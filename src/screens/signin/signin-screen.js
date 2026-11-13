@@ -35,7 +35,7 @@ export default function SignInScreen() {
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
-      router.replace(user.role === "admin" ? "/admin" : "/");
+      router.replace(user.role === "admin" ? "/admin" : "/menu");
     }
   }, [hydrated, status, user, router]);
 

@@ -38,7 +38,7 @@ export default function SignUpScreen() {
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
-      router.replace("/");
+      router.replace("/menu");
     }
   }, [hydrated, status, user, router]);
 
