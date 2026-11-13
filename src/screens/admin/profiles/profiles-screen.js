@@ -11,9 +11,30 @@ import { useProfilesStore } from "../../../stores/profiles-store.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Admin profiles management/audit screen.
+ * Admin profiles audit screen.
  * @module screens/admin/profiles/profiles-screen
  */
+
+/**
+ * Formats an ISO timestamp for display.
+ *
+ * @param {string | null | undefined} value - Timestamp value.
+ * @returns {string} Formatted timestamp or placeholder.
+ */
+function formatAuditTimestamp(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleString();
+}
+
+const columns = [
+  { key: "username", label: "Username", width: 160 },
+  { key: "role", label: "Role", width: 110 },
+  { key: "id", label: "User ID", width: 320 },
+  { key: "created_at", label: "Created at", width: 220 },
+  { key: "updated_at", label: "Updated at", width: 220 }
+];
 
 /**
  * @returns {JSX.Element} Admin profiles screen.
@@ -45,7 +66,9 @@ export default function AdminProfilesScreen() {
     if (!hydrated || !isAdmin || !token) return;
     void fetchProfiles(token).catch(() => {});
     subscribe();
-    return () => { void unsubscribe(); };
+    return () => {
+      void unsubscribe();
+    };
   }, [hydrated, isAdmin, token, fetchProfiles, subscribe, unsubscribe]);
 
   if (!hydrated || !isAdmin) {
@@ -63,11 +86,17 @@ export default function AdminProfilesScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
         <View className="mb-6 flex-row items-end justify-between">
-          <View>
-            <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Profiles management</Text>
-            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Profile data stays reactive and syncs in real time when changes occur.</Text>
+          <View className="flex-1 pr-4">
+            <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
+              Profiles audit
+            </Text>
+            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+              Audit profile fields in real time. Changes sync automatically.
+            </Text>
           </View>
-          <Link href="/admin" asChild><Button label="Back" variant="ghost" /></Link>
+          <Link href="/admin" asChild>
+            <Button label="Back" variant="ghost" />
+          </Link>
         </View>
 
         <Alert variant="error" message={error} />
@@ -89,20 +118,73 @@ export default function AdminProfilesScreen() {
         ) : null}
 
         {profiles.length > 0 ? (
-          <View className={`gap-3 ${syncing ? "opacity-80" : "opacity-100"}`}>
-            {profiles.map((profile) => (
-              <View key={profile.id} className={`flex-row items-center justify-between rounded-2xl border ${cx.borderSubtle} ${cx.bgSurface} px-4 py-4`}>
-                <View>
-                  <Text className={`font-outfit text-base font-bold ${cx.textInk}`}>{profile.username}</Text>
-                  <Text className={`font-outfit mt-1 text-xs ${cx.textInk50}`}>{profile.id}</Text>
-                  <Text className={`font-outfit mt-1 text-xs ${cx.textInk50}`}>Created: {profile.created_at || "-"}</Text>
-                </View>
-                <View className={`rounded-full px-3 py-1 ${profile.role === "admin" ? "${cx.bgPrimarySoft}" : "${cx.bgSurfaceMuted}"}`}>
-                  <Text className={`font-outfit text-xs font-semibold uppercase ${profile.role === "admin" ? "${cx.textPrimary}" : "${cx.textInk70}"}`}>{profile.role}</Text>
-                </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator
+            className={`${syncing ? "opacity-80" : "opacity-100"}`}
+          >
+            <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
+              <View className={`flex-row ${cx.bgSurfaceSoft}`}>
+                {columns.map((column, index) => (
+                  <View
+                    key={column.key}
+                    style={{ width: column.width }}
+                    className={`px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
+                  >
+                    <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                      {column.label}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
+
+              {profiles.map((profile, rowIndex) => (
+                <View
+                  key={profile.id}
+                  className={`flex-row ${rowIndex < profiles.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
+                >
+                  {columns.map((column, index) => {
+                    const rawValue = profile[column.key];
+                    const displayValue =
+                      column.key === "created_at" || column.key === "updated_at"
+                        ? formatAuditTimestamp(rawValue)
+                        : rawValue ?? "-";
+
+                    const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
+                    const isRole = column.key === "role";
+                    const isAdminRole = isRole && rawValue === "admin";
+
+                    return (
+                      <View
+                        key={`${profile.id}-${column.key}`}
+                        style={{ width: column.width }}
+                        className={`justify-center px-4 py-3 ${cellBorder}`}
+                      >
+                        {isRole ? (
+                          <View
+                            className={`self-start rounded-full px-3 py-1 ${isAdminRole ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
+                          >
+                            <Text
+                              className={`font-outfit text-xs font-semibold uppercase ${isAdminRole ? cx.textPrimary : cx.textInk70}`}
+                            >
+                              {String(displayValue)}
+                            </Text>
+                          </View>
+                        ) : (
+                          <Text
+                            selectable
+                            className={`font-outfit text-sm ${column.key === "username" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
+                          >
+                            {String(displayValue)}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+          </ScrollView>
         ) : null}
       </ScrollView>
     </ScreenContainer>
