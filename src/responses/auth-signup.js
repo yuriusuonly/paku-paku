@@ -1,5 +1,5 @@
 import { jsonResponse } from "../network/response.js";
-import { HTTP_STATUS } from "../network/http.js";
+import { HTTP_STATUS } from "../network/status.js";
 
 /**
  * Response shaping for `POST /api/auth/signup`.

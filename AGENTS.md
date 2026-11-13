@@ -30,7 +30,7 @@
   - `src/services/` — client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`).
   - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
   - `src/errors/` — one module per error type (error class and factory per file) plus `normalize.js`.
-  - `src/network/` — network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` HTTP utilities/constants and client transport).
+  - `src/network/` — network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` client transport, `status.js` HTTP status constants).
   - `src/cipher/` — cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
   - `src/shared/` — cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
