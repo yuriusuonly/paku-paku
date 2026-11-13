@@ -120,7 +120,7 @@ export default function AdminScreen() {
             <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
             <StatItem label="Unavailable" value={menuStats.unavailable} loading={menuCountLoading} />
           </View>
-          <View className="mt-6">
+          <View className="mt-6 items-start">
             <Link href="/admin/menu-items" asChild>
               <Pressable>
                 <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open menu items audit →</Text>
@@ -138,7 +138,7 @@ export default function AdminScreen() {
             <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
             <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
           </View>
-          <View className="mt-6">
+          <View className="mt-6 items-start">
             <Link href="/admin/profiles" asChild>
               <Pressable>
                 <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open profiles audit →</Text>

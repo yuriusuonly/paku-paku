@@ -3,6 +3,7 @@ import { Link, useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
+import { EmptyState } from "../../../components/empty-state.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
@@ -317,7 +318,7 @@ export default function AdminMenuItemsScreen() {
         <Header />
         <View className="mb-6">
           <Link href="/admin" asChild>
-            <Text className={`font-outfit mb-4 text-sm font-semibold ${cx.textPrimary}`}>
+            <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>
               ← Back to admin
             </Text>
           </Link>
@@ -358,12 +359,12 @@ export default function AdminMenuItemsScreen() {
               setForm((f) => ({ ...f, price_cents: v }));
               if (fieldErrors.price_cents) setFieldErrors((current) => ({ ...current, price_cents: false }));
             }}
-            placeholder="650"
+            placeholder="0"
             keyboardType="numeric"
             error={fieldErrors.price_cents}
           />
           <TextField
-            label="Sort order (optional)"
+            label="Sort order"
             value={form.sort_order}
             onChangeText={(v) => {
               setForm((f) => ({ ...f, sort_order: v }));
@@ -405,7 +406,7 @@ export default function AdminMenuItemsScreen() {
         {showInitialLoading ? <CircularProgress message="Loading menu items..." /> : null}
 
         {!loading && !error && sorted.length === 0 ? (
-          <Alert variant="info" message="No menu items yet. Create one above to get started." />
+          <EmptyState message="No menu items yet. Create one above to get started." />
         ) : null}
 
         {sorted.length > 0 ? (

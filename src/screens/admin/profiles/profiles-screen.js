@@ -3,6 +3,7 @@ import { Link, useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
+import { EmptyState } from "../../../components/empty-state.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
@@ -198,7 +199,7 @@ export default function AdminProfilesScreen() {
         <Header />
         <View className="mb-6">
           <Link href="/admin" asChild>
-            <Text className={`font-outfit mb-4 text-sm font-semibold ${cx.textPrimary}`}>
+            <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>
               ← Back to admin
             </Text>
           </Link>
@@ -270,7 +271,7 @@ export default function AdminProfilesScreen() {
         {showInitialLoading ? <CircularProgress message="Loading profiles..." /> : null}
 
         {!loading && !error && profiles.length === 0 ? (
-          <Alert variant="info" message="No profiles found." />
+          <EmptyState message="No profiles found." />
         ) : null}
 
         {profiles.length > 0 ? (
