@@ -305,12 +305,14 @@ export default function AdminMenuItemsScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
-        <View className="mb-6 flex-row items-end justify-between">
-          <View>
-            <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Menu items management</Text>
-            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Edit table fields directly. Changes sync in real time across open screens and devices.</Text>
-          </View>
-          <Link href="/admin" asChild><Button label="Back" variant="ghost" /></Link>
+        <View className="mb-6">
+          <Link href="/admin" asChild>
+            <Text className={`font-outfit mb-4 text-sm font-semibold ${cx.textPrimary}`}>
+              ← Back to admin
+            </Text>
+          </Link>
+          <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Menu items management</Text>
+          <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Edit table fields directly. Changes sync in real time across open screens and devices.</Text>
         </View>
 
         <Alert variant="error" message={localError || error} />

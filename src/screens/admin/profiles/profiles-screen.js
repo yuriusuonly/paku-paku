@@ -193,18 +193,18 @@ export default function AdminProfilesScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
-        <View className="mb-6 flex-row items-end justify-between">
-          <View className="flex-1 pr-4">
-            <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
-              Profiles audit
-            </Text>
-            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-              Add users, audit profile fields, and manage active status in real time.
-            </Text>
-          </View>
+        <View className="mb-6">
           <Link href="/admin" asChild>
-            <Button label="Back" variant="ghost" />
+            <Text className={`font-outfit mb-4 text-sm font-semibold ${cx.textPrimary}`}>
+              ← Back to admin
+            </Text>
           </Link>
+          <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
+            Profiles audit
+          </Text>
+          <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+            Add users, audit profile fields, and manage active status in real time.
+          </Text>
         </View>
 
         <Alert variant="error" message={localError || error} />
