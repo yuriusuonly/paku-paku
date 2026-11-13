@@ -106,7 +106,7 @@ export default function AdminScreen() {
       <View className="mb-8">
         <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Administration dashboard</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-          Signed in as <Text className="font-semibold">{authUser.username}</Text>. Live overview of menu items and profiles.
+          Live overview of menu items and profiles.
         </Text>
       </View>
 
