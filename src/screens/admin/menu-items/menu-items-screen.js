@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Alert } from "../../components/alert.js";
-import { Button } from "../../components/button.js";
-import { Header } from "../../components/header.js";
-import { ScreenContainer } from "../../components/container.js";
-import { TextField } from "../../components/text-field.js";
-import { useAuthStore } from "../../stores/auth-store.js";
-import { useMenuStore } from "../../stores/menu-store.js";
+import { Alert } from "../../../components/alert.js";
+import { Button } from "../../../components/button.js";
+import { Header } from "../../../components/header.js";
+import { ScreenContainer } from "../../../components/container.js";
+import { TextField } from "../../../components/text-field.js";
+import { useAuthStore } from "../../../stores/auth-store.js";
+import { useMenuStore } from "../../../stores/menu-store.js";
 
 /**
  * Admin menu items management screen.
- * @module screens/admin/menu-items
+ * @module screens/admin/menu-items/menu-items-screen
  */
 
 const emptyForm = { id: null, name: "", description: "", price_cents: "", sort_order: "0", is_available: true };
