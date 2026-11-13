@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import Head from "expo-router/head";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { View } from "react-native";
 import config from "../shared/config.js";
+import { CircularProgress } from "../components/circular-progress.js";
+import { SnackbarHost } from "../components/snackbar.js";
 import { useAuthStore } from "../stores/auth-store.js";
 
 import "../stylesheets/global.css";
@@ -16,7 +19,7 @@ import "../stylesheets/global.css";
 /**
  * Root navigator layout shared by every route.
  *
- * @returns {JSX.Element | null} The app navigator once fonts are ready.
+ * @returns {JSX.Element} The app navigator.
  */
 export default function Layout() {
   const [loaded] = useFonts({
@@ -37,7 +40,11 @@ export default function Layout() {
   }, []);
 
   if (!loaded) {
-    return null;
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <CircularProgress size="large" />
+      </View>
+    );
   }
 
   return (
@@ -51,6 +58,7 @@ export default function Layout() {
           contentStyle: { backgroundColor: "#fff" }
         }}
       />
+      <SnackbarHost />
     </>
   );
 }

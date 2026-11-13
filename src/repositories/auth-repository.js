@@ -8,7 +8,7 @@ import { unauthorized } from "../errors/unauthorized.js";
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
-} from "../shared/supabase.js";
+} from "../database/instance.js";
 import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
 
 /**

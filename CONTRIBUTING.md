@@ -59,7 +59,7 @@ flowchart TD
 
 - `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` only when `npm run eas:deploy` runs. Never remove or bypass that override in the deploy script.
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/shared/supabase.js` — never hardcode URLs/keys or add a cross-environment fallback.
-- Use `getSupabase()` from `src/shared/supabase.js` rather than calling `createClient()` in screens/routes.
+- Use `getSupabase()` (or server helpers) from `src/database/instance.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
 - Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run expo:build` and, when the local stack is running, by hitting `/api/menu-items` and `/api/auth/*`.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
@@ -91,10 +91,11 @@ flowchart LR
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
 - **`src/responses/`**: route-matched outgoing API response shaping modules (mirroring API routes) with consistent no-store/error envelopes. Use shared primitives in `src/shared/response.js`.
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
-- **`src/errors/`**: one module per error type (each exports an error class and factory), plus `normalize.js` for normalization. Use these for layered error handling: throw typed errors in requests/repositories/interceptors and map them centrally to HTTP responses.
+- **`src/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
 - **`src/network/`**: network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` client transport, `status.js` HTTP status constants).
 - **`src/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
-- **`src/shared/`**: cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config, `supabase.js` unified browser/server client). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
+- **`src/database/`**: database/Supabase client instance and runtime selection (`instance.js`).
+- **`src/shared/`**: cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
 
 ```mermaid

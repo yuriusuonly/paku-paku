@@ -1,10 +1,16 @@
 import { create } from "zustand";
 import { getSession, signUp as signUpApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
+import { notifyBackgroundError } from "./notification-store.js";
 
 /**
  * Authentication/session store.
  * @module stores/auth-store
  */
+
+const friendlyError = (error, fallback) =>
+  error && typeof error.message === "string" && error.message.trim()
+    ? error.message
+    : fallback;
 
 /**
  * Local storage key for the persisted session.
@@ -73,13 +79,26 @@ export const useAuthStore = create((set, get) => ({
   status: "idle",
   error: null,
   hydrated: false,
+  storageSyncAttached: false,
 
   /**
    * Restores a persisted session and validates it against the API.
    *
    * @returns {Promise<void>}
    */
+  attachStorageSync: () => {
+    if (get().storageSyncAttached || typeof window === "undefined") return;
+    window.addEventListener("storage", (event) => {
+      if (event.key !== STORAGE_KEY) return;
+      // Another tab/device context updated session storage; rehydrate to reflect it.
+      set({ hydrated: false });
+      void get().hydrate();
+    });
+    set({ storageSyncAttached: true });
+  },
+
   hydrate: async () => {
+    get().attachStorageSync();
     if (get().hydrated) {
       return;
     }
@@ -102,13 +121,13 @@ export const useAuthStore = create((set, get) => ({
         error: null,
         hydrated: true
       });
-    } catch {
+    } catch (error) {
       writeStoredSession(null);
       set({
         user: null,
         session: null,
         status: "unauthenticated",
-        error: null,
+        error: friendlyError(error, "Your session expired. Please sign in again."),
         hydrated: true
       });
     }
@@ -135,10 +154,7 @@ export const useAuthStore = create((set, get) => ({
       });
       return { ok: true };
     } catch (error) {
-      const message =
-        error && typeof error.message === "string"
-          ? error.message
-          : "Unable to sign in.";
+      const message = friendlyError(error, "Unable to sign in. Please check your details and try again.");
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }
@@ -169,10 +185,7 @@ export const useAuthStore = create((set, get) => ({
       }
       return { ok: true, requiresSignIn: !data.session };
     } catch (error) {
-      const message =
-        error && typeof error.message === "string"
-          ? error.message
-          : "Unable to create account.";
+      const message = friendlyError(error, "Unable to create your account. Please try again.");
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }
@@ -191,8 +204,11 @@ export const useAuthStore = create((set, get) => ({
     if (session?.access_token) {
       try {
         await signOutApi(session.access_token);
-      } catch {
+      } catch (error) {
         // Local sign-out already completed; server revocation is best-effort.
+        notifyBackgroundError(
+          friendlyError(error, "You were signed out locally, but we couldn't fully end the server session.")
+        );
       }
     }
   },

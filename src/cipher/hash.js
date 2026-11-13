@@ -1,3 +1,4 @@
+import { hashError } from "../errors/hash-error.js";
 import { encodeBase64Url } from "./encode.js";
 import { decodeBase64Url } from "./decode.js";
 
@@ -20,7 +21,7 @@ import { decodeBase64Url } from "./decode.js";
 export async function pbkdf2(password, options = {}) {
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) {
-    throw new Error("Web Crypto API is not available for hashing.");
+    throw hashError("Web Crypto API is not available for hashing.");
   }
 
   const iterations = options.iterations ?? 100000;

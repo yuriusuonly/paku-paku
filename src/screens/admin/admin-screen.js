@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Button } from "../../components/button.js";
 import { Header } from "../../components/header.js";
+import { LoadingState } from "../../components/loading-state.js";
 import { ScreenContainer } from "../../components/container.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 
@@ -29,8 +29,8 @@ export default function AdminScreen() {
 
   if (!hydrated || !isAdmin) {
     return (
-      <ScreenContainer className="items-center justify-center">
-        <Text className="font-outfit text-base text-[#161823]/70">Checking access...</Text>
+      <ScreenContainer>
+        <LoadingState message="Checking administrator access..." />
       </ScreenContainer>
     );
   }

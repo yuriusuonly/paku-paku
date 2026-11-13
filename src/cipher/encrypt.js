@@ -1,3 +1,4 @@
+import { encryptError } from "../errors/encrypt-error.js";
 import { encodeBase64Url } from "./encode.js";
 
 /**
@@ -14,7 +15,7 @@ import { encodeBase64Url } from "./encode.js";
  */
 export async function encryptAesGcm(plaintext, key) {
   const subtle = globalThis.crypto?.subtle;
-  if (!subtle) throw new Error("Web Crypto API is not available for encryption.");
+  if (!subtle) throw encryptError("Web Crypto API is not available for encryption.");
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
   const data = new TextEncoder().encode(plaintext);
   const encrypted = await subtle.encrypt({ name: "AES-GCM", iv }, key, data);

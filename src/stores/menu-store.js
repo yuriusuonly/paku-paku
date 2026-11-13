@@ -1,11 +1,17 @@
 import { create } from "zustand";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
-import { getSupabase } from "../shared/supabase.js";
+import { getSupabase } from "../database/instance.js";
+import { notifyBackgroundError } from "./notification-store.js";
 
 /**
  * Menu items store with API-backed mutations and realtime database sync.
  * @module stores/menu-store
  */
+
+const friendlyError = (error, fallback) =>
+  error && typeof error.message === "string" && error.message.trim()
+    ? error.message
+    : fallback;
 
 /**
  * @param {object[]} items - Menu items.
@@ -40,32 +46,45 @@ function upsertItem(items, item) {
 export const useMenuStore = create((set, get) => ({
   items: [],
   loading: false,
+  syncing: false,
   error: null,
   subscribed: false,
   channel: null,
   lastToken: null,
 
+  clearError: () => set({ error: null }),
+
   /**
    * Loads menu items from the API into the store.
    *
    * @param {string} token - Access token.
+   * @param {{background?: boolean}} [options] - Load options.
    * @returns {Promise<void>}
    */
-  fetchItems: async (token) => {
+  fetchItems: async (token, { background = false } = {}) => {
     if (!token) {
-      set({ items: [], loading: false, error: null });
+      set({ items: [], loading: false, syncing: false, error: null });
       return;
     }
 
-    set({ loading: true, error: null, lastToken: token });
+    const hasItems = get().items.length > 0;
+    const isRefresh = background || hasItems;
+    set({
+      loading: !isRefresh,
+      syncing: isRefresh,
+      error: null,
+      lastToken: token
+    });
+
     try {
       const data = await getMenuItems(token);
-      set({ items: sortItems(data.items || []), loading: false, error: null });
+      set({ items: sortItems(data.items || []), loading: false, syncing: false, error: null });
     } catch (error) {
-      set({
-        loading: false,
-        error: error && typeof error.message === "string" ? error.message : "Could not load the menu."
-      });
+      const message = friendlyError(error, "Could not load the menu. Please try again.");
+      set({ loading: false, syncing: false, error: message });
+      if (background || hasItems) {
+        notifyBackgroundError(message);
+      }
       throw error;
     }
   },
@@ -90,26 +109,40 @@ export const useMenuStore = create((set, get) => ({
           "postgres_changes",
           { event: "*", schema: "public", table: "menu_items" },
           (payload) => {
+            // Reflect reactive data changes with a brief syncing state.
+            set({ syncing: true, error: null });
+
             if (payload.eventType === "DELETE") {
               const id = payload.old?.id;
-              if (!id) return;
-              set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
-              return;
+              if (id) {
+                set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
+              }
+            } else {
+              const item = payload.new;
+              if (item) {
+                set((s) => ({ items: upsertItem(s.items, item) }));
+              }
             }
 
-            const item = payload.new;
-            if (!item) return;
-            set((s) => ({ items: upsertItem(s.items, item) }));
+            setTimeout(() => set({ syncing: false }), 350);
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            const message = "Live menu updates are temporarily unavailable.";
+            set({ subscribed: false, error: message });
+            notifyBackgroundError(message);
+          }
+          if (status === "SUBSCRIBED") {
+            set({ subscribed: true, error: null });
+          }
+        });
 
-      set({ channel, subscribed: true, lastToken: token || state.lastToken });
+      set({ channel, subscribed: false, lastToken: token || state.lastToken });
     } catch (error) {
-      set({
-        subscribed: false,
-        error: error && typeof error.message === "string" ? error.message : "Could not subscribe to menu updates."
-      });
+      const message = friendlyError(error, "Could not connect to live menu updates.");
+      set({ subscribed: false, error: message });
+      notifyBackgroundError(message);
     }
   },
 
@@ -126,6 +159,8 @@ export const useMenuStore = create((set, get) => ({
     }
     try {
       await getSupabase().removeChannel(channel);
+    } catch (error) {
+      notifyBackgroundError("Could not disconnect live menu updates cleanly.");
     } finally {
       set({ subscribed: false, channel: null });
     }
@@ -139,11 +174,20 @@ export const useMenuStore = create((set, get) => ({
    * @returns {Promise<object>} Created item.
    */
   createItem: async (token, input) => {
-    const data = await createMenuItem(token, input);
-    if (data?.item) {
-      set((s) => ({ items: upsertItem(s.items, data.item) }));
+    set({ syncing: true, error: null });
+    try {
+      const data = await createMenuItem(token, input);
+      if (data?.item) {
+        set((s) => ({ items: upsertItem(s.items, data.item) }));
+      }
+      return data?.item;
+    } catch (error) {
+      const message = friendlyError(error, "Could not create the menu item. Please try again.");
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ syncing: false });
     }
-    return data?.item;
   },
 
   /**
@@ -155,11 +199,20 @@ export const useMenuStore = create((set, get) => ({
    * @returns {Promise<object>} Updated item.
    */
   updateItem: async (token, id, input) => {
-    const data = await updateMenuItem(token, id, input);
-    if (data?.item) {
-      set((s) => ({ items: upsertItem(s.items, data.item) }));
+    set({ syncing: true, error: null });
+    try {
+      const data = await updateMenuItem(token, id, input);
+      if (data?.item) {
+        set((s) => ({ items: upsertItem(s.items, data.item) }));
+      }
+      return data?.item;
+    } catch (error) {
+      const message = friendlyError(error, "Could not update the menu item. Please try again.");
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ syncing: false });
     }
-    return data?.item;
   },
 
   /**
@@ -185,8 +238,17 @@ export const useMenuStore = create((set, get) => ({
    * @returns {Promise<void>}
    */
   removeItem: async (token, id) => {
-    await deleteMenuItem(token, id);
-    set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
+    set({ syncing: true, error: null });
+    try {
+      await deleteMenuItem(token, id);
+      set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
+    } catch (error) {
+      const message = friendlyError(error, "Could not delete the menu item. Please try again.");
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ syncing: false });
+    }
   },
 
   /**
@@ -206,5 +268,5 @@ export const useMenuStore = create((set, get) => ({
    *
    * @returns {void}
    */
-  reset: () => set({ items: [], loading: false, error: null })
+  reset: () => set({ items: [], loading: false, syncing: false, error: null, subscribed: false, channel: null, lastToken: null })
 }));

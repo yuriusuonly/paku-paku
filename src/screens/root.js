@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
+import { LoadingState } from "../components/loading-state.js";
+import { CircularProgress } from "../components/circular-progress.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
 import { useAuthStore } from "../stores/auth-store.js";
@@ -36,6 +38,7 @@ export default function HomeScreen() {
 
   const items = useMenuStore((state) => state.items);
   const loading = useMenuStore((state) => state.loading);
+  const syncing = useMenuStore((state) => state.syncing);
   const error = useMenuStore((state) => state.error);
   const fetchItems = useMenuStore((state) => state.fetchItems);
   const subscribe = useMenuStore((state) => state.subscribe);
@@ -68,6 +71,7 @@ export default function HomeScreen() {
   }, [hydrated, isAuthenticated, session?.access_token, fetchItems, subscribe, unsubscribe, resetMenu]);
 
   const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
+  const showInitialMenuLoading = loading && items.length === 0;
 
   return (
     <ScreenContainer>
@@ -84,53 +88,57 @@ export default function HomeScreen() {
         </View>
 
         {!authReady ? (
-          <Alert variant="info" message="Checking your session..." />
+          <LoadingState message="Checking your session..." />
         ) : !isAuthenticated ? (
-          <Alert
-            variant="info"
-            message="Sign in to view the menu."
-          />
+          <Alert variant="info" message="Sign in to view the menu." />
         ) : (
           <>
             <View className="mb-4 flex-row items-end justify-between">
-              <Text className="font-outfit text-2xl font-bold text-[#161823]">
-                Menu
-              </Text>
-              <Text className="font-outfit text-sm text-[#161823]/50">
-                {loading ? "Loading..." : `${items.length} items`}
-              </Text>
+              <Text className="font-outfit text-2xl font-bold text-[#161823]">Menu</Text>
+              <View className="flex-row items-center gap-2">
+                {syncing && !loading ? <CircularProgress size="small" /> : null}
+                <Text className="font-outfit text-sm text-[#161823]/50">
+                  {loading ? "Loading..." : syncing ? "Updating..." : `${items.length} items`}
+                </Text>
+              </View>
             </View>
 
             {error ? <Alert variant="error" message={error} /> : null}
+
+            {showInitialMenuLoading ? (
+              <LoadingState message="Loading menu items..." />
+            ) : null}
 
             {!loading && !error && items.length === 0 ? (
               <Alert variant="info" message="No menu items are available right now." />
             ) : null}
 
-            <View className="mt-4 gap-4">
-              {items.map((item) => (
-                <View
-                  key={item.id}
-                  className="rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 md:p-6"
-                >
-                  <View className="flex-row items-start justify-between gap-4">
-                    <View className="flex-1">
-                      <Text className="font-outfit text-xl font-bold text-[#161823]">
-                        {item.name}
-                      </Text>
-                      {item.description ? (
-                        <Text className="font-outfit mt-2 text-sm md:text-base leading-relaxed text-[#161823]/70">
-                          {item.description}
+            {items.length > 0 ? (
+              <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
+                {items.map((item) => (
+                  <View
+                    key={item.id}
+                    className="rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 md:p-6"
+                  >
+                    <View className="flex-row items-start justify-between gap-4">
+                      <View className="flex-1">
+                        <Text className="font-outfit text-xl font-bold text-[#161823]">
+                          {item.name}
                         </Text>
-                      ) : null}
+                        {item.description ? (
+                          <Text className="font-outfit mt-2 text-sm md:text-base leading-relaxed text-[#161823]/70">
+                            {item.description}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <Text className="font-outfit text-lg font-bold text-[#FE2C55]">
+                        {formatPrice(item.price_cents)}
+                      </Text>
                     </View>
-                    <Text className="font-outfit text-lg font-bold text-[#FE2C55]">
-                      {formatPrice(item.price_cents)}
-                    </Text>
                   </View>
-                </View>
-              ))}
-            </View>
+                ))}
+              </View>
+            ) : null}
           </>
         )}
       </ScrollView>

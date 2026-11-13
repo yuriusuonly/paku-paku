@@ -73,7 +73,7 @@ Development and local static builds use a local Supabase stack (PostgreSQL in
 Docker) only. Only `npm run eas:deploy` sets
 `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo Hosting build uses the hosted
 project. There is no cross-environment fallback:
-`src/shared/supabase.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
+`src/database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
 the target is exactly `hosted`, in which case it reads
 `EXPO_PUBLIC_SUPABASE_*`.
 
@@ -114,11 +114,11 @@ Migrations live in `supabase/migrations/`; local seed data lives in
 `npm run supabase:reset`.
 
 Server API routes in `src/app/api/` select Supabase at runtime with
-`src/shared/supabase-server.js` (local stack vs hosted project, no fallback).
-Browser code should still use `getSupabase()` from `src/shared/supabase.js`.
+`src/database/instance.js` (local stack vs hosted project, no fallback).
+Browser and server code use `getSupabase()`, `getSupabaseServerConfig()`, and `createSupabaseServerClient()` from `src/database/instance.js`.
 
 ```js
-import { getSupabase } from "../shared/supabase.js";
+import { getSupabase } from "../database/instance.js";
 
 const { data, error } = await getSupabase()
   .from("menu_items")
@@ -294,7 +294,11 @@ containers themselves are not part of the app compose stack. |
 │   ├── errors/
 │   │   ├── bad-gateway.js
 │   │   ├── bad-request.js
+│   │   ├── crypto-error.js
+│   │   ├── decrypt-error.js
+│   │   ├── encrypt-error.js
 │   │   ├── forbidden.js
+│   │   ├── hash-error.js
 │   │   ├── internal.js
 │   │   ├── normalize.js
 │   │   ├── not-found.js
@@ -361,9 +365,10 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── hash.js
 │   │   ├── id.js
 │   │   └── token.js
+│   ├── database/
+│   │   └── instance.js
 │   ├── shared/
-│   │   ├── config.js
-│   │   └── supabase.js
+│   │   └── config.js
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js

@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
-import { supabase as supabaseConfig } from "./config.js";
+import { supabase as supabaseConfig } from "../shared/config.js";
 
 /**
  * Unified Supabase client module for browser and server runtimes.
  * Configuration is sourced from `shared/config.js`.
- * @module shared/supabase
+ * @module database/instance
  */
 
 /**

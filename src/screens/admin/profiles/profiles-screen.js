@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
+import { LoadingState } from "../../../components/loading-state.js";
+import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
-import { getProfiles } from "../../../services/admin.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
+import { useProfilesStore } from "../../../stores/profiles-store.js";
 
 /**
  * Admin profiles management/audit screen.
@@ -23,11 +25,16 @@ export default function AdminProfilesScreen() {
   const status = useAuthStore((s) => s.status);
   const hydrated = useAuthStore((s) => s.hydrated);
 
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const profiles = useProfilesStore((s) => s.profiles);
+  const loading = useProfilesStore((s) => s.loading);
+  const syncing = useProfilesStore((s) => s.syncing);
+  const error = useProfilesStore((s) => s.error);
+  const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
+  const subscribe = useProfilesStore((s) => s.subscribe);
+  const unsubscribe = useProfilesStore((s) => s.unsubscribe);
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
+  const token = session?.access_token;
 
   useEffect(() => {
     if (!hydrated) return;
@@ -35,23 +42,21 @@ export default function AdminProfilesScreen() {
   }, [hydrated, isAdmin, status, router]);
 
   useEffect(() => {
-    if (!hydrated || !isAdmin || !session?.access_token) return;
-    let active = true;
-    setLoading(true);
-    getProfiles(session.access_token)
-      .then((data) => { if (active) { setProfiles(data.profiles || []); setError(""); } })
-      .catch((err) => { if (active) setError(err?.message || "Could not load profiles."); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [hydrated, isAdmin, session?.access_token]);
+    if (!hydrated || !isAdmin || !token) return;
+    void fetchProfiles(token).catch(() => {});
+    subscribe();
+    return () => { void unsubscribe(); };
+  }, [hydrated, isAdmin, token, fetchProfiles, subscribe, unsubscribe]);
 
   if (!hydrated || !isAdmin) {
     return (
-      <ScreenContainer className="items-center justify-center">
-        <Text className="font-outfit text-base text-[#161823]/70">Checking access...</Text>
+      <ScreenContainer>
+        <LoadingState message="Checking administrator access..." />
       </ScreenContainer>
     );
   }
+
+  const showInitialLoading = loading && profiles.length === 0;
 
   return (
     <ScreenContainer>
@@ -60,7 +65,7 @@ export default function AdminProfilesScreen() {
         <View className="mb-6 flex-row items-end justify-between">
           <View>
             <Text className="font-outfit text-3xl font-black tracking-tight text-[#161823]">Profiles management</Text>
-            <Text className="font-outfit mt-2 text-base text-[#161823]/70">Admin-only audit and management view. Only one admin account is allowed.</Text>
+            <Text className="font-outfit mt-2 text-base text-[#161823]/70">Profile data stays reactive and syncs in real time when changes occur.</Text>
           </View>
           <Link href="/admin" asChild><Button label="Back" variant="ghost" /></Link>
         </View>
@@ -68,24 +73,37 @@ export default function AdminProfilesScreen() {
         <Alert variant="error" message={error} />
 
         <View className="mb-3 flex-row items-center justify-between">
-          <Text className="font-outfit text-xl font-bold text-[#161823]">Profiles</Text>
-          <Text className="font-outfit text-sm text-[#161823]/50">{loading ? "Loading..." : `${profiles.length} total`}</Text>
+          <View className="flex-row items-center gap-2">
+            <Text className="font-outfit text-xl font-bold text-[#161823]">Profiles</Text>
+            {syncing ? <CircularProgress size="small" /> : null}
+          </View>
+          <Text className="font-outfit text-sm text-[#161823]/50">
+            {loading ? "Loading..." : syncing ? "Syncing changes..." : `${profiles.length} total`}
+          </Text>
         </View>
 
-        <View className="gap-3">
-          {profiles.map((profile) => (
-            <View key={profile.id} className="flex-row items-center justify-between rounded-2xl border border-[#161823]/10 bg-[#161823]/[0.02] px-4 py-4">
-              <View>
-                <Text className="font-outfit text-base font-bold text-[#161823]">{profile.username}</Text>
-                <Text className="font-outfit mt-1 text-xs text-[#161823]/50">{profile.id}</Text>
-                <Text className="font-outfit mt-1 text-xs text-[#161823]/50">Created: {profile.created_at || "-"}</Text>
+        {showInitialLoading ? <LoadingState message="Loading profiles..." /> : null}
+
+        {!loading && !error && profiles.length === 0 ? (
+          <Alert variant="info" message="No profiles found." />
+        ) : null}
+
+        {profiles.length > 0 ? (
+          <View className={`gap-3 ${syncing ? "opacity-80" : "opacity-100"}`}>
+            {profiles.map((profile) => (
+              <View key={profile.id} className="flex-row items-center justify-between rounded-2xl border border-[#161823]/10 bg-[#161823]/[0.02] px-4 py-4">
+                <View>
+                  <Text className="font-outfit text-base font-bold text-[#161823]">{profile.username}</Text>
+                  <Text className="font-outfit mt-1 text-xs text-[#161823]/50">{profile.id}</Text>
+                  <Text className="font-outfit mt-1 text-xs text-[#161823]/50">Created: {profile.created_at || "-"}</Text>
+                </View>
+                <View className={`rounded-full px-3 py-1 ${profile.role === "admin" ? "bg-[#FE2C55]/10" : "bg-[#161823]/5"}`}>
+                  <Text className={`font-outfit text-xs font-semibold uppercase ${profile.role === "admin" ? "text-[#FE2C55]" : "text-[#161823]/70"}`}>{profile.role}</Text>
+                </View>
               </View>
-              <View className={`rounded-full px-3 py-1 ${profile.role === "admin" ? "bg-[#FE2C55]/10" : "bg-[#161823]/5"}`}>
-                <Text className={`font-outfit text-xs font-semibold uppercase ${profile.role === "admin" ? "text-[#FE2C55]" : "text-[#161823]/70"}`}>{profile.role}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        ) : null}
       </ScrollView>
     </ScreenContainer>
   );

@@ -2,7 +2,7 @@ import { badRequest } from "../errors/bad-request.js";
 import { notFound } from "../errors/not-found.js";
 import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
 import { supabaseUpstream } from "../errors/supabase-upstream.js";
-import { createSupabaseServerClient } from "../shared/supabase.js";
+import { createSupabaseServerClient } from "../database/instance.js";
 
 /**
  * Menu data access (API to database contracts).
