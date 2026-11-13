@@ -235,10 +235,7 @@ export default function AdminProfilesScreen() {
         </View>
 
         <View className="mt-8 mb-3 flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
-            {syncing ? <CircularProgress size="small" /> : null}
-          </View>
+          <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
           {loading || syncing ? (
             <CircularProgress size="small" />
           ) : (
