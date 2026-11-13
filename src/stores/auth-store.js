@@ -71,7 +71,7 @@ function writeStoredSession(session) {
 /**
  * Zustand store hook for authentication state and actions.
  *
- * @type {import("zustand").UseBoundStore<import("zustand").StoreApi<{user: object | null, session: Session | null, status: "idle" | "loading" | "authenticated" | "unauthenticated", error: string | null, hydrated: boolean, hydrate: () => Promise<void>, signIn: (credentials: {username: string, password: string}) => Promise<{ok: boolean, error?: string}>, signOut: () => Promise<void>, clearError: () => void}>>}
+ * @type {import("zustand").UseBoundStore<import("zustand").StoreApi<{user: object | null, session: Session | null, status: "idle" | "loading" | "authenticated" | "unauthenticated", error: string | null, hydrated: boolean, hydrate: () => Promise<void>, signIn: (credentials: {email: string, password: string}) => Promise<{ok: boolean, error?: string}>, signOut: () => Promise<void>, clearError: () => void}>>}
  */
 export const useAuthStore = create((set, get) => ({
   user: null,

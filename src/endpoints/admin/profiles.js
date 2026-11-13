@@ -16,20 +16,9 @@ import { createManagedUser } from "../../repositories/auth-repository.js";
  */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;
 
 function normalizeEmail(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
-
-function deriveUsername(email) {
-  const local = email.split("@")[0] || "user";
-  let username = local.replace(/[^a-z0-9_.-]/g, "").toLowerCase();
-  if (!/^[a-z0-9]/.test(username)) username = `u${username}`;
-  username = username.slice(0, 32);
-  if (username.length < 3) username = (username + "user").slice(0, 32);
-  if (!USERNAME_PATTERN.test(username)) username = "user";
-  return username;
 }
 
 async function parseCreateUserRequest(request) {
@@ -49,7 +38,7 @@ async function parseCreateUserRequest(request) {
     throw badRequest("invalid_password", "Password must be at least 6 characters.");
   }
 
-  return { username: deriveUsername(email), password, email };
+  return { email, password };
 }
 
 async function parseUpdateProfileRequest(request) {

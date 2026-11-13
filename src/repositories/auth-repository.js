@@ -126,11 +126,11 @@ export async function authenticateAdmin(request) {
 /**
  * Signs up a new customer account and creates its profile.
  *
- * @param {{username: string, email: string, password: string}} input - Sign-up payload.
+ * @param {{email: string, password: string}} input - Sign-up payload.
  * @returns {Promise<{user: object, session: object | null}>} Sign-up result.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
-export async function signUp({ username, email, password }) {
+export async function signUp({ email, password }) {
   let database;
   try {
     database = createDatabaseClient();
@@ -142,7 +142,7 @@ export async function signUp({ username, email, password }) {
     email,
     password,
     options: {
-      data: { username }
+      data: { email }
     }
   });
 
@@ -152,7 +152,7 @@ export async function signUp({ username, email, password }) {
       throw tooManyRequests("rate_limited", "Too many sign-up attempts. Try again later.");
     }
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
-      throw badRequest("username_taken", "That email or username is already taken.");
+      throw badRequest("email_taken", "That email is already taken.");
     }
     throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }
@@ -160,7 +160,7 @@ export async function signUp({ username, email, password }) {
   // If email confirmations are enabled, no session is returned; profile creation requires an authenticated session.
   if (!data.session) {
     return {
-      user: { id: data.user.id, username, role: "customer", is_active: true },
+      user: { id: data.user.id, email, role: "customer", is_active: true },
       session: null
     };
   }
@@ -168,8 +168,8 @@ export async function signUp({ username, email, password }) {
   const authenticated = createDatabaseClient({ accessToken: data.session.access_token });
   const { data: profile, error: profileError } = await authenticated
     .from("profiles")
-    .insert({ id: data.user.id, username, role: "customer", is_active: true })
-    .select("id, username, role, is_active, created_at, updated_at")
+    .insert({ id: data.user.id, email, role: "customer", is_active: true })
+    .select("id, email, role, is_active, created_at, updated_at")
     .single();
 
   if (profileError || !profile) {
@@ -192,11 +192,11 @@ export async function signUp({ username, email, password }) {
  * Creates a customer account and profile as an administrator.
  *
  * @param {import("../database/instance.js").DatabaseClient} adminDatabase - Admin-scoped database client.
- * @param {{username: string, email: string, password: string}} input - User payload.
+ * @param {{email: string, password: string}} input - User payload.
  * @returns {Promise<{profile: object}>} Created profile payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
-export async function createManagedUser(adminDatabase, { username, email, password }) {
+export async function createManagedUser(adminDatabase, { email, password }) {
   let database;
   try {
     database = createDatabaseClient();
@@ -208,7 +208,7 @@ export async function createManagedUser(adminDatabase, { username, email, passwo
     email,
     password,
     options: {
-      data: { username }
+      data: { email }
     }
   });
 
@@ -218,22 +218,22 @@ export async function createManagedUser(adminDatabase, { username, email, passwo
       throw tooManyRequests("rate_limited", "Too many sign-up attempts. Try again later.");
     }
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
-      throw badRequest("username_taken", "That email or username is already taken.");
+      throw badRequest("email_taken", "That email is already taken.");
     }
     throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }
 
   const { data: profile, error: profileError } = await adminDatabase
     .from("profiles")
-    .insert({ id: data.user.id, username, role: "customer", is_active: true })
-    .select("id, username, role, is_active, created_at, updated_at")
+    .insert({ id: data.user.id, email, role: "customer", is_active: true })
+    .select("id, email, role, is_active, created_at, updated_at")
     .single();
 
   if (profileError || !profile) {
     // Profile insert may fail if another process created it; try to read existing.
     const { data: existing } = await adminDatabase
       .from("profiles")
-      .select("id, username, role, is_active, created_at, updated_at")
+      .select("id, email, role, is_active, created_at, updated_at")
       .eq("id", data.user.id)
       .maybeSingle();
 

@@ -1,7 +1,6 @@
--- Administrator account: username `root`, password `admin`.
--- The Auth email is internal and derived from the username; the static bcrypt
--- hash keeps the seed independent of pgcrypto. Re-running the seed restores
--- this password, which is intended for local development.
+-- Administrator account: email `root@paku-paku`, password `admin`.
+-- The static bcrypt hash keeps the seed independent of pgcrypto. Re-running the
+-- seed restores this password, which is intended for local development.
 insert into auth.users (
   instance_id,
   id,
@@ -25,14 +24,14 @@ insert into auth.users (
 )
 values (
   '00000000-0000-0000-0000-000000000000',
-  '00000000-0000-4000-8000-000000000001',
+  '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  'root@paku-paku.local',
+  'root@paku-paku',
   '$2b$10$DKsSCmPnbsvDO/yC1MUYyuZJfhD3oh7MtVHAjvK0eeYsz4jnDFHI.',
   now(),
   '{"provider":"email","providers":["email"]}',
-  '{"username":"root"}',
+  '{"email":"root@paku-paku"}',
   now(),
   now(),
   '',
@@ -65,9 +64,9 @@ insert into auth.identities (
 )
 values (
   gen_random_uuid(),
-  '00000000-0000-4000-8000-000000000001',
-  '00000000-0000-4000-8000-000000000001',
-  '{"sub":"00000000-0000-4000-8000-000000000001","email":"root@paku-paku.local","email_verified":true,"phone_verified":false}',
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-000000000000',
+  '{"sub":"00000000-0000-0000-0000-000000000000","email":"root@paku-paku","email_verified":true,"phone_verified":false}',
   'email',
   now(),
   now(),
@@ -78,10 +77,10 @@ set
   identity_data = excluded.identity_data,
   updated_at = excluded.updated_at;
 
-insert into public.profiles (id, username, role)
-values ('00000000-0000-4000-8000-000000000001', 'root', 'admin')
+insert into public.profiles (id, email, role)
+values ('00000000-0000-0000-0000-000000000000', 'root@paku-paku', 'admin')
 on conflict (id) do update
 set
-  username = excluded.username,
+  email = excluded.email,
   role = excluded.role,
   updated_at = now();

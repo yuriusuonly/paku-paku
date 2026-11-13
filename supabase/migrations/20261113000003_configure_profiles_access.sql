@@ -5,7 +5,7 @@ create unique index if not exists profiles_single_admin_idx
   where role = 'admin';
 
 grant insert on table public.profiles to authenticated;
-grant update (username, updated_at, is_active) on table public.profiles to authenticated;
+grant update (email, updated_at, is_active) on table public.profiles to authenticated;
 
 drop policy if exists "Users can create their own customer profile" on public.profiles;
 create policy "Users can create their own customer profile"
@@ -15,7 +15,7 @@ create policy "Users can create their own customer profile"
   with check (
     id = auth.uid()
     and role = 'customer'
-    and username is not null
+    and email is not null
   );
 
 drop policy if exists "Admins can create customer profiles" on public.profiles;
@@ -26,7 +26,7 @@ create policy "Admins can create customer profiles"
   with check (
     public.current_user_is_admin()
     and role = 'customer'
-    and username is not null
+    and email is not null
   );
 
 drop policy if exists "Users can update their own profile" on public.profiles;

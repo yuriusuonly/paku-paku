@@ -14,20 +14,9 @@ import { signUp } from "../../repositories/auth-repository.js";
  */
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const USERNAME_PATTERN = /^[a-z0-9][a-z0-9_.-]{2,31}$/;
 
 function normalizeEmail(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
-
-function deriveUsername(email) {
-  const local = email.split("@")[0] || "user";
-  let username = local.replace(/[^a-z0-9_.-]/g, "").toLowerCase();
-  if (!/^[a-z0-9]/.test(username)) username = `u${username}`;
-  username = username.slice(0, 32);
-  if (username.length < 3) username = (username + "user").slice(0, 32);
-  if (!USERNAME_PATTERN.test(username)) username = "user";
-  return username;
 }
 
 async function parseSignUpRequest(request) {
@@ -49,9 +38,8 @@ async function parseSignUpRequest(request) {
   }
 
   return {
-    username: deriveUsername(email),
-    password,
-    email
+    email,
+    password
   };
 }
 

@@ -12,18 +12,18 @@ import { internalError } from "../shared/errors/internal.js";
  *
  * @type {string}
  */
-export const PROFILE_COLUMNS = "id, username, role, is_active, created_at, updated_at";
+export const PROFILE_COLUMNS = "id, email, role, is_active, created_at, updated_at";
 
 /**
  * Shapes a profile row into the public payload.
  *
- * @param {{id: string, username: string, role: string, is_active?: boolean, created_at: string, updated_at?: string}} profile - Profile row.
- * @returns {{id: string, username: string, role: string, is_active: boolean, created_at: string, updated_at?: string}} Public profile.
+ * @param {{id: string, email: string, role: string, is_active?: boolean, created_at: string, updated_at?: string}} profile - Profile row.
+ * @returns {{id: string, email: string, role: string, is_active: boolean, created_at: string, updated_at?: string}} Public profile.
  */
 export function toPublicProfile(profile) {
   return {
     id: profile.id,
-    username: profile.username,
+    email: profile.email,
     role: profile.role,
     is_active: profile.is_active !== false,
     created_at: profile.created_at,
@@ -62,7 +62,7 @@ export async function findProfileByUserId(database, userId) {
 }
 
 /**
- * Lists all profiles ordered by username.
+ * Lists all profiles ordered by email.
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
@@ -72,8 +72,8 @@ export async function listProfiles(database) {
   const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
-    .neq("username", "root")
-    .order("username", { ascending: true });
+    .neq("email", "root@paku-paku")
+    .order("email", { ascending: true });
 
   if (error) {
     throw databaseUpstream("profiles_unavailable", "Could not load profiles.", error);
@@ -88,14 +88,14 @@ export async function listProfiles(database) {
  * Creates a customer profile for an existing auth user (admin only).
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
- * @param {{id: string, username: string, role?: string, is_active?: boolean}} input - Profile fields.
+ * @param {{id: string, email: string, role?: string, is_active?: boolean}} input - Profile fields.
  * @returns {Promise<{profile: object}>} Created profile payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
-export async function createProfile(database, { id, username, role = "customer", is_active = true }) {
+export async function createProfile(database, { id, email, role = "customer", is_active = true }) {
   const { data, error } = await database
     .from("profiles")
-    .insert({ id, username, role, is_active })
+    .insert({ id, email, role, is_active })
     .select(PROFILE_COLUMNS)
     .single();
 

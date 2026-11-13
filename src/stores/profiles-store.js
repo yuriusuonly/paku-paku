@@ -7,11 +7,11 @@ const friendlyError = (error, fallback) =>
   error && typeof error.message === "string" && error.message.trim() ? error.message : fallback;
 
 function isVisibleProfile(profile) {
-  return profile?.username !== "root";
+  return profile?.email !== "root@paku-paku";
 }
 
 function sortProfiles(items) {
-  return [...items].sort((a, b) => String(a.username || "").localeCompare(String(b.username || "")));
+  return [...items].sort((a, b) => String(a.email || "").localeCompare(String(b.email || "")));
 }
 
 function isSameRecord(a, b) {
@@ -25,7 +25,7 @@ function isSameRecord(a, b) {
 
 function upsertProfile(items, profile) {
   if (!isVisibleProfile(profile)) {
-    return items.filter((entry) => entry.id !== profile?.id && entry.username !== "root");
+    return items.filter((entry) => entry.id !== profile?.id && entry.email !== "root@paku-paku");
   }
   const index = items.findIndex((entry) => entry.id === profile.id);
   if (index === -1) {
@@ -131,7 +131,7 @@ export const useProfilesStore = create((set, get) => ({
             const visible = isVisibleProfile(profile);
             if (!visible && current) {
               changed = true;
-              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.username !== "root"), syncing: true }));
+              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.email !== "root@paku-paku"), syncing: true }));
             } else if (visible && !isSameRecord(current, current ? { ...current, ...profile } : profile)) {
               changed = true;
               set((s) => ({ profiles: upsertProfile(s.profiles, profile), syncing: true }));

@@ -35,7 +35,7 @@ function formatAuditTimestamp(value) {
 
 const columns = [
   { key: "select", label: "", width: 56 },
-  { key: "username", label: "Email", width: 220 },
+  { key: "email", label: "Email", width: 220 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
   { key: "id", label: "User ID", width: 320 },
@@ -387,7 +387,7 @@ export default function AdminProfilesScreen() {
                           ) : (
                             <Text
                               selectable
-                              className={`font-outfit text-sm ${column.key === "username" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
+                              className={`font-outfit text-sm ${column.key === "email" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
                             >
                               {String(displayValue)}
                             </Text>
