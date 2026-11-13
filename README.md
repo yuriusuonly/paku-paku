@@ -370,7 +370,7 @@ containers themselves are not part of the app compose stack. |
 │   │   │   └── unauthorized.js
 │   │   └── network/
 │   │       ├── context.js
-│   │       ├── http.js
+│   │       ├── transport.js
 │   │       ├── middleware.js
 │   │       ├── request.js
 │   │       └── response.js

@@ -98,7 +98,7 @@ flowchart LR
 
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
 - **`src/shared/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
-- **`src/shared/network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `http.js` client transport).
+- **`src/shared/network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `transport.js` client transport).
 - **`src/shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
 - **`src/database/`**: database/Supabase client instance and runtime selection (`instance.js`).
 - **`src/shared/constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.

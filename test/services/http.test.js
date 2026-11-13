@@ -12,7 +12,7 @@ describe("network/http apiRequest", () => {
       throw new Error("offline");
     });
 
-    const { apiRequest } = await import("../../src/shared/network/http.js");
+    const { apiRequest } = await import("../../src/shared/network/transport.js");
     await expect(apiRequest("/api/health")).rejects.toEqual({
       status: 0,
       code: "network_error",
@@ -22,7 +22,7 @@ describe("network/http apiRequest", () => {
 
   test("returns null for 204 responses", async () => {
     globalThis.fetch = mock(async () => new Response(null, { status: 204 }));
-    const { apiRequest } = await import("../../src/shared/network/http.js");
+    const { apiRequest } = await import("../../src/shared/network/transport.js");
     expect(await apiRequest("/api/sign-out", { method: "POST" })).toBeNull();
   });
 });

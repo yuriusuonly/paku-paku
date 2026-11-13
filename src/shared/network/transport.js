@@ -2,7 +2,7 @@ import { HTTP_STATUS } from "../constants/http.js";
 
 /**
  * HTTP utilities and client-to-API transport helpers.
- * @module shared/network/http
+ * @module shared/network/transport
  */
 
 /**

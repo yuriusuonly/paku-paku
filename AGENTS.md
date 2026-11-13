@@ -32,7 +32,7 @@
   - `src/shared/` — shared utilities and constants:
     - `shared/errors/*` — global error modules (one file per error type: network/API, database/Supabase, crypto/cipher, etc.) plus `normalize.js`.
     - `shared/cipher/*` — cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
-    - `shared/network/` — network pipeline/primitives (`context.js`, `middleware.js`, `request.js`, `response.js`, `http.js` client transport).
+    - `shared/network/` — network pipeline/primitives (`context.js`, `middleware.js`, `request.js`, `response.js`, `transport.js` client transport).
     - `shared/constants/` — `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), `http.js` (HTTP status constants).
   No barrel `index.js` files in `interceptors/` or `endpoints/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
