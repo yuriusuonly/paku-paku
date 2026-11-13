@@ -42,7 +42,7 @@
 - Server API routes use anon key + forwarded user bearer tokens so RLS applies. Dockerized local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` (`http://api.supabase.internal:8000`) by joining the external `supabase_network_paku-paku` network created by `supabase start`.
 - The local Supabase stack is private to the machine (API `54321`, PostgreSQL `54322`, Studio `54323`, Mailpit `54324`); never proxy or tunnel those ports.
 - `eas:deploy` requires hosted Supabase URL/anon key, exports the web build, and runs `eas deploy --prod --environment production` so EAS production env vars are available to server-side API routes.
-- `opencode.json` currently contains no MCP server configuration. OpenCode should be launched via `npm run opencode` (which sources `.env`) when project environment variables are needed.
+- `opencode.json` declares the hosted Supabase MCP server; its URL uses `{env:SUPABASE_PROJECT_REF}` from `.env`. OpenCode must be launched via `npm run opencode` (which sources `.env`) for substitution; authenticate once through `/mcps` if required.
 - Several npm scripts source `.env` via `set -a && . ./.env && set +a`; `caddy` uses `--envfile`. Keep `.env` POSIX-compatible.
 - `Dockerfile` + `docker-compose.yml` build/serve the static app and API routes; PostgreSQL/Supabase containers are external (local `supabase start` stack) and never part of the production image.
 - `/api/health` returns `{status: "ok", timestamp, uptime}` with `Cache-Control: no-store`; the Docker healthcheck hits it.
