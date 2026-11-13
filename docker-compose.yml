@@ -18,6 +18,7 @@ services:
     # reaches the local stack through Kong on the Supabase project network
     # instead of the host's loopback address (127.0.0.1 is not routable here).
     environment:
+      RUNNING_IN_DOCKER: "1"
       EXPO_PUBLIC_SUPABASE_TARGET: ${EXPO_PUBLIC_SUPABASE_TARGET:-local}
       EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY}
       EXPO_PUBLIC_SUPABASE_URL: ${EXPO_PUBLIC_SUPABASE_URL}

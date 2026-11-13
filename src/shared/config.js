@@ -60,6 +60,8 @@ export const api = {
   }
 };
 
+const runningInDocker = process.env.RUNNING_IN_DOCKER === "1";
+
 /**
  * Centralized Supabase configuration.
  *
@@ -74,7 +76,9 @@ export const supabase = {
     : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY,
   serverUrl: isHosted
     ? process.env.EXPO_PUBLIC_SUPABASE_URL
-    : process.env.SUPABASE_LOCAL_SERVER_URL || process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL,
+    : (runningInDocker ? process.env.SUPABASE_LOCAL_SERVER_URL : null) ||
+      process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL ||
+      process.env.SUPABASE_LOCAL_SERVER_URL,
   serverAnonKey: isHosted
     ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
     : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY

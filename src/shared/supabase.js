@@ -51,7 +51,7 @@ export function getSupabaseServerConfig() {
     const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
     throw new Error(
       `Supabase ${environment} environment is not configured for server routes. ` +
-        `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL).`
+        `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
     );
   }
 
