@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Image, ScrollView, Text, View } from "react-native";
+import logo from "../../png/logo.png";
 import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
 import { CircularProgress } from "../components/circular-progress.js";
@@ -78,13 +79,23 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
 
-        <View className="mb-10">
-          <Text className={`font-outfit text-4xl md:text-6xl font-black tracking-tight ${cx.textInk}`}>
-            {config.title}
-          </Text>
-          <Text className={`font-outfit mt-4 max-w-2xl text-base md:text-lg leading-relaxed ${cx.textInk70}`}>
-            {config.description}
-          </Text>
+        <View className="mb-10 flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
+          <View className="w-full flex-1">
+            <Text className={`font-outfit text-4xl md:text-6xl font-black tracking-tight ${cx.textInk}`}>
+              {config.title}
+            </Text>
+            <Text className={`font-outfit mt-4 max-w-2xl text-base md:text-lg leading-relaxed ${cx.textInk70}`}>
+              {config.description}
+            </Text>
+          </View>
+          <View className="w-full items-center justify-center md:w-auto md:flex-1">
+            <Image
+              source={logo}
+              accessibilityLabel={`${config.title} logo`}
+              resizeMode="contain"
+              className="h-48 w-48 md:h-72 md:w-72"
+            />
+          </View>
         </View>
 
         {!authReady ? (
