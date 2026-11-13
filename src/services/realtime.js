@@ -59,6 +59,9 @@ export function subscribeToTableChanges({ channelName, table, onPayload, onStatu
   }
 
   channel
+    .on("broadcast", { event: "*" }, (payload) => {
+      onPayload(normalizeChangePayload(payload, table));
+    })
     .on("postgres_changes", { event: "*", schema: "public", table }, (payload) => {
       onPayload(normalizeChangePayload(payload, table));
     })
