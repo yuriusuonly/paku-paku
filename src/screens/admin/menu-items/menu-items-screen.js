@@ -54,6 +54,16 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "", 
     }
   };
 
+  const handleKeyPress = (event) => {
+    if (!multiline) return;
+    const key = event?.nativeEvent?.key;
+    const shiftKey = event?.nativeEvent?.shiftKey;
+    if (key === "Enter" && !shiftKey) {
+      event.preventDefault?.();
+      void commit();
+    }
+  };
+
   return (
     <TextInput
       value={draft}
@@ -61,6 +71,8 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "", 
       onFocus={() => setFocused(true)}
       onBlur={() => { void commit(); }}
       onSubmitEditing={multiline ? undefined : () => { void commit(); }}
+      onKeyPress={handleKeyPress}
+      blurOnSubmit={!multiline}
       placeholder={placeholder}
       keyboardType={numeric ? "numeric" : "default"}
       multiline={multiline}
