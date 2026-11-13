@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
@@ -17,7 +17,56 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/menu-items/menu-items-screen
  */
 
-const emptyForm = { id: null, name: "", description: "", price_cents: "", sort_order: "0", is_available: true };
+const emptyForm = { name: "", description: "", price_cents: "", sort_order: "0", is_available: true };
+
+const columns = [
+  { key: "name", label: "Name", width: 180 },
+  { key: "price_cents", label: "Price (cents)", width: 140 },
+  { key: "sort_order", label: "Sort", width: 90 },
+  { key: "is_available", label: "Available", width: 130 },
+  { key: "description", label: "Description", width: 320 },
+  { key: "id", label: "Item ID", width: 320 },
+  { key: "actions", label: "Actions", width: 140 }
+];
+
+/**
+ * Inline editable text cell for menu item fields.
+ *
+ * @param {{value: string | number | null | undefined, onSave: (value: string) => Promise<void> | void, numeric?: boolean, align?: "left" | "right", placeholder?: string}} props
+ * @returns {JSX.Element}
+ */
+function InlineEditableCell({ value, onSave, numeric = false, placeholder = "" }) {
+  const stringValue = value == null ? "" : String(value);
+  const [draft, setDraft] = useState(stringValue);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) setDraft(stringValue);
+  }, [stringValue, focused]);
+
+  const commit = async () => {
+    setFocused(false);
+    if (draft === stringValue) return;
+    try {
+      await onSave(draft);
+    } catch {
+      setDraft(stringValue);
+    }
+  };
+
+  return (
+    <TextInput
+      value={draft}
+      onChangeText={setDraft}
+      onFocus={() => setFocused(true)}
+      onBlur={() => { void commit(); }}
+      onSubmitEditing={() => { void commit(); }}
+      placeholder={placeholder}
+      keyboardType={numeric ? "numeric" : "default"}
+      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm ${cx.textInk70}`}
+    />
+  );
+}
 
 /**
  * @returns {JSX.Element} Admin menu management screen.
@@ -45,6 +94,7 @@ export default function AdminMenuItemsScreen() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
@@ -64,18 +114,6 @@ export default function AdminMenuItemsScreen() {
 
   const sorted = useMemo(() => items, [items]);
   const showInitialLoading = loading && items.length === 0;
-
-  const editItem = (item) => {
-    setForm({
-      id: item.id,
-      name: item.name || "",
-      description: item.description || "",
-      price_cents: String(item.price_cents ?? ""),
-      sort_order: String(item.sort_order ?? 0),
-      is_available: Boolean(item.is_available)
-    });
-    setLocalError("");
-  };
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -101,13 +139,8 @@ export default function AdminMenuItemsScreen() {
     };
     setSaving(true);
     try {
-      if (form.id) {
-        await updateItem(token, form.id, payload);
-        showSuccess("Menu item updated.");
-      } else {
-        await createItem(token, payload);
-        showSuccess("Menu item created.");
-      }
+      await createItem(token, payload);
+      showSuccess("Menu item created.");
       setForm(emptyForm);
     } catch (e) {
       const message = e?.message || "Could not save the menu item. Please try again.";
@@ -118,13 +151,85 @@ export default function AdminMenuItemsScreen() {
     }
   };
 
+  const saveField = async (item, field, draftValue) => {
+    if (!token) return;
+    setLocalError("");
+    const payload = {};
+    if (field === "name") {
+      const name = String(draftValue ?? "").trim();
+      if (!name) {
+        const msg = "Menu item name is required.";
+        setLocalError(msg);
+        showError(msg);
+        throw new Error(msg);
+      }
+      if (name === item.name) return;
+      payload.name = name;
+    } else if (field === "description") {
+      const description = String(draftValue ?? "").trim();
+      const normalized = description || null;
+      if ((item.description || null) === normalized) return;
+      payload.description = normalized;
+    } else if (field === "price_cents") {
+      const price = Number(draftValue);
+      if (!Number.isInteger(price) || price < 0) {
+        const msg = "Price must be a non-negative whole number in cents.";
+        setLocalError(msg);
+        showError(msg);
+        throw new Error(msg);
+      }
+      if (price === item.price_cents) return;
+      payload.price_cents = price;
+    } else if (field === "sort_order") {
+      const sortOrder = Number(draftValue);
+      if (!Number.isInteger(sortOrder)) {
+        const msg = "Sort order must be a whole number.";
+        setLocalError(msg);
+        showError(msg);
+        throw new Error(msg);
+      }
+      if (sortOrder === item.sort_order) return;
+      payload.sort_order = sortOrder;
+    }
+
+    const cellKey = `${item.id}:${field}`;
+    setSavingCell(cellKey);
+    try {
+      await updateItem(token, item.id, payload);
+      showSuccess("Menu item updated.");
+    } catch (e) {
+      const message = e?.message || "Could not update the menu item. Please try again.";
+      setLocalError(message);
+      showError(message);
+      throw e;
+    } finally {
+      setSavingCell(null);
+    }
+  };
+
+  const toggleAvailable = async (item) => {
+    if (!token) return;
+    setLocalError("");
+    const cellKey = `${item.id}:is_available`;
+    setSavingCell(cellKey);
+    try {
+      await updateItem(token, item.id, { is_available: !item.is_available });
+      showSuccess(item.is_available ? "Menu item hidden." : "Menu item made available.");
+    } catch (e) {
+      const message = e?.message || "Could not update the menu item. Please try again.";
+      setLocalError(message);
+      showError(message);
+    } finally {
+      setSavingCell(null);
+    }
+  };
+
   const remove = async (id) => {
     if (!token) return;
     setLocalError("");
     setDeletingId(id);
     try {
       await removeItem(token, id);
-      if (form.id === id) setForm(emptyForm);
       showSuccess("Menu item deleted.");
     } catch (e) {
       const message = e?.message || "Could not delete the menu item. Please try again.";
@@ -150,7 +255,7 @@ export default function AdminMenuItemsScreen() {
         <View className="mb-6 flex-row items-end justify-between">
           <View>
             <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Menu items management</Text>
-            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Changes sync in real time across open screens and devices.</Text>
+            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Edit table fields directly. Changes sync in real time across open screens and devices.</Text>
           </View>
           <Link href="/admin" asChild><Button label="Back" variant="ghost" /></Link>
         </View>
@@ -158,15 +263,15 @@ export default function AdminMenuItemsScreen() {
         <Alert variant="error" message={localError || error} />
 
         <View className={`mt-4 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>{form.id ? "Edit item" : "New item"}</Text>
+          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>New item</Text>
           <TextField label="Name" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
           <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" />
           <TextField label="Price (cents)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
           <TextField label="Sort order" value={form.sort_order} onChangeText={(v) => setForm((f) => ({ ...f, sort_order: v }))} placeholder="0" keyboardType="numeric" />
           <View className="flex-row items-center gap-3">
             <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />
-            <Button label={form.id ? "Update item" : "Create item"} onPress={save} loading={saving} />
-            {form.id ? <Button label="Cancel" variant="ghost" onPress={resetForm} /> : null}
+            <Button label="Create item" onPress={save} loading={saving} />
+            <Button label="Clear" variant="ghost" onPress={resetForm} />
           </View>
         </View>
 
@@ -187,23 +292,90 @@ export default function AdminMenuItemsScreen() {
         ) : null}
 
         {sorted.length > 0 ? (
-          <View className={`gap-3 ${syncing ? "opacity-80" : "opacity-100"}`}>
-            {sorted.map((item) => (
-              <View key={item.id} className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurface} p-4`}>
-                <View className="flex-row items-start justify-between gap-3">
-                  <View className="flex-1">
-                    <Text className={`font-outfit text-base font-bold ${cx.textInk}`}>{item.name}</Text>
-                    <Text className={`font-outfit mt-1 text-xs ${cx.textInk50}`}>¥{Math.round((item.price_cents || 0))} · sort {item.sort_order} · {item.is_available ? "available" : "hidden"}</Text>
-                    {item.description ? <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>{item.description}</Text> : null}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator
+            className={`${syncing ? "opacity-80" : "opacity-100"}`}
+          >
+            <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
+              <View className={`flex-row ${cx.bgSurfaceSoft}`}>
+                {columns.map((column, index) => (
+                  <View
+                    key={column.key}
+                    style={{ width: column.width }}
+                    className={`px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
+                  >
+                    <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                      {column.label}
+                    </Text>
                   </View>
-                  <View className="flex-row gap-2">
-                    <Button label="Edit" variant="ghost" onPress={() => editItem(item)} />
-                    <Button label="Delete" variant="ghost" onPress={() => remove(item.id)} loading={deletingId === item.id} />
-                  </View>
-                </View>
+                ))}
               </View>
-            ))}
-          </View>
+
+              {sorted.map((item, rowIndex) => {
+                const rowKey = String(item.id ?? `row-${rowIndex}`);
+                return (
+                  <View
+                    key={rowKey}
+                    className={`flex-row ${rowIndex < sorted.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
+                  >
+                    {columns.map((column, index) => {
+                      const rawValue = item[column.key];
+                      const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
+                      const isEditable = ["name", "description", "price_cents", "sort_order"].includes(column.key);
+                      const isStatus = column.key === "is_available";
+
+                      return (
+                        <View
+                          key={`${rowKey}-${column.key}`}
+                          style={{ width: column.width }}
+                          className={`justify-center px-4 py-3 ${cellBorder}`}
+                        >
+                          {column.key === "actions" ? (
+                            <View className="flex-row flex-wrap gap-2">
+                              <Button
+                                label="Delete"
+                                variant="ghost"
+                                onPress={() => remove(item.id)}
+                                loading={deletingId === item.id}
+                                disabled={deletingId === item.id}
+                              />
+                            </View>
+                          ) : isStatus ? (
+                            <Pressable
+                              onPress={() => { void toggleAvailable(item); }}
+                              disabled={savingCell === `${item.id}:is_available`}
+                              className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
+                            >
+                              <Text
+                                className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
+                              >
+                                {rawValue ? "available" : "hidden"}
+                              </Text>
+                            </Pressable>
+                          ) : isEditable ? (
+                            <InlineEditableCell
+                              value={rawValue ?? (column.key === "description" ? "" : rawValue)}
+                              onSave={(draft) => saveField(item, column.key, draft)}
+                              numeric={column.key === "price_cents" || column.key === "sort_order"}
+                              placeholder={column.key === "description" ? "Add description" : ""}
+                            />
+                          ) : (
+                            <Text
+                              selectable
+                              className={`font-outfit text-sm ${column.key === "name" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
+                            >
+                              {String(rawValue ?? "-")}
+                            </Text>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         ) : null}
       </ScrollView>
     </ScreenContainer>
