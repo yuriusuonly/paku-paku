@@ -33,7 +33,7 @@ function formatAuditTimestamp(value) {
 }
 
 const columns = [
-  { key: "select", label: "", width: 56 },
+  { key: "select", label: "Select all", width: 140 },
   { key: "username", label: "Username", width: 160 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
@@ -271,9 +271,11 @@ export default function AdminProfilesScreen() {
           >
             <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
               <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-                {columns.map((column, index) => {
-                  const allSelected = profiles.length > 0 && profiles.every((profile) => selectedIds.includes(profile.id));
-                  return (
+                {(() => {
+                  const selectedCount = profiles.filter((profile) => selectedIds.includes(profile.id)).length;
+                  const allSelected = profiles.length > 0 && selectedCount === profiles.length;
+                  const someSelected = selectedCount > 0 && !allSelected;
+                  return columns.map((column, index) => (
                     <View
                       key={column.key}
                       style={{ width: column.width }}
@@ -283,12 +285,24 @@ export default function AdminProfilesScreen() {
                         <Pressable
                           onPress={() => setSelectedIds(allSelected ? [] : profiles.map((profile) => profile.id))}
                           accessibilityRole="checkbox"
-                          accessibilityState={{ checked: allSelected }}
-                          className={`h-5 w-5 items-center justify-center rounded border ${allSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
+                          accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
+                          className="flex-row items-center gap-2"
                         >
-                          {allSelected ? (
-                            <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                          ) : null}
+                          <View
+                            className={`h-5 w-5 items-center justify-center rounded border ${
+                              allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
+                            }`}
+                          >
+                            {allSelected ? (
+                              <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                            ) : null}
+                            {someSelected ? (
+                              <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
+                            ) : null}
+                          </View>
+                          <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                            Select all
+                          </Text>
                         </Pressable>
                       ) : (
                         <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
@@ -296,8 +310,8 @@ export default function AdminProfilesScreen() {
                         </Text>
                       )}
                     </View>
-                  );
-                })}
+                  ));
+                })()}
               </View>
 
               {profiles.map((profile, rowIndex) => {

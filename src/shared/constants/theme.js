@@ -48,6 +48,7 @@ export const cx = {
   textPrimary: "text-[#FE2C55]",
   textWhite: "text-white",
   textWhite60: "text-white/60",
+  bgWhite: "bg-white",
   bgPrimary: "bg-[#FE2C55]",
   bgInk: "bg-[#161823]",
   bgPrimarySoft: "bg-[#FE2C55]/10",

@@ -20,7 +20,7 @@ import { cx } from "../../../shared/constants/theme.js";
 const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true };
 
 const columns = [
-  { key: "select", label: "", width: 56 },
+  { key: "select", label: "Select all", width: 140 },
   { key: "name", label: "Name", width: 180 },
   { key: "price_cents", label: "Price (cents)", width: 140 },
   { key: "sort_order", label: "Sort", width: 90 },
@@ -330,9 +330,11 @@ export default function AdminMenuItemsScreen() {
           >
             <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
               <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-                {columns.map((column, index) => {
-                  const allSelected = sorted.length > 0 && sorted.every((item) => selectedIds.includes(item.id));
-                  return (
+                {(() => {
+                  const selectedCount = sorted.filter((item) => selectedIds.includes(item.id)).length;
+                  const allSelected = sorted.length > 0 && selectedCount === sorted.length;
+                  const someSelected = selectedCount > 0 && !allSelected;
+                  return columns.map((column, index) => (
                     <View
                       key={column.key}
                       style={{ width: column.width }}
@@ -342,12 +344,24 @@ export default function AdminMenuItemsScreen() {
                         <Pressable
                           onPress={() => setSelectedIds(allSelected ? [] : sorted.map((item) => item.id))}
                           accessibilityRole="checkbox"
-                          accessibilityState={{ checked: allSelected }}
-                          className={`h-5 w-5 items-center justify-center rounded border ${allSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
+                          accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
+                          className="flex-row items-center gap-2"
                         >
-                          {allSelected ? (
-                            <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                          ) : null}
+                          <View
+                            className={`h-5 w-5 items-center justify-center rounded border ${
+                              allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
+                            }`}
+                          >
+                            {allSelected ? (
+                              <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                            ) : null}
+                            {someSelected ? (
+                              <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
+                            ) : null}
+                          </View>
+                          <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                            Select all
+                          </Text>
                         </Pressable>
                       ) : (
                         <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
@@ -355,8 +369,8 @@ export default function AdminMenuItemsScreen() {
                         </Text>
                       )}
                     </View>
-                  );
-                })}
+                  ));
+                })()}
               </View>
 
               {sorted.map((item, rowIndex) => {
