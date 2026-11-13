@@ -210,6 +210,7 @@ containers themselves are not part of the app compose stack. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/menu-items` | `src/app/api/menu-items+api.js` | Public menu items (replaces `supabase:check`). |
+| `/api/auth/register` | `src/app/api/auth/register+api.js` | Registers a customer account and returns session/profile when available. |
 | `/api/auth/sign-in` | `src/app/api/auth/sign-in+api.js` | Username/password sign-in; returns session tokens and profile. |
 | `/api/auth/session` | `src/app/api/auth/session+api.js` | Validates bearer token and returns the current profile. |
 | `/api/auth/sign-out` | `src/app/api/auth/sign-out+api.js` | Revokes the current session. |
@@ -254,16 +255,23 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── _layout.js
 │   │   ├── +html.js
 │   │   ├── +not-found.js
-│   │   ├── admin.js
 │   │   ├── index.js
+│   │   ├── register.js
 │   │   ├── sign-in.js
+│   │   ├── admin/
+│   │   │   ├── index.js
+│   │   │   ├── menu-items.js
+│   │   │   └── profiles.js
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   └── profiles+api.js
 │   │   │   ├── auth/
+│   │   │   │   ├── register+api.js
 │   │   │   │   ├── session+api.js
 │   │   │   │   ├── sign-in+api.js
 │   │   │   │   └── sign-out+api.js
+│   │   │   ├── menu-items/
+│   │   │   │   └── [id]+api.js
 │   │   │   ├── health+api.js
 │   │   │   └── menu-items+api.js
 │   │   ├── manifest.json+api.js
@@ -287,26 +295,27 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── menu-repository.js
 │   │   └── profile-repository.js
 │   ├── requests/
-│   │   ├── admin/
-│   │   │   └── profiles.js
-│   │   ├── auth/
-│   │   │   ├── session.js
-│   │   │   ├── sign-in.js
-│   │   │   └── sign-out.js
+│   │   ├── admin-profiles.js
+│   │   ├── auth-register.js
+│   │   ├── auth-session.js
+│   │   ├── auth-sign-in.js
+│   │   ├── auth-sign-out.js
 │   │   ├── health.js
 │   │   └── menu-items.js
 │   ├── responses/
-│   │   ├── admin/
-│   │   │   └── profiles.js
-│   │   ├── auth/
-│   │   │   ├── session.js
-│   │   │   ├── sign-in.js
-│   │   │   └── sign-out.js
+│   │   ├── admin-profiles.js
+│   │   ├── auth-register.js
+│   │   ├── auth-session.js
+│   │   ├── auth-sign-in.js
+│   │   ├── auth-sign-out.js
 │   │   ├── health.js
 │   │   └── menu-items.js
 │   ├── screens/
 │   │   ├── admin.js
+│   │   ├── admin-menu-items.js
+│   │   ├── admin-profiles.js
 │   │   ├── home.js
+│   │   ├── register.js
 │   │   └── sign-in.js
 │   ├── services/
 │   │   ├── admin.js
@@ -323,14 +332,17 @@ containers themselves are not part of the app compose stack. |
 │   │   └── supabase.js
 │   ├── stores/
 │   │   ├── app-store.js
-│   │   └── auth-store.js
+│   │   ├── auth-store.js
+│   │   └── menu-store.js
 │   └── stylesheets/
 │       └── global.css
 ├── supabase/
 │   ├── config.toml
 │   ├── migrations/
 │   │   ├── 20261113000000_create_menu_items.sql
-│   │   └── 20261113000001_create_profiles.sql
+│   │   ├── 20261113000001_create_profiles.sql
+│   │   ├── 20261113120000_allow_admin_menu_item_writes.sql
+│   │   └── 20261113123000_enforce_single_admin_and_registration.sql
 │   └── seeds/
 │       ├── 01_menu_items.sql
 │       └── 02_admin.sql

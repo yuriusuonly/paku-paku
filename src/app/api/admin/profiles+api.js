@@ -4,7 +4,7 @@ import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
 import { listProfiles } from "../../../repositories/profile-repository.js";
-import { adminProfilesResponse } from "../../../responses/admin/profiles.js";
+import { adminProfilesResponse } from "../../../responses/admin-profiles.js";
 
 /**
  * Admin-only profiles endpoint.

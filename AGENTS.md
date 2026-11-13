@@ -24,8 +24,8 @@
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `sign-in.js`, `admin.js`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` (`home.js`, `sign-in.js`, `admin.js`); reusable UI lives under `src/components/`.
 - **API/architecture layers:**
   - `src/interceptors/` — interceptors (`log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
-  - `src/requests/` — route-matched incoming request handling/validation modules (e.g. `health.js`, `menu-items.js`, `auth/sign-in.js`, `auth/session.js`, `auth/sign-out.js`, `admin/profiles.js`).
-  - `src/responses/` — route-matched outgoing response shaping modules (e.g. `health.js`, `menu-items.js`, `auth/sign-in.js`, `auth/session.js`, `auth/sign-out.js`, `admin/profiles.js`).
+  - `src/requests/` — route-matched incoming request handling/validation modules (e.g. `health.js`, `menu-items.js`, `auth-register.js`, `auth-sign-in.js`, `auth-session.js`, `auth-sign-out.js`, `admin-profiles.js`).
+  - `src/responses/` — route-matched outgoing response shaping modules (e.g. `health.js`, `menu-items.js`, `auth-register.js`, `auth-sign-in.js`, `auth-session.js`, `auth-sign-out.js`, `admin-profiles.js`).
   - `src/repositories/` — API-to-database/auth contracts and server data access (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
   - `src/services/` — client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`).
   - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).

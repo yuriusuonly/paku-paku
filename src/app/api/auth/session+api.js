@@ -4,7 +4,7 @@ import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
 import { getSession } from "../../../repositories/auth-repository.js";
-import { sessionResponse } from "../../../responses/auth/session.js";
+import { sessionResponse } from "../../../responses/auth-session.js";
 
 /**
  * Current-session endpoint.

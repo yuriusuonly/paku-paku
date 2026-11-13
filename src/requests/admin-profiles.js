@@ -1,6 +1,6 @@
 /**
  * Request handling for `GET /api/admin/profiles`.
- * @module requests/admin/profiles
+ * @module requests/admin-profiles
  */
 
 /**

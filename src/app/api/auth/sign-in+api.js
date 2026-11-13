@@ -2,9 +2,9 @@ import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
-import { parseSignInRequest } from "../../../requests/auth/sign-in.js";
+import { parseSignInRequest } from "../../../requests/auth-sign-in.js";
 import { signIn } from "../../../repositories/auth-repository.js";
-import { signInResponse } from "../../../responses/auth/sign-in.js";
+import { signInResponse } from "../../../responses/auth-sign-in.js";
 
 /**
  * Username/password sign-in endpoint.

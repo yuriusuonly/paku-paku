@@ -1,9 +1,9 @@
-import { jsonResponse } from "../../shared/response.js";
-import { HTTP_STATUS } from "../../shared/http.js";
+import { jsonResponse } from "../shared/response.js";
+import { HTTP_STATUS } from "../shared/http.js";
 
 /**
  * Response shaping for `POST /api/auth/register`.
- * @module responses/auth/register
+ * @module responses/auth-register
  */
 
 /**

@@ -1,8 +1,8 @@
-import { jsonResponse } from "../../shared/response.js";
+import { jsonResponse } from "../shared/response.js";
 
 /**
  * Response shaping for `GET /api/auth/session`.
- * @module responses/auth/session
+ * @module responses/auth-session
  */
 
 /**

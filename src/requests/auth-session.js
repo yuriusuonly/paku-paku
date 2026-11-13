@@ -1,6 +1,6 @@
 /**
  * Request handling for `GET /api/auth/session`.
- * @module requests/auth/session
+ * @module requests/auth-session
  */
 
 /**
