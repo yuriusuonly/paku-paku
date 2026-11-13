@@ -72,7 +72,8 @@ export default function HomeScreen() {
   }, [hydrated, isAuthenticated, session?.access_token, fetchItems, subscribe, unsubscribe, resetMenu]);
 
   const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
-  const showInitialMenuLoading = loading && items.length === 0;
+  const visibleItems = items.filter((item) => item?.is_available !== false);
+  const showInitialMenuLoading = loading && visibleItems.length === 0;
 
   const showMenuSection = authReady && isAuthenticated;
 
@@ -86,7 +87,7 @@ export default function HomeScreen() {
           {loading || syncing ? (
             <CircularProgress size="small" />
           ) : (
-            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{visibleItems.length} items</Text>
           )}
         </View>
 
@@ -96,13 +97,13 @@ export default function HomeScreen() {
           <CircularProgress message="Loading menu items..." />
         ) : null}
 
-        {!loading && !error && items.length === 0 ? (
+        {!loading && !error && visibleItems.length === 0 ? (
           <Alert variant="info" message="No menu items are available right now." />
         ) : null}
 
-        {items.length > 0 ? (
+        {visibleItems.length > 0 ? (
           <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
-            {items.map((item) => (
+            {visibleItems.map((item) => (
               <View
                 key={item.id}
                 className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
