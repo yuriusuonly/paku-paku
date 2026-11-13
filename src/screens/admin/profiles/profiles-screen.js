@@ -271,17 +271,33 @@ export default function AdminProfilesScreen() {
           >
             <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
               <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-                {columns.map((column, index) => (
-                  <View
-                    key={column.key}
-                    style={{ width: column.width }}
-                    className={`px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
-                  >
-                    <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
-                      {column.label}
-                    </Text>
-                  </View>
-                ))}
+                {columns.map((column, index) => {
+                  const allSelected = profiles.length > 0 && profiles.every((profile) => selectedIds.includes(profile.id));
+                  return (
+                    <View
+                      key={column.key}
+                      style={{ width: column.width }}
+                      className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
+                    >
+                      {column.key === "select" ? (
+                        <Pressable
+                          onPress={() => setSelectedIds(allSelected ? [] : profiles.map((profile) => profile.id))}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: allSelected }}
+                          className={`h-5 w-5 items-center justify-center rounded border ${allSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
+                        >
+                          {allSelected ? (
+                            <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                          ) : null}
+                        </Pressable>
+                      ) : (
+                        <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                          {column.label}
+                        </Text>
+                      )}
+                    </View>
+                  );
+                })}
               </View>
 
               {profiles.map((profile, rowIndex) => {
