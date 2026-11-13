@@ -43,7 +43,7 @@ flowchart TD
 
 ## Routing & API conventions (Expo Router)
 - File-based routes live in `src/app/`.
-- API/special web routes use `+api` suffix naming, e.g. `api/health+api.js` → `/api/health`, `robots.txt+api.js`, `manifest.json+api.js`, `service-worker.js+api.js`. Handlers receive web `Request` and return `Response`.
+- API/special web routes use `+api` suffix naming, e.g. `api/health+api.js` → `/api/health`, `api/menu-items/+api.js` → `/api/menu-items`, `api/menu-items/[id]/+api.js` → `/api/menu-items/:id`, `robots.txt+api.js`, `manifest.json+api.js`, `service-worker.js+api.js`. Handlers receive web `Request` and return `Response`.
 - Root layout is `src/app/_layout.js`; custom document shell is `src/app/+html.js`.
 
 ### Adding a page/route
@@ -51,7 +51,7 @@ flowchart TD
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create `src/app/<path>+api.js` with `export function GET()` (and other HTTP verbs when needed), receiving a web `Request` and returning a `Response`.
+1. Create `src/app/<path>/+api.js` for route segments (subdirectory `+api.js` pattern, consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js` and `src/app/api/menu-items/[id]/+api.js`. Use `export function GET()` (and other HTTP verbs when needed), receiving a web `Request` and returning a `Response`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
 
