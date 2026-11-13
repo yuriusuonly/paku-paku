@@ -30,7 +30,7 @@ export default function App({ config }) {
     web: {
       output: "static",
       bundler: "metro",
-      favicon: "png/logo.png"
+      favicon: "public/logo.png"
     },
     extra: {
       eas: {

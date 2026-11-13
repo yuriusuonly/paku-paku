@@ -136,7 +136,7 @@ become healthy.
 ├── .dockerignore
 ├── .env
 ├── .gitignore
-├── png/
+├── public/
 │   ├── logo.png
 │   └── logo-maskable.png
 ├── svg/
