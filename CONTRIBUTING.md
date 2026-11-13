@@ -2,20 +2,22 @@
 
 ## Prerequisites
 - Node.js/npm (Docker image uses Node 22)
-- Docker + Compose for containerized runs
-- `eas-cli` is invoked on demand via `npx` by the `eas:*` scripts; `gh` (GitHub CLI) is used by the `github:*` scripts (authenticated via `GH_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands
+- Docker + Compose for containerized runs and the local Supabase stack (PostgreSQL)
+- `eas-cli` is invoked on demand via `npx` by the `eas:*` scripts; `gh` (GitHub CLI) is used by the `github:*` scripts (authenticated via `GH_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands; the Supabase CLI is invoked on demand via `npx` by the `supabase:*` scripts (not installed as a dependency)
 
 ## Setup
 1. `npm ci`
 2. Ensure `.env` exists and is **POSIX-compatible** (simple `KEY=value` lines): the Expo scripts source it, Caddy loads it with `--envfile`, and Node tooling can read it with `--env-file`.
 3. **`.env` is the single source of truth for project configuration.** Do not add fallback/default values elsewhere; all required configuration must be defined in `.env`.
+4. Keep both Supabase environments configured: local development (`EXPO_PUBLIC_SUPABASE_LOCAL_*`) and the hosted project used by Expo Hosting (`EXPO_PUBLIC_SUPABASE_*`).
 
 ## Development workflow
 - The app is **web-only** (Expo Router, Metro, static web output with API routes). Do not assume native platforms are configured.
 - Edit source in `src/` and root config (`app.config.js`, `metro.config.js`, `tailwind.config.js`, etc.). Do not edit generated artifacts in `build/` or `node_modules/`.
 - Dev server: `npm run expo:start`. Tunnel: `npm run expo:start:tunnel`.
+- Start the local Supabase stack before developing against data: `npm run supabase:start`; stop it with `npm run supabase:stop`. Use `npm run supabase:status` for local URLs/keys and `npm run supabase:reset` to re-apply migrations + seed.
 - Add convenience/repeatable project commands as scripts in `package.json`; do not create a `scripts/` directory for them. Treat `package.json` scripts as the single source of truth for how to run and configure the project.
-- Keep dependencies limited to what is actually imported/used. `devDependencies` holds workspace-local tooling that is not imported by the app.
+- Keep dependencies limited to what is actually imported/used. `devDependencies` holds workspace-local tooling that is not imported by the app; for example, `@supabase/supabase-js` is a runtime dependency, while the Supabase CLI is invoked via `npx`.
 
 ## Guides
 
@@ -52,6 +54,22 @@ flowchart TD
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
 
+### Supabase (local vs hosted)
+
+- `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` only when `npm run eas:deploy` runs. Never remove or bypass that override in the deploy script.
+- Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/shared/supabase.js` — never hardcode URLs/keys or add a cross-environment fallback.
+- Use `getSupabase()` from `src/shared/supabase.js` rather than calling `createClient()` in screens/routes.
+- Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
+- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run supabase:check`.
+- Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
+- Apply migrations to the hosted database with `npm run supabase:login` (once), `npm run supabase:link -- <project-ref>`, and `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password).
+
+```mermaid
+flowchart LR
+  D["npm run expo:start / expo:build (local target)"] --> L["Local Supabase<br/>EXPO_PUBLIC_SUPABASE_LOCAL_*<br/>127.0.0.1:54321"]
+  P["npm run eas:deploy (target overridden to hosted)"] --> H["Hosted Supabase<br/>EXPO_PUBLIC_SUPABASE_*"]
+```
+
 ## Styling & config
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/stylesheets/global.css`.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
@@ -65,6 +83,7 @@ flowchart TD
 ## Verification
 - No lint/test/typecheck scripts are configured. Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` if touching container/runtime config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
+- With the local Supabase stack running, `npm run supabase:check` should list the seeded menu items.
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).
