@@ -1,4 +1,4 @@
-import { badGateway, badRequest, notFound, serviceUnavailable } from "../shared/errors.js";
+import { badGateway, badRequest, notFound, serviceUnavailable } from "../errors/http.js";
 import { createSupabaseServerClient } from "../shared/supabase.js";
 
 /**
@@ -11,7 +11,7 @@ const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort
 /**
  * @param {import("@supabase/supabase-js").SupabaseClient} [client] - Supabase client.
  * @returns {import("@supabase/supabase-js").SupabaseClient} Resolved client.
- * @throws {import("../shared/errors.js").AppError} When Supabase is unavailable.
+ * @throws {import("../errors/app-error.js").AppError} When Supabase is unavailable.
  */
 function resolveClient(client) {
   if (client) {
@@ -33,7 +33,7 @@ function resolveClient(client) {
  *
  * @param {import("@supabase/supabase-js").SupabaseClient} [client] - Authenticated Supabase client.
  * @returns {Promise<{items: object[]}>} Menu payload.
- * @throws {import("../shared/errors.js").AppError} When menu data cannot be loaded.
+ * @throws {import("../errors/app-error.js").AppError} When menu data cannot be loaded.
  */
 export async function listMenuItems(client) {
   const supabase = resolveClient(client);
@@ -55,7 +55,7 @@ export async function listMenuItems(client) {
  * @param {import("@supabase/supabase-js").SupabaseClient} client - Authenticated/admin Supabase client.
  * @param {object} input - Menu item fields.
  * @returns {Promise<{item: object}>} Created item.
- * @throws {import("../shared/errors.js").AppError} When creation fails.
+ * @throws {import("../errors/app-error.js").AppError} When creation fails.
  */
 export async function createMenuItem(client, input) {
   const supabase = resolveClient(client);
@@ -79,7 +79,7 @@ export async function createMenuItem(client, input) {
  * @param {string} id - Menu item id.
  * @param {object} input - Fields to update.
  * @returns {Promise<{item: object}>} Updated item.
- * @throws {import("../shared/errors.js").AppError} When update fails.
+ * @throws {import("../errors/app-error.js").AppError} When update fails.
  */
 export async function updateMenuItem(client, id, input) {
   if (!id) {
@@ -113,7 +113,7 @@ export async function updateMenuItem(client, id, input) {
  * @param {import("@supabase/supabase-js").SupabaseClient} client - Authenticated/admin Supabase client.
  * @param {string} id - Menu item id.
  * @returns {Promise<{id: string}>} Deleted id.
- * @throws {import("../shared/errors.js").AppError} When deletion fails.
+ * @throws {import("../errors/app-error.js").AppError} When deletion fails.
  */
 export async function deleteMenuItem(client, id) {
   if (!id) {

@@ -1,5 +1,5 @@
 import { errorResponse } from "../shared/response.js";
-import { normalizeError } from "../shared/errors.js";
+import { normalizeError } from "../errors/normalize.js";
 
 /**
  * Error handling interceptor.

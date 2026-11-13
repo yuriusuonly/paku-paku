@@ -1,4 +1,4 @@
-import { badRequest } from "../shared/errors.js";
+import { badRequest } from "../errors/http.js";
 import { readJsonBody } from "../shared/request.js";
 
 /**

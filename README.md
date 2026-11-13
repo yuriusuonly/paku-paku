@@ -283,6 +283,10 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── container.js
 │   │   ├── header.js
 │   │   └── text-field.js
+│   ├── errors/
+│   │   ├── app-error.js
+│   │   ├── http.js
+│   │   └── normalize.js
 │   ├── interceptors/
 │   │   ├── authentication-interceptor.js
 │   │   ├── authorization-interceptor.js
@@ -324,7 +328,6 @@ containers themselves are not part of the app compose stack. |
 │   ├── shared/
 │   │   ├── config.js
 │   │   ├── context.js
-│   │   ├── errors.js
 │   │   ├── http.js
 │   │   ├── middleware.js
 │   │   ├── request.js

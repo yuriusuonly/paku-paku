@@ -1,13 +1,13 @@
 import { getBearerToken } from "../shared/request.js";
+import { AppError } from "../errors/app-error.js";
 import {
-  AppError,
   badGateway,
   badRequest,
   forbidden,
   serviceUnavailable,
   tooManyRequests,
   unauthorized
-} from "../shared/errors.js";
+} from "../errors/http.js";
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
@@ -24,7 +24,7 @@ import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
  *
  * @param {{email: string, password: string}} credentials - Validated credentials.
  * @returns {Promise<{user: object, session: object}>} Session payload.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function signIn({ email, password }) {
   let supabase;
@@ -69,7 +69,7 @@ export async function signIn({ email, password }) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Auth context.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function authenticate(request) {
   const token = getBearerToken(request);
@@ -110,7 +110,7 @@ export async function authenticate(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{user: object}>} Session payload.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function getSession(request) {
   const auth = await authenticate(request);
@@ -122,7 +122,7 @@ export async function getSession(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Admin auth context.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function authenticateAdmin(request) {
   const auth = await authenticate(request);
@@ -139,7 +139,7 @@ export async function authenticateAdmin(request) {
  *
  * @param {{username: string, email: string, password: string}} input - Registration payload.
  * @returns {Promise<{user: object, session: object | null}>} Registration result.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function register({ username, email, password }) {
   let supabase;
@@ -208,7 +208,7 @@ export async function register({ username, email, password }) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<void>} Resolves on success.
- * @throws {import("../shared/errors.js").AppError} On failure.
+ * @throws {import("../errors/app-error.js").AppError} On failure.
  */
 export async function signOut(request) {
   const token = getBearerToken(request);

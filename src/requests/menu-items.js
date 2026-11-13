@@ -1,4 +1,4 @@
-import { badRequest } from "../shared/errors.js";
+import { badRequest } from "../errors/http.js";
 import { readJsonBody } from "../shared/request.js";
 
 /**
@@ -21,7 +21,7 @@ export function validateMenuItemsRequest(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{name: string, description: string | null, price_cents: number, is_available: boolean, sort_order: number}>} Validated payload.
- * @throws {import("../shared/errors.js").AppError} When payload is invalid.
+ * @throws {import("../errors/app-error.js").AppError} When payload is invalid.
  */
 export async function parseCreateMenuItemRequest(request) {
   const body = await readJsonBody(request);
@@ -36,7 +36,7 @@ export async function parseCreateMenuItemRequest(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<object>} Validated partial payload.
- * @throws {import("../shared/errors.js").AppError} When payload is invalid.
+ * @throws {import("../errors/app-error.js").AppError} When payload is invalid.
  */
 export async function parseUpdateMenuItemRequest(request) {
   const body = await readJsonBody(request);
@@ -50,7 +50,7 @@ export async function parseUpdateMenuItemRequest(request) {
  * @param {Record<string, unknown>} body - Request body.
  * @param {{partial: boolean}} options - Normalization options.
  * @returns {object} Normalized input.
- * @throws {import("../shared/errors.js").AppError} When invalid.
+ * @throws {import("../errors/app-error.js").AppError} When invalid.
  */
 function normalizeMenuItemInput(body, { partial }) {
   const input = {};

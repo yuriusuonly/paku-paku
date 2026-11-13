@@ -1,4 +1,4 @@
-import { badGateway, forbidden, internalError } from "../shared/errors.js";
+import { badGateway, forbidden, internalError } from "../errors/http.js";
 
 /**
  * Profile data access (API to database contracts).
@@ -34,7 +34,7 @@ export function toPublicProfile(profile) {
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Request-scoped client.
  * @param {string} userId - User id.
  * @returns {Promise<object>} Profile row.
- * @throws {import("../shared/errors.js").AppError} On lookup failure.
+ * @throws {import("../errors/app-error.js").AppError} On lookup failure.
  */
 export async function findProfileByUserId(supabase, userId) {
   const { data: profile, error } = await supabase
@@ -59,7 +59,7 @@ export async function findProfileByUserId(supabase, userId) {
  *
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Admin-scoped client.
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
- * @throws {import("../shared/errors.js").AppError} On query failure.
+ * @throws {import("../errors/app-error.js").AppError} On query failure.
  */
 export async function listProfiles(supabase) {
   const { data, error } = await supabase
