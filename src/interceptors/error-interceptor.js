@@ -23,13 +23,17 @@ export async function errorInterceptor(context, next) {
   } catch (error) {
     const appError = normalizeError(error);
 
+    const logPayload = {
+      status: appError.status,
+      code: appError.code,
+      reason: appError.message,
+      cause: appError.cause
+    };
+
     if (appError.status >= 500) {
-      console.error("[api] unhandled error", {
-        code: appError.code,
-        status: appError.status,
-        message: appError.message,
-        cause: appError.cause
-      });
+      console.error(`[api] ${context.method} ${context.url.pathname} ${appError.status} ${appError.code}`, logPayload);
+    } else {
+      console.warn(`[api] ${context.method} ${context.url.pathname} ${appError.status} ${appError.code}`, logPayload);
     }
 
     const message =

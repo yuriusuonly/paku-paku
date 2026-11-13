@@ -15,14 +15,8 @@
  * @returns {Promise<Response>} Response.
  */
 export async function logInterceptor(context, next) {
-  try {
-    const response = await next();
-    const duration = Date.now() - context.startedAt;
-    console.info(`[api] ${context.method} ${context.url.pathname} ${response.status} ${duration}ms`);
-    return response;
-  } catch (error) {
-    const duration = Date.now() - context.startedAt;
-    console.error(`[api] ${context.method} ${context.url.pathname} error ${duration}ms`);
-    throw error;
-  }
+  const response = await next();
+  const duration = Date.now() - context.startedAt;
+  console.info(`[api] ${context.method} ${context.url.pathname} ${response.status} ${duration}ms`);
+  return response;
 }
