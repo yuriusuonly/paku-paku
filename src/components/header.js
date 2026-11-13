@@ -2,6 +2,7 @@ import { Link, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { useAuthStore } from "../stores/auth-store.js";
 import config from "../shared/config.js";
+import { cx } from "../shared/theme.js";
 
 /**
  * Site header with navigation and auth actions.
@@ -28,7 +29,7 @@ export function Header() {
     <View className="mb-10 flex-row items-center justify-between">
       <Link href="/" asChild>
         <Pressable>
-          <Text className="font-outfit text-xl font-black tracking-tight text-[#161823]">
+          <Text className={`font-outfit text-xl font-black tracking-tight ${cx.textInk}`}>
             {config.title}
           </Text>
         </Pressable>
@@ -39,8 +40,8 @@ export function Header() {
           <>
             {user.role === "admin" ? (
               <Link href="/admin" asChild>
-                <Pressable className="rounded-full bg-[#161823]/5 px-4 py-2">
-                  <Text className="font-outfit text-sm font-semibold text-[#161823]">
+                <Pressable className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
                     Admin
                   </Text>
                 </Pressable>
@@ -48,17 +49,17 @@ export function Header() {
             ) : null}
             <Pressable
               onPress={onSignOut}
-              className="rounded-full bg-[#161823] px-4 py-2"
+              className={`rounded-full ${cx.bgInk} px-4 py-2`}
             >
-              <Text className="font-outfit text-sm font-semibold text-white">
+              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>
                 Sign out
               </Text>
             </Pressable>
           </>
         ) : (
           <Link href="/sign-in" asChild>
-            <Pressable className="rounded-full bg-[#FE2C55] px-4 py-2">
-              <Text className="font-outfit text-sm font-semibold text-white">
+            <Pressable className={`rounded-full ${cx.bgPrimary} px-4 py-2`}>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>
                 Sign in
               </Text>
             </Pressable>

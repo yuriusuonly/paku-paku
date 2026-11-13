@@ -10,6 +10,7 @@ import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
+import { cx } from "../../../shared/theme.js";
 
 /**
  * Admin menu items management screen.
@@ -148,16 +149,16 @@ export default function AdminMenuItemsScreen() {
         <Header />
         <View className="mb-6 flex-row items-end justify-between">
           <View>
-            <Text className="font-outfit text-3xl font-black tracking-tight text-[#161823]">Menu items management</Text>
-            <Text className="font-outfit mt-2 text-base text-[#161823]/70">Changes sync in real time across open screens and devices.</Text>
+            <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Menu items management</Text>
+            <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Changes sync in real time across open screens and devices.</Text>
           </View>
           <Link href="/admin" asChild><Button label="Back" variant="ghost" /></Link>
         </View>
 
         <Alert variant="error" message={localError || error} />
 
-        <View className="mt-4 rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 gap-3">
-          <Text className="font-outfit text-lg font-bold text-[#161823]">{form.id ? "Edit item" : "New item"}</Text>
+        <View className={`mt-4 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>{form.id ? "Edit item" : "New item"}</Text>
           <TextField label="Name" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
           <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" />
           <TextField label="Price (cents)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
@@ -171,10 +172,10 @@ export default function AdminMenuItemsScreen() {
 
         <View className="mt-8 mb-3 flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
-            <Text className="font-outfit text-xl font-bold text-[#161823]">Menu items</Text>
+            <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Menu items</Text>
             {syncing ? <CircularProgress size="small" /> : null}
           </View>
-          <Text className="font-outfit text-sm text-[#161823]/50">
+          <Text className={`font-outfit text-sm ${cx.textInk50}`}>
             {loading ? "Loading..." : syncing ? "Syncing changes..." : `${sorted.length} total`}
           </Text>
         </View>
@@ -188,12 +189,12 @@ export default function AdminMenuItemsScreen() {
         {sorted.length > 0 ? (
           <View className={`gap-3 ${syncing ? "opacity-80" : "opacity-100"}`}>
             {sorted.map((item) => (
-              <View key={item.id} className="rounded-2xl border border-[#161823]/10 bg-[#161823]/[0.02] p-4">
+              <View key={item.id} className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurface} p-4`}>
                 <View className="flex-row items-start justify-between gap-3">
                   <View className="flex-1">
-                    <Text className="font-outfit text-base font-bold text-[#161823]">{item.name}</Text>
-                    <Text className="font-outfit mt-1 text-xs text-[#161823]/50">¥{Math.round((item.price_cents || 0))} · sort {item.sort_order} · {item.is_available ? "available" : "hidden"}</Text>
-                    {item.description ? <Text className="font-outfit mt-1 text-sm text-[#161823]/70">{item.description}</Text> : null}
+                    <Text className={`font-outfit text-base font-bold ${cx.textInk}`}>{item.name}</Text>
+                    <Text className={`font-outfit mt-1 text-xs ${cx.textInk50}`}>¥{Math.round((item.price_cents || 0))} · sort {item.sort_order} · {item.is_available ? "available" : "hidden"}</Text>
+                    {item.description ? <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>{item.description}</Text> : null}
                   </View>
                   <View className="flex-row gap-2">
                     <Button label="Edit" variant="ghost" onPress={() => editItem(item)} />

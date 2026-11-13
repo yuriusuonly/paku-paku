@@ -1,4 +1,5 @@
 import { View } from "react-native";
+import { cx } from "../shared/theme.js";
 
 /**
  * Layout container components.
@@ -19,7 +20,7 @@ import { View } from "react-native";
  */
 export function ScreenContainer({ children, className = "" }) {
   return (
-    <View className={`flex-1 bg-white ${className}`}>
+    <View className={`flex-1 ${cx.bgApp} ${className}`}>
       <View className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 md:px-8 md:py-12">
         {children}
       </View>

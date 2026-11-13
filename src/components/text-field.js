@@ -1,4 +1,5 @@
 import { Text, TextInput, View } from "react-native";
+import { alpha, cx } from "../shared/theme.js";
 
 /**
  * Labeled text input component.
@@ -35,19 +36,19 @@ export function TextField({
 }) {
   return (
     <View className="w-full">
-      <Text className="font-outfit mb-2 text-sm font-semibold text-[#161823]">
+      <Text className={`font-outfit mb-2 text-sm font-semibold ${cx.textInk}`}>
         {label}
       </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="rgba(22,24,35,0.35)"
+        placeholderTextColor={alpha.ink35}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         autoComplete={autoComplete}
         keyboardType={keyboardType}
-        className="font-outfit w-full rounded-2xl border border-[#161823]/10 bg-[#161823]/[0.03] px-4 py-3 text-base text-[#161823]"
+        className={`font-outfit w-full rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk}`}
       />
     </View>
   );

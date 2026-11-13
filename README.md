@@ -369,7 +369,8 @@ containers themselves are not part of the app compose stack. |
 │   ├── database/
 │   │   └── instance.js
 │   ├── shared/
-│   │   └── config.js
+│   │   ├── config.js
+│   │   └── theme.js
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js

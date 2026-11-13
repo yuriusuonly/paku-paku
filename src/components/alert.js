@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { cx } from "../shared/theme.js";
 
 /**
  * Inline alert/message component.
@@ -22,15 +23,11 @@ export function Alert({ message, variant = "info" }) {
     return null;
   }
 
-  const styles = {
-    error: "border-[#FE2C55]/20 bg-[#FE2C55]/10 text-[#9f1239]",
-    success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    info: "border-[#161823]/10 bg-[#161823]/[0.03] text-[#161823]/80"
-  };
+  const styles = cx.alert;
 
   return (
-    <View className={`w-full rounded-2xl border px-4 py-3 ${styles[variant]}`}>
-      <Text className={`font-outfit text-sm leading-relaxed ${styles[variant]}`}>
+    <View className={`w-full rounded-2xl border px-4 py-3 ${styles[variant] || styles.info}`}>
+      <Text className={`font-outfit text-sm leading-relaxed ${styles[variant] || styles.info}`}>
         {message}
       </Text>
     </View>

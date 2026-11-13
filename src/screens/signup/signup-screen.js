@@ -7,6 +7,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
+import { cx } from "../../shared/theme.js";
 
 /**
  * Customer sign-up screen.
@@ -76,15 +77,15 @@ export default function SignUpScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
         <View className="mx-auto w-full max-w-md">
           <Link href="/" asChild>
-            <Text className="font-outfit mb-8 text-sm font-semibold text-[#FE2C55]">
+            <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
               ← Back to menu
             </Text>
           </Link>
 
-          <Text className="font-outfit text-3xl md:text-4xl font-black tracking-tight text-[#161823]">
+          <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
             Sign up
           </Text>
-          <Text className="font-outfit mt-3 text-base leading-relaxed text-[#161823]/70">
+          <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
             Sign up for a customer account to sign in.
           </Text>
 
@@ -118,9 +119,9 @@ export default function SignUpScreen() {
           </View>
 
           <View className="mt-6 flex-row items-center gap-2">
-            <Text className="font-outfit text-sm text-[#161823]/70">Already have an account?</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Already have an account?</Text>
             <Link href="/sign-in" asChild>
-              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Sign in</Text>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign in</Text>
             </Link>
           </View>
         </View>

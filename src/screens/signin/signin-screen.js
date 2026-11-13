@@ -7,6 +7,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
+import { cx } from "../../shared/theme.js";
 
 /**
  * Sign-in screen.
@@ -69,15 +70,15 @@ export default function SignInScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
         <View className="mx-auto w-full max-w-md">
           <Link href="/" asChild>
-            <Text className="font-outfit mb-8 text-sm font-semibold text-[#FE2C55]">
+            <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
               ← Back to menu
             </Text>
           </Link>
 
-          <Text className="font-outfit text-3xl md:text-4xl font-black tracking-tight text-[#161823]">
+          <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
             Sign in
           </Text>
-          <Text className="font-outfit mt-3 text-base leading-relaxed text-[#161823]/70">
+          <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
             Use your account username and password.
           </Text>
 
@@ -110,13 +111,13 @@ export default function SignInScreen() {
           </View>
 
           <View className="mt-6 flex-row items-center gap-2">
-            <Text className="font-outfit text-sm text-[#161823]/70">Need an account?</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Need an account?</Text>
             <Link href="/signup" asChild>
-              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Sign up</Text>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
             </Link>
           </View>
 
-          <Text className="font-outfit mt-4 text-xs leading-relaxed text-[#161823]/50">
+          <Text className={`font-outfit mt-4 text-xs leading-relaxed ${cx.textInk50}`}>
             Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">root</Text>
           </Text>
         </View>

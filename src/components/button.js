@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, Text } from "react-native";
+import { colors, cx } from "../shared/theme.js";
 
 /**
  * Button component.
@@ -32,14 +33,14 @@ export function Button({
   const isDisabled = disabled || loading;
   const base = "flex-row items-center justify-center rounded-full px-5 py-3";
   const variants = {
-    primary: "bg-[#FE2C55]",
-    secondary: "bg-[#161823]",
-    ghost: "bg-[#161823]/5"
+    primary: cx.bgPrimary,
+    secondary: cx.bgInk,
+    ghost: cx.bgSurfaceMuted
   };
   const textVariants = {
-    primary: "text-white",
-    secondary: "text-white",
-    ghost: "text-[#161823]"
+    primary: cx.textWhite,
+    secondary: cx.textWhite,
+    ghost: cx.textInk
   };
 
   return (
@@ -50,7 +51,7 @@ export function Button({
       className={`${base} ${variants[variant]} ${isDisabled ? "opacity-50" : "opacity-100"} ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "ghost" ? "#161823" : "#ffffff"} />
+        <ActivityIndicator color={variant === "ghost" ? colors.ink : colors.white} />
       ) : null}
       <Text
         className={`font-outfit text-sm md:text-base font-semibold ${textVariants[variant]} ${loading ? "ml-2" : ""}`}

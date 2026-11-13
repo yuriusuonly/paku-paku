@@ -7,6 +7,7 @@ import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
 import { useAuthStore } from "../stores/auth-store.js";
 import { useMenuStore } from "../stores/menu-store.js";
+import { cx } from "../shared/theme.js";
 
 /**
  * Home/storefront screen with menu synced from the store/database.
@@ -78,10 +79,10 @@ export default function HomeScreen() {
         <Header />
 
         <View className="mb-10">
-          <Text className="font-outfit text-4xl md:text-6xl font-black tracking-tight text-[#161823]">
+          <Text className={`font-outfit text-4xl md:text-6xl font-black tracking-tight ${cx.textInk}`}>
             {config.title}
           </Text>
-          <Text className="font-outfit mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-[#161823]/70">
+          <Text className={`font-outfit mt-4 max-w-2xl text-base md:text-lg leading-relaxed ${cx.textInk70}`}>
             {config.description}
           </Text>
         </View>
@@ -93,10 +94,10 @@ export default function HomeScreen() {
         ) : (
           <>
             <View className="mb-4 flex-row items-end justify-between">
-              <Text className="font-outfit text-2xl font-bold text-[#161823]">Menu</Text>
+              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
               <View className="flex-row items-center gap-2">
                 {syncing && !loading ? <CircularProgress size="small" /> : null}
-                <Text className="font-outfit text-sm text-[#161823]/50">
+                <Text className={`font-outfit text-sm ${cx.textInk50}`}>
                   {loading ? "Loading..." : syncing ? "Updating..." : `${items.length} items`}
                 </Text>
               </View>
@@ -117,20 +118,20 @@ export default function HomeScreen() {
                 {items.map((item) => (
                   <View
                     key={item.id}
-                    className="rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 md:p-6"
+                    className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
                   >
                     <View className="flex-row items-start justify-between gap-4">
                       <View className="flex-1">
-                        <Text className="font-outfit text-xl font-bold text-[#161823]">
+                        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
                           {item.name}
                         </Text>
                         {item.description ? (
-                          <Text className="font-outfit mt-2 text-sm md:text-base leading-relaxed text-[#161823]/70">
+                          <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
                             {item.description}
                           </Text>
                         ) : null}
                       </View>
-                      <Text className="font-outfit text-lg font-bold text-[#FE2C55]">
+                      <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
                         {formatPrice(item.price_cents)}
                       </Text>
                     </View>

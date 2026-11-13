@@ -33,7 +33,7 @@
   - `src/network/` — network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` client transport, `status.js` HTTP status constants).
   - `src/cipher/` — cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
   - `src/database/` — database/Supabase client instance and runtime selection (`instance.js`).
-  - `src/shared/` — cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
+  - `src/shared/` — cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `theme.js` for global theme colors). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`. Keep route handlers thin and run them through the interceptor pipeline.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.
