@@ -33,7 +33,7 @@ function formatAuditTimestamp(value) {
 }
 
 const columns = [
-  { key: "select", label: "Select all", width: 140 },
+  { key: "select", label: "", width: 56 },
   { key: "username", label: "Username", width: 160 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
@@ -286,23 +286,16 @@ export default function AdminProfilesScreen() {
                           onPress={() => setSelectedIds(allSelected ? [] : profiles.map((profile) => profile.id))}
                           accessibilityRole="checkbox"
                           accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
-                          className="flex-row items-center gap-2"
+                          className={`h-5 w-5 items-center justify-center rounded border ${
+                            allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
+                          }`}
                         >
-                          <View
-                            className={`h-5 w-5 items-center justify-center rounded border ${
-                              allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
-                            }`}
-                          >
-                            {allSelected ? (
-                              <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                            ) : null}
-                            {someSelected ? (
-                              <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
-                            ) : null}
-                          </View>
-                          <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
-                            Select all
-                          </Text>
+                          {allSelected ? (
+                            <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
+                          ) : null}
+                          {someSelected ? (
+                            <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
+                          ) : null}
                         </Pressable>
                       ) : (
                         <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
