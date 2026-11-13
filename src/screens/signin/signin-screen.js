@@ -97,10 +97,11 @@ export default function SignInScreen() {
               onChangeText={setPassword}
               placeholder="••••"
               secureTextEntry
+              enablePasswordToggle
               autoComplete="password"
             />
 
-            <Alert variant="error" message={localError || storeError} />
+            <Alert variant="error" message={localError || storeError} tooltip />
 
             <Button
               label="Sign in"
@@ -118,7 +119,7 @@ export default function SignInScreen() {
           </View>
 
           <Text className={`font-outfit mt-4 text-xs leading-relaxed ${cx.textInk50}`}>
-            Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">root</Text>
+            Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">admin</Text>
           </Text>
         </View>
       </ScrollView>
