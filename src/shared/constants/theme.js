@@ -70,18 +70,6 @@ cx.alert = {
   info: `${cx.borderSubtle} ${cx.bgSurfaceSoft} ${cx.textInk80}`
 };
 
-cx.tooltip = {
-  error: `border-[#FE2C55]/20 bg-[#fff1f2] ${cx.textError}`,
-  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  info: `${cx.borderSubtle} ${cx.bgWhite} ${cx.textInk80}`
-};
-
-cx.tooltipArrow = {
-  error: "border-[#FE2C55]/20 bg-[#fff1f2]",
-  success: "border-emerald-200 bg-emerald-50",
-  info: `${cx.borderSubtle} ${cx.bgWhite}`
-};
-
 export const theme = { colors, alpha, cx };
 
 export default theme;
