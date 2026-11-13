@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getProfiles, createProfileUser, updateProfile as updateProfileApi } from "../services/admin.js";
-import { getDatabaseClient } from "../database/instance.js";
+import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
 const friendlyError = (error, fallback) =>
@@ -109,21 +109,15 @@ export const useProfilesStore = create((set, get) => ({
 
   subscribe: (token) => {
     if (get().channel) {
-      if (token) {
-        try {
-          getDatabaseClient().realtime.setAuth(token);
-        } catch {}
-      }
+      setRealtimeAuth(token);
       return;
     }
     try {
-      const database = getDatabaseClient();
-      if (token) {
-        database.realtime.setAuth(token);
-      }
-      const channel = database
-        .channel("public:profiles")
-        .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, (payload) => {
+      const channel = subscribeToTableChanges({
+        channelName: "public:profiles",
+        table: "profiles",
+        token,
+        onPayload: (payload) => {
           let changed = false;
           if (payload.eventType === "DELETE") {
             const id = payload.old?.id;
@@ -146,13 +140,14 @@ export const useProfilesStore = create((set, get) => ({
           if (changed) {
             setTimeout(() => set({ syncing: false }), 350);
           }
-        })
-        .subscribe((status) => {
+        },
+        onStatus: (status) => {
           if (status === "SUBSCRIBED") set({ subscribed: true, error: null });
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
             notifyBackgroundError("Live profile updates are temporarily unavailable.");
           }
-        });
+        }
+      });
       set({ channel });
     } catch (error) {
       notifyBackgroundError(friendlyError(error, "Could not connect to live profile updates."));
@@ -163,7 +158,7 @@ export const useProfilesStore = create((set, get) => ({
     const { channel } = get();
     if (!channel) return;
     try {
-      await getDatabaseClient().removeChannel(channel);
+      await removeRealtimeChannel(channel);
     } catch {
       notifyBackgroundError("Could not disconnect live profile updates cleanly.");
     } finally {

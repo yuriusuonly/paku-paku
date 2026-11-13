@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
-import { getDatabaseClient } from "../database/instance.js";
+import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
 /**
@@ -115,49 +115,39 @@ export const useMenuStore = create((set, get) => ({
   subscribe: (token) => {
     const state = get();
     if (state.channel) {
-      if (token) {
-        try {
-          getDatabaseClient().realtime.setAuth(token);
-        } catch {}
-      }
+      setRealtimeAuth(token);
       return;
     }
 
     try {
-      const database = getDatabaseClient();
-      if (token) {
-        database.realtime.setAuth(token);
-      }
-      const channel = database
-        .channel("public:menu_items")
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "menu_items" },
-          (payload) => {
-            let changed = false;
-            if (payload.eventType === "DELETE") {
-              const id = payload.old?.id;
-              if (id && get().items.some((item) => item.id === id)) {
-                changed = true;
-                set((s) => ({ items: s.items.filter((item) => item.id !== id), syncing: true, error: null }));
-              }
-            } else {
-              const item = payload.new;
-              if (item) {
-                const current = get().items.find((entry) => entry.id === item.id);
-                if (!isSameRecord(current, current ? { ...current, ...item } : item)) {
-                  changed = true;
-                  set((s) => ({ items: upsertItem(s.items, item), syncing: true, error: null }));
-                }
-              }
+      const channel = subscribeToTableChanges({
+        channelName: "public:menu_items",
+        table: "menu_items",
+        token,
+        onPayload: (payload) => {
+          let changed = false;
+          if (payload.eventType === "DELETE") {
+            const id = payload.old?.id;
+            if (id && get().items.some((item) => item.id === id)) {
+              changed = true;
+              set((s) => ({ items: s.items.filter((item) => item.id !== id), syncing: true, error: null }));
             }
-
-            if (changed) {
-              setTimeout(() => set({ syncing: false }), 350);
+          } else {
+            const item = payload.new;
+            if (item) {
+              const current = get().items.find((entry) => entry.id === item.id);
+              if (!isSameRecord(current, current ? { ...current, ...item } : item)) {
+                changed = true;
+                set((s) => ({ items: upsertItem(s.items, item), syncing: true, error: null }));
+              }
             }
           }
-        )
-        .subscribe((status) => {
+
+          if (changed) {
+            setTimeout(() => set({ syncing: false }), 350);
+          }
+        },
+        onStatus: (status) => {
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
             const message = "Live menu updates are temporarily unavailable.";
             set({ subscribed: false, error: message });
@@ -166,7 +156,8 @@ export const useMenuStore = create((set, get) => ({
           if (status === "SUBSCRIBED") {
             set({ subscribed: true, error: null });
           }
-        });
+        }
+      });
 
       set({ channel, subscribed: false, lastToken: token || state.lastToken });
     } catch (error) {
@@ -188,7 +179,7 @@ export const useMenuStore = create((set, get) => ({
       return;
     }
     try {
-      await getDatabaseClient().removeChannel(channel);
+      await removeRealtimeChannel(channel);
     } catch (error) {
       notifyBackgroundError("Could not disconnect live menu updates cleanly.");
     } finally {
