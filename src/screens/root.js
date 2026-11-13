@@ -76,38 +76,12 @@ export default function HomeScreen() {
 
   const showMenuSection = authReady && isAuthenticated;
 
-  const content = (
-    <>
-      <Header />
+  if (showMenuSection) {
+    return (
+      <ScreenContainer>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
+          <Header />
 
-      <View className={`${showMenuSection ? "mb-10 py-8" : "flex-1 py-2"} items-center justify-center`}>
-        <View className="w-full flex-col items-center gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
-          <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
-            <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
-              {config.title}
-            </Text>
-            <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
-              {config.description}
-            </Text>
-          </View>
-          <View className="w-full flex-1 items-center justify-center">
-            <View className="aspect-square w-full max-w-[260px] overflow-hidden md:max-w-[380px]">
-              <Image
-                source={logo}
-                accessibilityLabel={`${config.title} logo`}
-                resizeMode="cover"
-                className="h-full w-full"
-                style={{ objectFit: "cover", objectPosition: "50% 50%" }}
-              />
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {!authReady ? (
-        <CircularProgress message="Checking your session..." />
-      ) : !isAuthenticated ? null : (
-        <>
           <View className="mb-4 flex-row items-end justify-between">
             <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
             {loading || syncing ? (
@@ -153,20 +127,44 @@ export default function HomeScreen() {
               ))}
             </View>
           ) : null}
-        </>
-      )}
-    </>
-  );
+        </ScrollView>
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer>
-      {showMenuSection ? (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
-          {content}
-        </ScrollView>
-      ) : (
-        <View className="flex-1 overflow-hidden">{content}</View>
-      )}
+      <View className="flex-1 overflow-hidden">
+        <Header />
+
+        <View className="flex-1 items-center justify-center py-2">
+          <View className="w-full flex-col items-center gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+            <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
+              <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
+                {config.title}
+              </Text>
+              <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
+                {config.description}
+              </Text>
+            </View>
+            <View className="w-full flex-1 items-center justify-center">
+              <View className="aspect-square w-full max-w-[260px] overflow-hidden md:max-w-[380px]">
+                <Image
+                  source={logo}
+                  accessibilityLabel={`${config.title} logo`}
+                  resizeMode="cover"
+                  className="h-full w-full"
+                  style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {!authReady ? (
+          <CircularProgress message="Checking your session..." />
+        ) : null}
+      </View>
     </ScreenContainer>
   );
 }
