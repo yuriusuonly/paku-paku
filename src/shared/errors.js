@@ -67,6 +67,17 @@ export function forbidden(code, message) {
 }
 
 /**
+ * Creates a 404 Not Found error.
+ *
+ * @param {string} code - Error code.
+ * @param {string} message - Client-facing message.
+ * @returns {AppError} App error.
+ */
+export function notFound(code, message) {
+  return new AppError({ status: 404, code, message, expose: true });
+}
+
+/**
  * Creates a 429 Too Many Requests error.
  *
  * @param {string} code - Error code.

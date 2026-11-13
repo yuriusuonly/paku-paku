@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
-import { getMenuItems } from "../services/menu.js";
 import { useAuthStore } from "../stores/auth-store.js";
+import { useMenuStore } from "../stores/menu-store.js";
 
 /**
- * Home/storefront screen with menu loaded for signed-in users.
+ * Home/storefront screen with menu synced from the store/database.
  * @module screens/home
  */
 
@@ -34,9 +34,13 @@ export default function HomeScreen() {
   const hydrated = useAuthStore((state) => state.hydrated);
   const hydrate = useAuthStore((state) => state.hydrate);
 
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const items = useMenuStore((state) => state.items);
+  const loading = useMenuStore((state) => state.loading);
+  const error = useMenuStore((state) => state.error);
+  const fetchItems = useMenuStore((state) => state.fetchItems);
+  const subscribe = useMenuStore((state) => state.subscribe);
+  const unsubscribe = useMenuStore((state) => state.unsubscribe);
+  const resetMenu = useMenuStore((state) => state.reset);
 
   const isAuthenticated = authStatus === "authenticated" && Boolean(user && session?.access_token);
 
@@ -45,49 +49,23 @@ export default function HomeScreen() {
   }, [hydrate]);
 
   useEffect(() => {
-    let active = true;
-
     if (!hydrated) {
-      return () => {
-        active = false;
-      };
+      return;
     }
 
     if (!isAuthenticated || !session?.access_token) {
-      setItems([]);
-      setError("");
-      setLoading(false);
-      return () => {
-        active = false;
-      };
+      void unsubscribe();
+      resetMenu();
+      return;
     }
 
-    setLoading(true);
-    setError("");
-
-    getMenuItems(session.access_token)
-      .then((data) => {
-        if (active) {
-          setItems(data.items || []);
-          setError("");
-        }
-      })
-      .catch((err) => {
-        if (active) {
-          setItems([]);
-          setError(err?.message || "Could not load the menu.");
-        }
-      })
-      .finally(() => {
-        if (active) {
-          setLoading(false);
-        }
-      });
+    void fetchItems(session.access_token).catch(() => {});
+    subscribe(session.access_token);
 
     return () => {
-      active = false;
+      void unsubscribe();
     };
-  }, [hydrated, isAuthenticated, session?.access_token]);
+  }, [hydrated, isAuthenticated, session?.access_token, fetchItems, subscribe, unsubscribe, resetMenu]);
 
   const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
 
