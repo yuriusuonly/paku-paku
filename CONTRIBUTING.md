@@ -111,7 +111,7 @@ flowchart LR
 ```
 
 ## Styling, state & config
-- Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/stylesheets/global.css`.
+- Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/shared/stylesheets/global.css`.
 - Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
 - Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/constants/config.js`, `app.config.js`). `src/shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.

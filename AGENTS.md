@@ -2,7 +2,7 @@
 
 ## Stack & scope
 - Expo (SDK ~58) + Expo Router app targeting **web only** (`app.config.js` sets `platforms: ["web"]`, `web.output: "static"`, `bundler: "metro"` with `apiRoutes: true`).
-- UI/styling/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand for client stores. Global CSS entry is `src/stylesheets/global.css` (wired in `metro.config.js`).
+- UI/styling/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand for client stores. Global CSS entry is `src/shared/stylesheets/global.css` (wired in `metro.config.js`).
 - Plain JavaScript codebase: no TypeScript dependency and no lint/test/typecheck scripts. Types are documented with JSDoc (`@module`, `@typedef`/`@type`, `@param`, `@returns` — never `@example`).
 - Data: Supabase. Development and local static builds use the **local** Supabase stack (PostgreSQL in Docker, `supabase/` config + migrations); Expo Hosting deploys use the **hosted** Supabase project. There is no cross-environment fallback.
 - Auth/API: Expo Router API routes under `src/app/api/` handle authentication/authorization and data access. Server routes use Supabase via `src/database/instance.js` (anon key + forwarded user tokens, RLS enforced); never use or expose a service-role key.

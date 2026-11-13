@@ -379,8 +379,9 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── menu-store.js
 │   │   ├── notification-store.js
 │   │   └── profiles-store.js
-│   └── stylesheets/
-│       └── global.css
+│   └── shared/
+│       └── stylesheets/
+│           └── global.css
 ├── supabase/
 │   ├── config.toml
 │   ├── migrations/

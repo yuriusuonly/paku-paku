@@ -8,7 +8,7 @@ import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
 import { useAuthStore } from "../stores/auth-store.js";
 
-import "../stylesheets/global.css";
+import "../shared/stylesheets/global.css";
 
 /**
  * Root layout route (`src/app/_layout.js`): loads fonts, bootstraps session
