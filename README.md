@@ -15,9 +15,9 @@ An intentionally empty Expo web application: a minimal home screen plus the same
 web/CI/runtime scaffold used by the sibling `yuriusuonly` workspace.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
-  React 19, React Native Web, NativeWind v4, Tailwind CSS v3, plain JavaScript
-  with JSDoc, and Supabase (local PostgreSQL for development and local builds,
-  hosted Supabase on Expo Hosting).
+  React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, plain
+  JavaScript with JSDoc, and Supabase (local PostgreSQL for development and
+  local builds, hosted Supabase on Expo Hosting).
 - **Build:** `expo export --platform web` → `build/` (static export).
 - **Deploy:** push to `main` triggers GitHub Actions, which exports the web
   build on the runner and uploads only the artifact to Expo Hosting (EAS).
@@ -269,6 +269,8 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── auth-service.js
 │   │   ├── menu-service.js
 │   │   └── profile-service.js
+│   ├── stores/
+│   │   └── app-store.js
 │   ├── shared/
 │   │   ├── api.js
 │   │   ├── config.js

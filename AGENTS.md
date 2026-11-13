@@ -2,7 +2,7 @@
 
 ## Stack & scope
 - Expo (SDK ~58) + Expo Router app targeting **web only** (`app.config.js` sets `platforms: ["web"]`, `web.output: "static"`, `bundler: "metro"` with `apiRoutes: true`).
-- UI/styling: React 19, React Native Web, NativeWind v4 + Tailwind v3. Global CSS entry is `src/stylesheets/global.css` (wired in `metro.config.js`).
+- UI/styling/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand for client stores. Global CSS entry is `src/stylesheets/global.css` (wired in `metro.config.js`).
 - Plain JavaScript codebase: no TypeScript dependency and no lint/test/typecheck scripts. Types are documented with JSDoc (`@module`, `@typedef`/`@type`, `@param`, `@returns` — never `@example`).
 - Data: Supabase. Development and local static builds use the **local** Supabase stack (PostgreSQL in Docker, `supabase/` config + migrations); Expo Hosting deploys use the **hosted** Supabase project. There is no cross-environment fallback.
 - Auth/API: Expo Router API routes under `src/app/api/` handle authentication/authorization and data access. Server routes select Supabase at runtime via `src/shared/supabase-server.js` (anon key + forwarded user tokens, RLS enforced); never use or expose a service-role key.
@@ -24,6 +24,7 @@
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `+not-found.js`, `+html.js`). Screens live under `src/screens/`; the home screen is `src/screens/root.js`.
 - Shared modules live under `src/shared/`: `config.js` (client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers).
 - API business logic lives under `src/services/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the service/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, call services, map results to responses).
+- Client state stores live under `src/stores/` (Zustand).
 - Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`R0.t`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.

@@ -78,8 +78,9 @@ flowchart LR
   P["npm run eas:deploy (target overridden to hosted)"] --> H["Hosted Supabase<br/>EXPO_PUBLIC_SUPABASE_*"]
 ```
 
-## Styling & config
+## Styling, state & config
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/stylesheets/global.css`.
+- Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
 - Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/config.js`, `app.config.js`). Keep secrets out of `EXPO_PUBLIC_*`.
 
