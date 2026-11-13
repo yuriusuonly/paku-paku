@@ -269,7 +269,7 @@ export async function signOut(request) {
   }
 
   try {
-    const response = await fetch(`${config.url}/auth/v1/logout?scope=global`, {
+    const response = await fetch(`${config.url}/auth/v1/logout?scope=local`, {
       method: "POST",
       headers: {
         apikey: config.anonKey,
