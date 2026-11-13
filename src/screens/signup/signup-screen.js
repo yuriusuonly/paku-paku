@@ -86,7 +86,7 @@ export default function SignUpScreen() {
       <View className="mx-auto w-full max-w-md">
         <Link href="/" asChild>
           <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
-            ← Back to menu
+            ← Back home
           </Text>
         </Link>
 
