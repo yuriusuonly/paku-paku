@@ -288,10 +288,23 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── menu-repository.js
 │   │   └── profile-repository.js
 │   ├── requests/
-│   │   ├── auth-request.js
-│   │   └── request.js
+│   │   ├── admin/
+│   │   │   └── profiles.js
+│   │   ├── auth/
+│   │   │   ├── session.js
+│   │   │   ├── sign-in.js
+│   │   │   └── sign-out.js
+│   │   ├── health.js
+│   │   └── menu-items.js
 │   ├── responses/
-│   │   └── response.js
+│   │   ├── admin/
+│   │   │   └── profiles.js
+│   │   ├── auth/
+│   │   │   ├── session.js
+│   │   │   ├── sign-in.js
+│   │   │   └── sign-out.js
+│   │   ├── health.js
+│   │   └── menu-items.js
 │   ├── screens/
 │   │   ├── admin.js
 │   │   ├── home.js
@@ -305,6 +318,8 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── config.js
 │   │   ├── errors.js
 │   │   ├── middleware.js
+│   │   ├── request.js
+│   │   ├── response.js
 │   │   └── supabase.js
 │   ├── stores/
 │   │   ├── app-store.js

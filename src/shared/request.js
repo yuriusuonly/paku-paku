@@ -1,6 +1,6 @@
 /**
- * Request parsing and extraction helpers.
- * @module requests
+ * Shared request parsing utilities.
+ * @module shared/request
  */
 
 /**

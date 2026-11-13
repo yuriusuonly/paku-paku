@@ -1,5 +1,4 @@
-import { getBearerToken } from "../requests/request.js";
-import { parseSignInCredentials } from "../requests/auth-request.js";
+import { getBearerToken } from "../shared/request.js";
 import {
   AppError,
   badGateway,
@@ -20,15 +19,13 @@ import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
  */
 
 /**
- * Signs in with credentials and returns session tokens with profile.
+ * Signs in with validated credentials and returns session tokens with profile.
  *
- * @param {Record<string, unknown>} body - Request body.
+ * @param {{email: string, password: string}} credentials - Validated credentials.
  * @returns {Promise<{user: object, session: object}>} Session payload.
  * @throws {import("../shared/errors.js").AppError} On failure.
  */
-export async function signIn(body = {}) {
-  const { email, password } = parseSignInCredentials(body);
-
+export async function signIn({ email, password }) {
   let supabase;
   try {
     supabase = createSupabaseServerClient();

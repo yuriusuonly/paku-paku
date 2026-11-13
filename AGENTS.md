@@ -24,12 +24,12 @@
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `sign-in.js`, `admin.js`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` (`home.js`, `sign-in.js`, `admin.js`); reusable UI lives under `src/components/`.
 - **API/architecture layers:**
   - `src/interceptors/` — request context and interceptors (`context.js`, `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
-  - `src/requests/` — incoming request handling/validation helpers (`request.js`, `auth-request.js`).
-  - `src/responses/` — outgoing response helpers (`response.js`).
+  - `src/requests/` — route-matched incoming request handling/validation modules (e.g. `health.js`, `menu-items.js`, `auth/sign-in.js`, `auth/session.js`, `auth/sign-out.js`, `admin/profiles.js`).
+  - `src/responses/` — route-matched outgoing response shaping modules (e.g. `health.js`, `menu-items.js`, `auth/sign-in.js`, `auth/session.js`, `auth/sign-out.js`, `admin/profiles.js`).
   - `src/repositories/` — API-to-database/auth contracts and server data access (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
   - `src/services/` — client-to-API contracts used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`).
   - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
-  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `middleware.js` pipeline, `errors.js`, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
+  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `middleware.js` pipeline, `request.js`/`response.js` primitives, `errors.js`, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`. Keep route handlers thin and run them through the interceptor pipeline.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.

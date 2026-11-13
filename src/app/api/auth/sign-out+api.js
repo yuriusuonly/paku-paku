@@ -3,6 +3,7 @@ import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
 import { signOut } from "../../../repositories/auth-repository.js";
+import { signOutResponse } from "../../../responses/auth/sign-out.js";
 
 /**
  * Sign-out endpoint.
@@ -15,12 +16,7 @@ const route = withMiddleware(
   methodInterceptor("POST")
 )(async (context) => {
   await signOut(context.request);
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Cache-Control": "no-store"
-    }
-  });
+  return signOutResponse();
 });
 
 export { route as GET, route as POST };

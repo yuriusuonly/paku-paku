@@ -4,7 +4,7 @@ import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
 import { getSession } from "../../../repositories/auth-repository.js";
-import { ok } from "../../../responses/response.js";
+import { sessionResponse } from "../../../responses/auth/session.js";
 
 /**
  * Current-session endpoint.
@@ -16,6 +16,6 @@ const route = withMiddleware(
   errorInterceptor,
   methodInterceptor("GET"),
   authenticationInterceptor
-)(async (context) => ok(await getSession(context.request)));
+)(async (context) => sessionResponse(await getSession(context.request)));
 
 export { route as GET, route as POST };

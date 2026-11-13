@@ -1,5 +1,5 @@
 import { badRequest } from "../shared/errors.js";
-import { readJsonBody } from "../requests/request.js";
+import { readJsonBody } from "../shared/request.js";
 
 /**
  * JSON body parsing interceptor.

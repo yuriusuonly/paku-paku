@@ -3,7 +3,7 @@ import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../shared/middleware.js";
 import { listMenuItems } from "../../repositories/menu-repository.js";
-import { ok } from "../../responses/response.js";
+import { menuItemsResponse } from "../../responses/menu-items.js";
 
 /**
  * Public menu endpoint.
@@ -14,6 +14,6 @@ const route = withMiddleware(
   logInterceptor,
   errorInterceptor,
   methodInterceptor("GET")
-)(async () => ok(await listMenuItems()));
+)(async () => menuItemsResponse(await listMenuItems()));
 
 export { route as GET, route as POST };

@@ -1,4 +1,4 @@
-import { errorResponse } from "../responses/response.js";
+import { errorResponse } from "./response.js";
 import { createContext } from "../interceptors/context.js";
 
 /**

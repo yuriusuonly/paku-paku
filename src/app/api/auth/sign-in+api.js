@@ -2,10 +2,9 @@ import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
 import { withMiddleware } from "../../../shared/middleware.js";
-import { readJsonBody } from "../../../requests/request.js";
-import { badRequest } from "../../../shared/errors.js";
+import { parseSignInRequest } from "../../../requests/auth/sign-in.js";
 import { signIn } from "../../../repositories/auth-repository.js";
-import { ok } from "../../../responses/response.js";
+import { signInResponse } from "../../../responses/auth/sign-in.js";
 
 /**
  * Username/password sign-in endpoint.
@@ -17,13 +16,8 @@ const route = withMiddleware(
   errorInterceptor,
   methodInterceptor("POST")
 )(async (context) => {
-  const body = await readJsonBody(context.request);
-
-  if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with username and password.");
-  }
-
-  return ok(await signIn(body));
+  const credentials = await parseSignInRequest(context.request);
+  return signInResponse(await signIn(credentials));
 });
 
 export { route as GET, route as POST };
