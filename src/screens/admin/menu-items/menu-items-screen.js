@@ -125,6 +125,7 @@ export default function AdminMenuItemsScreen() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ name: false, description: false, price_cents: false, sort_order: false });
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -147,6 +148,7 @@ export default function AdminMenuItemsScreen() {
   const resetForm = () => {
     setForm(emptyForm);
     setLocalError("");
+    setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
   };
 
   const save = async () => {
@@ -157,10 +159,15 @@ export default function AdminMenuItemsScreen() {
     const sortOrderRaw = form.sort_order.trim();
     const hasSortOrder = sortOrderRaw !== "";
     const sortOrder = hasSortOrder ? Number(sortOrderRaw) : undefined;
-    if (!name || !Number.isInteger(price) || price < 0 || (hasSortOrder && !Number.isInteger(sortOrder))) {
+    const nameError = !name;
+    const priceError = !Number.isInteger(price) || price < 0;
+    const sortOrderError = hasSortOrder && !Number.isInteger(sortOrder);
+    if (nameError || priceError || sortOrderError) {
+      setFieldErrors({ name: nameError, description: false, price_cents: priceError, sort_order: sortOrderError });
       setLocalError("Please provide a valid name, a non-negative whole-number price in cents, and an optional whole-number sort order.");
       return;
     }
+    setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
     const payload = {
       name,
       description: form.description.trim() || null,
@@ -173,9 +180,11 @@ export default function AdminMenuItemsScreen() {
       await createItem(token, payload);
       showSuccess("Menu item created.");
       setForm(emptyForm);
+      setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
     } catch (e) {
       const message = e?.message || "Could not save the menu item. Please try again.";
       setLocalError(message);
+      setFieldErrors({ name: true, price_cents: true, sort_order: false, description: false });
       showError(message);
     } finally {
       setSaving(false);
@@ -319,10 +328,50 @@ export default function AdminMenuItemsScreen() {
 
         <View className={`mt-4 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
           <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>New item</Text>
-          <TextField label="Name (*)" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
-          <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" multiline numberOfLines={4} />
-          <TextField label="Price (cents) (*)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
-          <TextField label="Sort order (optional)" value={form.sort_order} onChangeText={(v) => setForm((f) => ({ ...f, sort_order: v }))} placeholder="Auto" keyboardType="numeric" />
+          <TextField
+            label="Name (*)"
+            value={form.name}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, name: v }));
+              if (fieldErrors.name) setFieldErrors((current) => ({ ...current, name: false }));
+            }}
+            placeholder="Takoyaki"
+            error={fieldErrors.name}
+          />
+          <TextField
+            label="Description"
+            value={form.description}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, description: v }));
+              if (fieldErrors.description) setFieldErrors((current) => ({ ...current, description: false }));
+            }}
+            placeholder="Description"
+            multiline
+            numberOfLines={4}
+            error={fieldErrors.description}
+          />
+          <TextField
+            label="Price (cents) (*)"
+            value={form.price_cents}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, price_cents: v }));
+              if (fieldErrors.price_cents) setFieldErrors((current) => ({ ...current, price_cents: false }));
+            }}
+            placeholder="650"
+            keyboardType="numeric"
+            error={fieldErrors.price_cents}
+          />
+          <TextField
+            label="Sort order (optional)"
+            value={form.sort_order}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, sort_order: v }));
+              if (fieldErrors.sort_order) setFieldErrors((current) => ({ ...current, sort_order: false }));
+            }}
+            placeholder="Auto"
+            keyboardType="numeric"
+            error={fieldErrors.sort_order}
+          />
           <View className="flex-row items-center gap-3">
             <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />
             <Button label="Create item" onPress={save} loading={saving} />

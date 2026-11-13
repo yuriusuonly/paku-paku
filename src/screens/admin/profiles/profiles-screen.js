@@ -70,6 +70,7 @@ export default function AdminProfilesScreen() {
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [localError, setLocalError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -101,22 +102,24 @@ export default function AdminProfilesScreen() {
     setLocalError("");
     const email = form.email.trim().toLowerCase();
     const password = form.password;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setLocalError("Enter a valid email address.");
+    const emailError = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const passwordError = password.length < 6;
+    if (emailError || passwordError) {
+      setFieldErrors({ email: emailError, password: passwordError });
+      setLocalError(emailError ? "Enter a valid email address." : "Password must be at least 6 characters.");
       return;
     }
-    if (password.length < 6) {
-      setLocalError("Password must be at least 6 characters.");
-      return;
-    }
+    setFieldErrors({ email: false, password: false });
     setSaving(true);
     try {
       await createUser(token, { email, password });
       setForm(emptyForm);
+      setFieldErrors({ email: false, password: false });
       showSuccess("User created.");
     } catch (e) {
       const message = e?.message || "Could not create the user. Please try again.";
       setLocalError(message);
+      setFieldErrors({ email: true, password: true });
       showError(message);
     } finally {
       setSaving(false);
@@ -217,20 +220,28 @@ export default function AdminProfilesScreen() {
           <TextField
             label="Email (*)"
             value={form.email}
-            onChangeText={(v) => setForm((f) => ({ ...f, email: v }))}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, email: v }));
+              if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: false }));
+            }}
             placeholder="example@email.com"
+            error={fieldErrors.email}
           />
           <TextField
             label="Password (*)"
             value={form.password}
-            onChangeText={(v) => setForm((f) => ({ ...f, password: v }))}
+            onChangeText={(v) => {
+              setForm((f) => ({ ...f, password: v }));
+              if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
+            }}
             placeholder="At least 6 characters"
             secureTextEntry
             enablePasswordToggle
+            error={fieldErrors.password}
           />
           <View className="flex-row items-center gap-3">
             <Button label="Create user" onPress={saveUser} loading={saving} />
-            <Button label="Clear" variant="ghost" onPress={() => setForm(emptyForm)} />
+            <Button label="Clear" variant="ghost" onPress={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); }} />
           </View>
         </View>
 
