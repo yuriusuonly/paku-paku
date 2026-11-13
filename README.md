@@ -288,8 +288,11 @@ containers themselves are not part of the app compose stack. |
 │   ├── components/
 │   │   ├── alert.js
 │   │   ├── button.js
+│   │   ├── circular-progress.js
 │   │   ├── container.js
 │   │   ├── header.js
+│   │   ├── loading-state.js
+│   │   ├── snackbar.js
 │   │   └── text-field.js
 │   ├── errors/
 │   │   ├── bad-gateway.js
@@ -372,7 +375,9 @@ containers themselves are not part of the app compose stack. |
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js
-│   │   └── menu-store.js
+│   │   ├── menu-store.js
+│   │   ├── notification-store.js
+│   │   └── profiles-store.js
 │   └── stylesheets/
 │       └── global.css
 ├── supabase/

@@ -28,7 +28,7 @@
   - `src/responses/` — route-matched outgoing response shaping modules (e.g. `health.js`, `menu-items.js`, `auth-signup.js`, `auth-sign-in.js`, `auth-session.js`, `auth-sign-out.js`, `admin-profiles.js`).
   - `src/repositories/` — API-to-database/auth contracts and server data access (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
   - `src/services/` — client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`).
-  - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
+  - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`, `menu-store.js`, `notification-store.js`, `profiles-store.js`).
   - `src/errors/` — global error modules (one file per error type: network/API, database/Supabase, crypto/cipher, etc.) plus `normalize.js`.
   - `src/network/` — network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` client transport, `status.js` HTTP status constants).
   - `src/cipher/` — cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
