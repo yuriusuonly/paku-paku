@@ -7,6 +7,19 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# Build-time client config: Expo inlines EXPO_PUBLIC_* values into the browser
+# bundle, and Docker's build context excludes .env. Pass the local Supabase
+# values as build args so the containerized app matches a local static build.
+ARG EXPO_PUBLIC_SUPABASE_TARGET
+ARG EXPO_PUBLIC_SUPABASE_LOCAL_URL
+ARG EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY
+ARG EXPO_PUBLIC_SUPABASE_URL
+ARG EXPO_PUBLIC_SUPABASE_ANON_KEY
+ENV EXPO_PUBLIC_SUPABASE_TARGET=${EXPO_PUBLIC_SUPABASE_TARGET} \
+    EXPO_PUBLIC_SUPABASE_LOCAL_URL=${EXPO_PUBLIC_SUPABASE_LOCAL_URL} \
+    EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY=${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY} \
+    EXPO_PUBLIC_SUPABASE_URL=${EXPO_PUBLIC_SUPABASE_URL} \
+    EXPO_PUBLIC_SUPABASE_ANON_KEY=${EXPO_PUBLIC_SUPABASE_ANON_KEY}
 RUN npm run expo:build
 
 # --- Runtime image, shared by the two `docker-compose.yml` services ---

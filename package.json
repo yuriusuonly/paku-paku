@@ -18,7 +18,6 @@
     "supabase:login": "npx --yes supabase@3.1.0 login",
     "supabase:link": "set -a && . ./.env && set +a && npx --yes supabase@3.1.0 link --project-ref \"$SUPABASE_PROJECT_REF\"",
     "supabase:push": "set -a && . ./.env && set +a && npx --yes supabase@3.1.0 db push --remote",
-    "supabase:check": "node --env-file=.env -e \"const { createClient } = require('@supabase/supabase-js'); const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL, process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY); supabase.from('menu_items').select('name').order('sort_order').then(({ data, error }) => { if (error) { console.error('Local Supabase check failed:', error.message); process.exit(1); } console.log('Local Supabase OK:', data.map((item) => item.name).join(', ')); }).catch((error) => { console.error('Local Supabase check failed:', error.message); process.exit(1); });\"",
     "docker:build": "docker compose build --no-cache",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
@@ -28,7 +27,7 @@
     "github:remote": "set -a && . ./.env && set +a && git remote add origin \"$GH_REPO\"",
     "github:deploy": "set -a && . ./.env && set +a && npm run github:secrets && git -c \"credential.helper=!gh auth git-credential\" push origin HEAD",
     "eas:initialize": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && npx --yes eas-cli init",
-    "eas:deploy": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --export-dir build"
+    "eas:deploy": "set -a && . ./.env && set +a && test -n \"$EXPO_PUBLIC_SUPABASE_URL\" && test -n \"$EXPO_PUBLIC_SUPABASE_ANON_KEY\" && export EXPO_TOKEN=\"$EAS_TOKEN\" && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --environment production --export-dir build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

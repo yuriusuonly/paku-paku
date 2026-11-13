@@ -60,9 +60,16 @@ flowchart TD
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/shared/supabase.js` — never hardcode URLs/keys or add a cross-environment fallback.
 - Use `getSupabase()` from `src/shared/supabase.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
-- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run supabase:check`.
+- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run expo:build` and, when the local stack is running, by hitting `/api/menu-items` and `/api/auth/*`.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
 - Apply migrations to the hosted database with `npm run supabase:login` (once), `npm run supabase:link`, and `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
+
+### API routes & auth
+
+- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`).
+- Server routes must create request-scoped clients via `src/shared/supabase-server.js` (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.
+- Use `src/shared/api.js` for JSON/no-store responses and `src/shared/api-auth.js` for bearer auth, profile loading, and admin checks. Usernames are public; the internal Auth email (`<username>@paku-paku.local`) is never exposed.
+- Never put a service-role key in client or server route code; server routes use the anon key plus forwarded user tokens so RLS applies. |
 
 ```mermaid
 flowchart LR
@@ -83,7 +90,7 @@ flowchart LR
 ## Verification
 - No lint/test/typecheck scripts are configured. Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` if touching container/runtime config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
-- With the local Supabase stack running, `npm run supabase:check` should list the seeded menu items.
+- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/auth/sign-in` with `{"username":"root","password":"R0.t"}` should return a session/profile, `GET /api/auth/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/auth/sign-out` should revoke the session. |
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).

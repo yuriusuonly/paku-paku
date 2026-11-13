@@ -42,6 +42,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_URL` | Hosted Supabase project URL; used only when the target is `hosted` (`eas:deploy`). |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (`eas:deploy`). |
+| `SUPABASE_LOCAL_SERVER_URL` | Local Supabase API URL used by Dockerized server routes (`http://api.supabase.internal:8000`, Kong on the Supabase Docker network). |
 | `SUPABASE_PROJECT_REF` | Hosted project reference; used by `supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
 | `SUPABASE_DB_PASSWORD` | Hosted project database password for CLI migrations; never bundled into the app. |
 | `EAS_TOKEN` | EAS access token (remapped to `EXPO_TOKEN` by the `eas:*` scripts). |
@@ -81,10 +82,18 @@ is denied, add your user to the `docker` group and start a new session.
 npm run supabase:start    # PostgreSQL, Auth, REST, Studio, and friends
 npm run supabase:status   # local URLs and keys (copy the anon key if it differs)
 npm run supabase:reset    # re-apply migrations + seed
-npm run supabase:check    # query menu_items through @supabase/supabase-js
 npm run expo:start        # app on http://localhost:3000
 npm run supabase:stop
 ```
+
+`supabase:reset` reapplies migrations and seeds the sample menu plus the
+administrator account (`username: root`, `password: R0.t`, role `admin`).
+Authentication is username/password; the app derives an internal Supabase Auth
+email (`root@paku-paku.local`) and never exposes it through the API. The seed
+stores a static bcrypt hash so it does not depend on `pgcrypto`; rerunning the
+seed restores that local password. The local auth config keeps
+`minimum_password_length = 6`, so GoTrue may report the 4-character seed
+password as weak while still accepting it. |
 
 Local endpoints are addressed over localhost; keep them private:
 
@@ -102,7 +111,9 @@ Migrations live in `supabase/migrations/`; local seed data lives in
 `npm run supabase:migration -- <name>`, then verify it with
 `npm run supabase:reset`.
 
-To query the database from app code:
+Server API routes in `src/app/api/` select Supabase at runtime with
+`src/shared/supabase-server.js` (local stack vs hosted project, no fallback).
+Browser code should still use `getSupabase()` from `src/shared/supabase.js`.
 
 ```js
 import { getSupabase } from "../shared/supabase.js";
@@ -115,10 +126,10 @@ const { data, error } = await getSupabase()
 Hosted setup: create a Supabase project, copy its URL and anon key into
 `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and refresh the
 `DOT_ENV` secret (`npm run github:secrets`) so production builds bake in the
-hosted values. Apply local migrations to the hosted database with
-`npm run supabase:login` (once), `npm run supabase:link` (reads
-`SUPABASE_PROJECT_REF` from `.env`), and `npm run supabase:push`
-(`SUPABASE_DB_PASSWORD` supplies the database password).
+hosted values. `npm run eas:deploy` refuses to run without those hosted values.
+Apply local migrations to the hosted database with `npm run supabase:login`
+(once), `npm run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
+`npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). |
 
 OpenCode connects to the hosted Supabase MCP server declared in `opencode.json`.
 The server URL substitutes `SUPABASE_PROJECT_REF` from `.env`, so the project
@@ -158,10 +169,12 @@ One-time setup:
    `hosted`, and production never uses the local URL.
 4. Push to `main`; `.github/workflows/deploy.yml` runs `npm run eas:deploy`.
 
-`eas:deploy` exports the web build locally (or on the runner) and uploads only
-the finished `build/` artifact with `eas deploy --non-interactive --prod`;
-EAS runs no builds. Use `npm run github:deploy` to refresh the `DOT_ENV` secret
-and push the current branch.
+`eas:deploy` requires hosted Supabase URL/anon key, exports the web build
+locally (or on the runner), and uploads the finished `build/` artifact with
+`eas deploy --non-interactive --prod --environment production`; EAS runs no
+builds. The `--environment production` flag makes EAS production environment
+variables available to server-side API routes. Use `npm run github:deploy` to
+refresh the `DOT_ENV` secret and push the current branch.
 
 ## Docker
 
@@ -175,9 +188,14 @@ npm run docker:down
 Two services share one multi-stage image: `server` runs `expo serve` on
 `$URL_PORT`, and `caddy` terminates HTTPS on `$URL_PROXY_PORT` and proxies to
 `server`. The server healthcheck hits `/api/health`; Caddy waits for it to
-become healthy. The compose stack serves only the static app: PostgreSQL and
-Supabase are not part of it, and local data stays in the separate
-`npm run supabase:start` stack.
+become healthy.
+
+The compose stack serves the static app and its Expo Router API routes. For
+local development it joins the external `supabase_network_paku-paku` network
+created by `npm run supabase:start`, so server routes can reach Kong at
+`http://api.supabase.internal:8000` (`SUPABASE_LOCAL_SERVER_URL`). Start the
+local Supabase stack before `npm run docker:up`; PostgreSQL and Supabase
+containers themselves are not part of the app compose stack. |
 
 ## Routes & endpoints
 
@@ -187,6 +205,11 @@ Supabase are not part of it, and local data stays in the separate
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
+| `/api/menu-items` | `src/app/api/menu-items+api.js` | Public menu items (replaces `supabase:check`). |
+| `/api/auth/sign-in` | `src/app/api/auth/sign-in+api.js` | Username/password sign-in; returns session tokens and profile. |
+| `/api/auth/session` | `src/app/api/auth/session+api.js` | Validates bearer token and returns the current profile. |
+| `/api/auth/sign-out` | `src/app/api/auth/sign-out+api.js` | Revokes the current session. |
+| `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list (bearer token + admin role). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
 | `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
@@ -206,6 +229,7 @@ Supabase are not part of it, and local data stays in the separate
 ├── AGENTS.md
 ├── LICENSE.txt
 ├── eas.json
+├── opencode.json
 ├── app.config.js
 ├── babel.config.js
 ├── metro.config.js
@@ -228,22 +252,33 @@ Supabase are not part of it, and local data stays in the separate
 │   │   ├── +not-found.js
 │   │   ├── index.js
 │   │   ├── api/
-│   │   │   └── health+api.js
+│   │   │   ├── admin/
+│   │   │   │   └── profiles+api.js
+│   │   │   ├── auth/
+│   │   │   │   ├── session+api.js
+│   │   │   │   ├── sign-in+api.js
+│   │   │   │   └── sign-out+api.js
+│   │   │   ├── health+api.js
+│   │   │   └── menu-items+api.js
 │   │   ├── manifest.json+api.js
 │   │   ├── robots.txt+api.js
 │   │   └── service-worker.js+api.js
 │   ├── screens/
 │   │   └── root.js
 │   ├── shared/
+│   │   ├── api.js
+│   │   ├── api-auth.js
 │   │   ├── config.js
-│   │   └── supabase.js
+│   │   ├── supabase.js
+│   │   └── supabase-server.js
 │   └── stylesheets/
 │       └── global.css
 ├── supabase/
 │   ├── config.toml
 │   ├── migrations/
-│   │   └── 20261113000000_create_menu_items.sql
+│   │   ├── 20261113000000_create_menu_items.sql
+│   │   └── 20261113000001_create_profiles.sql
 │   └── seed.sql
 └── ttf/
     └── Outfit-VariableFont_wght.ttf
-```
+``` |

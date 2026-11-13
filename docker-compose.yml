@@ -4,10 +4,28 @@ x-build: &build
   args:
     URL_PORT: ${URL_PORT}
     URL_PROXY_PORT: ${URL_PROXY_PORT}
+    # Client-side Supabase config inlined by `expo export` (build context has no .env)
+    EXPO_PUBLIC_SUPABASE_TARGET: ${EXPO_PUBLIC_SUPABASE_TARGET:-local}
+    EXPO_PUBLIC_SUPABASE_LOCAL_URL: ${EXPO_PUBLIC_SUPABASE_LOCAL_URL}
+    EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY}
+    EXPO_PUBLIC_SUPABASE_URL: ${EXPO_PUBLIC_SUPABASE_URL}
+    EXPO_PUBLIC_SUPABASE_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_ANON_KEY}
 
 services:
   server:
     build: *build
+    # Server-side Supabase config is read at runtime, not inlined. Docker
+    # reaches the local stack through Kong on the Supabase project network
+    # instead of the host's loopback address (127.0.0.1 is not routable here).
+    environment:
+      EXPO_PUBLIC_SUPABASE_TARGET: ${EXPO_PUBLIC_SUPABASE_TARGET:-local}
+      EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY}
+      EXPO_PUBLIC_SUPABASE_URL: ${EXPO_PUBLIC_SUPABASE_URL}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_LOCAL_SERVER_URL: ${SUPABASE_LOCAL_SERVER_URL:-http://api.supabase.internal:8000}
+    networks:
+      - default
+      - supabase
     # `expo serve` ignores the `URL_PORT` env var, so compose interpolates the
     # port from .env into this argv (no shell):
     command: ["./node_modules/.bin/expo", "serve", "build", "--port", "${URL_PORT}"]
@@ -32,3 +50,10 @@ services:
       server:
         condition: service_healthy
     restart: unless-stopped
+
+networks:
+  # Created by `npm run supabase:start` as `supabase_network_<project_id>`.
+  # Start the local Supabase stack before `npm run docker:up`.
+  supabase:
+    external: true
+    name: ${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}
