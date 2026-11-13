@@ -1,32 +1,27 @@
--- App profiles linked one-to-one with Supabase Auth users. Usernames are the
--- public identity; the Auth email is internal (`<username>@paku-paku.local`)
--- and is never exposed through the Data API.
+-- Profiles table, admin helper, and baseline access.
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   username text not null check (username ~ '^[a-z0-9][a-z0-9_.-]{2,31}$'),
   role text not null default 'customer' check (role in ('admin', 'customer')),
+  is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 comment on table public.profiles is 'App profiles linked to Supabase Auth users.';
-comment on column public.profiles.username is 'Case-insensitive login name; Auth email is derived from it.';
+comment on column public.profiles.username is 'Case-insensitive login name used as the public account identifier.';
 comment on column public.profiles.role is 'Authorization role: customer or admin.';
+comment on column public.profiles.is_active is 'Soft-delete/audit flag; inactive profiles are disabled without removing records.';
 
--- Usernames are unique regardless of case, so `Root` and `root` cannot coexist.
 create unique index profiles_username_lower_key on public.profiles (lower(username));
 
 alter table public.profiles enable row level security;
+alter table public.profiles replica identity full;
 
--- Profiles are private: authenticated users may read their own row, and admins
--- may read every row. Writes stay with trusted server-side roles.
 revoke all on table public.profiles from anon, authenticated;
 grant select on table public.profiles to authenticated;
 
--- Security-definer helper so the admin policy can inspect `profiles` without
--- recursing through its own RLS policies. Owned by postgres, which bypasses
--- RLS on the table unless FORCE ROW LEVEL SECURITY is enabled.
-create function public.current_user_is_admin()
+create or replace function public.current_user_is_admin()
 returns boolean
 language sql
 stable
@@ -46,14 +41,9 @@ comment on function public.current_user_is_admin() is 'True when the current JWT
 revoke all on function public.current_user_is_admin() from public, anon;
 grant execute on function public.current_user_is_admin() to authenticated;
 
-create policy "Users can read their own profile"
+drop policy if exists "Profiles are readable" on public.profiles;
+create policy "Profiles are readable"
   on public.profiles
   for select
   to authenticated
-  using (id = auth.uid());
-
-create policy "Admins can read every profile"
-  on public.profiles
-  for select
-  to authenticated
-  using (public.current_user_is_admin());
+  using (true);

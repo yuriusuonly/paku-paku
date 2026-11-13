@@ -1,12 +1,15 @@
--- Allow administrators to manage menu items and enable realtime updates.
+-- Menu item management policies and realtime publication.
+
 grant insert, update, delete on table public.menu_items to authenticated;
 
+drop policy if exists "Admins can insert menu items" on public.menu_items;
 create policy "Admins can insert menu items"
   on public.menu_items
   for insert
   to authenticated
   with check (public.current_user_is_admin());
 
+drop policy if exists "Admins can update menu items" on public.menu_items;
 create policy "Admins can update menu items"
   on public.menu_items
   for update
@@ -14,6 +17,7 @@ create policy "Admins can update menu items"
   using (public.current_user_is_admin())
   with check (public.current_user_is_admin());
 
+drop policy if exists "Admins can delete menu items" on public.menu_items;
 create policy "Admins can delete menu items"
   on public.menu_items
   for delete
