@@ -147,13 +147,13 @@ export default function HomeScreen() {
                 {config.description}
               </Text>
             </View>
-            <View className="w-full flex-1 overflow-hidden rounded-3xl min-h-[180px] md:min-h-0">
+            <View className="w-full flex-1 items-center justify-center overflow-hidden rounded-3xl min-h-[180px] md:min-h-0">
               <Image
                 source={logo}
                 accessibilityLabel={`${config.title} logo`}
-                resizeMode="cover"
+                resizeMode="contain"
                 className="h-full w-full"
-                style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+                style={{ objectFit: "contain", objectPosition: "50% 50%" }}
               />
             </View>
           </View>
