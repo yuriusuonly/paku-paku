@@ -14,6 +14,7 @@ import { Text, TextInput, View } from "react-native";
  * @property {boolean} [secureTextEntry] - Whether to obscure text.
  * @property {string} [autoCapitalize] - Auto-capitalization mode.
  * @property {string} [autoComplete] - Auto-complete hint.
+ * @property {string} [keyboardType] - Keyboard type.
  */
 
 /**
@@ -29,7 +30,8 @@ export function TextField({
   placeholder,
   secureTextEntry = false,
   autoCapitalize = "none",
-  autoComplete
+  autoComplete,
+  keyboardType
 }) {
   return (
     <View className="w-full">
@@ -44,6 +46,7 @@ export function TextField({
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
         autoComplete={autoComplete}
+        keyboardType={keyboardType}
         className="font-outfit w-full rounded-2xl border border-[#161823]/10 bg-[#161823]/[0.03] px-4 py-3 text-base text-[#161823]"
       />
     </View>

@@ -32,6 +32,19 @@ export function getSession(token) {
 }
 
 /**
+ * Registers a new customer account.
+ *
+ * @param {{username: string, password: string}} credentials - Registration credentials.
+ * @returns {Promise<{user: object, session?: object | null}>} Registration payload.
+ */
+export function register(credentials) {
+  return apiRequest(api.endpoints.authRegister, {
+    method: "POST",
+    body: credentials
+  });
+}
+
+/**
  * Signs out the current session.
  *
  * @param {string} token - Access token.

@@ -100,7 +100,14 @@ export default function SignInScreen() {
             />
           </View>
 
-          <Text className="font-outfit mt-6 text-xs leading-relaxed text-[#161823]/50">
+          <View className="mt-6 flex-row items-center gap-2">
+            <Text className="font-outfit text-sm text-[#161823]/70">Need an account?</Text>
+            <Link href="/register" asChild>
+              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Create one</Text>
+            </Link>
+          </View>
+
+          <Text className="font-outfit mt-4 text-xs leading-relaxed text-[#161823]/50">
             Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">root</Text>
           </Text>
         </View>

@@ -53,6 +53,7 @@ export const api = {
   endpoints: {
     health: `${apiBasePath}/health`,
     menuItems: `${apiBasePath}/menu-items`,
+    authRegister: `${apiBasePath}/auth/register`,
     authSignIn: `${apiBasePath}/auth/sign-in`,
     authSession: `${apiBasePath}/auth/session`,
     authSignOut: `${apiBasePath}/auth/sign-out`,

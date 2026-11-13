@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getSession, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
+import { getSession, register as registerApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 
 /**
  * Authentication/session store.
@@ -139,6 +139,40 @@ export const useAuthStore = create((set, get) => ({
         error && typeof error.message === "string"
           ? error.message
           : "Unable to sign in.";
+      set({ status: "unauthenticated", error: message, user: null, session: null });
+      return { ok: false, error: message };
+    }
+  },
+
+  /**
+   * Registers a new customer account and persists the session when returned.
+   *
+   * @param {{username: string, password: string}} credentials - Registration credentials.
+   * @returns {Promise<{ok: boolean, error?: string}>} Result for the caller/UI.
+   */
+  register: async (credentials) => {
+    set({ status: "loading", error: null });
+
+    try {
+      const data = await registerApi(credentials);
+      if (data.session) {
+        writeStoredSession(data.session);
+        set({
+          user: data.user,
+          session: data.session,
+          status: "authenticated",
+          error: null,
+          hydrated: true
+        });
+      } else {
+        set({ status: "unauthenticated", error: null, hydrated: true });
+      }
+      return { ok: true, requiresSignIn: !data.session };
+    } catch (error) {
+      const message =
+        error && typeof error.message === "string"
+          ? error.message
+          : "Unable to create account.";
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }

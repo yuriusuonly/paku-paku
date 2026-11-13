@@ -2,6 +2,7 @@ import { getBearerToken } from "../shared/request.js";
 import {
   AppError,
   badGateway,
+  badRequest,
   forbidden,
   serviceUnavailable,
   tooManyRequests,
@@ -131,6 +132,75 @@ export async function authenticateAdmin(request) {
   }
 
   return auth;
+}
+
+/**
+ * Registers a new customer account and creates its profile.
+ *
+ * @param {{username: string, email: string, password: string}} input - Registration payload.
+ * @returns {Promise<{user: object, session: object | null}>} Registration result.
+ * @throws {import("../shared/errors.js").AppError} On failure.
+ */
+export async function register({ username, email, password }) {
+  let supabase;
+  try {
+    supabase = createSupabaseServerClient();
+  } catch (error) {
+    throw serviceUnavailable(
+      "supabase_unconfigured",
+      "Supabase is not configured for server routes.",
+      error
+    );
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { username }
+    }
+  });
+
+  if (error || !data.user) {
+    const message = (error?.message || "").toLowerCase();
+    if (error?.status === 429) {
+      throw tooManyRequests("rate_limited", "Too many registration attempts. Try again later.");
+    }
+    if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
+      throw badRequest("username_taken", "That username is already taken.");
+    }
+    throw badGateway("registration_failed", "Could not create the account.", error);
+  }
+
+  // If email confirmations are enabled, no session is returned; profile creation requires an authenticated session.
+  if (!data.session) {
+    return {
+      user: { id: data.user.id, username, role: "customer" },
+      session: null
+    };
+  }
+
+  const authenticated = createSupabaseServerClient({ accessToken: data.session.access_token });
+  const { data: profile, error: profileError } = await authenticated
+    .from("profiles")
+    .insert({ id: data.user.id, username, role: "customer" })
+    .select("id, username, role, created_at, updated_at")
+    .single();
+
+  if (profileError || !profile) {
+    throw badGateway("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
+  }
+
+  return {
+    user: toPublicProfile(profile),
+    session: {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_at: data.session.expires_at,
+      expires_in: data.session.expires_in,
+      token_type: data.session.token_type
+    }
+  };
 }
 
 /**
