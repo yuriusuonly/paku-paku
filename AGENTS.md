@@ -15,7 +15,7 @@
 - `npm run opencode` — launches OpenCode (loads `.env`).
 - Caddy: `npm run caddy` (loads `.env` via `--envfile`); `npm run caddy:trust`.
 - Docker: `npm run docker:build|up|down|logs`; `npm run docker` runs the full cycle and stays attached to logs.
-- Supabase: `npm run supabase:start|stop|status|reset|migration|check` for the local stack, and `npm run supabase:login|link|push` for the hosted project (all invoke the CLI via `npx`, separate from the app Docker compose).
+- Supabase: `npm run supabase:start|stop|status|reset|migration|check` for the local stack, and `npm run supabase:login|link|push` for the hosted project (all invoke the CLI via `npx`, separate from the app Docker compose). `supabase:link` reads `SUPABASE_PROJECT_REF` from `.env`.
 - Deploy: `npm run eas:initialize`, `npm run eas:deploy`, `npm run github:remote`, `npm run github:secrets`, `npm run github:deploy`.
 
 ## Project structure / conventions
@@ -32,6 +32,7 @@
 - `.env` holds both `EXPO_PUBLIC_*` (bundled/client-visible) and server/proxy vars (`URL_PROTOCOL`, `URL_HOST`, `URL_PORT`, `URL_PROXY_PROTOCOL`, `URL_PROXY_HOST`, `URL_PROXY_PORT`, `URL_BASE`, `URL_API`), Supabase credentials, Expo/EAS deploy auth and linkage (`EAS_TOKEN`, `EAS_PROJECT_ID`, `EAS_PROJECT_SLUG`), and deploy-push config (`GH_TOKEN`, `GH_REPO`).
 - Supabase environment selection is enforced in `src/shared/supabase.js`: `EXPO_PUBLIC_SUPABASE_TARGET` defaults to `local` (local stack at `http://127.0.0.1:54321`), and only `npm run eas:deploy` overrides it to `hosted` (reading `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_ANON_KEY`). Never add a fallback between them, never bypass the override, and never expose a service-role key to the client.
 - The local Supabase stack is private to the machine (API `54321`, PostgreSQL `54322`, Studio `54323`, Mailpit `54324`); never proxy or tunnel those ports.
+- `opencode.json` declares the hosted Supabase MCP server; its URL uses `{env:SUPABASE_PROJECT_REF}` from `.env`. Do not hardcode the project reference. OpenCode must be launched via `npm run opencode` (which sources `.env`) for the substitution to resolve; authenticate once through `/mcps`.
 - Several npm scripts source `.env` directly via `set -a && . ./.env && set +a`; `caddy` uses `--envfile`. Keep `.env` POSIX-compatible.
 - `Dockerfile` + `docker-compose.yml` build/serve the static app only; they do not run PostgreSQL or Supabase. Local data is started separately with `npm run supabase:start` and is never part of the production image.
 - `/api/health` returns `{status: "ok", timestamp, uptime}` with `Cache-Control: no-store`; the Docker healthcheck hits it.

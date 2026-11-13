@@ -16,7 +16,7 @@
     "supabase:reset": "npx --yes supabase@3.1.0 db reset",
     "supabase:migration": "npx --yes supabase@3.1.0 migration new",
     "supabase:login": "npx --yes supabase@3.1.0 login",
-    "supabase:link": "set -a && . ./.env && set +a && npx --yes supabase@3.1.0 link",
+    "supabase:link": "set -a && . ./.env && set +a && npx --yes supabase@3.1.0 link --project-ref \"$SUPABASE_PROJECT_REF\"",
     "supabase:push": "set -a && . ./.env && set +a && npx --yes supabase@3.1.0 db push --remote",
     "supabase:check": "node --env-file=.env -e \"const { createClient } = require('@supabase/supabase-js'); const supabase = createClient(process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL, process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY); supabase.from('menu_items').select('name').order('sort_order').then(({ data, error }) => { if (error) { console.error('Local Supabase check failed:', error.message); process.exit(1); } console.log('Local Supabase OK:', data.map((item) => item.name).join(', ')); }).catch((error) => { console.error('Local Supabase check failed:', error.message); process.exit(1); });\"",
     "docker:build": "docker compose build --no-cache",

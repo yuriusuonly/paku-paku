@@ -42,6 +42,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_URL` | Hosted Supabase project URL; used only when the target is `hosted` (`eas:deploy`). |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (`eas:deploy`). |
+| `SUPABASE_PROJECT_REF` | Hosted project reference; used by `supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
 | `SUPABASE_DB_PASSWORD` | Hosted project database password for CLI migrations; never bundled into the app. |
 | `EAS_TOKEN` | EAS access token (remapped to `EXPO_TOKEN` by the `eas:*` scripts). |
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `npm run eas:initialize`. |
@@ -115,8 +116,15 @@ Hosted setup: create a Supabase project, copy its URL and anon key into
 `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and refresh the
 `DOT_ENV` secret (`npm run github:secrets`) so production builds bake in the
 hosted values. Apply local migrations to the hosted database with
-`npm run supabase:login` (once), `npm run supabase:link -- <project-ref>`, and
-`npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password).
+`npm run supabase:login` (once), `npm run supabase:link` (reads
+`SUPABASE_PROJECT_REF` from `.env`), and `npm run supabase:push`
+(`SUPABASE_DB_PASSWORD` supplies the database password).
+
+OpenCode connects to the hosted Supabase MCP server declared in `opencode.json`.
+The server URL substitutes `SUPABASE_PROJECT_REF` from `.env`, so the project
+reference is never duplicated in configuration. `opencode mcp list` reports the
+server as `needs authentication` until you run `/mcps` in OpenCode, select
+`supabase`, and sign in; after that it shows `connected`.
 
 ## Build & serve (static)
 

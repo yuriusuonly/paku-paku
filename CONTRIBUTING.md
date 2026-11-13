@@ -62,7 +62,7 @@ flowchart TD
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
 - Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run supabase:check`.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
-- Apply migrations to the hosted database with `npm run supabase:login` (once), `npm run supabase:link -- <project-ref>`, and `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password).
+- Apply migrations to the hosted database with `npm run supabase:login` (once), `npm run supabase:link`, and `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
 
 ```mermaid
 flowchart LR
