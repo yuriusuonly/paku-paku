@@ -1,5 +1,5 @@
 import { errorResponse } from "./response.js";
-import { createContext } from "../interceptors/context.js";
+import { createContext } from "./context.js";
 
 /**
  * Middleware pipeline for Expo Router API routes.

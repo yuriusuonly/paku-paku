@@ -86,7 +86,7 @@ flowchart LR
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`src/services/`**: client-to-API contracts and transport used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`); send requests, parse/normalize API responses, and surface errors.
 - **`src/requests/`**: route-matched incoming request handling/validation modules (mirroring API routes, e.g. `auth/sign-in.js`, `menu-items.js`, `admin/profiles.js`).
-- **`src/interceptors/`**: request context (`context.js`) and interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/middleware.js`.
+- **`src/interceptors/`**: interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/middleware.js` and request context from `src/shared/context.js`.
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
 - **`src/responses/`**: route-matched outgoing API response shaping modules (mirroring API routes) with consistent no-store/error envelopes. Use shared primitives in `src/shared/response.js`.
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
