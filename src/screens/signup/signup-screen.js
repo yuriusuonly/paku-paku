@@ -6,6 +6,7 @@ import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
+import { Tooltip } from "../../components/tooltip.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -107,7 +108,7 @@ export default function SignUpScreen() {
               autoComplete="new-password"
             />
 
-            <Alert variant="error" message={localError || storeError} tooltip />
+            <Tooltip variant="error" message={localError || storeError} />
             <Alert variant="success" message={success} />
 
             <Button

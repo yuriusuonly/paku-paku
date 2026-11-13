@@ -10,7 +10,6 @@ import { cx } from "../shared/constants/theme.js";
  * @typedef {object} AlertProps
  * @property {string} message - Message text.
  * @property {"error" | "success" | "info"} [variant] - Visual variant.
- * @property {boolean} [tooltip] - Whether to display as a floating tooltip.
  */
 
 /**
@@ -19,25 +18,13 @@ import { cx } from "../shared/constants/theme.js";
  * @param {AlertProps} props - Component props.
  * @returns {JSX.Element | null} Alert element or `null` when no message.
  */
-export function Alert({ message, variant = "info", tooltip = false }) {
+export function Alert({ message, variant = "info" }) {
   if (!message) {
     return null;
   }
 
   const styles = cx.alert;
   const variantStyle = styles[variant] || styles.info;
-
-  if (tooltip) {
-    return (
-      <View className="relative z-20 w-full">
-        <View className={`absolute left-0 top-0 w-full rounded-xl border px-3 py-2 shadow-md ${variantStyle}`}>
-          <Text className={`font-outfit text-sm leading-relaxed ${variantStyle}`}>
-            {message}
-          </Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View className={`w-full rounded-2xl border px-4 py-3 ${variantStyle}`}>
