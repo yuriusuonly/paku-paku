@@ -52,7 +52,7 @@ export default function SignUpScreen() {
     const confirmPasswordMissing = !confirmPassword;
     if (usernameMissing || passwordMissing || confirmPasswordMissing) {
       setFieldErrors({ username: usernameMissing, password: passwordMissing, confirmPassword: confirmPasswordMissing });
-      setLocalError("Enter a username, password, and password confirmation.");
+      setLocalError("Enter an email, password, and password confirmation.");
       return;
     }
 
@@ -107,15 +107,15 @@ export default function SignUpScreen() {
 
         <View className="mt-8 gap-4">
           <TextField
-            label="Username"
+            label="Email"
             value={username}
             onChangeText={(value) => {
               setUsername(value);
               if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
             }}
-            placeholder="yourname"
+            placeholder="example@email.com"
             autoCapitalize="none"
-            autoComplete="username"
+            autoComplete="email"
             error={fieldErrors.username || showStoreError}
           />
           <TextField
