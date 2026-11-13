@@ -52,22 +52,13 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="w-full items-center justify-end md:flex-1 md:justify-center">
-            <View
-              className="items-center justify-center rounded-3xl p-6 md:p-8"
-              style={{
-                backgroundColor: "#c89a6a",
-                backgroundImage:
-                  "repeating-linear-gradient(90deg, rgba(120,72,32,0.18) 0px, rgba(120,72,32,0.18) 2px, rgba(255,255,255,0.06) 2px, rgba(255,255,255,0.06) 14px), linear-gradient(180deg, #d8aa76 0%, #b98450 100%)"
-              }}
-            >
-              <Image
-                source={logo}
-                accessibilityLabel={`${config.title} logo`}
-                resizeMode="contain"
-                className="max-h-40 max-w-full md:max-h-80"
-                style={{ objectFit: "contain", objectPosition: "50% 50%" }}
-              />
-            </View>
+            <Image
+              source={logo}
+              accessibilityLabel={`${config.title} logo`}
+              resizeMode="contain"
+              className="max-h-40 max-w-full md:max-h-80"
+              style={{ objectFit: "contain", objectPosition: "50% 50%" }}
+            />
           </View>
         </View>
       </View>
