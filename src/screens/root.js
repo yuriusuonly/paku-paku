@@ -137,7 +137,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
         <Header />
 
-        <View className="w-full items-center justify-center py-2">
+        <View className="w-full items-center justify-center py-2 md:flex-1">
           <View className="w-full flex-col-reverse items-stretch gap-2 md:flex-row md:items-center md:gap-8">
             <View className="w-full items-center justify-start text-center md:flex-1 md:items-start md:justify-center md:text-left">
               <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
@@ -152,7 +152,7 @@ export default function HomeScreen() {
                 source={logo}
                 accessibilityLabel={`${config.title} logo`}
                 resizeMode="contain"
-                className="max-h-40 max-w-full md:max-h-full"
+                className="max-h-40 max-w-full md:max-h-80"
                 style={{ objectFit: "contain", objectPosition: "50% 50%" }}
               />
             </View>
