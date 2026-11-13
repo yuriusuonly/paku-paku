@@ -101,13 +101,12 @@ export default function AdminMenuItemsScreen() {
   const unsubscribe = useMenuStore((s) => s.unsubscribe);
   const createItem = useMenuStore((s) => s.createItem);
   const updateItem = useMenuStore((s) => s.updateItem);
-  const removeItem = useMenuStore((s) => s.removeItem);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
@@ -247,26 +246,36 @@ export default function AdminMenuItemsScreen() {
     );
   };
 
-  const removeSelected = async () => {
+  const toggleSelectedAvailability = async () => {
     if (!token || selectedIds.length === 0) return;
     setLocalError("");
-    setBulkDeleting(true);
-    let deletedCount = 0;
+    setBulkUpdating(true);
+    let updatedCount = 0;
+    const remaining = [...selectedIds];
     try {
       for (const id of selectedIds) {
-        await removeItem(token, id);
-        deletedCount += 1;
+        const item = items.find((entry) => entry.id === id);
+        if (!item) {
+          remaining.shift();
+          continue;
+        }
+        await updateItem(token, item.id, { is_available: !item.is_available });
+        updatedCount += 1;
+        remaining.shift();
       }
-      setSelectedIds([]);
-      showSuccess(`${deletedCount} menu item${deletedCount === 1 ? "" : "s"} deleted.`);
-    } catch (e) {
-      const remaining = selectedIds.slice(deletedCount);
       setSelectedIds(remaining);
-      const message = e?.message || "Could not delete selected menu items. Please try again.";
+      if (updatedCount > 0) {
+        showSuccess(`${updatedCount} menu item${updatedCount === 1 ? "" : "s"} updated.`);
+      } else {
+        showError("No selected menu items could be updated.");
+      }
+    } catch (e) {
+      setSelectedIds(remaining);
+      const message = e?.message || "Could not update selected menu items. Please try again.";
       setLocalError(message);
       showError(message);
     } finally {
-      setBulkDeleting(false);
+      setBulkUpdating(false);
     }
   };
 
@@ -316,11 +325,11 @@ export default function AdminMenuItemsScreen() {
 
         <View className="mb-3 flex-row items-center gap-3">
           <Button
-            label="Delete selected"
+            label="Toggle availability"
             variant="ghost"
-            onPress={removeSelected}
-            loading={bulkDeleting}
-            disabled={selectedIds.length === 0 || bulkDeleting}
+            onPress={toggleSelectedAvailability}
+            loading={bulkUpdating}
+            disabled={selectedIds.length === 0 || bulkUpdating}
           />
           {selectedIds.length > 0 ? (
             <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
