@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
 import { supabase as supabaseConfig } from "./config.js";
 
 /**
@@ -21,9 +22,8 @@ export function getSupabase() {
   if (!supabaseConfig.url || !supabaseConfig.anonKey) {
     const environment = supabaseConfig.isHosted ? "hosted" : "local";
     const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
-    throw new Error(
-      `Supabase ${environment} environment is not configured. ` +
-        `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
+    throw supabaseUnconfigured(
+      `Supabase ${environment} environment is not configured. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
     );
   }
 
@@ -49,9 +49,8 @@ export function getSupabaseServerConfig() {
   if (!supabaseConfig.serverUrl || !supabaseConfig.serverAnonKey) {
     const environment = supabaseConfig.isHosted ? "hosted" : "local";
     const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
-    throw new Error(
-      `Supabase ${environment} environment is not configured for server routes. ` +
-        `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
+    throw supabaseUnconfigured(
+      `Supabase ${environment} environment is not configured for server routes. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
     );
   }
 

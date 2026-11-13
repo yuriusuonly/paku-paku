@@ -299,6 +299,8 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── normalize.js
 │   │   ├── not-found.js
 │   │   ├── service-unavailable.js
+│   │   ├── supabase-unconfigured.js
+│   │   ├── supabase-upstream.js
 │   │   ├── too-many-requests.js
 │   │   └── unauthorized.js
 │   ├── interceptors/

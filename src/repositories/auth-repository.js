@@ -1,8 +1,8 @@
 import { getBearerToken } from "../network/request.js";
-import { badGateway } from "../errors/bad-gateway.js";
 import { badRequest } from "../errors/bad-request.js";
 import { forbidden } from "../errors/forbidden.js";
-import { serviceUnavailable } from "../errors/service-unavailable.js";
+import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
+import { supabaseUpstream } from "../errors/supabase-upstream.js";
 import { tooManyRequests } from "../errors/too-many-requests.js";
 import { unauthorized } from "../errors/unauthorized.js";
 import {
@@ -28,11 +28,7 @@ export async function signIn({ email, password }) {
   try {
     supabase = createSupabaseServerClient();
   } catch (error) {
-    throw serviceUnavailable(
-      "supabase_unconfigured",
-      "Supabase is not configured for server routes.",
-      error
-    );
+    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -79,11 +75,7 @@ export async function authenticate(request) {
   try {
     supabase = createSupabaseServerClient({ accessToken: token });
   } catch (error) {
-    throw serviceUnavailable(
-      "supabase_unconfigured",
-      "Supabase is not configured for server routes.",
-      error
-    );
+    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser(token);
@@ -143,11 +135,7 @@ export async function signUp({ username, email, password }) {
   try {
     supabase = createSupabaseServerClient();
   } catch (error) {
-    throw serviceUnavailable(
-      "supabase_unconfigured",
-      "Supabase is not configured for server routes.",
-      error
-    );
+    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
   const { data, error } = await supabase.auth.signUp({
@@ -166,7 +154,7 @@ export async function signUp({ username, email, password }) {
     if (message.includes("already") || message.includes("registered") || message.includes("exists")) {
       throw badRequest("username_taken", "That username is already taken.");
     }
-    throw badGateway("signup_failed", "Could not create the account.", error);
+    throw supabaseUpstream("signup_failed", "Could not create the account.", error);
   }
 
   // If email confirmations are enabled, no session is returned; profile creation requires an authenticated session.
@@ -185,7 +173,7 @@ export async function signUp({ username, email, password }) {
     .single();
 
   if (profileError || !profile) {
-    throw badGateway("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
+    throw supabaseUpstream("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
   }
 
   return {
@@ -218,11 +206,7 @@ export async function signOut(request) {
   try {
     config = getSupabaseServerConfig();
   } catch (error) {
-    throw serviceUnavailable(
-      "supabase_unconfigured",
-      "Supabase is not configured for server routes.",
-      error
-    );
+    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
   try {
@@ -237,12 +221,12 @@ export async function signOut(request) {
     });
 
     if (!response.ok && response.status !== 401) {
-      throw badGateway("sign_out_failed", "Could not revoke the session.");
+      throw supabaseUpstream("sign_out_failed", "Could not revoke the session.");
     }
   } catch (error) {
     if (error && error.isAppError) {
       throw error;
     }
-    throw badGateway("sign_out_failed", "Could not revoke the session.", error);
+    throw supabaseUpstream("sign_out_failed", "Could not revoke the session.", error);
   }
 }

@@ -1,4 +1,4 @@
-import { badGateway } from "../errors/bad-gateway.js";
+import { supabaseUpstream } from "../errors/supabase-upstream.js";
 import { forbidden } from "../errors/forbidden.js";
 import { internalError } from "../errors/internal.js";
 
@@ -70,7 +70,7 @@ export async function listProfiles(supabase) {
     .order("username", { ascending: true });
 
   if (error) {
-    throw badGateway("profiles_unavailable", "Could not load profiles.", error);
+    throw supabaseUpstream("profiles_unavailable", "Could not load profiles.", error);
   }
 
   return {

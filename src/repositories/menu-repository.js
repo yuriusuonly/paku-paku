@@ -1,7 +1,7 @@
-import { badGateway } from "../errors/bad-gateway.js";
 import { badRequest } from "../errors/bad-request.js";
 import { notFound } from "../errors/not-found.js";
-import { serviceUnavailable } from "../errors/service-unavailable.js";
+import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
+import { supabaseUpstream } from "../errors/supabase-upstream.js";
 import { createSupabaseServerClient } from "../shared/supabase.js";
 
 /**
@@ -23,11 +23,7 @@ function resolveClient(client) {
   try {
     return createSupabaseServerClient();
   } catch (error) {
-    throw serviceUnavailable(
-      "supabase_unconfigured",
-      "Supabase is not configured for server routes.",
-      error
-    );
+    throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 }
 
@@ -46,7 +42,7 @@ export async function listMenuItems(client) {
     .order("sort_order", { ascending: true });
 
   if (error) {
-    throw badGateway("menu_unavailable", "Could not load the menu.", error);
+    throw supabaseUpstream("menu_unavailable", "Could not load the menu.", error);
   }
 
   return { items: data || [] };
@@ -69,7 +65,7 @@ export async function createMenuItem(client, input) {
     .single();
 
   if (error) {
-    throw badGateway("menu_item_create_failed", "Could not create the menu item.", error);
+    throw supabaseUpstream("menu_item_create_failed", "Could not create the menu item.", error);
   }
 
   return { item: data };
@@ -104,7 +100,7 @@ export async function updateMenuItem(client, id, input) {
     if (error.code === "PGRST116") {
       throw notFound("menu_item_not_found", "Menu item not found.");
     }
-    throw badGateway("menu_item_update_failed", "Could not update the menu item.", error);
+    throw supabaseUpstream("menu_item_update_failed", "Could not update the menu item.", error);
   }
 
   return { item: data };
@@ -135,7 +131,7 @@ export async function deleteMenuItem(client, id) {
     if (error.code === "PGRST116") {
       throw notFound("menu_item_not_found", "Menu item not found.");
     }
-    throw badGateway("menu_item_delete_failed", "Could not delete the menu item.", error);
+    throw supabaseUpstream("menu_item_delete_failed", "Could not delete the menu item.", error);
   }
 
   return { id: data.id };
