@@ -78,7 +78,7 @@ export default function SignInScreen() {
       <View className="mx-auto w-full max-w-md">
         <Link href="/" asChild>
           <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
-            ← Back to menu
+            ← Back home
           </Text>
         </Link>
 
@@ -134,10 +134,6 @@ export default function SignInScreen() {
             <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
           </Link>
         </View>
-
-        <Text className={`font-outfit mt-4 text-xs leading-relaxed ${cx.textInk50}`}>
-          Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">admin</Text>
-        </Text>
       </View>
     </ScreenContainer>
   );
