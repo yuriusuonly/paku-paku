@@ -22,7 +22,7 @@
 - Shared modules live under `src/shared/` (`config.js` reads `EXPO_PUBLIC_*` env vars).
 - API/special routes follow Expo Router web conventions in filenames: `src/app/api/health+api.js`, `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.
-- Assets: `png/logo.png` (full-size white-background favicon/PWA icon), `png/logo-maskable.png` (safe-zone maskable PWA icon), `svg/logo.svg` and `svg/logo-maskable.svg` (editable sources), `ttf/Outfit-VariableFont_wght.ttf` (custom font loaded in `src/app/_layout.js`).
+- Assets: `png/logo.png` (full-size transparent-background favicon/PWA icon), `png/logo-maskable.png` (transparent-background, safe-zone maskable PWA icon), `svg/logo.svg` and `svg/logo-maskable.svg` (editable sources), `ttf/Outfit-VariableFont_wght.ttf` (custom font loaded in `src/app/_layout.js`).
 - **Never create a `public/` directory and never move icon assets there.** Static icon PNGs stay in `png/` (SVG sources in `svg/`); `npm run expo:build` copies `png/logo.png` and `png/logo-maskable.png` into `build/client/png/` so the manifest can use stable `/png/...` URLs.
 
 ## Runtime & deployment notes

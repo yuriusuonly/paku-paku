@@ -46,8 +46,8 @@ const isProduction = process.env.NODE_ENV === "production";
 /**
  * Default Web App Manifest built from shared config and the repo logo.
  *
- * The `any` icon uses the full-size bento box on white; the `maskable` icon
- * keeps the same design with padding for the safe zone.
+ * The `any` icon uses the full-size bento box with a transparent background;
+ * the `maskable` icon keeps the same design with padding for the safe zone.
  *
  * @type {PwaManifest}
  */
