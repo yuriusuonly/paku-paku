@@ -34,7 +34,7 @@ function formatAuditTimestamp(value) {
 
 const columns = [
   { key: "select", label: "", width: 56 },
-  { key: "username", label: "Username", width: 160 },
+  { key: "username", label: "Email", width: 220 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
   { key: "id", label: "User ID", width: 320 },
@@ -102,7 +102,7 @@ export default function AdminProfilesScreen() {
     const username = form.username.trim().toLowerCase();
     const password = form.password;
     if (!/^[a-z0-9][a-z0-9_.-]{2,31}$/.test(username)) {
-      setLocalError("Choose a valid username (3-32 chars, lowercase letters, numbers, ., _, -).");
+      setLocalError("Choose a valid email/username (3-32 chars, lowercase letters, numbers, ., _, -).");
       return;
     }
     if (password.length < 6) {
@@ -215,7 +215,7 @@ export default function AdminProfilesScreen() {
             Create a customer account and profile.
           </Text>
           <TextField
-            label="Username"
+            label="Email"
             value={form.username}
             onChangeText={(v) => setForm((f) => ({ ...f, username: v }))}
             placeholder="customer01"

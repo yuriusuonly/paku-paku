@@ -92,7 +92,7 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "", 
       keyboardType={numeric ? "numeric" : "default"}
       multiline={multiline}
       textAlignVertical={multiline ? "top" : "center"}
-      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm ${cx.textInk70} ${multiline ? "min-h-[72px]" : ""}`}
+      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm font-semibold ${cx.textInk} ${multiline ? "min-h-[72px]" : ""}`}
     />
   );
 }
