@@ -1,13 +1,10 @@
 import { getBearerToken } from "../shared/request.js";
-import { AppError } from "../errors/app-error.js";
-import {
-  badGateway,
-  badRequest,
-  forbidden,
-  serviceUnavailable,
-  tooManyRequests,
-  unauthorized
-} from "../errors/http.js";
+import { badGateway } from "../errors/bad-gateway.js";
+import { badRequest } from "../errors/bad-request.js";
+import { forbidden } from "../errors/forbidden.js";
+import { serviceUnavailable } from "../errors/service-unavailable.js";
+import { tooManyRequests } from "../errors/too-many-requests.js";
+import { unauthorized } from "../errors/unauthorized.js";
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
@@ -24,7 +21,7 @@ import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
  *
  * @param {{email: string, password: string}} credentials - Validated credentials.
  * @returns {Promise<{user: object, session: object}>} Session payload.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function signIn({ email, password }) {
   let supabase;
@@ -69,7 +66,7 @@ export async function signIn({ email, password }) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Auth context.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function authenticate(request) {
   const token = getBearerToken(request);
@@ -110,7 +107,7 @@ export async function authenticate(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{user: object}>} Session payload.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function getSession(request) {
   const auth = await authenticate(request);
@@ -122,7 +119,7 @@ export async function getSession(request) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Admin auth context.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function authenticateAdmin(request) {
   const auth = await authenticate(request);
@@ -139,7 +136,7 @@ export async function authenticateAdmin(request) {
  *
  * @param {{username: string, email: string, password: string}} input - Registration payload.
  * @returns {Promise<{user: object, session: object | null}>} Registration result.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function register({ username, email, password }) {
   let supabase;
@@ -208,7 +205,7 @@ export async function register({ username, email, password }) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<void>} Resolves on success.
- * @throws {import("../errors/app-error.js").AppError} On failure.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function signOut(request) {
   const token = getBearerToken(request);
@@ -243,7 +240,7 @@ export async function signOut(request) {
       throw badGateway("sign_out_failed", "Could not revoke the session.");
     }
   } catch (error) {
-    if (error instanceof AppError) {
+    if (error && error.isAppError) {
       throw error;
     }
     throw badGateway("sign_out_failed", "Could not revoke the session.", error);

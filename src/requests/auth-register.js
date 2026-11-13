@@ -1,4 +1,4 @@
-import { badRequest } from "../errors/http.js";
+import { badRequest } from "../errors/bad-request.js";
 import { readJsonBody } from "../shared/request.js";
 
 /**
@@ -30,7 +30,7 @@ export function loginEmailForUsername(username) {
  *
  * @param {Request} request - Incoming request.
  * @returns {Promise<{username: string, password: string, email: string}>} Validated payload.
- * @throws {import("../errors/app-error.js").AppError} On invalid request.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On invalid request.
  */
 export async function parseRegisterRequest(request) {
   const body = await readJsonBody(request);

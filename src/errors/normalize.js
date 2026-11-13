@@ -1,5 +1,4 @@
-import { AppError } from "./app-error.js";
-import { internalError } from "./http.js";
+import { internalError } from "./internal.js";
 
 /**
  * Error normalization utilities.
@@ -7,13 +6,13 @@ import { internalError } from "./http.js";
  */
 
 /**
- * Normalizes unknown thrown values into an AppError.
+ * Normalizes unknown thrown values into an application error object.
  *
  * @param {unknown} error - Thrown value.
- * @returns {AppError} Normalized application error.
+ * @returns {Error & {status: number, code: string, expose: boolean}} Normalized error.
  */
 export function normalizeError(error) {
-  if (error instanceof AppError) {
+  if (error && typeof error === "object" && error.isAppError === true) {
     return error;
   }
 
