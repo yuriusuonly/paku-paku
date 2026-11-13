@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Alert } from "../components/alert.js";
-import { Button } from "../components/button.js";
-import { Header } from "../components/header.js";
-import { ScreenContainer } from "../components/container.js";
-import { getProfiles } from "../services/admin.js";
-import { useAuthStore } from "../stores/auth-store.js";
+import { Alert } from "../../components/alert.js";
+import { Button } from "../../components/button.js";
+import { Header } from "../../components/header.js";
+import { ScreenContainer } from "../../components/container.js";
+import { getProfiles } from "../../services/admin.js";
+import { useAuthStore } from "../../stores/auth-store.js";
 
 /**
  * Admin profiles management/audit screen.

@@ -1,4 +1,4 @@
-import SignInScreen from "../screens/sign-in.js";
+import SignInScreen from "../screens/signin/signin-screen.js";
 
 /**
  * Sign-in route (`src/app/sign-in.js`).

@@ -1,25 +1,25 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Alert } from "../components/alert.js";
-import { Button } from "../components/button.js";
-import { ScreenContainer } from "../components/container.js";
-import { TextField } from "../components/text-field.js";
-import { useAuthStore } from "../stores/auth-store.js";
+import { Alert } from "../../components/alert.js";
+import { Button } from "../../components/button.js";
+import { ScreenContainer } from "../../components/container.js";
+import { TextField } from "../../components/text-field.js";
+import { useAuthStore } from "../../stores/auth-store.js";
 
 /**
- * Customer registration screen.
- * @module screens/register
+ * Sign-in screen.
+ * @module screens/signin/signin-screen
  */
 
 /**
- * Registration form.
+ * Username/password sign-in form.
  *
- * @returns {JSX.Element} Register screen.
+ * @returns {JSX.Element} Sign-in screen.
  */
-export default function RegisterScreen() {
+export default function SignInScreen() {
   const router = useRouter();
-  const register = useAuthStore((state) => state.register);
+  const signIn = useAuthStore((state) => state.signIn);
   const user = useAuthStore((state) => state.user);
   const status = useAuthStore((state) => state.status);
   const hydrated = useAuthStore((state) => state.hydrated);
@@ -30,35 +30,28 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
-  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
-      router.replace("/");
+      router.replace(user.role === "admin" ? "/admin" : "/");
     }
   }, [hydrated, status, user, router]);
 
   const onSubmit = async () => {
     clearError();
     setLocalError("");
-    setSuccess("");
 
     if (!username.trim() || !password) {
-      setLocalError("Enter a username and password.");
+      setLocalError("Enter your username and password.");
       return;
     }
 
     setSubmitting(true);
-    const result = await register({ username, password });
+    const result = await signIn({ username, password });
     setSubmitting(false);
 
     if (!result.ok) {
-      setLocalError(result.error || "Unable to create account.");
-      return;
-    }
-
-    if (result.requiresSignIn) {
-      setSuccess("Account created. Please sign in.");
+      setLocalError(result.error || "Unable to sign in.");
     }
   };
 
@@ -73,10 +66,10 @@ export default function RegisterScreen() {
           </Link>
 
           <Text className="font-outfit text-3xl md:text-4xl font-black tracking-tight text-[#161823]">
-            Create account
+            Sign in
           </Text>
           <Text className="font-outfit mt-3 text-base leading-relaxed text-[#161823]/70">
-            Register a customer account to sign in.
+            Use your account username and password.
           </Text>
 
           <View className="mt-8 gap-4">
@@ -84,7 +77,7 @@ export default function RegisterScreen() {
               label="Username"
               value={username}
               onChangeText={setUsername}
-              placeholder="yourname"
+              placeholder="root"
               autoCapitalize="none"
               autoComplete="username"
             />
@@ -92,16 +85,15 @@ export default function RegisterScreen() {
               label="Password"
               value={password}
               onChangeText={setPassword}
-              placeholder="At least 6 characters"
+              placeholder="••••"
               secureTextEntry
-              autoComplete="new-password"
+              autoComplete="password"
             />
 
             <Alert variant="error" message={localError || storeError} />
-            <Alert variant="success" message={success} />
 
             <Button
-              label="Create account"
+              label="Sign in"
               onPress={onSubmit}
               loading={submitting || status === "loading"}
               className="mt-2"
@@ -109,11 +101,15 @@ export default function RegisterScreen() {
           </View>
 
           <View className="mt-6 flex-row items-center gap-2">
-            <Text className="font-outfit text-sm text-[#161823]/70">Already have an account?</Text>
-            <Link href="/sign-in" asChild>
-              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Sign in</Text>
+            <Text className="font-outfit text-sm text-[#161823]/70">Need an account?</Text>
+            <Link href="/register" asChild>
+              <Text className="font-outfit text-sm font-semibold text-[#FE2C55]">Create one</Text>
             </Link>
           </View>
+
+          <Text className="font-outfit mt-4 text-xs leading-relaxed text-[#161823]/50">
+            Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">root</Text>
+          </Text>
         </View>
       </ScrollView>
     </ScreenContainer>

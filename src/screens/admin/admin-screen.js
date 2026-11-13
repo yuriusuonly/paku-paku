@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Button } from "../components/button.js";
-import { Header } from "../components/header.js";
-import { ScreenContainer } from "../components/container.js";
-import { useAuthStore } from "../stores/auth-store.js";
+import { Button } from "../../components/button.js";
+import { Header } from "../../components/header.js";
+import { ScreenContainer } from "../../components/container.js";
+import { useAuthStore } from "../../stores/auth-store.js";
 
 /**
  * Administrator dashboard with links to management screens.
- * @module screens/admin/index
+ * @module screens/admin/admin-screen
  */
 
 /**

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { Alert } from "../components/alert.js";
-import { Button } from "../components/button.js";
-import { Header } from "../components/header.js";
-import { ScreenContainer } from "../components/container.js";
-import { TextField } from "../components/text-field.js";
-import { useAuthStore } from "../stores/auth-store.js";
-import { useMenuStore } from "../stores/menu-store.js";
+import { Alert } from "../../components/alert.js";
+import { Button } from "../../components/button.js";
+import { Header } from "../../components/header.js";
+import { ScreenContainer } from "../../components/container.js";
+import { TextField } from "../../components/text-field.js";
+import { useAuthStore } from "../../stores/auth-store.js";
+import { useMenuStore } from "../../stores/menu-store.js";
 
 /**
  * Admin menu items management screen.

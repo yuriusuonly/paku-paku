@@ -203,13 +203,17 @@ containers themselves are not part of the app compose stack. |
 
 | Route | Source | Purpose |
 | --- | --- | --- |
-| `/` | `src/app/index.js` → `src/screens/home.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/sign-in` | `src/app/sign-in.js` → `src/screens/sign-in.js` | Username/password sign-in. |
-| `/admin` | `src/app/admin.js` → `src/screens/admin.js` | Admin-only profiles view (protected). |
+| `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
+| `/sign-in` | `src/app/sign-in.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
+| `/register` | `src/app/register.js` → `src/screens/signup/signup-screen.js` | Customer registration. |
+| `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin dashboard (protected). |
+| `/admin/menu-items` | `src/app/admin/menu-items.js` → `src/screens/admin/menu-items.js` | Admin menu items management (protected). |
+| `/admin/profiles` | `src/app/admin/profiles.js` → `src/screens/admin/profiles.js` | Admin profiles view/audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
-| `/api/menu-items` | `src/app/api/menu-items+api.js` | Public menu items (replaces `supabase:check`). |
+| `/api/menu-items` | `src/app/api/menu-items+api.js` | Menu items listing and admin create (`GET`/`POST`). |
+| `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
 | `/api/auth/register` | `src/app/api/auth/register+api.js` | Registers a customer account and returns session/profile when available. |
 | `/api/auth/sign-in` | `src/app/api/auth/sign-in+api.js` | Username/password sign-in; returns session tokens and profile. |
 | `/api/auth/session` | `src/app/api/auth/session+api.js` | Validates bearer token and returns the current profile. |
@@ -322,12 +326,14 @@ containers themselves are not part of the app compose stack. |
 │   │   └── menu-items.js
 │   ├── screens/
 │   │   ├── admin/
-│   │   │   ├── index.js
+│   │   │   ├── admin-screen.js
 │   │   │   ├── menu-items.js
 │   │   │   └── profiles.js
-│   │   ├── index.js
-│   │   ├── register.js
-│   │   └── sign-in.js
+│   │   ├── signin/
+│   │   │   └── signin-screen.js
+│   │   ├── signup/
+│   │   │   └── signup-screen.js
+│   │   └── root.js
 │   ├── services/
 │   │   ├── admin.js
 │   │   ├── auth.js

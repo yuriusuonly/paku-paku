@@ -9,7 +9,7 @@ import { useMenuStore } from "../stores/menu-store.js";
 
 /**
  * Home/storefront screen with menu synced from the store/database.
- * @module screens/index
+ * @module screens/root
  */
 
 /**

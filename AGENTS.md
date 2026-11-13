@@ -6,7 +6,7 @@
 - Plain JavaScript codebase: no TypeScript dependency and no lint/test/typecheck scripts. Types are documented with JSDoc (`@module`, `@typedef`/`@type`, `@param`, `@returns` — never `@example`).
 - Data: Supabase. Development and local static builds use the **local** Supabase stack (PostgreSQL in Docker, `supabase/` config + migrations); Expo Hosting deploys use the **hosted** Supabase project. There is no cross-environment fallback.
 - Auth/API: Expo Router API routes under `src/app/api/` handle authentication/authorization and data access. Server routes select Supabase at runtime via `src/shared/supabase-server.js` (anon key + forwarded user tokens, RLS enforced); never use or expose a service-role key.
-- The app includes storefront, sign-in, and admin screens (`src/screens/home.js`, `sign-in.js`, `admin.js`) backed by Expo Router API routes and Supabase. Keep routes, services, stores, and docs consistent when extending it.
+- The app includes storefront, sign-in, sign-up, and admin screens under `src/screens/` (e.g. `root.js`, `signin/signin-screen.js`, `signup/signup-screen.js`, `admin/*`) backed by Expo Router API routes and Supabase. Keep routes, services, stores, and docs consistent when extending it.
 
 ## Commands (from `package.json`)
 - `npm run expo:start` — starts the dev server on `$URL_PORT` after sourcing `.env`; requires `.env`.
@@ -21,7 +21,7 @@
 
 ## Project structure / conventions
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
-- Routing uses Expo Router file-based routes under `src/app/` (e.g. `_layout.js`, `index.js`, `sign-in.js`, `register.js`, `admin/**`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` and mirror `src/app/` route paths (e.g. `index.js`, `sign-in.js`, `register.js`, `admin/index.js`, `admin/menu-items.js`, `admin/profiles.js`); reusable UI lives under `src/components/`.
+- Routing uses Expo Router file-based routes under `src/app/` (e.g. `_layout.js`, `index.js`, `sign-in.js`, `register.js`, `admin/**`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` and mirror `src/app/` route paths with layout modules prefixed as `*-screen.js` where applicable (e.g. `root.js` for `app/index.js`, `signin/signin-screen.js`, `signup/signup-screen.js`, `admin/admin-screen.js`, `admin/menu-items.js`, `admin/profiles.js`); reusable UI lives under `src/components/`.
 - **API/architecture layers:**
   - `src/interceptors/` — interceptors (`log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
   - `src/requests/` — route-matched incoming request handling/validation modules (e.g. `health.js`, `menu-items.js`, `auth-register.js`, `auth-sign-in.js`, `auth-session.js`, `auth-sign-out.js`, `admin-profiles.js`).
