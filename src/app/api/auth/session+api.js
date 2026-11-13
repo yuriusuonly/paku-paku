@@ -2,7 +2,7 @@ import { authenticationInterceptor } from "../../../interceptors/authentication-
 import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../../shared/middleware.js";
+import { withMiddleware } from "../../../network/middleware.js";
 import { getSession } from "../../../repositories/auth-repository.js";
 import { sessionResponse } from "../../../responses/auth-session.js";
 

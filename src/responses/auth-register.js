@@ -1,5 +1,5 @@
-import { jsonResponse } from "../shared/response.js";
-import { HTTP_STATUS } from "../shared/http.js";
+import { jsonResponse } from "../network/response.js";
+import { HTTP_STATUS } from "../network/http.js";
 
 /**
  * Response shaping for `POST /api/auth/register`.

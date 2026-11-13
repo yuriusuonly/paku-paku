@@ -1,5 +1,5 @@
 import { badRequest } from "../errors/bad-request.js";
-import { readJsonBody } from "../shared/request.js";
+import { readJsonBody } from "../network/request.js";
 
 /**
  * Request handling/validation for menu item API routes.

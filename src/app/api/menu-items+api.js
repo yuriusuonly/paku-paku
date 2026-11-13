@@ -3,11 +3,11 @@ import { authorizationInterceptor } from "../../interceptors/authorization-inter
 import { errorInterceptor } from "../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../shared/middleware.js";
+import { withMiddleware } from "../../network/middleware.js";
 import { parseCreateMenuItemRequest } from "../../requests/menu-items.js";
 import { createMenuItem, listMenuItems } from "../../repositories/menu-repository.js";
 import { menuItemCreatedResponse, menuItemsResponse } from "../../responses/menu-items.js";
-import { methodNotAllowed } from "../../shared/response.js";
+import { methodNotAllowed } from "../../network/response.js";
 
 /**
  * Menu items endpoint (list for signed-in users, create for admins).

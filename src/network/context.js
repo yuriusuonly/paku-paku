@@ -2,7 +2,7 @@ import { getBearerToken } from "./request.js";
 
 /**
  * Request context creation for the API middleware pipeline.
- * @module shared/context
+ * @module network/context
  */
 
 /**

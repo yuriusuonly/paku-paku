@@ -3,7 +3,7 @@ import { createContext } from "./context.js";
 
 /**
  * Middleware pipeline for Expo Router API routes.
- * @module shared/middleware
+ * @module network/middleware
  */
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Shared response utilities.
- * @module shared/response
+ * @module network/response
  */
 
 /**

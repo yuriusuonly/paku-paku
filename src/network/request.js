@@ -1,6 +1,6 @@
 /**
  * Shared request parsing utilities.
- * @module shared/request
+ * @module network/request
  */
 
 /**

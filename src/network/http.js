@@ -1,6 +1,6 @@
 /**
  * HTTP utilities and client-to-API transport helpers.
- * @module shared/http
+ * @module network/http
  */
 
 /**

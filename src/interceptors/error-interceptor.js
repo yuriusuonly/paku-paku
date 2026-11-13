@@ -1,4 +1,4 @@
-import { errorResponse } from "../shared/response.js";
+import { errorResponse } from "../network/response.js";
 import { normalizeError } from "../errors/normalize.js";
 
 /**

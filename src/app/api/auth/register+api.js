@@ -1,7 +1,7 @@
 import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../../shared/middleware.js";
+import { withMiddleware } from "../../../network/middleware.js";
 import { parseRegisterRequest } from "../../../requests/auth-register.js";
 import { register } from "../../../repositories/auth-repository.js";
 import { registerResponse } from "../../../responses/auth-register.js";

@@ -30,7 +30,9 @@
   - `src/services/` — client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`).
   - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
   - `src/errors/` — one module per error type (error class and factory per file) plus `normalize.js`.
-  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` HTTP utilities/constants and client transport, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
+  - `src/network/` — network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` HTTP utilities/constants and client transport).
+  - `src/cipher/` — cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
+  - `src/shared/` — cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`. Keep route handlers thin and run them through the interceptor pipeline.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.

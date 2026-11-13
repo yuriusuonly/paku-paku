@@ -1,4 +1,4 @@
-import { getBearerToken } from "../shared/request.js";
+import { getBearerToken } from "../network/request.js";
 import { badGateway } from "../errors/bad-gateway.js";
 import { badRequest } from "../errors/bad-request.js";
 import { forbidden } from "../errors/forbidden.js";

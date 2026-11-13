@@ -86,12 +86,14 @@ flowchart LR
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 - **`src/requests/`**: route-matched incoming request handling/validation modules (mirroring API routes, e.g. `auth-sign-in.js`, `menu-items.js`, `admin-profiles.js`).
-- **`src/interceptors/`**: interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/middleware.js` and request context from `src/shared/context.js`.
+- **`src/interceptors/`**: interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/network/middleware.js` and request context from `src/network/context.js`.
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
 - **`src/responses/`**: route-matched outgoing API response shaping modules (mirroring API routes) with consistent no-store/error envelopes. Use shared primitives in `src/shared/response.js`.
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
 - **`src/errors/`**: one module per error type (each exports an error class and factory), plus `normalize.js` for normalization. Use these for layered error handling: throw typed errors in requests/repositories/interceptors and map them centrally to HTTP responses.
-- **`src/shared/`**: helpers/utilities and cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config, `middleware.js`, `context.js`, `request.js`, `response.js`, `http.js` including HTTP status constants and client transport, `supabase.js` unified browser/server client). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
+- **`src/network/`**: network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` including HTTP status constants and client transport).
+- **`src/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
+- **`src/shared/`**: cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config, `supabase.js` unified browser/server client). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
 
 ```mermaid

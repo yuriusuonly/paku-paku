@@ -2,11 +2,11 @@ import { authorizationInterceptor } from "../../../interceptors/authorization-in
 import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../../shared/middleware.js";
+import { withMiddleware } from "../../../network/middleware.js";
 import { parseUpdateMenuItemRequest } from "../../../requests/menu-items.js";
 import { deleteMenuItem, updateMenuItem } from "../../../repositories/menu-repository.js";
 import { menuItemDeletedResponse, menuItemResponse } from "../../../responses/menu-items.js";
-import { methodNotAllowed } from "../../../shared/response.js";
+import { methodNotAllowed } from "../../../network/response.js";
 
 /**
  * Menu item mutation endpoint (admin-only).

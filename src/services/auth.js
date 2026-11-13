@@ -1,5 +1,5 @@
 import { api } from "../shared/config.js";
-import { apiRequest } from "../shared/http.js";
+import { apiRequest } from "../network/http.js";
 
 /**
  * Client-to-API authentication contracts.

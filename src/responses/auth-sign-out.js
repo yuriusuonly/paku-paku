@@ -1,4 +1,4 @@
-import { noContent } from "../shared/response.js";
+import { noContent } from "../network/response.js";
 
 /**
  * Response shaping for `POST /api/auth/sign-out`.
