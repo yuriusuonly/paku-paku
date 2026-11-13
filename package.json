@@ -3,6 +3,7 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "test": "bun test",
     "expo:start": "set -a && . ./.env && set +a && expo start --clear --port $URL_PORT",
     "expo:start:tunnel": "expo start --clear --tunnel",
     "expo:build": "expo export --platform web --output-dir build && mkdir -p build/client/png && cp png/logo.png png/logo-maskable.png build/client/png/",
