@@ -129,7 +129,7 @@ Hosted setup: create a Supabase project, copy its URL and anon key into
 `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and refresh the
 `DOT_ENV` secret (`npm run github:secrets`) so production builds bake in the
 hosted values. `npm run eas:deploy` refuses to run without those hosted values.
-Apply local migrations to the hosted database with `npm run supabase:login`
+Apply local migrations to the hosted database with `npx --yes supabase login`
 (once), `npm run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
 `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). |
 

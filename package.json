@@ -17,7 +17,6 @@
     "supabase:status": "npx --yes supabase status",
     "supabase:reset": "npx --yes supabase db reset",
     "supabase:migration": "npx --yes supabase migration new",
-    "supabase:login": "npx --yes supabase login",
     "supabase:link": "set -a && . ./.env && set +a && npx --yes supabase link --project-ref \"$SUPABASE_PROJECT_REF\"",
     "supabase:push": "set -a && . ./.env && set +a && npx --yes supabase db push --remote",
     "docker:build": "docker compose build --no-cache",

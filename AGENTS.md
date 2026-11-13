@@ -16,7 +16,7 @@
 - `npm run opencode` — launches OpenCode (loads `.env`).
 - Caddy: `npm run caddy` (loads `.env` via `--envfile`); `npm run caddy:trust`.
 - Docker: `npm run docker:build|up|down|logs`; `npm run docker` runs the full cycle and stays attached to logs.
-- Supabase: `npm run supabase:start|stop|status|reset|migration` for the local stack, and `npm run supabase:login|link|push` for the hosted project (all invoke the CLI via `npx`, unpinned, separate from the app Docker compose). `supabase:link` reads `SUPABASE_PROJECT_REF` from `.env`.
+- Supabase: `npm run supabase:start|stop|status|reset|migration` for the local stack, and `npm run supabase:link|push` for the hosted project (run `npx --yes supabase login` once as needed) (all invoke the CLI via `npx`, unpinned, separate from the app Docker compose). `supabase:link` reads `SUPABASE_PROJECT_REF` from `.env`.
 - Deploy: `npm run eas:initialize`, `npm run eas:deploy`, `npm run github:remote`, `npm run github:secrets`, `npm run github:deploy`.
 
 ## Project structure / conventions
