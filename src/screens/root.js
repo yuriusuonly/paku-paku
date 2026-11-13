@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import logo from "../../png/logo.png";
 import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
@@ -78,91 +78,87 @@ export default function HomeScreen() {
 
   if (showMenuSection) {
     return (
-      <ScreenContainer>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
-          <Header />
+      <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
+        <Header />
 
-          <View className="mb-4 flex-row items-end justify-between">
-            <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
-            {loading || syncing ? (
-              <CircularProgress size="small" />
-            ) : (
-              <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
-            )}
-          </View>
+        <View className="mb-4 flex-row items-end justify-between">
+          <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
+          {loading || syncing ? (
+            <CircularProgress size="small" />
+          ) : (
+            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
+          )}
+        </View>
 
-          {error ? <Alert variant="error" message={error} /> : null}
+        {error ? <Alert variant="error" message={error} /> : null}
 
-          {showInitialMenuLoading ? (
-            <CircularProgress message="Loading menu items..." />
-          ) : null}
+        {showInitialMenuLoading ? (
+          <CircularProgress message="Loading menu items..." />
+        ) : null}
 
-          {!loading && !error && items.length === 0 ? (
-            <Alert variant="info" message="No menu items are available right now." />
-          ) : null}
+        {!loading && !error && items.length === 0 ? (
+          <Alert variant="info" message="No menu items are available right now." />
+        ) : null}
 
-          {items.length > 0 ? (
-            <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
-              {items.map((item) => (
-                <View
-                  key={item.id}
-                  className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
-                >
-                  <View className="flex-row items-start justify-between gap-4">
-                    <View className="flex-1">
-                      <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
-                        {item.name}
-                      </Text>
-                      {item.description ? (
-                        <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
-                          {item.description}
-                        </Text>
-                      ) : null}
-                    </View>
-                    <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
-                      {formatPrice(item.price_cents)}
+        {items.length > 0 ? (
+          <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
+            {items.map((item) => (
+              <View
+                key={item.id}
+                className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
+              >
+                <View className="flex-row items-start justify-between gap-4">
+                  <View className="flex-1">
+                    <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
+                      {item.name}
                     </Text>
+                    {item.description ? (
+                      <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
+                        {item.description}
+                      </Text>
+                    ) : null}
                   </View>
+                  <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+                    {formatPrice(item.price_cents)}
+                  </Text>
                 </View>
-              ))}
-            </View>
-          ) : null}
-        </ScrollView>
+              </View>
+            ))}
+          </View>
+        ) : null}
       </ScreenContainer>
     );
   }
 
   return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
-        <Header />
+    <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
+      <Header />
 
-        <View className="w-full items-center justify-center py-2 md:flex-1">
-          <View className="w-full flex-col-reverse items-stretch gap-2 md:flex-row md:items-center md:gap-8">
-            <View className="w-full items-center justify-start text-center md:flex-1 md:items-start md:justify-center md:text-left">
-              <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
-                {config.title}
-              </Text>
-              <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
-                {config.description}
-              </Text>
-            </View>
-            <View className="w-full items-center justify-end md:flex-1 md:justify-center">
-              <Image
-                source={logo}
-                accessibilityLabel={`${config.title} logo`}
-                resizeMode="contain"
-                className="max-h-40 max-w-full md:max-h-80"
-                style={{ objectFit: "contain", objectPosition: "50% 50%" }}
-              />
-            </View>
+      <View className="w-full items-center justify-center py-2 md:flex-1">
+        <View className="w-full flex-col-reverse items-stretch gap-2 md:flex-row md:items-center md:gap-8">
+          <View className="w-full items-center justify-start text-center md:flex-1 md:items-start md:justify-center md:text-left">
+            <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
+              {config.title}
+            </Text>
+            <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
+              {config.description}
+            </Text>
+          </View>
+          <View className="w-full items-center justify-end md:flex-1 md:justify-center">
+            <Image
+              source={logo}
+              accessibilityLabel={`${config.title} logo`}
+              resizeMode="contain"
+              className="max-h-40 max-w-full md:max-h-80"
+              style={{ objectFit: "contain", objectPosition: "50% 50%" }}
+            />
           </View>
         </View>
+      </View>
 
-        {!authReady ? (
-          <CircularProgress message="Checking your session..." />
-        ) : null}
-      </ScrollView>
+      {!authReady ? (
+        <CircularProgress message="Checking your session..." />
+      ) : null}
     </ScreenContainer>
   );
 }
