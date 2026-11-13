@@ -5,7 +5,7 @@ import { Alert } from "../components/alert.js";
 import { Button } from "../components/button.js";
 import { Header } from "../components/header.js";
 import { ScreenContainer } from "../components/container.js";
-import { getProfiles } from "../services/client/admin-client.js";
+import { getProfiles } from "../services/admin.js";
 import { useAuthStore } from "../stores/auth-store.js";
 
 /**

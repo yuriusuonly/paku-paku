@@ -1,7 +1,13 @@
-import { readJsonBody } from "../../../shared/api.js";
+import {
+  errorInterceptor,
+  logInterceptor,
+  methodInterceptor,
+  withMiddleware
+} from "../../../interceptors/index.js";
+import { readJsonBody } from "../../../requests/index.js";
 import { badRequest } from "../../../shared/errors.js";
-import { signIn } from "../../../services/server/auth-service.js";
-import { ok, withErrorHandling, withMethods, withMiddleware } from "../../../interceptors/index.js";
+import { signIn } from "../../../repositories/auth-repository.js";
+import { ok } from "../../../responses/index.js";
 
 /**
  * Username/password sign-in endpoint.
@@ -9,8 +15,9 @@ import { ok, withErrorHandling, withMethods, withMiddleware } from "../../../int
  */
 
 const route = withMiddleware(
-  withErrorHandling,
-  withMethods("POST")
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("POST")
 )(async (context) => {
   const body = await readJsonBody(context.request);
 
@@ -18,8 +25,7 @@ const route = withMiddleware(
     throw badRequest("invalid_body", "Expected a JSON object with username and password.");
   }
 
-  const data = await signIn(body);
-  return ok(data);
+  return ok(await signIn(body));
 });
 
 export { route as GET, route as POST };

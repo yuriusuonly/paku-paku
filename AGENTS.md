@@ -21,14 +21,17 @@
 
 ## Project structure / conventions
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
-- Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `+not-found.js`, `+html.js`). Screens live under `src/screens/`; the home screen is `src/screens/root.js`.
-- Shared modules live under `src/shared/`: `config.js` (single source of truth for composed app/API client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers), `errors.js` (application error types/factories).
-- API middleware/interceptors live under `src/interceptors/` (`context.js`, `pipeline.js`, `common.js`, `index.js`) providing a composable request pipeline with shared context for Expo Router API routes.
-- Server-side API services live under `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the business/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, run middleware, call services, map results to responses). (Kept outside `src/app/` so Expo Router does not treat them as routes.)
-- Client-side API callers live under `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`).
-- Client state stores live under `src/stores/` (Zustand).
-- Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
-- API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`.
+- Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `sign-in.js`, `admin.js`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` (`home.js`, `sign-in.js`, `admin.js`); reusable UI lives under `src/components/`.
+- **API/architecture layers:**
+  - `src/interceptors/` — middleware pipeline with request context (`pipeline.js`, `context.js`) and interceptors (`log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
+  - `src/requests/` — incoming request handling/validation helpers (`index.js`, `auth-request.js`).
+  - `src/responses/` — outgoing response helpers (`index.js`).
+  - `src/repositories/` — API-to-database/auth contracts and server data access (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
+  - `src/services/` — client-to-API contracts used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`).
+  - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
+  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API config, `errors.js`, `supabase.js`, `supabase-server.js`).
+- Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
+- API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`. Keep route handlers thin and run them through the interceptor pipeline.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.
 - Assets: `png/logo.png` (full-size transparent-background favicon/PWA icon), `png/logo-maskable.png` (transparent-background, safe-zone maskable PWA icon), `svg/logo.svg` and `svg/logo-maskable.svg` (editable sources), `ttf/Outfit-VariableFont_wght.ttf` (custom font loaded in `src/app/_layout.js`).
 - **Never create a `public/` directory and never move icon assets there.** Static icon PNGs stay in `png/` (SVG sources in `svg/`); `npm run expo:build` copies `png/logo.png` and `png/logo-maskable.png` into `build/client/png/` so the manifest can use stable `/png/...` URLs.

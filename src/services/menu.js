@@ -1,9 +1,9 @@
-import { api } from "../../shared/config.js";
+import { api } from "../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
- * Client-side menu API calls.
- * @module services/client/menu-client
+ * Client-to-API menu contracts.
+ * @module services/menu
  */
 
 /**

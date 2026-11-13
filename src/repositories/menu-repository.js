@@ -1,16 +1,16 @@
-import { badGateway, serviceUnavailable } from "../../shared/errors.js";
-import { createSupabaseServerClient } from "../../shared/supabase-server.js";
+import { badGateway, serviceUnavailable } from "../shared/errors.js";
+import { createSupabaseServerClient } from "../shared/supabase-server.js";
 
 /**
- * Menu service: read operations for storefront menu data.
- * @module services/server/menu-service
+ * Menu data access (API to database contracts).
+ * @module repositories/menu-repository
  */
 
 /**
  * Lists available menu items ordered for display.
  *
  * @returns {Promise<{items: object[]}>} Menu payload.
- * @throws {import("../../shared/errors.js").AppError} When menu data cannot be loaded.
+ * @throws {import("../shared/errors.js").AppError} When menu data cannot be loaded.
  */
 export async function listMenuItems() {
   let supabase;
@@ -33,7 +33,5 @@ export async function listMenuItems() {
     throw badGateway("menu_unavailable", "Could not load the menu.", error);
   }
 
-  return {
-    items: data
-  };
+  return { items: data };
 }

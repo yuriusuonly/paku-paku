@@ -1,6 +1,6 @@
 /**
- * Client-side HTTP helpers for calling the app's own API routes.
- * @module services/client/http
+ * Client-to-API HTTP transport helpers.
+ * @module services/http
  */
 
 /**

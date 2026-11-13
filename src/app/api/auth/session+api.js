@@ -1,11 +1,12 @@
-import { getSession } from "../../../services/server/auth-service.js";
 import {
-  ok,
-  withAuth,
-  withErrorHandling,
-  withMethods,
+  authenticationInterceptor,
+  errorInterceptor,
+  logInterceptor,
+  methodInterceptor,
   withMiddleware
 } from "../../../interceptors/index.js";
+import { getSession } from "../../../repositories/auth-repository.js";
+import { ok } from "../../../responses/index.js";
 
 /**
  * Current-session endpoint.
@@ -13,9 +14,10 @@ import {
  */
 
 const route = withMiddleware(
-  withErrorHandling,
-  withMethods("GET"),
-  withAuth
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("GET"),
+  authenticationInterceptor
 )(async (context) => ok(await getSession(context.request)));
 
 export { route as GET, route as POST };

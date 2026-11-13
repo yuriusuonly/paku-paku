@@ -1,11 +1,12 @@
-import { listProfiles } from "../../../services/server/profile-service.js";
 import {
-  ok,
-  withAdminAuth,
-  withErrorHandling,
-  withMethods,
+  authorizationInterceptor,
+  errorInterceptor,
+  logInterceptor,
+  methodInterceptor,
   withMiddleware
 } from "../../../interceptors/index.js";
+import { listProfiles } from "../../../repositories/profile-repository.js";
+import { ok } from "../../../responses/index.js";
 
 /**
  * Admin-only profiles endpoint.
@@ -13,9 +14,10 @@ import {
  */
 
 const route = withMiddleware(
-  withErrorHandling,
-  withMethods("GET"),
-  withAdminAuth
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("GET"),
+  authorizationInterceptor
 )(async (context) => ok(await listProfiles(context.locals.auth.supabase)));
 
 export { route as GET, route as POST };

@@ -1,9 +1,9 @@
-import { api } from "../../shared/config.js";
+import { api } from "../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
- * Client-side admin API calls.
- * @module services/client/admin-client
+ * Client-to-API admin contracts.
+ * @module services/admin
  */
 
 /**

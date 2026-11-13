@@ -1,4 +1,4 @@
-import { errorResponse } from "../shared/api.js";
+import { errorResponse } from "../responses/index.js";
 import { createContext } from "./context.js";
 
 /**

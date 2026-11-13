@@ -1,4 +1,4 @@
-import { getBearerToken } from "../shared/api.js";
+import { getBearerToken } from "../requests/index.js";
 
 /**
  * Request context creation for the API middleware pipeline.
@@ -15,6 +15,7 @@ import { getBearerToken } from "../shared/api.js";
  * @property {any} body - Parsed JSON body when loaded by middleware.
  * @property {Record<string, any>} state - Mutable state shared across middleware/handlers.
  * @property {Record<string, any>} locals - Mutable per-request data bag (e.g. auth/profile/client).
+ * @property {number} startedAt - Request start timestamp in milliseconds.
  */
 
 /**
@@ -34,6 +35,7 @@ export function createContext(request, { params = {} } = {}) {
     bearerToken: getBearerToken(request),
     body: undefined,
     state: {},
-    locals: {}
+    locals: {},
+    startedAt: Date.now()
   };
 }

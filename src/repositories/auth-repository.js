@@ -1,46 +1,33 @@
-import { getBearerToken } from "../../shared/api.js";
+import { getBearerToken } from "../requests/index.js";
+import { parseSignInCredentials } from "../requests/auth-request.js";
 import {
   AppError,
   badGateway,
-  badRequest,
   forbidden,
   serviceUnavailable,
   tooManyRequests,
   unauthorized
-} from "../../shared/errors.js";
+} from "../shared/errors.js";
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
-} from "../../shared/supabase-server.js";
-import {
-  getProfileByUserId,
-  loginEmailForUsername,
-  normalizeUsername,
-  toPublicProfile,
-  USERNAME_PATTERN
-} from "./profile-service.js";
+} from "../shared/supabase-server.js";
+import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
 
 /**
- * Authentication service: sign-in, session validation, sign-out, and role checks.
- * @module services/server/auth-service
+ * Authentication data access and orchestration (API to auth/database contracts).
+ * @module repositories/auth-repository
  */
 
 /**
- * Signs in with username/password and returns session tokens with the profile.
+ * Signs in with credentials and returns session tokens with profile.
  *
- * @param {object} credentials - Sign-in credentials.
- * @param {unknown} credentials.username - Public username.
- * @param {unknown} credentials.password - Password.
+ * @param {Record<string, unknown>} body - Request body.
  * @returns {Promise<{user: object, session: object}>} Session payload.
- * @throws {import("../../shared/errors.js").AppError} On validation or authentication failure.
+ * @throws {import("../shared/errors.js").AppError} On failure.
  */
-export async function signIn({ username: rawUsername, password: rawPassword } = {}) {
-  const username = normalizeUsername(rawUsername);
-  const password = typeof rawPassword === "string" ? rawPassword : "";
-
-  if (!USERNAME_PATTERN.test(username) || password.length === 0) {
-    throw badRequest("invalid_credentials", "Enter a valid username and password.");
-  }
+export async function signIn(body = {}) {
+  const { email, password } = parseSignInCredentials(body);
 
   let supabase;
   try {
@@ -53,10 +40,7 @@ export async function signIn({ username: rawUsername, password: rawPassword } = 
     );
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: loginEmailForUsername(username),
-    password
-  });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error || !data.session) {
     if (error?.status === 429) {
@@ -68,7 +52,7 @@ export async function signIn({ username: rawUsername, password: rawPassword } = 
   const authenticated = createSupabaseServerClient({
     accessToken: data.session.access_token
   });
-  const profile = await getProfileByUserId(authenticated, data.user.id);
+  const profile = await findProfileByUserId(authenticated, data.user.id);
 
   return {
     user: toPublicProfile(profile),
@@ -83,11 +67,11 @@ export async function signIn({ username: rawUsername, password: rawPassword } = 
 }
 
 /**
- * Authenticates a bearer token and resolves the caller's profile.
+ * Authenticates a request and resolves auth context.
  *
- * @param {Request} request - Incoming web request.
+ * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Auth context.
- * @throws {import("../../shared/errors.js").AppError} On authentication failure.
+ * @throws {import("../shared/errors.js").AppError} On failure.
  */
 export async function authenticate(request) {
   const token = getBearerToken(request);
@@ -113,7 +97,7 @@ export async function authenticate(request) {
     throw unauthorized("unauthorized", "Invalid or expired session.");
   }
 
-  const profile = await getProfileByUserId(supabase, userData.user.id);
+  const profile = await findProfileByUserId(supabase, userData.user.id);
 
   return {
     token,
@@ -124,25 +108,23 @@ export async function authenticate(request) {
 }
 
 /**
- * Returns the current session profile for a bearer-authenticated request.
+ * Returns the current session profile.
  *
- * @param {Request} request - Incoming web request.
+ * @param {Request} request - Incoming request.
  * @returns {Promise<{user: object}>} Session payload.
- * @throws {import("../../shared/errors.js").AppError} On authentication failure.
+ * @throws {import("../shared/errors.js").AppError} On failure.
  */
 export async function getSession(request) {
   const auth = await authenticate(request);
-  return {
-    user: toPublicProfile(auth.profile)
-  };
+  return { user: toPublicProfile(auth.profile) };
 }
 
 /**
  * Requires an authenticated admin profile.
  *
- * @param {Request} request - Incoming web request.
+ * @param {Request} request - Incoming request.
  * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Admin auth context.
- * @throws {import("../../shared/errors.js").AppError} On authentication/authorization failure.
+ * @throws {import("../shared/errors.js").AppError} On failure.
  */
 export async function authenticateAdmin(request) {
   const auth = await authenticate(request);
@@ -155,11 +137,11 @@ export async function authenticateAdmin(request) {
 }
 
 /**
- * Revokes the caller's session in GoTrue.
+ * Revokes the caller's session.
  *
- * @param {Request} request - Incoming web request.
- * @returns {Promise<void>} Resolves when sign-out completes.
- * @throws {import("../../shared/errors.js").AppError} On sign-out failure.
+ * @param {Request} request - Incoming request.
+ * @returns {Promise<void>} Resolves on success.
+ * @throws {import("../shared/errors.js").AppError} On failure.
  */
 export async function signOut(request) {
   const token = getBearerToken(request);

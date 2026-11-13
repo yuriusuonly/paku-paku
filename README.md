@@ -276,33 +276,41 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── header.js
 │   │   └── text-field.js
 │   ├── interceptors/
-│   │   ├── common.js
+│   │   ├── authentication-interceptor.js
+│   │   ├── authorization-interceptor.js
+│   │   ├── body-interceptor.js
 │   │   ├── context.js
+│   │   ├── error-interceptor.js
 │   │   ├── index.js
+│   │   ├── log-interceptor.js
+│   │   ├── method-interceptor.js
 │   │   └── pipeline.js
+│   ├── repositories/
+│   │   ├── auth-repository.js
+│   │   ├── menu-repository.js
+│   │   └── profile-repository.js
+│   ├── requests/
+│   │   ├── auth-request.js
+│   │   └── index.js
+│   ├── responses/
+│   │   └── index.js
 │   ├── screens/
 │   │   ├── admin.js
 │   │   ├── home.js
 │   │   └── sign-in.js
 │   ├── services/
-│   │   ├── client/
-│   │   │   ├── admin-client.js
-│   │   │   ├── auth-client.js
-│   │   │   ├── http.js
-│   │   │   └── menu-client.js
-│   │   └── server/
-│   │       ├── auth-service.js
-│   │       ├── menu-service.js
-│   │       └── profile-service.js
-│   ├── stores/
-│   │   ├── app-store.js
-│   │   └── auth-store.js
+│   │   ├── admin.js
+│   │   ├── auth.js
+│   │   ├── http.js
+│   │   └── menu.js
 │   ├── shared/
-│   │   ├── api.js
 │   │   ├── config.js
 │   │   ├── errors.js
 │   │   ├── supabase.js
 │   │   └── supabase-server.js
+│   ├── stores/
+│   │   ├── app-store.js
+│   │   └── auth-store.js
 │   └── stylesheets/
 │       └── global.css
 ├── supabase/

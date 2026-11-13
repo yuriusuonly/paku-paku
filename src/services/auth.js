@@ -1,9 +1,9 @@
-import { api } from "../../shared/config.js";
+import { api } from "../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
- * Client-side authentication API calls.
- * @module services/client/auth-client
+ * Client-to-API authentication contracts.
+ * @module services/auth
  */
 
 /**

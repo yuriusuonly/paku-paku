@@ -4,7 +4,7 @@ import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
-import { getMenuItems } from "../services/client/menu-client.js";
+import { getMenuItems } from "../services/menu.js";
 
 /**
  * Home/storefront screen with menu loaded from the API.

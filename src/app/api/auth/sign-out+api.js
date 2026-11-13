@@ -1,5 +1,10 @@
-import { signOut } from "../../../services/server/auth-service.js";
-import { withErrorHandling, withMethods, withMiddleware } from "../../../interceptors/index.js";
+import {
+  errorInterceptor,
+  logInterceptor,
+  methodInterceptor,
+  withMiddleware
+} from "../../../interceptors/index.js";
+import { signOut } from "../../../repositories/auth-repository.js";
 
 /**
  * Sign-out endpoint.
@@ -7,8 +12,9 @@ import { withErrorHandling, withMethods, withMiddleware } from "../../../interce
  */
 
 const route = withMiddleware(
-  withErrorHandling,
-  withMethods("POST")
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("POST")
 )(async (context) => {
   await signOut(context.request);
   return new Response(null, {

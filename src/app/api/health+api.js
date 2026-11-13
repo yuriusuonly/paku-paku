@@ -1,4 +1,10 @@
-import { ok, withErrorHandling, withMethods, withMiddleware } from "../../interceptors/index.js";
+import {
+  errorInterceptor,
+  logInterceptor,
+  methodInterceptor,
+  withMiddleware
+} from "../../interceptors/index.js";
+import { ok } from "../../responses/index.js";
 
 /**
  * Health-check endpoint.
@@ -6,8 +12,9 @@ import { ok, withErrorHandling, withMethods, withMiddleware } from "../../interc
  */
 
 const route = withMiddleware(
-  withErrorHandling,
-  withMethods("GET")
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("GET")
 )(() =>
   ok({
     status: "ok",

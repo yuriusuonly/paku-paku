@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getSession, signIn as signInApi, signOut as signOutApi } from "../services/client/auth-client.js";
+import { getSession, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 
 /**
  * Authentication/session store.

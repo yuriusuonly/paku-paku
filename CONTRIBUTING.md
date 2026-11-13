@@ -64,16 +64,18 @@ flowchart TD
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
 - Apply migrations to the hosted database with `npm run supabase:login` (once), `npm run supabase:link`, and `npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
 
-### API routes & auth
+### API architecture & auth
 
-- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`). Routes are the HTTP/controller layer: parse input, run through interceptors, call services, and map service results to responses.
-- Use `src/interceptors/` for the composable middleware pipeline and request context (`withMiddleware`, common interceptors for errors/methods/auth/json body). Share cross-cutting API concerns there instead of duplicating logic in routes.
-- Use `src/shared/errors.js` (`AppError` and factories) for layered error handling: services/interceptors throw typed application errors and the pipeline maps them to standardized HTTP responses.
-- Put server-side API business/use-case logic in `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`). Services own auth/profile/menu workflows and data access coordination; they return transport-agnostic results. Keep them outside `src/app/` so Expo Router does not treat them as routes.
-- Put client-side API callers in `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`) and shared client state in `src/stores/` (Zustand).
-- Use `src/shared/supabase-server.js` as server-side Supabase infrastructure (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.
-- Use `src/shared/api.js` for JSON/no-store responses and request parsing. Usernames are public; the internal Auth email (`<username>@paku-paku.local`) is never exposed.
-- Never put a service-role key in client or server route code; server routes use the anon key plus forwarded user tokens so RLS applies. |
+- **Routes (`src/app/api/`)**: Expo Router `+api.js` handlers are the HTTP/controller layer. Keep them thin: compose interceptors, call repositories/use-cases, and return responses.
+- **Interceptors (`src/interceptors/`)**: composable middleware pipeline with request context (`pipeline.js`, `context.js`). Use `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js` for cross-cutting concerns.
+- **Requests (`src/requests/`)**: incoming request parsing/validation helpers (e.g. body/token extraction, auth credential validation).
+- **Responses (`src/responses/`)**: outgoing response helpers (`ok`, `jsonResponse`, `errorResponse`, `methodNotAllowed`) with consistent no-store/error envelopes.
+- **Repositories (`src/repositories/`)**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
+- **Services (`src/services/`)**: client-to-API contracts used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`).
+- **Stores (`src/stores/`)**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`).
+- **Shared (`src/shared/`)**: helpers/utilities and cross-cutting infrastructure (`config.js` single source of truth for app/API config, `errors.js`, `supabase.js`, `supabase-server.js`).
+- Use `src/shared/errors.js` (`AppError` and factories) for layered error handling: throw typed errors in requests/repositories/interceptors and map them centrally to HTTP responses.
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
 
 ```mermaid
 flowchart LR
