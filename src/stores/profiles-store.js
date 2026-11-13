@@ -95,10 +95,20 @@ export const useProfilesStore = create((set, get) => ({
     }
   },
 
-  subscribe: () => {
-    if (get().channel) return;
+  subscribe: (token) => {
+    if (get().channel) {
+      if (token) {
+        try {
+          getDatabaseClient().realtime.setAuth(token);
+        } catch {}
+      }
+      return;
+    }
     try {
       const database = getDatabaseClient();
+      if (token) {
+        database.realtime.setAuth(token);
+      }
       const channel = database
         .channel("public:profiles")
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, (payload) => {

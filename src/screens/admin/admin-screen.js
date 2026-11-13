@@ -72,7 +72,7 @@ export default function AdminScreen() {
     void fetchMenuItems(token).catch(() => {});
     void fetchProfiles(token).catch(() => {});
     subscribeMenu(token);
-    subscribeProfiles();
+    subscribeProfiles(token);
   }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, subscribeMenu, subscribeProfiles]);
 
   const menuStats = useMemo(() => {

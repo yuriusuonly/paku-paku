@@ -82,7 +82,7 @@ export default function AdminProfilesScreen() {
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
     void fetchProfiles(token).catch(() => {});
-    subscribe();
+    subscribe(token);
     return () => {
       void unsubscribe();
     };

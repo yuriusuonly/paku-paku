@@ -92,17 +92,25 @@ export const useMenuStore = create((set, get) => ({
   /**
    * Subscribes to realtime menu item changes for DB -> store sync.
    *
-   * @param {string} token - Access token (used to refresh after auth changes).
+   * @param {string} token - Access token used for realtime authorization.
    * @returns {void}
    */
   subscribe: (token) => {
     const state = get();
     if (state.channel) {
+      if (token) {
+        try {
+          getDatabaseClient().realtime.setAuth(token);
+        } catch {}
+      }
       return;
     }
 
     try {
       const database = getDatabaseClient();
+      if (token) {
+        database.realtime.setAuth(token);
+      }
       const channel = database
         .channel("public:menu_items")
         .on(
