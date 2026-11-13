@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getProfiles } from "../services/admin.js";
+import { getProfiles, createProfileUser, updateProfile as updateProfileApi } from "../services/admin.js";
 import { getDatabaseClient } from "../database/instance.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
@@ -8,6 +8,16 @@ const friendlyError = (error, fallback) =>
 
 function sortProfiles(items) {
   return [...items].sort((a, b) => String(a.username || "").localeCompare(String(b.username || "")));
+}
+
+function upsertProfile(items, profile) {
+  const index = items.findIndex((entry) => entry.id === profile.id);
+  if (index === -1) {
+    return sortProfiles([...items, profile]);
+  }
+  const next = [...items];
+  next[index] = { ...next[index], ...profile };
+  return sortProfiles(next);
 }
 
 export const useProfilesStore = create((set, get) => ({
@@ -39,6 +49,40 @@ export const useProfilesStore = create((set, get) => ({
     }
   },
 
+  createUser: async (token, input) => {
+    set({ syncing: true, error: null });
+    try {
+      const data = await createProfileUser(token, input);
+      if (data?.profile) {
+        set((s) => ({ profiles: upsertProfile(s.profiles, data.profile) }));
+      }
+      return data?.profile;
+    } catch (error) {
+      const message = friendlyError(error, "Could not create the user. Please try again.");
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
+  setProfileActive: async (token, id, isActive) => {
+    set({ syncing: true, error: null });
+    try {
+      const data = await updateProfileApi(token, { id, is_active: isActive });
+      if (data?.profile) {
+        set((s) => ({ profiles: upsertProfile(s.profiles, data.profile) }));
+      }
+      return data?.profile;
+    } catch (error) {
+      const message = friendlyError(error, "Could not update the profile. Please try again.");
+      set({ error: message });
+      throw error;
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
   subscribe: () => {
     if (get().channel) return;
     try {
@@ -51,14 +95,7 @@ export const useProfilesStore = create((set, get) => ({
             const id = payload.old?.id;
             if (id) set((s) => ({ profiles: s.profiles.filter((p) => p.id !== id) }));
           } else if (payload.new) {
-            const row = payload.new;
-            set((s) => {
-              const idx = s.profiles.findIndex((p) => p.id === row.id);
-              if (idx === -1) return { profiles: sortProfiles([...s.profiles, row]) };
-              const next = [...s.profiles];
-              next[idx] = { ...next[idx], ...row };
-              return { profiles: sortProfiles(next) };
-            });
+            set((s) => ({ profiles: upsertProfile(s.profiles, payload.new) }));
           }
           setTimeout(() => set({ syncing: false }), 350);
         })

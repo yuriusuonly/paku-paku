@@ -17,3 +17,33 @@ export function getProfiles(token) {
     token
   });
 }
+
+/**
+ * Creates a customer user/profile as an administrator.
+ *
+ * @param {string} token - Access token for an admin session.
+ * @param {{username: string, password: string}} input - User payload.
+ * @returns {Promise<{profile: object}>} Created profile payload.
+ */
+export function createProfileUser(token, input) {
+  return apiRequest(api.endpoints.adminProfiles, {
+    method: "POST",
+    token,
+    body: input
+  });
+}
+
+/**
+ * Updates a profile's management fields as an administrator.
+ *
+ * @param {string} token - Access token for an admin session.
+ * @param {{id: string, is_active?: boolean}} input - Profile update payload.
+ * @returns {Promise<{profile: object}>} Updated profile payload.
+ */
+export function updateProfile(token, input) {
+  return apiRequest(api.endpoints.adminProfiles, {
+    method: "PATCH",
+    token,
+    body: input
+  });
+}

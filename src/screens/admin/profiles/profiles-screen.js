@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
@@ -6,14 +6,18 @@ import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
+import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useProfilesStore } from "../../../stores/profiles-store.js";
+import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Admin profiles audit screen.
+ * Admin profiles audit and management screen.
  * @module screens/admin/profiles/profiles-screen
  */
+
+const emptyForm = { username: "", password: "" };
 
 /**
  * Formats an ISO timestamp for display.
@@ -31,9 +35,11 @@ function formatAuditTimestamp(value) {
 const columns = [
   { key: "username", label: "Username", width: 160 },
   { key: "role", label: "Role", width: 110 },
+  { key: "is_active", label: "Active", width: 110 },
   { key: "id", label: "User ID", width: 320 },
   { key: "created_at", label: "Created at", width: 220 },
-  { key: "updated_at", label: "Updated at", width: 220 }
+  { key: "updated_at", label: "Updated at", width: 220 },
+  { key: "actions", label: "Actions", width: 170 }
 ];
 
 /**
@@ -53,6 +59,15 @@ export default function AdminProfilesScreen() {
   const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
   const subscribe = useProfilesStore((s) => s.subscribe);
   const unsubscribe = useProfilesStore((s) => s.unsubscribe);
+  const createUser = useProfilesStore((s) => s.createUser);
+  const setProfileActive = useProfilesStore((s) => s.setProfileActive);
+  const showSuccess = useNotificationStore((s) => s.showSuccess);
+  const showError = useNotificationStore((s) => s.showError);
+
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [localError, setLocalError] = useState("");
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -79,6 +94,55 @@ export default function AdminProfilesScreen() {
     );
   }
 
+  const saveUser = async () => {
+    if (!token) return;
+    setLocalError("");
+    const username = form.username.trim().toLowerCase();
+    const password = form.password;
+    if (!/^[a-z0-9][a-z0-9_.-]{2,31}$/.test(username)) {
+      setLocalError("Choose a valid username (3-32 chars, lowercase letters, numbers, ., _, -).");
+      return;
+    }
+    if (password.length < 6) {
+      setLocalError("Password must be at least 6 characters.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await createUser(token, { username, password });
+      setForm(emptyForm);
+      showSuccess("User created.");
+    } catch (e) {
+      const message = e?.message || "Could not create the user. Please try again.";
+      setLocalError(message);
+      showError(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleActive = async (profile) => {
+    if (!token) return;
+    if (profile.id === user?.id) {
+      const message = "You cannot deactivate your own account.";
+      setLocalError(message);
+      showError(message);
+      return;
+    }
+    setLocalError("");
+    setUpdatingId(profile.id);
+    try {
+      await setProfileActive(token, profile.id, !profile.is_active);
+      showSuccess(profile.is_active ? "Profile deactivated." : "Profile activated.");
+    } catch (e) {
+      const message = e?.message || "Could not update the profile. Please try again.";
+      setLocalError(message);
+      showError(message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const showInitialLoading = loading && profiles.length === 0;
 
   return (
@@ -91,7 +155,7 @@ export default function AdminProfilesScreen() {
               Profiles audit
             </Text>
             <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-              Audit profile fields in real time. Changes sync automatically.
+              Add users, audit profile fields, and manage active status in real time.
             </Text>
           </View>
           <Link href="/admin" asChild>
@@ -99,9 +163,33 @@ export default function AdminProfilesScreen() {
           </Link>
         </View>
 
-        <Alert variant="error" message={error} />
+        <Alert variant="error" message={localError || error} />
 
-        <View className="mb-3 flex-row items-center justify-between">
+        <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Add user</Text>
+          <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+            Create a customer account and profile.
+          </Text>
+          <TextField
+            label="Username"
+            value={form.username}
+            onChangeText={(v) => setForm((f) => ({ ...f, username: v }))}
+            placeholder="customer01"
+          />
+          <TextField
+            label="Password"
+            value={form.password}
+            onChangeText={(v) => setForm((f) => ({ ...f, password: v }))}
+            placeholder="At least 6 characters"
+            secureTextEntry
+          />
+          <View className="flex-row items-center gap-3">
+            <Button label="Create user" onPress={saveUser} loading={saving} />
+            <Button label="Clear" variant="ghost" onPress={() => setForm(emptyForm)} />
+          </View>
+        </View>
+
+        <View className="mt-8 mb-3 flex-row items-center justify-between">
           <View className="flex-row items-center gap-2">
             <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
             {syncing ? <CircularProgress size="small" /> : null}
@@ -138,51 +226,70 @@ export default function AdminProfilesScreen() {
                 ))}
               </View>
 
-              {profiles.map((profile, rowIndex) => (
-                <View
-                  key={profile.id}
-                  className={`flex-row ${rowIndex < profiles.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
-                >
-                  {columns.map((column, index) => {
-                    const rawValue = profile[column.key];
-                    const displayValue =
-                      column.key === "created_at" || column.key === "updated_at"
-                        ? formatAuditTimestamp(rawValue)
-                        : rawValue ?? "-";
+              {profiles.map((profile, rowIndex) => {
+                const isSelf = profile.id === user?.id;
+                const isActive = profile.is_active !== false;
+                return (
+                  <View
+                    key={profile.id}
+                    className={`flex-row ${rowIndex < profiles.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
+                  >
+                    {columns.map((column, index) => {
+                      const rawValue = profile[column.key];
+                      let displayValue = rawValue ?? "-";
+                      if (column.key === "created_at" || column.key === "updated_at") {
+                        displayValue = formatAuditTimestamp(rawValue);
+                      } else if (column.key === "is_active") {
+                        displayValue = isActive ? "active" : "inactive";
+                      }
 
-                    const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
-                    const isRole = column.key === "role";
-                    const isAdminRole = isRole && rawValue === "admin";
+                      const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
+                      const isRole = column.key === "role";
+                      const isStatus = column.key === "is_active";
+                      const isAdminRole = isRole && rawValue === "admin";
 
-                    return (
-                      <View
-                        key={`${profile.id}-${column.key}`}
-                        style={{ width: column.width }}
-                        className={`justify-center px-4 py-3 ${cellBorder}`}
-                      >
-                        {isRole ? (
-                          <View
-                            className={`self-start rounded-full px-3 py-1 ${isAdminRole ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                          >
+                      return (
+                        <View
+                          key={`${profile.id}-${column.key}`}
+                          style={{ width: column.width }}
+                          className={`justify-center px-4 py-3 ${cellBorder}`}
+                        >
+                          {column.key === "actions" ? (
+                            <Button
+                              label={isActive ? "Deactivate" : "Activate"}
+                              variant="ghost"
+                              onPress={() => toggleActive(profile)}
+                              loading={updatingId === profile.id}
+                              disabled={isSelf || updatingId === profile.id}
+                            />
+                          ) : isRole || isStatus ? (
+                            <View
+                              className={`self-start rounded-full px-3 py-1 ${
+                                isAdminRole || (isStatus && isActive) ? cx.bgPrimarySoft : cx.bgSurfaceMuted
+                              }`}
+                            >
+                              <Text
+                                className={`font-outfit text-xs font-semibold uppercase ${
+                                  isAdminRole || (isStatus && isActive) ? cx.textPrimary : cx.textInk70
+                                }`}
+                              >
+                                {String(displayValue)}
+                              </Text>
+                            </View>
+                          ) : (
                             <Text
-                              className={`font-outfit text-xs font-semibold uppercase ${isAdminRole ? cx.textPrimary : cx.textInk70}`}
+                              selectable
+                              className={`font-outfit text-sm ${column.key === "username" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
                             >
                               {String(displayValue)}
                             </Text>
-                          </View>
-                        ) : (
-                          <Text
-                            selectable
-                            className={`font-outfit text-sm ${column.key === "username" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
-                          >
-                            {String(displayValue)}
-                          </Text>
-                        )}
-                      </View>
-                    );
-                  })}
-                </View>
-              ))}
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
             </View>
           </ScrollView>
         ) : null}
