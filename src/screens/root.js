@@ -137,9 +137,9 @@ export default function HomeScreen() {
       <View className="flex-1 overflow-hidden">
         <Header />
 
-        <View className="flex-1 items-center justify-center py-2">
-          <View className="w-full flex-col items-center gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
-            <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
+        <View className="flex-1 w-full items-center justify-center py-2">
+          <View className="w-full flex-1 flex-col items-stretch gap-4 md:flex-row md:items-stretch md:gap-8">
+            <View className="w-full flex-1 items-center justify-center text-center md:items-start md:text-left">
               <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
                 {config.title}
               </Text>
@@ -147,16 +147,14 @@ export default function HomeScreen() {
                 {config.description}
               </Text>
             </View>
-            <View className="w-full flex-1 items-center justify-center">
-              <View className="aspect-square w-full max-w-[260px] overflow-hidden md:max-w-[380px]">
-                <Image
-                  source={logo}
-                  accessibilityLabel={`${config.title} logo`}
-                  resizeMode="cover"
-                  className="h-full w-full"
-                  style={{ objectFit: "cover", objectPosition: "50% 50%" }}
-                />
-              </View>
+            <View className="w-full flex-1 overflow-hidden rounded-3xl min-h-[180px] md:min-h-0">
+              <Image
+                source={logo}
+                accessibilityLabel={`${config.title} logo`}
+                resizeMode="cover"
+                className="h-full w-full"
+                style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+              />
             </View>
           </View>
         </View>
