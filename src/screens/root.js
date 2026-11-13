@@ -97,6 +97,7 @@ export default function HomeScreen() {
                 accessibilityLabel={`${config.title} logo`}
                 resizeMode="cover"
                 className="h-full w-full"
+                style={{ objectPosition: "center" }}
               />
             </View>
           </View>
