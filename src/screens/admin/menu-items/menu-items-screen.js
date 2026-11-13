@@ -155,7 +155,8 @@ export default function AdminMenuItemsScreen() {
     if (!token) return;
     setLocalError("");
     const name = form.name.trim();
-    const price = Number(form.price_cents);
+    const priceRaw = form.price_cents.trim();
+    const price = priceRaw === "" ? 0 : Number(priceRaw);
     const sortOrderRaw = form.sort_order.trim();
     const hasSortOrder = sortOrderRaw !== "";
     const sortOrder = hasSortOrder ? Number(sortOrderRaw) : undefined;
@@ -351,7 +352,7 @@ export default function AdminMenuItemsScreen() {
             error={fieldErrors.description}
           />
           <TextField
-            label="Price (cents) (*)"
+            label="Price (cents)"
             value={form.price_cents}
             onChangeText={(v) => {
               setForm((f) => ({ ...f, price_cents: v }));
