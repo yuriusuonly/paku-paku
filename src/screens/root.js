@@ -74,84 +74,96 @@ export default function HomeScreen() {
   const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
   const showInitialMenuLoading = loading && items.length === 0;
 
-  return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
-        <Header />
+  const showMenuSection = authReady && isAuthenticated;
 
-        <View className="min-h-[70vh] flex-1 items-center justify-center py-8">
-          <View className="w-full flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
-            <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
-              <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
-                {config.title}
-              </Text>
-              <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
-                {config.description}
-              </Text>
-            </View>
-            <View className="w-full flex-1 items-center justify-center">
-              <Image
-                source={logo}
-                accessibilityLabel={`${config.title} logo`}
-                resizeMode="contain"
-                className="aspect-square w-full max-w-[220px] md:max-w-[360px]"
-              />
-            </View>
+  const content = (
+    <>
+      <Header />
+
+      <View className={`${showMenuSection ? "mb-10 py-8" : "flex-1 py-4"} items-center justify-center`}>
+        <View className="w-full flex-col items-center gap-8 md:flex-row md:items-center md:justify-between">
+          <View className="w-full flex-1 items-center text-center md:items-start md:text-left">
+            <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
+              {config.title}
+            </Text>
+            <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
+              {config.description}
+            </Text>
+          </View>
+          <View className="w-full flex-1 items-center justify-center">
+            <Image
+              source={logo}
+              accessibilityLabel={`${config.title} logo`}
+              resizeMode="contain"
+              className="aspect-square w-full max-w-[200px] md:max-w-[320px]"
+            />
           </View>
         </View>
+      </View>
 
-        {!authReady ? (
-          <CircularProgress message="Checking your session..." />
-        ) : !isAuthenticated ? null : (
-          <>
-            <View className="mb-4 flex-row items-end justify-between">
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
-              {loading || syncing ? (
-                <CircularProgress size="small" />
-              ) : (
-                <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
-              )}
-            </View>
+      {!authReady ? (
+        <CircularProgress message="Checking your session..." />
+      ) : !isAuthenticated ? null : (
+        <>
+          <View className="mb-4 flex-row items-end justify-between">
+            <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
+            {loading || syncing ? (
+              <CircularProgress size="small" />
+            ) : (
+              <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} items</Text>
+            )}
+          </View>
 
-            {error ? <Alert variant="error" message={error} /> : null}
+          {error ? <Alert variant="error" message={error} /> : null}
 
-            {showInitialMenuLoading ? (
-              <CircularProgress message="Loading menu items..." />
-            ) : null}
+          {showInitialMenuLoading ? (
+            <CircularProgress message="Loading menu items..." />
+          ) : null}
 
-            {!loading && !error && items.length === 0 ? (
-              <Alert variant="info" message="No menu items are available right now." />
-            ) : null}
+          {!loading && !error && items.length === 0 ? (
+            <Alert variant="info" message="No menu items are available right now." />
+          ) : null}
 
-            {items.length > 0 ? (
-              <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
-                {items.map((item) => (
-                  <View
-                    key={item.id}
-                    className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
-                  >
-                    <View className="flex-row items-start justify-between gap-4">
-                      <View className="flex-1">
-                        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
-                          {item.name}
-                        </Text>
-                        {item.description ? (
-                          <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
-                            {item.description}
-                          </Text>
-                        ) : null}
-                      </View>
-                      <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
-                        {formatPrice(item.price_cents)}
+          {items.length > 0 ? (
+            <View className={`mt-4 gap-4 ${syncing ? "opacity-80" : "opacity-100"}`}>
+              {items.map((item) => (
+                <View
+                  key={item.id}
+                  className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}
+                >
+                  <View className="flex-row items-start justify-between gap-4">
+                    <View className="flex-1">
+                      <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
+                        {item.name}
                       </Text>
+                      {item.description ? (
+                        <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
+                          {item.description}
+                        </Text>
+                      ) : null}
                     </View>
+                    <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+                      {formatPrice(item.price_cents)}
+                    </Text>
                   </View>
-                ))}
-              </View>
-            ) : null}
-          </>
-        )}
-      </ScrollView>
+                </View>
+              ))}
+            </View>
+          ) : null}
+        </>
+      )}
+    </>
+  );
+
+  return (
+    <ScreenContainer>
+      {showMenuSection ? (
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}>
+          {content}
+        </ScrollView>
+      ) : (
+        <View className="flex-1 overflow-hidden">{content}</View>
+      )}
     </ScreenContainer>
   );
 }
