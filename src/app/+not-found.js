@@ -22,7 +22,7 @@ export default function NotFound() {
       </Text>
       <Link href="/" className="mt-6">
         <Text className="font-outfit text-base font-semibold text-[#FE2C55]">
-          Back home
+          ← Back home
         </Text>
       </Link>
     </View>
