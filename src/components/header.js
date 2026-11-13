@@ -1,4 +1,4 @@
-import { Link, useRouter } from "expo-router";
+import { Link, usePathname, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { useAuthStore } from "../stores/auth-store.js";
 import config from "../shared/constants/config.js";
@@ -16,6 +16,7 @@ import { cx } from "../shared/constants/theme.js";
  */
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const status = useAuthStore((state) => state.status);
   const signOut = useAuthStore((state) => state.signOut);
@@ -24,6 +25,9 @@ export function Header() {
     await signOut();
     router.replace("/");
   };
+
+  const isAdminPage = typeof pathname === "string" && pathname.startsWith("/admin");
+  const showAdminButton = status === "authenticated" && user?.role === "admin" && !isAdminPage;
 
   return (
     <View className="mb-10 flex-row items-center justify-between">
@@ -38,7 +42,7 @@ export function Header() {
       <View className="flex-row items-center gap-3">
         {status === "authenticated" && user ? (
           <>
-            {user.role === "admin" ? (
+            {showAdminButton ? (
               <Link href="/admin" asChild>
                 <Pressable className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
                   <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
