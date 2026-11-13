@@ -107,7 +107,7 @@ Local endpoints are addressed over localhost; keep them private:
 Do not expose these ports through Caddy, the public URL, or a tunnel.
 
 Migrations live in `supabase/migrations/`; local seed data lives in
-`supabase/seed.sql`. Add a migration with
+`supabase/seeds/`. Add a migration with
 `npm run supabase:migration -- <name>`, then verify it with
 `npm run supabase:reset`.
 
@@ -278,7 +278,9 @@ containers themselves are not part of the app compose stack. |
 │   ├── migrations/
 │   │   ├── 20261113000000_create_menu_items.sql
 │   │   └── 20261113000001_create_profiles.sql
-│   └── seed.sql
+│   └── seeds/
+│       ├── 01_menu_items.sql
+│       └── 02_admin.sql
 └── ttf/
     └── Outfit-VariableFont_wght.ttf
 ``` |
