@@ -30,9 +30,10 @@ export default function SignUpScreen() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false });
+  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false, confirmPassword: false });
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
@@ -48,19 +49,26 @@ export default function SignUpScreen() {
 
     const usernameMissing = !username.trim();
     const passwordMissing = !password;
-    if (usernameMissing || passwordMissing) {
-      setFieldErrors({ username: usernameMissing, password: passwordMissing });
-      setLocalError("Enter a username and password.");
+    const confirmPasswordMissing = !confirmPassword;
+    if (usernameMissing || passwordMissing || confirmPasswordMissing) {
+      setFieldErrors({ username: usernameMissing, password: passwordMissing, confirmPassword: confirmPasswordMissing });
+      setLocalError("Enter a username, password, and password confirmation.");
       return;
     }
 
-    setFieldErrors({ username: false, password: false });
+    if (password !== confirmPassword) {
+      setFieldErrors({ username: false, password: true, confirmPassword: true });
+      setLocalError("Passwords do not match.");
+      return;
+    }
+
+    setFieldErrors({ username: false, password: false, confirmPassword: false });
     setSubmitting(true);
     const result = await signUp({ username, password });
     setSubmitting(false);
 
     if (!result.ok) {
-      setFieldErrors({ username: true, password: true });
+      setFieldErrors({ username: true, password: true, confirmPassword: true });
       setLocalError(result.error || "Unable to create account.");
       return;
     }
@@ -115,12 +123,30 @@ export default function SignUpScreen() {
             value={password}
             onChangeText={(value) => {
               setPassword(value);
-              if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
+              if (fieldErrors.password || fieldErrors.confirmPassword) {
+                setFieldErrors((current) => ({ ...current, password: false, confirmPassword: false }));
+              }
             }}
             placeholder="At least 6 characters"
             secureTextEntry
+            enablePasswordToggle
             autoComplete="new-password"
             error={fieldErrors.password || showStoreError}
+          />
+          <TextField
+            label="Confirm password"
+            value={confirmPassword}
+            onChangeText={(value) => {
+              setConfirmPassword(value);
+              if (fieldErrors.confirmPassword || fieldErrors.password) {
+                setFieldErrors((current) => ({ ...current, confirmPassword: false, password: false }));
+              }
+            }}
+            placeholder="Re-enter password"
+            secureTextEntry
+            enablePasswordToggle
+            autoComplete="new-password"
+            error={fieldErrors.confirmPassword || showStoreError}
           />
 
           {errorMessage ? (

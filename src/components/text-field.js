@@ -64,7 +64,7 @@ export function TextField({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlignVertical={multiline ? "top" : "center"}
-          className={`font-outfit w-full rounded-2xl border ${error ? cx.borderPrimary : cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-12" : ""}`}
+          className={`font-outfit w-full rounded-2xl border ${error ? cx.borderPrimary : cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-16" : ""}`}
         />
         {canTogglePassword ? (
           <Pressable
@@ -74,11 +74,9 @@ export function TextField({
             className="absolute right-3 top-0 h-full items-center justify-center"
             hitSlop={8}
           >
-            <View className={`h-8 w-8 items-center justify-center rounded-full ${cx.bgSurfaceMuted}`}>
-              <Text className={`font-outfit text-base ${cx.textInk70}`}>
-                {passwordVisible ? "◠" : "◉"}
-              </Text>
-            </View>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>
+              {passwordVisible ? "Hide" : "Show"}
+            </Text>
           </Pressable>
         ) : null}
       </View>
