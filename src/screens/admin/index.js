@@ -8,7 +8,7 @@ import { useAuthStore } from "../stores/auth-store.js";
 
 /**
  * Administrator dashboard with links to management screens.
- * @module screens/admin
+ * @module screens/admin/index
  */
 
 /**

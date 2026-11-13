@@ -10,7 +10,7 @@ import { useAuthStore } from "../stores/auth-store.js";
 
 /**
  * Admin profiles management/audit screen.
- * @module screens/admin-profiles
+ * @module screens/admin/profiles
  */
 
 /**

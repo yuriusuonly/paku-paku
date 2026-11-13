@@ -1,4 +1,4 @@
-import AdminProfilesScreen from "../../screens/admin-profiles.js";
+import AdminProfilesScreen from "../../screens/admin/profiles.js";
 
 /**
  * Admin profiles management route.

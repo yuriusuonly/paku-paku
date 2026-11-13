@@ -1,4 +1,4 @@
-import AdminScreen from "../../screens/admin.js";
+import AdminScreen from "../../screens/admin/index.js";
 
 /**
  * Admin route (`/admin`): protected administrator area.

@@ -11,7 +11,7 @@ import { useMenuStore } from "../stores/menu-store.js";
 
 /**
  * Admin menu items management screen.
- * @module screens/admin-menu-items
+ * @module screens/admin/menu-items
  */
 
 const emptyForm = { id: null, name: "", description: "", price_cents: "", sort_order: "0", is_available: true };

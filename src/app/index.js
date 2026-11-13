@@ -1,4 +1,4 @@
-import HomeScreen from "../screens/home.js";
+import HomeScreen from "../screens/index.js";
 
 /**
  * Home route (`src/app/index.js`): storefront/menu landing page.

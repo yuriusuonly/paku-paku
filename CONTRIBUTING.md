@@ -14,6 +14,7 @@
 ## Development workflow
 - The app is **web-only** (Expo Router, Metro, static web output with API routes). Do not assume native platforms are configured.
 - Edit source in `src/` and root config (`app.config.js`, `metro.config.js`, `tailwind.config.js`, etc.). Do not edit generated artifacts in `build/` or `node_modules/`.
+- Keep `src/screens/` mirroring `src/app/` route paths (page/API routes map to corresponding screen modules where applicable).
 - Dev server: `npm run expo:start`. Tunnel: `npm run expo:start:tunnel`.
 - Start the local Supabase stack before developing against data: `npm run supabase:start`; stop it with `npm run supabase:stop`. Use `npm run supabase:status` for local URLs/keys and `npm run supabase:reset` to re-apply migrations + seed.
 - Add convenience/repeatable project commands as scripts in `package.json`; do not create a `scripts/` directory for them. Treat `package.json` scripts as the single source of truth for how to run and configure the project.

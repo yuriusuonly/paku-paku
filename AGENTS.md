@@ -21,7 +21,7 @@
 
 ## Project structure / conventions
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
-- Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `sign-in.js`, `admin.js`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` (`home.js`, `sign-in.js`, `admin.js`); reusable UI lives under `src/components/`.
+- Routing uses Expo Router file-based routes under `src/app/` (e.g. `_layout.js`, `index.js`, `sign-in.js`, `register.js`, `admin/**`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` and mirror `src/app/` route paths (e.g. `index.js`, `sign-in.js`, `register.js`, `admin/index.js`, `admin/menu-items.js`, `admin/profiles.js`); reusable UI lives under `src/components/`.
 - **API/architecture layers:**
   - `src/interceptors/` — interceptors (`log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
   - `src/requests/` — route-matched incoming request handling/validation modules (e.g. `health.js`, `menu-items.js`, `auth-register.js`, `auth-sign-in.js`, `auth-session.js`, `auth-sign-out.js`, `admin-profiles.js`).

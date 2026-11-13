@@ -321,10 +321,11 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── health.js
 │   │   └── menu-items.js
 │   ├── screens/
-│   │   ├── admin.js
-│   │   ├── admin-menu-items.js
-│   │   ├── admin-profiles.js
-│   │   ├── home.js
+│   │   ├── admin/
+│   │   │   ├── index.js
+│   │   │   ├── menu-items.js
+│   │   │   └── profiles.js
+│   │   ├── index.js
 │   │   ├── register.js
 │   │   └── sign-in.js
 │   ├── services/
