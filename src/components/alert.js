@@ -28,7 +28,7 @@ export function Alert({ message, variant = "info" }) {
 
   return (
     <View className={`w-full rounded-2xl border px-4 py-3 ${variantStyle}`}>
-      <Text className={`font-outfit text-sm leading-relaxed ${variantStyle}`}>
+      <Text className="font-outfit text-sm leading-relaxed">
         {message}
       </Text>
     </View>
