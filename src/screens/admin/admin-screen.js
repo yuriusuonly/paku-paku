@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { Button } from "../../components/button.js";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
@@ -10,37 +11,29 @@ import { useProfilesStore } from "../../stores/profiles-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Administrator dashboard with live counts and links to management screens.
+ * Administrator dashboard with live counts and audit navigation.
  * @module screens/admin/admin-screen
  */
 
 /**
- * Clickable dashboard stat card.
+ * Small stat display inside the dashboard card.
  *
- * @param {{href: string, label: string, value: string | number, hint?: string, loading?: boolean}} props
+ * @param {{label: string, value: string | number, loading?: boolean}} props
  * @returns {JSX.Element}
  */
-function StatCard({ href, label, value, hint, loading = false }) {
+function StatItem({ label, value, loading = false }) {
   return (
-    <Link href={href} asChild>
-      <Pressable className={`flex-1 min-w-[180px] rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
-        <Text className={`font-outfit text-sm font-semibold uppercase tracking-wide ${cx.textInk60}`}>
-          {label}
+    <View className={`min-w-[140px] flex-1 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+      <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+        {label}
+      </Text>
+      <View className="mt-2 flex-row items-end justify-between">
+        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
+          {loading ? "—" : value}
         </Text>
-        <View className="mt-3 flex-row items-end justify-between">
-          <Text className={`font-outfit text-4xl font-black tracking-tight ${cx.textInk}`}>
-            {loading ? "—" : value}
-          </Text>
-          {loading ? <CircularProgress size="small" /> : null}
-        </View>
-        {hint ? (
-          <Text className={`font-outfit mt-2 text-sm ${cx.textInk70}`}>{hint}</Text>
-        ) : null}
-        <Text className={`font-outfit mt-4 text-sm font-semibold ${cx.textPrimary}`}>
-          Open audit →
-        </Text>
-      </Pressable>
-    </Link>
+        {loading ? <CircularProgress size="small" /> : null}
+      </View>
+    </View>
   );
 }
 
@@ -108,6 +101,9 @@ export default function AdminScreen() {
 
   const menuBusy = menuLoading || menuSyncing;
   const profilesBusy = profilesLoading || profilesSyncing;
+  const isSyncing = menuBusy || profilesBusy;
+  const menuCountLoading = menuLoading && menuItems.length === 0;
+  const profileCountLoading = profilesLoading && profiles.length === 0;
 
   return (
     <ScreenContainer>
@@ -120,80 +116,41 @@ export default function AdminScreen() {
           </Text>
         </View>
 
-        <View className="mb-10">
-          <View className="mb-4 flex-row items-center justify-between">
-            <View>
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
-              <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-                Manage menu items, availability, ordering, and details.
+        <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
+          <View className="mb-6 flex-row items-start justify-between gap-4">
+            <View className="flex-1">
+              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Live overview</Text>
+              <Text className={`font-outfit mt-2 text-sm ${cx.textInk70}`}>
+                Real-time counts for menu items and profiles.
               </Text>
             </View>
-            {menuBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
+            {isSyncing ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
           </View>
-          <View className="flex-row flex-wrap gap-4">
-            <StatCard
-              href="/admin/menu-items"
-              label="Total items"
-              value={menuStats.total}
-              hint="All menu items in the database"
-              loading={menuLoading && menuItems.length === 0}
-            />
-            <StatCard
-              href="/admin/menu-items"
-              label="Available"
-              value={menuStats.available}
-              hint="Visible/available to customers"
-              loading={menuLoading && menuItems.length === 0}
-            />
-            <StatCard
-              href="/admin/menu-items"
-              label="Hidden"
-              value={menuStats.hidden}
-              hint="Unavailable or hidden items"
-              loading={menuLoading && menuItems.length === 0}
-            />
-          </View>
-        </View>
 
-        <View>
-          <View className="mb-4 flex-row items-center justify-between">
-            <View>
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
-              <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-                Audit user profiles, roles, and active status.
-              </Text>
+          <View className="mb-6">
+            <Text className={`font-outfit mb-3 text-lg font-bold ${cx.textInk}`}>Menu items</Text>
+            <View className="flex-row flex-wrap gap-3">
+              <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
+              <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
+              <StatItem label="Hidden" value={menuStats.hidden} loading={menuCountLoading} />
             </View>
-            {profilesBusy ? <Text className={`font-outfit text-sm ${cx.textInk50}`}>Syncing…</Text> : null}
           </View>
-          <View className="flex-row flex-wrap gap-4">
-            <StatCard
-              href="/admin/profiles"
-              label="Total profiles"
-              value={profileStats.total}
-              hint="All user profiles"
-              loading={profilesLoading && profiles.length === 0}
-            />
-            <StatCard
-              href="/admin/profiles"
-              label="Active"
-              value={profileStats.active}
-              hint="Profiles allowed to sign in"
-              loading={profilesLoading && profiles.length === 0}
-            />
-            <StatCard
-              href="/admin/profiles"
-              label="Inactive"
-              value={profileStats.inactive}
-              hint="Soft-deleted/disabled profiles"
-              loading={profilesLoading && profiles.length === 0}
-            />
-            <StatCard
-              href="/admin/profiles"
-              label="Customers"
-              value={profileStats.customers}
-              hint="Customer-role profiles"
-              loading={profilesLoading && profiles.length === 0}
-            />
+
+          <View className="mb-6">
+            <Text className={`font-outfit mb-3 text-lg font-bold ${cx.textInk}`}>Profiles</Text>
+            <View className="flex-row flex-wrap gap-3">
+              <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
+              <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
+              <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
+              <StatItem label="Admins" value={profileStats.admins} loading={profileCountLoading} />
+              <StatItem label="Customers" value={profileStats.customers} loading={profileCountLoading} />
+            </View>
+          </View>
+
+          <View className="flex-row justify-end">
+            <Link href="/admin/menu-items" asChild>
+              <Button label="Open menu items audit" />
+            </Link>
           </View>
         </View>
       </ScrollView>
