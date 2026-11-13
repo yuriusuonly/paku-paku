@@ -42,7 +42,7 @@
 - **Never create a `public/` directory and never move icon assets there.** Static icon PNGs stay in `png/` (SVG sources in `svg/`); `npm run expo:build` copies `png/logo.png` and `png/logo-maskable.png` into `build/client/png/` so the manifest can use stable `/png/...` URLs.
 
 ## Runtime & deployment notes
-- `.env` holds `EXPO_PUBLIC_*` (bundled/client-visible, including `EXPO_PUBLIC_URL_API_BASE_PATH`), server/proxy vars (`URL_PROTOCOL`, `URL_HOST`, `URL_PORT`, `URL_PROXY_PROTOCOL`, `URL_PROXY_HOST`, `URL_PROXY_PORT`, `URL_BASE`), Supabase credentials (`EXPO_PUBLIC_SUPABASE_*`, `SUPABASE_LOCAL_SERVER_URL`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`), Expo/EAS deploy auth and linkage (`EAS_TOKEN`, `EAS_PROJECT_ID`, `EAS_PROJECT_SLUG`), and deploy-push config (`GH_TOKEN`, `GH_REPO`).
+- `.env` holds `EXPO_PUBLIC_*` (bundled/client-visible, including `EXPO_PUBLIC_URL_API_BASE_PATH`), server/proxy vars (`URL_PROTOCOL`, `URL_HOST`, `URL_PORT`, `URL_PROXY_PROTOCOL`, `URL_PROXY_HOST`, `URL_PROXY_PORT`, `URL_BASE`), Supabase credentials (`EXPO_PUBLIC_SUPABASE_*`, `SUPABASE_LOCAL_SERVER_URL`, `SUPABASE_PROJECT_REF`, `SUPABASE_ACCESS_TOKEN`), Expo/EAS deploy auth and linkage (`EAS_TOKEN`, `EAS_PROJECT_ID`, `EAS_PROJECT_SLUG`), and deploy-push config (`GH_TOKEN`, `GH_REPO`).
 - Supabase environment/config selection is composed in `src/shared/constants/config.js` and consumed by `src/database/instance.js` (browser and server clients): `EXPO_PUBLIC_SUPABASE_TARGET` defaults to `local`, and only `npm run eas:deploy` overrides it to `hosted`. Never add a fallback, never bypass the override, and never expose a service-role key.
 - Server API routes use anon key + forwarded user bearer tokens so RLS applies. Dockerized local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` (`http://api.supabase.internal:8000`) by joining the external `supabase_network_paku-paku` network created by `supabase start`.
 - The local Supabase stack is private to the machine (API `54321`, PostgreSQL `54322`, Studio `54323`, Mailpit `54324`); never proxy or tunnel those ports.
@@ -51,7 +51,7 @@
 - Several npm scripts source `.env` via `set -a && . ./.env && set +a`; `caddy` uses `--envfile`. Keep `.env` POSIX-compatible.
 - `Dockerfile` + `docker-compose.yml` build/serve the static app and API routes; PostgreSQL/Supabase containers are external (local `supabase start` stack) and never part of the production image.
 - `/api/health` returns `{status: "ok", timestamp, uptime}` with `Cache-Control: no-store`; the Docker healthcheck hits it.
-- `.github/workflows/deploy.yml` runs on pushes to `main` (and manual dispatch): it restores `.env` from the `DOT_ENV` secret, installs dependencies, exports the web build on the runner, and uploads only the artifact to Expo Hosting via `npm run eas:deploy`.
+- `.github/workflows/deploy.yml` runs on pushes to `main` (and manual dispatch): it restores `.env` from the `DOT_ENV` secret, installs dependencies, links and pushes hosted Supabase migrations using `SUPABASE_ACCESS_TOKEN`, exports the web build on the runner, and uploads only the artifact to Expo Hosting via `npm run eas:deploy`.
 - `build/`, `node_modules/`, and `.expo/` are generated/installed artifacts (gitignored). Edit source under `src/` and config at the repo root, not `build/`. |
 
 ## Maintenance

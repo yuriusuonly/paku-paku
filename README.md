@@ -20,8 +20,8 @@ development, Docker, and Expo Hosting.
   JavaScript with JSDoc, and Supabase (local PostgreSQL for development and
   local builds, hosted Supabase on Expo Hosting).
 - **Build:** `expo export --platform web` → `build/` (static export).
-- **Deploy:** push to `main` triggers GitHub Actions, which exports the web
-  build on the runner and uploads only the artifact to Expo Hosting (EAS).
+- **Deploy:** push to `main` triggers GitHub Actions, which pushes hosted Supabase migrations, exports the web
+  build on the runner, and uploads only the artifact to Expo Hosting (EAS).
 - **Runtime:** `expo serve` locally or in Docker behind Caddy (`/api/health`
   healthcheck).
 
@@ -46,7 +46,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (`eas:deploy`). |
 | `SUPABASE_LOCAL_SERVER_URL` | Local Supabase API URL used by Dockerized server routes (`http://api.supabase.internal:8000`, Kong on the Supabase Docker network). |
 | `SUPABASE_PROJECT_REF` | Hosted project reference; used by `npm run supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
-| `SUPABASE_DB_PASSWORD` | Hosted project database password for CLI migrations; never bundled into the app. |
+| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token for non-interactive CLI auth (linking/pushing hosted migrations, e.g. in CI); never bundled into the app. |
 | `EAS_TOKEN` | EAS access token (remapped to `EXPO_TOKEN` by the `eas:*` scripts). |
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `npm run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
@@ -131,7 +131,7 @@ Hosted setup: create a Supabase project, copy its URL and anon key into
 hosted values. `npm run eas:deploy` refuses to run without those hosted values.
 Apply local migrations to the hosted database with `npx --yes supabase login`
 (once), `npm run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
-`npm run supabase:push` (`SUPABASE_DB_PASSWORD` supplies the database password). |
+`npm run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI). |
 
 OpenCode connects to the hosted Supabase MCP server declared in `opencode.json`.
 Its URL resolves `SUPABASE_PROJECT_REF` from `.env`, so the project reference is
@@ -167,7 +167,7 @@ One-time setup:
 3. Create the GitHub repository, then run `npm run github:remote` and
    `npm run github:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
    must contain the hosted Supabase values (`EXPO_PUBLIC_SUPABASE_URL`,
-   `EXPO_PUBLIC_SUPABASE_ANON_KEY`); `eas:deploy` overrides the target to
+   `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` overrides the target to
    `hosted`, and production never uses the local URL.
 4. Push to `main`; `.github/workflows/deploy.yml` runs `npm run eas:deploy`.
 
