@@ -191,8 +191,7 @@ export default function AdminProfilesScreen() {
   const showInitialLoading = loading && profiles.length === 0;
 
   return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+    <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
         <View className="mb-6 flex-row items-end justify-between">
           <View className="flex-1 pr-4">
@@ -389,7 +388,6 @@ export default function AdminProfilesScreen() {
             </View>
           </ScrollView>
         ) : null}
-      </ScrollView>
     </ScreenContainer>
   );
 }

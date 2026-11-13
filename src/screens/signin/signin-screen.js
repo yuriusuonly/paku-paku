@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
@@ -74,73 +74,71 @@ export default function SignInScreen() {
   const showStoreError = !localError && storeError;
 
   return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
-        <View className="mx-auto w-full max-w-md">
-          <Link href="/" asChild>
-            <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
-              ← Back to menu
-            </Text>
-          </Link>
-
-          <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
-            Sign in
+    <ScreenContainer scrollable contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
+      <View className="mx-auto w-full max-w-md">
+        <Link href="/" asChild>
+          <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>
+            ← Back to menu
           </Text>
-          <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
-            Use your account username and password.
-          </Text>
+        </Link>
 
-          <View className="mt-8 gap-4">
-            <TextField
-              label="Username"
-              value={username}
-              onChangeText={(value) => {
-                setUsername(value);
-                if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
-              }}
-              placeholder="root"
-              autoCapitalize="none"
-              autoComplete="username"
-              error={fieldErrors.username || showStoreError}
-            />
-            <TextField
-              label="Password"
-              value={password}
-              onChangeText={(value) => {
-                setPassword(value);
-                if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
-              }}
-              placeholder="••••"
-              secureTextEntry
-              enablePasswordToggle
-              autoComplete="password"
-              error={fieldErrors.password || showStoreError}
-            />
+        <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
+          Sign in
+        </Text>
+        <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
+          Use your account username and password.
+        </Text>
 
-            {errorMessage ? (
-              <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
-            ) : null}
+        <View className="mt-8 gap-4">
+          <TextField
+            label="Username"
+            value={username}
+            onChangeText={(value) => {
+              setUsername(value);
+              if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
+            }}
+            placeholder="root"
+            autoCapitalize="none"
+            autoComplete="username"
+            error={fieldErrors.username || showStoreError}
+          />
+          <TextField
+            label="Password"
+            value={password}
+            onChangeText={(value) => {
+              setPassword(value);
+              if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
+            }}
+            placeholder="••••"
+            secureTextEntry
+            enablePasswordToggle
+            autoComplete="password"
+            error={fieldErrors.password || showStoreError}
+          />
 
-            <Button
-              label="Sign in"
-              onPress={onSubmit}
-              loading={submitting || status === "loading"}
-              className="mt-2"
-            />
-          </View>
+          {errorMessage ? (
+            <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
+          ) : null}
 
-          <View className="mt-6 flex-row items-center gap-2">
-            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Need an account?</Text>
-            <Link href="/signup" asChild>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
-            </Link>
-          </View>
-
-          <Text className={`font-outfit mt-4 text-xs leading-relaxed ${cx.textInk50}`}>
-            Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">admin</Text>
-          </Text>
+          <Button
+            label="Sign in"
+            onPress={onSubmit}
+            loading={submitting || status === "loading"}
+            className="mt-2"
+          />
         </View>
-      </ScrollView>
+
+        <View className="mt-6 flex-row items-center gap-2">
+          <Text className={`font-outfit text-sm ${cx.textInk70}`}>Need an account?</Text>
+          <Link href="/signup" asChild>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
+          </Link>
+        </View>
+
+        <Text className={`font-outfit mt-4 text-xs leading-relaxed ${cx.textInk50}`}>
+          Administrator seed (local): username <Text className="font-semibold">root</Text>, password <Text className="font-semibold">admin</Text>
+        </Text>
+      </View>
     </ScreenContainer>
   );
 }

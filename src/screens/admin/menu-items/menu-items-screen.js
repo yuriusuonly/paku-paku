@@ -303,8 +303,7 @@ export default function AdminMenuItemsScreen() {
   }
 
   return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+    <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
         <Header />
         <View className="mb-6 flex-row items-end justify-between">
           <View>
@@ -476,7 +475,6 @@ export default function AdminMenuItemsScreen() {
             </View>
           </ScrollView>
         ) : null}
-      </ScrollView>
     </ScreenContainer>
   );
 }

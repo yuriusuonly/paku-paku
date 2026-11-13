@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
@@ -101,54 +101,52 @@ export default function AdminScreen() {
   const profileCountLoading = profilesLoading && profiles.length === 0;
 
   return (
-    <ScreenContainer>
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        <Header />
-        <View className="mb-8">
-          <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Administration dashboard</Text>
-          <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-            Signed in as <Text className="font-semibold">{authUser.username}</Text>. Live overview of menu items and profiles.
-          </Text>
-        </View>
+    <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
+      <Header />
+      <View className="mb-8">
+        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Administration dashboard</Text>
+        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+          Signed in as <Text className="font-semibold">{authUser.username}</Text>. Live overview of menu items and profiles.
+        </Text>
+      </View>
 
-        <View className="gap-6">
-          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
-            <View className="mb-4">
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
-            </View>
-            <View className="flex-row flex-wrap gap-x-6 gap-y-4">
-              <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
-              <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
-              <StatItem label="Unavailable" value={menuStats.unavailable} loading={menuCountLoading} />
-            </View>
-            <View className="mt-6">
-              <Link href="/admin/menu-items" asChild>
-                <Pressable>
-                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open menu items audit →</Text>
-                </Pressable>
-              </Link>
-            </View>
+      <View className="gap-6">
+        <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
+          <View className="mb-4">
+            <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu items</Text>
           </View>
-
-          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
-            <View className="mb-4">
-              <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
-            </View>
-            <View className="flex-row flex-wrap gap-x-6 gap-y-4">
-              <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
-              <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
-              <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
-            </View>
-            <View className="mt-6">
-              <Link href="/admin/profiles" asChild>
-                <Pressable>
-                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open profiles audit →</Text>
-                </Pressable>
-              </Link>
-            </View>
+          <View className="flex-row flex-wrap gap-x-6 gap-y-4">
+            <StatItem label="Total items" value={menuStats.total} loading={menuCountLoading} />
+            <StatItem label="Available" value={menuStats.available} loading={menuCountLoading} />
+            <StatItem label="Unavailable" value={menuStats.unavailable} loading={menuCountLoading} />
+          </View>
+          <View className="mt-6">
+            <Link href="/admin/menu-items" asChild>
+              <Pressable>
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open menu items audit →</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
-      </ScrollView>
+
+        <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-6`}>
+          <View className="mb-4">
+            <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Profiles</Text>
+          </View>
+          <View className="flex-row flex-wrap gap-x-6 gap-y-4">
+            <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
+            <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
+            <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
+          </View>
+          <View className="mt-6">
+            <Link href="/admin/profiles" asChild>
+              <Pressable>
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Open profiles audit →</Text>
+              </Pressable>
+            </Link>
+          </View>
+        </View>
+      </View>
     </ScreenContainer>
   );
 }
