@@ -10,7 +10,7 @@ export const colors = {
   white: "#FFFFFF",
   black: "#000000",
   success: "#34D399",
-  errorText: "#9F1239",
+  errorText: "#FE2C55",
   transparent: "transparent"
 };
 
@@ -55,7 +55,7 @@ export const cx = {
   borderPrimary: "border-[#FE2C55]",
   borderPrimary20: "border-[#FE2C55]/20",
   borderPrimary30: "border-[#FE2C55]/30",
-  textError: "text-[#9f1239]",
+  textError: "text-[#FE2C55]",
   bgSnackbar: "bg-[#161823]",
   borderSuccess30: "border-emerald-400/30",
   dotSuccess: "bg-emerald-400",
