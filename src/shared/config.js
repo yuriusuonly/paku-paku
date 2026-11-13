@@ -39,7 +39,7 @@
  * @property {SupabaseConfig} supabase
  */
 
-const apiBasePath = process.env.EXPO_PUBLIC_API_BASE_PATH || "/api";
+const apiBasePath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "/api";
 const supabaseTarget = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted" ? "hosted" : "local";
 const isHosted = supabaseTarget === "hosted";
 

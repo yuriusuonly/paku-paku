@@ -37,8 +37,8 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
-| `URL_BASE` / `URL_API` | Project-level URL path values. |
-| `EXPO_PUBLIC_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `src/shared/config.js`. |
+| `URL_BASE` | Project-level base URL path. |
+| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `src/shared/config.js`. |
 | `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
