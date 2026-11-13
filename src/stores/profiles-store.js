@@ -14,6 +14,15 @@ function sortProfiles(items) {
   return [...items].sort((a, b) => String(a.username || "").localeCompare(String(b.username || "")));
 }
 
+function isSameRecord(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) => Object.is(a[key], b[key]));
+}
+
 function upsertProfile(items, profile) {
   if (!isVisibleProfile(profile)) {
     return items.filter((entry) => entry.id !== profile?.id && entry.username !== "root");
@@ -21,6 +30,9 @@ function upsertProfile(items, profile) {
   const index = items.findIndex((entry) => entry.id === profile.id);
   if (index === -1) {
     return sortProfiles([...items, profile]);
+  }
+  if (isSameRecord(items[index], { ...items[index], ...profile })) {
+    return items;
   }
   const next = [...items];
   next[index] = { ...next[index], ...profile };
@@ -112,14 +124,28 @@ export const useProfilesStore = create((set, get) => ({
       const channel = database
         .channel("public:profiles")
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, (payload) => {
-          set({ syncing: true });
+          let changed = false;
           if (payload.eventType === "DELETE") {
             const id = payload.old?.id;
-            if (id) set((s) => ({ profiles: s.profiles.filter((p) => p.id !== id) }));
+            if (id && get().profiles.some((p) => p.id === id)) {
+              changed = true;
+              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== id), syncing: true }));
+            }
           } else if (payload.new) {
-            set((s) => ({ profiles: upsertProfile(s.profiles, payload.new) }));
+            const profile = payload.new;
+            const current = get().profiles.find((entry) => entry.id === profile.id);
+            const visible = isVisibleProfile(profile);
+            if (!visible && current) {
+              changed = true;
+              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.username !== "root"), syncing: true }));
+            } else if (visible && !isSameRecord(current, current ? { ...current, ...profile } : profile)) {
+              changed = true;
+              set((s) => ({ profiles: upsertProfile(s.profiles, profile), syncing: true }));
+            }
           }
-          setTimeout(() => set({ syncing: false }), 350);
+          if (changed) {
+            setTimeout(() => set({ syncing: false }), 350);
+          }
         })
         .subscribe((status) => {
           if (status === "SUBSCRIBED") set({ subscribed: true, error: null });

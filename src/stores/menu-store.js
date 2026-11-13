@@ -26,6 +26,20 @@ function sortItems(items) {
 }
 
 /**
+ * @param {object | null | undefined} a - First record.
+ * @param {object | null | undefined} b - Second record.
+ * @returns {boolean} Whether records are equivalent.
+ */
+function isSameRecord(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) => Object.is(a[key], b[key]));
+}
+
+/**
  * @param {object[]} items - Current items.
  * @param {object} item - Item to upsert.
  * @returns {object[]} Updated items.
@@ -34,6 +48,9 @@ function upsertItem(items, item) {
   const index = items.findIndex((entry) => entry.id === item.id);
   if (index === -1) {
     return sortItems([...items, item]);
+  }
+  if (isSameRecord(items[index], { ...items[index], ...item })) {
+    return items;
   }
   const next = [...items];
   next[index] = { ...next[index], ...item };
@@ -117,22 +134,27 @@ export const useMenuStore = create((set, get) => ({
           "postgres_changes",
           { event: "*", schema: "public", table: "menu_items" },
           (payload) => {
-            // Reflect reactive data changes with a brief syncing state.
-            set({ syncing: true, error: null });
-
+            let changed = false;
             if (payload.eventType === "DELETE") {
               const id = payload.old?.id;
-              if (id) {
-                set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
+              if (id && get().items.some((item) => item.id === id)) {
+                changed = true;
+                set((s) => ({ items: s.items.filter((item) => item.id !== id), syncing: true, error: null }));
               }
             } else {
               const item = payload.new;
               if (item) {
-                set((s) => ({ items: upsertItem(s.items, item) }));
+                const current = get().items.find((entry) => entry.id === item.id);
+                if (!isSameRecord(current, current ? { ...current, ...item } : item)) {
+                  changed = true;
+                  set((s) => ({ items: upsertItem(s.items, item), syncing: true, error: null }));
+                }
               }
             }
 
-            setTimeout(() => set({ syncing: false }), 350);
+            if (changed) {
+              setTimeout(() => set({ syncing: false }), 350);
+            }
           }
         )
         .subscribe((status) => {
