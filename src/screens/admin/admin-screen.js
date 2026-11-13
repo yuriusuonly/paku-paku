@@ -5,7 +5,7 @@ import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { useAuthStore } from "../../stores/auth-store.js";
-import { cx } from "../../shared/theme.js";
+import { cx } from "../../shared/constants/theme.js";
 
 /**
  * Administrator dashboard with links to management screens.

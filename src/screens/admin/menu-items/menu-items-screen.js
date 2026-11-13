@@ -10,7 +10,7 @@ import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
-import { cx } from "../../../shared/theme.js";
+import { cx } from "../../../shared/constants/theme.js";
 
 /**
  * Admin menu items management screen.

@@ -1,5 +1,5 @@
 import { ScrollViewStyleReset, useServerDocumentContext } from "expo-router/html";
-import config from "../shared/config.js";
+import config from "../shared/constants/config.js";
 
 /**
  * Custom server-rendered HTML document shell (`src/app/+html.js`): charset,

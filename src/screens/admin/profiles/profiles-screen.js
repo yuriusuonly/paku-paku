@@ -8,7 +8,7 @@ import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useProfilesStore } from "../../../stores/profiles-store.js";
-import { cx } from "../../../shared/theme.js";
+import { cx } from "../../../shared/constants/theme.js";
 
 /**
  * Admin profiles management/audit screen.

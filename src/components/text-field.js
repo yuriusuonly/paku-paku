@@ -1,5 +1,5 @@
 import { Text, TextInput, View } from "react-native";
-import { alpha, cx } from "../shared/theme.js";
+import { alpha, cx } from "../shared/constants/theme.js";
 
 /**
  * Labeled text input component.

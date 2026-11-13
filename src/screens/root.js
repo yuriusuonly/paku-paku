@@ -4,10 +4,10 @@ import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { ScreenContainer } from "../components/container.js";
-import config from "../shared/config.js";
+import config from "../shared/constants/config.js";
 import { useAuthStore } from "../stores/auth-store.js";
 import { useMenuStore } from "../stores/menu-store.js";
-import { cx } from "../shared/theme.js";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Home/storefront screen with menu synced from the store/database.

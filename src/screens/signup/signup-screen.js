@@ -7,7 +7,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
-import { cx } from "../../shared/theme.js";
+import { cx } from "../../shared/constants/theme.js";
 
 /**
  * Customer sign-up screen.

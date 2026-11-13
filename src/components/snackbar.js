@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import { useNotificationStore } from "../stores/notification-store.js";
-import { cx } from "../shared/theme.js";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Snackbar host for transient notifications (e.g. background failures).

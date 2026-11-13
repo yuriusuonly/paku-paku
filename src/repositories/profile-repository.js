@@ -1,6 +1,6 @@
-import { databaseUpstream } from "../errors/database-upstream.js";
-import { forbidden } from "../errors/forbidden.js";
-import { internalError } from "../errors/internal.js";
+import { databaseUpstream } from "../shared/errors/database-upstream.js";
+import { forbidden } from "../shared/errors/forbidden.js";
+import { internalError } from "../shared/errors/internal.js";
 
 /**
  * Profile data access (API to database contracts).

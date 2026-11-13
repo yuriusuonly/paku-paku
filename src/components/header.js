@@ -1,8 +1,8 @@
 import { Link, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { useAuthStore } from "../stores/auth-store.js";
-import config from "../shared/config.js";
-import { cx } from "../shared/theme.js";
+import config from "../shared/constants/config.js";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Site header with navigation and auth actions.

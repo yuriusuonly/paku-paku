@@ -38,7 +38,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
-| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `src/shared/config.js`. |
+| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `src/shared/constants/config.js`. |
 | `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
@@ -296,21 +296,6 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── header.js
 │   │   ├── snackbar.js
 │   │   └── text-field.js
-│   ├── errors/
-│   │   ├── bad-gateway.js
-│   │   ├── bad-request.js
-│   │   ├── decrypt-error.js
-│   │   ├── encrypt-error.js
-│   │   ├── forbidden.js
-│   │   ├── hash-error.js
-│   │   ├── internal.js
-│   │   ├── normalize.js
-│   │   ├── not-found.js
-│   │   ├── service-unavailable.js
-│   │   ├── database-unconfigured.js
-│   │   ├── database-upstream.js
-│   │   ├── too-many-requests.js
-│   │   └── unauthorized.js
 │   ├── endpoints/
 │   │   ├── admin/
 │   │   │   └── profiles.js
@@ -337,22 +322,6 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── auth-repository.js
 │   │   ├── menu-repository.js
 │   │   └── profile-repository.js
-│   ├── requests/
-│   │   ├── admin-profiles.js
-│   │   ├── session.js
-│   │   ├── sign-in.js
-│   │   ├── sign-out.js
-│   │   ├── sign-up.js
-│   │   ├── health.js
-│   │   └── menu-items.js
-│   ├── responses/
-│   │   ├── admin-profiles.js
-│   │   ├── session.js
-│   │   ├── sign-in.js
-│   │   ├── sign-out.js
-│   │   ├── sign-up.js
-│   │   ├── health.js
-│   │   └── menu-items.js
 │   ├── screens/
 │   │   ├── admin/
 │   │   │   ├── admin-screen.js
@@ -369,26 +338,42 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── admin.js
 │   │   ├── auth.js
 │   │   └── menu.js
-│   ├── network/
-│   │   ├── context.js
-│   │   ├── http.js
-│   │   ├── middleware.js
-│   │   ├── request.js
-│   │   ├── response.js
-│   │   └── status.js
-│   ├── cipher/
-│   │   ├── decode.js
-│   │   ├── decrypt.js
-│   │   ├── encode.js
-│   │   ├── encrypt.js
-│   │   ├── hash.js
-│   │   ├── id.js
-│   │   └── token.js
 │   ├── database/
 │   │   └── instance.js
 │   ├── shared/
-│   │   ├── config.js
-│   │   └── theme.js
+│   │   ├── cipher/
+│   │   │   ├── decode.js
+│   │   │   ├── decrypt.js
+│   │   │   ├── encode.js
+│   │   │   ├── encrypt.js
+│   │   │   ├── hash.js
+│   │   │   ├── id.js
+│   │   │   └── token.js
+│   │   ├── constants/
+│   │   │   ├── config.js
+│   │   │   ├── http.js
+│   │   │   └── theme.js
+│   │   ├── errors/
+│   │   │   ├── bad-gateway.js
+│   │   │   ├── bad-request.js
+│   │   │   ├── database-unconfigured.js
+│   │   │   ├── database-upstream.js
+│   │   │   ├── decrypt-error.js
+│   │   │   ├── encrypt-error.js
+│   │   │   ├── forbidden.js
+│   │   │   ├── hash-error.js
+│   │   │   ├── internal.js
+│   │   │   ├── normalize.js
+│   │   │   ├── not-found.js
+│   │   │   ├── service-unavailable.js
+│   │   │   ├── too-many-requests.js
+│   │   │   └── unauthorized.js
+│   │   └── network/
+│   │       ├── context.js
+│   │       ├── http.js
+│   │       ├── middleware.js
+│   │       ├── request.js
+│   │       └── response.js
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js

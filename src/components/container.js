@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { cx } from "../shared/theme.js";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Layout container components.

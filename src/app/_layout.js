@@ -3,7 +3,7 @@ import Head from "expo-router/head";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { View } from "react-native";
-import config from "../shared/config.js";
+import config from "../shared/constants/config.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
 import { useAuthStore } from "../stores/auth-store.js";

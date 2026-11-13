@@ -51,7 +51,7 @@ flowchart TD
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that wires the middleware pipeline (`src/network/middleware.js`, `src/interceptors/*`), request validation (`src/requests/*`), repositories (`src/repositories/*`), and response shaping (`src/responses/*`), and export the HTTP method handlers (e.g. `src/endpoints/menu-items/index.js`, `src/endpoints/menu-items/[id].js`).
+1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`src/shared/network/middleware.js`, `src/interceptors/*`), handle request parsing/validation/normalization, call repositories (`src/repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `src/endpoints/menu-items/index.js`, `src/endpoints/menu-items/[id].js`).
 2. Create a thin Expo Router `+api` wrapper under `src/app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/menu-items/[id]+api.js`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
@@ -72,32 +72,37 @@ Layered flow (client → server → client):
 
 ```mermaid
 flowchart LR
-  R["app/ routes"] --> SC["screens/"]
-  SC --> SV["services/ client-to-API contracts"]
-  SV --> API["app/api/ route handlers"]
-  API --> RQ["requests/ validation"]
-  RQ --> I["interceptors/ middleware"]
-  I --> RP["repositories/ server-database contracts"]
-  RP --> RS["responses/ response shaping"]
-  RS --> SV
-  SV --> ST["stores/ state updates"]
+  subgraph Client
+    R["app/ routes"] --> SC["screens/"]
+    SC --> ST["stores/ state"]
+    ST --> SV["services/ client-to-API contracts"]
+  end
+  SV -->|HTTP| API["app/api/ thin wrappers"]
+  subgraph Server
+    API --> EP["endpoints/ lifecycle + request/response"]
+    EP --> IC["interceptors/ middleware"]
+    IC --> EP
+    EP --> RP["repositories/ data access"]
+    RP --> DB["database/"]
+  end
+  EP -->|HTTP response| SV
   ST --> SC
 ```
 
 - **`src/app/`**: Expo Router pages and `+api.js` route handlers (HTTP/controller layer). Keep API handlers thin: compose interceptors, validate/parse via request modules, call repositories, and return route-matched responses.
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
-- **`src/requests/`**: route-matched incoming request handling/validation modules (matching API routes, e.g. `sign-in.js`, `menu-items.js`, `admin-profiles.js`).
-- **`src/interceptors/`**: interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/network/middleware.js` and request context from `src/network/context.js`.
+
+- **`src/interceptors/`**: cross-cutting interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/network/middleware.js` and request context from `src/shared/network/context.js`.
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
-- **`src/responses/`**: route-matched outgoing API response shaping modules (mirroring API routes) with consistent no-store/error envelopes. Use shared primitives in `src/shared/response.js`.
+
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
-- **`src/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
-- **`src/network/`**: network/API utilities (`middleware.js` pipeline, `context.js` request context, `request.js`/`response.js` primitives, `http.js` client transport, `status.js` HTTP status constants).
-- **`src/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
+- **`src/shared/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
+- **`src/shared/network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `http.js` client transport).
+- **`src/shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
 - **`src/database/`**: database/Supabase client instance and runtime selection (`instance.js`).
-- **`src/shared/`**: cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
-- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
+- **`src/shared/constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
 
 ```mermaid
 flowchart LR
@@ -109,7 +114,7 @@ flowchart LR
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/stylesheets/global.css`.
 - Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
-- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/config.js`, `app.config.js`). `src/shared/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
+- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/constants/config.js`, `app.config.js`). `src/shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
 
 ## Documentation conventions
 - Always include JSDoc for modules with a top-level `@module` tag.

@@ -1,14 +1,18 @@
 import { errorInterceptor } from "../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../network/middleware.js";
+import { withMiddleware } from "../../shared/network/middleware.js";
+import { noContent } from "../../shared/network/response.js";
 import { signOut } from "../../repositories/auth-repository.js";
-import { signOutResponse } from "../../responses/sign-out.js";
 
 /**
  * Composed sign-out endpoint handlers.
  * @module endpoints/sign-out/index
  */
+
+function signOutResponse() {
+  return noContent();
+}
 
 const route = withMiddleware(
   logInterceptor,

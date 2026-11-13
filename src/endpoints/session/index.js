@@ -2,14 +2,18 @@ import { authenticationInterceptor } from "../../interceptors/authentication-int
 import { errorInterceptor } from "../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../network/middleware.js";
+import { withMiddleware } from "../../shared/network/middleware.js";
+import { jsonResponse } from "../../shared/network/response.js";
 import { getSession } from "../../repositories/auth-repository.js";
-import { sessionResponse } from "../../responses/session.js";
 
 /**
  * Composed session endpoint handlers.
  * @module endpoints/session/index
  */
+
+function sessionResponse(data) {
+  return jsonResponse(data);
+}
 
 const route = withMiddleware(
   logInterceptor,

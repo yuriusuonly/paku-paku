@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { cx } from "../shared/theme.js";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Inline alert/message component.

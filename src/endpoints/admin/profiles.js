@@ -2,14 +2,18 @@ import { authorizationInterceptor } from "../../interceptors/authorization-inter
 import { errorInterceptor } from "../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
-import { withMiddleware } from "../../network/middleware.js";
+import { withMiddleware } from "../../shared/network/middleware.js";
+import { jsonResponse } from "../../shared/network/response.js";
 import { listProfiles } from "../../repositories/profile-repository.js";
-import { adminProfilesResponse } from "../../responses/admin-profiles.js";
 
 /**
  * Composed admin profiles endpoint handlers.
  * @module endpoints/admin/profiles
  */
+
+function adminProfilesResponse(data) {
+  return jsonResponse(data);
+}
 
 const route = withMiddleware(
   logInterceptor,
