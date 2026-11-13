@@ -83,6 +83,18 @@ function menuItemDeletedResponse(data) {
   return jsonResponse(data);
 }
 
+function getMenuItemId(context) {
+  const fromParams = context?.params?.id;
+  if (typeof fromParams === "string" && fromParams.trim()) {
+    return fromParams.trim();
+  }
+
+  const pathname = context?.url?.pathname || "";
+  const segments = pathname.split("/").filter(Boolean);
+  const id = segments[segments.length - 1];
+  return typeof id === "string" ? id.trim() : "";
+}
+
 export const PATCH = withMiddleware(
   logInterceptor,
   errorInterceptor,
@@ -91,7 +103,7 @@ export const PATCH = withMiddleware(
 )(async (context) => {
   const input = await parseUpdateMenuItemRequest(context.request);
   return menuItemResponse(
-    await updateMenuItem(context.locals.auth.database, context.params.id, input)
+    await updateMenuItem(context.locals.auth.database, getMenuItemId(context), input)
   );
 });
 
@@ -102,7 +114,7 @@ export const DELETE = withMiddleware(
   authorizationInterceptor
 )(async (context) =>
   menuItemDeletedResponse(
-    await deleteMenuItem(context.locals.auth.database, context.params.id)
+    await deleteMenuItem(context.locals.auth.database, getMenuItemId(context))
   )
 );
 
