@@ -91,7 +91,7 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="w-full flex-1 items-center justify-center">
-            <View className="aspect-square w-full max-w-[180px] overflow-hidden md:max-w-[320px]">
+            <View className="aspect-square w-full max-w-[260px] overflow-hidden md:max-w-[380px]">
               <Image
                 source={logo}
                 accessibilityLabel={`${config.title} logo`}
