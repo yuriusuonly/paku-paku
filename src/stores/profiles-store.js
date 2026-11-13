@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getProfiles } from "../services/admin.js";
-import { getSupabase } from "../database/instance.js";
+import { getDatabaseClient } from "../database/instance.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
 const friendlyError = (error, fallback) =>
@@ -42,8 +42,8 @@ export const useProfilesStore = create((set, get) => ({
   subscribe: () => {
     if (get().channel) return;
     try {
-      const supabase = getSupabase();
-      const channel = supabase
+      const database = getDatabaseClient();
+      const channel = database
         .channel("public:profiles")
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, (payload) => {
           set({ syncing: true });
@@ -78,7 +78,7 @@ export const useProfilesStore = create((set, get) => ({
     const { channel } = get();
     if (!channel) return;
     try {
-      await getSupabase().removeChannel(channel);
+      await getDatabaseClient().removeChannel(channel);
     } catch {
       notifyBackgroundError("Could not disconnect live profile updates cleanly.");
     } finally {

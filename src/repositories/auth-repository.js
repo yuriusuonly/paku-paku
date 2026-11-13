@@ -6,8 +6,8 @@ import { supabaseUpstream } from "../errors/supabase-upstream.js";
 import { tooManyRequests } from "../errors/too-many-requests.js";
 import { unauthorized } from "../errors/unauthorized.js";
 import {
-  createSupabaseServerClient,
-  getSupabaseServerConfig
+  createDatabaseClient,
+  getDatabaseServerConfig
 } from "../database/instance.js";
 import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
 
@@ -24,14 +24,14 @@ import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function signIn({ email, password }) {
-  let supabase;
+  let database;
   try {
-    supabase = createSupabaseServerClient();
+    database = createDatabaseClient();
   } catch (error) {
     throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await database.auth.signInWithPassword({ email, password });
 
   if (error || !data.session) {
     if (error?.status === 429) {
@@ -40,7 +40,7 @@ export async function signIn({ email, password }) {
     throw unauthorized("invalid_credentials", "Invalid username or password.");
   }
 
-  const authenticated = createSupabaseServerClient({
+  const authenticated = createDatabaseClient({
     accessToken: data.session.access_token
   });
   const profile = await findProfileByUserId(authenticated, data.user.id);
@@ -61,7 +61,7 @@ export async function signIn({ email, password }) {
  * Authenticates a request and resolves auth context.
  *
  * @param {Request} request - Incoming request.
- * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Auth context.
+ * @returns {Promise<{token: string, database: import("../database/instance.js").DatabaseClient, user: object, profile: object}>} Auth context.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function authenticate(request) {
@@ -71,24 +71,24 @@ export async function authenticate(request) {
     throw unauthorized("unauthorized", "Missing bearer token.");
   }
 
-  let supabase;
+  let database;
   try {
-    supabase = createSupabaseServerClient({ accessToken: token });
+    database = createDatabaseClient({ accessToken: token });
   } catch (error) {
     throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
 
-  const { data: userData, error: userError } = await supabase.auth.getUser(token);
+  const { data: userData, error: userError } = await database.auth.getUser(token);
 
   if (userError || !userData.user) {
     throw unauthorized("unauthorized", "Invalid or expired session.");
   }
 
-  const profile = await findProfileByUserId(supabase, userData.user.id);
+  const profile = await findProfileByUserId(database, userData.user.id);
 
   return {
     token,
-    supabase,
+    database,
     user: userData.user,
     profile
   };
@@ -110,7 +110,7 @@ export async function getSession(request) {
  * Requires an authenticated admin profile.
  *
  * @param {Request} request - Incoming request.
- * @returns {Promise<{token: string, supabase: import("@supabase/supabase-js").SupabaseClient, user: import("@supabase/supabase-js").User, profile: object}>} Admin auth context.
+ * @returns {Promise<{token: string, database: import("../database/instance.js").DatabaseClient, user: object, profile: object}>} Admin auth context.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function authenticateAdmin(request) {
@@ -131,9 +131,9 @@ export async function authenticateAdmin(request) {
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
 export async function signUp({ username, email, password }) {
-  let supabase;
+  let database;
   try {
-    supabase = createSupabaseServerClient();
+    database = createDatabaseClient();
   } catch (error) {
     throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
@@ -165,7 +165,7 @@ export async function signUp({ username, email, password }) {
     };
   }
 
-  const authenticated = createSupabaseServerClient({ accessToken: data.session.access_token });
+  const authenticated = createDatabaseClient({ accessToken: data.session.access_token });
   const { data: profile, error: profileError } = await authenticated
     .from("profiles")
     .insert({ id: data.user.id, username, role: "customer" })
@@ -204,7 +204,7 @@ export async function signOut(request) {
 
   let config;
   try {
-    config = getSupabaseServerConfig();
+    config = getDatabaseServerConfig();
   } catch (error) {
     throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }

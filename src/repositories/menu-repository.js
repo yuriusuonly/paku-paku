@@ -2,7 +2,7 @@ import { badRequest } from "../errors/bad-request.js";
 import { notFound } from "../errors/not-found.js";
 import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
 import { supabaseUpstream } from "../errors/supabase-upstream.js";
-import { createSupabaseServerClient } from "../database/instance.js";
+import { createDatabaseClient } from "../database/instance.js";
 
 /**
  * Menu data access (API to database contracts).
@@ -12,8 +12,8 @@ import { createSupabaseServerClient } from "../database/instance.js";
 const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort_order, created_at";
 
 /**
- * @param {import("@supabase/supabase-js").SupabaseClient} [client] - Supabase client.
- * @returns {import("@supabase/supabase-js").SupabaseClient} Resolved client.
+ * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.
+ * @returns {import("../database/instance.js").DatabaseClient} Resolved client.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When Supabase is unavailable.
  */
 function resolveClient(client) {
@@ -21,7 +21,7 @@ function resolveClient(client) {
     return client;
   }
   try {
-    return createSupabaseServerClient();
+    return createDatabaseClient();
   } catch (error) {
     throw supabaseUnconfigured("Supabase is not configured for server routes.", error);
   }
@@ -30,13 +30,13 @@ function resolveClient(client) {
 /**
  * Lists menu items ordered for display.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} [client] - Authenticated Supabase client.
+ * @param {import("../database/instance.js").DatabaseClient} [client] - Authenticated database client.
  * @returns {Promise<{items: object[]}>} Menu payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When menu data cannot be loaded.
  */
 export async function listMenuItems(client) {
-  const supabase = resolveClient(client);
-  const { data, error } = await supabase
+  const database = resolveClient(client);
+  const { data, error } = await database
     .from("menu_items")
     .select(MENU_ITEM_SELECT)
     .order("sort_order", { ascending: true });
@@ -51,14 +51,14 @@ export async function listMenuItems(client) {
 /**
  * Creates a menu item.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} client - Authenticated/admin Supabase client.
+ * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
  * @param {object} input - Menu item fields.
  * @returns {Promise<{item: object}>} Created item.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When creation fails.
  */
 export async function createMenuItem(client, input) {
-  const supabase = resolveClient(client);
-  const { data, error } = await supabase
+  const database = resolveClient(client);
+  const { data, error } = await database
     .from("menu_items")
     .insert(input)
     .select(MENU_ITEM_SELECT)
@@ -74,7 +74,7 @@ export async function createMenuItem(client, input) {
 /**
  * Updates a menu item by id.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} client - Authenticated/admin Supabase client.
+ * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
  * @param {string} id - Menu item id.
  * @param {object} input - Fields to update.
  * @returns {Promise<{item: object}>} Updated item.
@@ -88,8 +88,8 @@ export async function updateMenuItem(client, id, input) {
     throw badRequest("invalid_menu_item", "No menu item fields to update.");
   }
 
-  const supabase = resolveClient(client);
-  const { data, error } = await supabase
+  const database = resolveClient(client);
+  const { data, error } = await database
     .from("menu_items")
     .update(input)
     .eq("id", id)
@@ -109,7 +109,7 @@ export async function updateMenuItem(client, id, input) {
 /**
  * Deletes a menu item by id.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} client - Authenticated/admin Supabase client.
+ * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
  * @param {string} id - Menu item id.
  * @returns {Promise<{id: string}>} Deleted id.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When deletion fails.
@@ -119,8 +119,8 @@ export async function deleteMenuItem(client, id) {
     throw badRequest("invalid_menu_item", "Menu item id is required.");
   }
 
-  const supabase = resolveClient(client);
-  const { data, error } = await supabase
+  const database = resolveClient(client);
+  const { data, error } = await database
     .from("menu_items")
     .delete()
     .eq("id", id)

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
-import { getSupabase } from "../database/instance.js";
+import { getDatabaseClient } from "../database/instance.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
 /**
@@ -102,8 +102,8 @@ export const useMenuStore = create((set, get) => ({
     }
 
     try {
-      const supabase = getSupabase();
-      const channel = supabase
+      const database = getDatabaseClient();
+      const channel = database
         .channel("public:menu_items")
         .on(
           "postgres_changes",
@@ -158,7 +158,7 @@ export const useMenuStore = create((set, get) => ({
       return;
     }
     try {
-      await getSupabase().removeChannel(channel);
+      await getDatabaseClient().removeChannel(channel);
     } catch (error) {
       notifyBackgroundError("Could not disconnect live menu updates cleanly.");
     } finally {

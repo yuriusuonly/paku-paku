@@ -1,34 +1,45 @@
 import { createClient } from "@supabase/supabase-js";
 import { supabaseUnconfigured } from "../errors/supabase-unconfigured.js";
-import { supabase as supabaseConfig } from "../shared/config.js";
+import { supabase as databaseConfig } from "../shared/config.js";
 
 /**
- * Unified Supabase client module for browser and server runtimes.
+ * Database client instance and runtime selection.
  * Configuration is sourced from `shared/config.js`.
  * @module database/instance
  */
 
 /**
- * @type {import("@supabase/supabase-js").SupabaseClient | null}
+ * @typedef {object} DatabaseClient
+ */
+
+/**
+ * @typedef {object} DatabaseServerConfig
+ * @property {string} url
+ * @property {string} anonKey
+ * @property {boolean} isHosted
+ */
+
+/**
+ * @type {DatabaseClient | null}
  */
 let browserClient = null;
 
 /**
- * Returns the shared browser Supabase client for the configured environment.
+ * Returns the shared browser database client for the configured environment.
  *
- * @returns {import("@supabase/supabase-js").SupabaseClient} Browser client.
+ * @returns {DatabaseClient} Browser database client.
  */
-export function getSupabase() {
-  if (!supabaseConfig.url || !supabaseConfig.anonKey) {
-    const environment = supabaseConfig.isHosted ? "hosted" : "local";
-    const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
+export function getDatabaseClient() {
+  if (!databaseConfig.url || !databaseConfig.anonKey) {
+    const environment = databaseConfig.isHosted ? "hosted" : "local";
+    const prefix = databaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
     throw supabaseUnconfigured(
-      `Supabase ${environment} environment is not configured. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
+      `Database ${environment} environment is not configured. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
     );
   }
 
   if (!browserClient) {
-    browserClient = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+    browserClient = createClient(databaseConfig.url, databaseConfig.anonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -41,35 +52,35 @@ export function getSupabase() {
 }
 
 /**
- * Returns server-side Supabase configuration for the selected environment.
+ * Returns server-side database configuration for the selected environment.
  *
- * @returns {{url: string, anonKey: string, isHosted: boolean}} Server config.
+ * @returns {DatabaseServerConfig} Server database config.
  */
-export function getSupabaseServerConfig() {
-  if (!supabaseConfig.serverUrl || !supabaseConfig.serverAnonKey) {
-    const environment = supabaseConfig.isHosted ? "hosted" : "local";
-    const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
+export function getDatabaseServerConfig() {
+  if (!databaseConfig.serverUrl || !databaseConfig.serverAnonKey) {
+    const environment = databaseConfig.isHosted ? "hosted" : "local";
+    const prefix = databaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
     throw supabaseUnconfigured(
-      `Supabase ${environment} environment is not configured for server routes. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
+      `Database ${environment} environment is not configured for server routes. Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL when RUNNING_IN_DOCKER=1).`
     );
   }
 
   return {
-    url: supabaseConfig.serverUrl,
-    anonKey: supabaseConfig.serverAnonKey,
-    isHosted: supabaseConfig.isHosted
+    url: databaseConfig.serverUrl,
+    anonKey: databaseConfig.serverAnonKey,
+    isHosted: databaseConfig.isHosted
   };
 }
 
 /**
- * Creates a request-scoped Supabase client for server API routes.
+ * Creates a request-scoped database client for server API routes.
  *
  * @param {object} [options] - Client options.
  * @param {string} [options.accessToken] - Caller bearer token.
- * @returns {import("@supabase/supabase-js").SupabaseClient} Server client.
+ * @returns {DatabaseClient} Server database client.
  */
-export function createSupabaseServerClient({ accessToken } = {}) {
-  const { url, anonKey } = getSupabaseServerConfig();
+export function createDatabaseClient({ accessToken } = {}) {
+  const { url, anonKey } = getDatabaseServerConfig();
 
   return createClient(url, anonKey, {
     auth: {

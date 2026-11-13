@@ -33,13 +33,13 @@ export function toPublicProfile(profile) {
 /**
  * Finds a profile by authenticated user id.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Request-scoped client.
+ * @param {import("../database/instance.js").DatabaseClient} database - Request-scoped database client.
  * @param {string} userId - User id.
  * @returns {Promise<object>} Profile row.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On lookup failure.
  */
-export async function findProfileByUserId(supabase, userId) {
-  const { data: profile, error } = await supabase
+export async function findProfileByUserId(database, userId) {
+  const { data: profile, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
     .eq("id", userId)
@@ -59,11 +59,11 @@ export async function findProfileByUserId(supabase, userId) {
 /**
  * Lists all profiles ordered by username.
  *
- * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Admin-scoped client.
+ * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On query failure.
  */
-export async function listProfiles(supabase) {
+export async function listProfiles(database) {
   const { data, error } = await supabase
     .from("profiles")
     .select(PROFILE_COLUMNS)

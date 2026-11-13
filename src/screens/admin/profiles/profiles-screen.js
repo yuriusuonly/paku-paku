@@ -4,7 +4,6 @@ import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
-import { LoadingState } from "../../../components/loading-state.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
@@ -51,7 +50,7 @@ export default function AdminProfilesScreen() {
   if (!hydrated || !isAdmin) {
     return (
       <ScreenContainer>
-        <LoadingState message="Checking administrator access..." />
+        <CircularProgress message="Checking administrator access..." />
       </ScreenContainer>
     );
   }
@@ -82,7 +81,7 @@ export default function AdminProfilesScreen() {
           </Text>
         </View>
 
-        {showInitialLoading ? <LoadingState message="Loading profiles..." /> : null}
+        {showInitialLoading ? <CircularProgress message="Loading profiles..." /> : null}
 
         {!loading && !error && profiles.length === 0 ? (
           <Alert variant="info" message="No profiles found." />

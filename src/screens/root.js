@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../components/alert.js";
 import { Header } from "../components/header.js";
-import { LoadingState } from "../components/loading-state.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
@@ -88,7 +87,7 @@ export default function HomeScreen() {
         </View>
 
         {!authReady ? (
-          <LoadingState message="Checking your session..." />
+          <CircularProgress message="Checking your session..." />
         ) : !isAuthenticated ? (
           <Alert variant="info" message="Sign in to view the menu." />
         ) : (
@@ -106,7 +105,7 @@ export default function HomeScreen() {
             {error ? <Alert variant="error" message={error} /> : null}
 
             {showInitialMenuLoading ? (
-              <LoadingState message="Loading menu items..." />
+              <CircularProgress message="Loading menu items..." />
             ) : null}
 
             {!loading && !error && items.length === 0 ? (

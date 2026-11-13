@@ -4,7 +4,6 @@ import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
-import { LoadingState } from "../../../components/loading-state.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { TextField } from "../../../components/text-field.js";
@@ -138,7 +137,7 @@ export default function AdminMenuItemsScreen() {
   if (!hydrated || !isAdmin) {
     return (
       <ScreenContainer>
-        <LoadingState message="Checking administrator access..." />
+        <CircularProgress message="Checking administrator access..." />
       </ScreenContainer>
     );
   }
@@ -180,7 +179,7 @@ export default function AdminMenuItemsScreen() {
           </Text>
         </View>
 
-        {showInitialLoading ? <LoadingState message="Loading menu items..." /> : null}
+        {showInitialLoading ? <CircularProgress message="Loading menu items..." /> : null}
 
         {!loading && !error && sorted.length === 0 ? (
           <Alert variant="info" message="No menu items yet. Create one above to get started." />

@@ -3,7 +3,7 @@ import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
 import { Button } from "../../components/button.js";
-import { LoadingState } from "../../components/loading-state.js";
+import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
@@ -66,7 +66,7 @@ export default function SignUpScreen() {
   if (!hydrated) {
     return (
       <ScreenContainer>
-        <LoadingState message="Preparing sign-up..." />
+        <CircularProgress message="Preparing sign-up..." />
       </ScreenContainer>
     );
   }
