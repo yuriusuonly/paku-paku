@@ -56,3 +56,16 @@ export function signOut(token) {
     token
   });
 }
+
+/**
+ * Recovers an account using a one-time recovery code.
+ *
+ * @param {{email: string, recovery_code: string, new_password: string}} payload - Recovery payload.
+ * @returns {Promise<{ok: boolean}>} Recovery result.
+ */
+export function recoverAccount(payload) {
+  return apiRequest(api.endpoints.recover, {
+    method: "POST",
+    body: payload
+  });
+}

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
 import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
+import { useNotificationStore } from "../../stores/notification-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -28,6 +29,9 @@ export default function SignUpScreen() {
   const storeError = useAuthStore((state) => state.error);
   const clearError = useAuthStore((state) => state.clearError);
 
+  const showSuccess = useNotificationStore((state) => state.showSuccess);
+  const showError = useNotificationStore((state) => state.showError);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,12 +39,13 @@ export default function SignUpScreen() {
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false, confirmPassword: false });
   const [success, setSuccess] = useState("");
+  const [recoveryCode, setRecoveryCode] = useState("");
 
   useEffect(() => {
-    if (hydrated && status === "authenticated" && user) {
+    if (hydrated && status === "authenticated" && user && !recoveryCode) {
       router.replace("/menu");
     }
-  }, [hydrated, status, user, router]);
+  }, [hydrated, status, user, recoveryCode, router]);
 
   const onSubmit = async () => {
     clearError();
@@ -75,9 +80,27 @@ export default function SignUpScreen() {
       return;
     }
 
+    if (result.recoveryCode) {
+      setRecoveryCode(result.recoveryCode);
+      setSuccess("Account created. Save your recovery code now.");
+      return;
+    }
+
     if (result.requiresSignIn) {
       setSuccess("Account created. Please sign in.");
     }
+  };
+
+  const copyRecoveryCode = async () => {
+    if (!recoveryCode) return;
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(recoveryCode);
+        showSuccess("Recovery code copied.");
+        return;
+      }
+    } catch {}
+    showError("Could not copy the recovery code. Please copy it manually.");
   };
 
   if (!hydrated) {
@@ -156,12 +179,35 @@ export default function SignUpScreen() {
           ) : null}
           <Alert variant="success" message={success} />
 
-          <Button
-            label="Sign up"
-            onPress={onSubmit}
-            loading={submitting || status === "loading"}
-            className="mt-2"
-          />
+          {recoveryCode ? (
+            <View className={`mt-2 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
+                Recovery code (show once)
+              </Text>
+              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
+                {recoveryCode}
+              </Text>
+              <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+                Save this code in a safe place. You can use it to recover your account if you lose access.
+              </Text>
+              <View className="flex-row items-center gap-3">
+                <Pressable onPress={copyRecoveryCode}>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy</Text>
+                </Pressable>
+                <Button
+                  label="Continue"
+                  onPress={() => router.replace("/menu")}
+                />
+              </View>
+            </View>
+          ) : (
+            <Button
+              label="Sign up"
+              onPress={onSubmit}
+              loading={submitting || status === "loading"}
+              className="mt-2"
+            />
+          )}
         </View>
 
         <View className="mt-6 flex-row items-center gap-2">

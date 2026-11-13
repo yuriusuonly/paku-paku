@@ -130,11 +130,16 @@ export default function SignInScreen() {
           />
         </View>
 
-        <View className="mt-6 flex-row items-center gap-2">
-          <Text className={`font-outfit text-sm ${cx.textInk70}`}>Need an account?</Text>
-          <Link href="/signup" asChild>
-            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
+        <View className="mt-6 gap-3">
+          <Link href="/recover" asChild>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Forgot password?</Text>
           </Link>
+          <View className="flex-row items-center gap-2">
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Need an account?</Text>
+            <Link href="/signup" asChild>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Sign up</Text>
+            </Link>
+          </View>
         </View>
       </View>
     </ScreenContainer>

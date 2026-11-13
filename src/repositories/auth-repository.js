@@ -5,11 +5,26 @@ import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js"
 import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { tooManyRequests } from "../shared/errors/too-many-requests.js";
 import { unauthorized } from "../shared/errors/unauthorized.js";
+import { generateToken } from "../shared/cipher/token.js";
 import {
   createDatabaseClient,
   getDatabaseServerConfig
 } from "../database/instance.js";
 import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
+
+function createRecoveryCode() {
+  const raw = generateToken(12).replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 16);
+  const code = (raw + generateToken(8).replace(/[^a-zA-Z0-9]/g, "").toUpperCase()).slice(0, 16);
+  return `${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}-${code.slice(12, 16)}`;
+}
+
+async function hashRecoveryCode(database, code) {
+  const { data, error } = await database.rpc("hash_recovery_code", { p_code: code });
+  if (error || typeof data !== "string") {
+    throw databaseUpstream("recovery_code_failed", "Could not create a recovery code.", error);
+  }
+  return data;
+}
 
 /**
  * Authentication data access and orchestration (API to auth/database contracts).
@@ -166,9 +181,11 @@ export async function signUp({ email, password }) {
   }
 
   const authenticated = createDatabaseClient({ accessToken: data.session.access_token });
+  const recoveryCode = createRecoveryCode();
+  const recoveryCodeHash = await hashRecoveryCode(authenticated, recoveryCode);
   const { data: profile, error: profileError } = await authenticated
     .from("profiles")
-    .insert({ id: data.user.id, email, role: "customer", is_active: true })
+    .insert({ id: data.user.id, email, role: "customer", is_active: true, recovery_code_hash: recoveryCodeHash })
     .select("id, email, role, is_active, created_at, updated_at")
     .single();
 
@@ -184,7 +201,8 @@ export async function signUp({ email, password }) {
       expires_at: data.session.expires_at,
       expires_in: data.session.expires_in,
       token_type: data.session.token_type
-    }
+    },
+    recovery_code: recoveryCode
   };
 }
 
@@ -223,9 +241,11 @@ export async function createManagedUser(adminDatabase, { email, password }) {
     throw databaseUpstream("signup_failed", "Could not create the account.", error);
   }
 
+  const recoveryCode = createRecoveryCode();
+  const recoveryCodeHash = await hashRecoveryCode(adminDatabase, recoveryCode);
   const { data: profile, error: profileError } = await adminDatabase
     .from("profiles")
-    .insert({ id: data.user.id, email, role: "customer", is_active: true })
+    .insert({ id: data.user.id, email, role: "customer", is_active: true, recovery_code_hash: recoveryCodeHash })
     .select("id, email, role, is_active, created_at, updated_at")
     .single();
 
@@ -238,13 +258,48 @@ export async function createManagedUser(adminDatabase, { email, password }) {
       .maybeSingle();
 
     if (existing) {
-      return { profile: toPublicProfile(existing) };
+      return { profile: toPublicProfile(existing), recovery_code: recoveryCode };
     }
 
     throw databaseUpstream("profile_create_failed", "Account was created but the profile could not be saved.", profileError);
   }
 
-  return { profile: toPublicProfile(profile) };
+  return { profile: toPublicProfile(profile), recovery_code: recoveryCode };
+}
+
+/**
+ * Recovers an account password using a one-time recovery code.
+ *
+ * @param {{email: string, recovery_code: string, new_password: string}} input - Recovery payload.
+ * @returns {Promise<{ok: boolean}>} Recovery result.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
+ */
+export async function recoverAccount({ email, recovery_code, new_password }) {
+  let database;
+  try {
+    database = createDatabaseClient();
+  } catch (error) {
+    throw databaseUnconfigured("Database is not configured for server routes.", error);
+  }
+
+  const { error } = await database.rpc("recover_account", {
+    p_email: email,
+    p_recovery_code: recovery_code,
+    p_new_password: new_password
+  });
+
+  if (error) {
+    const message = String(error.message || "");
+    if (message.includes("invalid_recovery_code")) {
+      throw badRequest("invalid_recovery_code", "Invalid email or recovery code.");
+    }
+    if (message.includes("invalid_password")) {
+      throw badRequest("invalid_password", "Password must be at least 6 characters.");
+    }
+    throw databaseUpstream("recovery_failed", "Could not recover the account.", error);
+  }
+
+  return { ok: true };
 }
 
 /**

@@ -58,6 +58,7 @@ export const api = {
     signin: `${apiBasePath}/signin`,
     session: `${apiBasePath}/session`,
     signout: `${apiBasePath}/signout`,
+    recover: `${apiBasePath}/recover`,
     adminProfiles: `${apiBasePath}/admin/profiles`
   }
 };
