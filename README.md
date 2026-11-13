@@ -312,14 +312,20 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── too-many-requests.js
 │   │   └── unauthorized.js
 │   ├── endpoints/
-│   │   ├── admin-profiles.js
-│   │   ├── health.js
-│   │   ├── menu-item.js
-│   │   ├── menu-items.js
-│   │   ├── session.js
-│   │   ├── sign-in.js
-│   │   ├── sign-out.js
-│   │   └── sign-up.js
+│   │   ├── admin/
+│   │   │   └── profiles.js
+│   │   ├── menu-items/
+│   │   │   ├── [id].js
+│   │   │   └── index.js
+│   │   ├── session/
+│   │   │   └── index.js
+│   │   ├── sign-in/
+│   │   │   └── index.js
+│   │   ├── sign-out/
+│   │   │   └── index.js
+│   │   ├── sign-up/
+│   │   │   └── index.js
+│   │   └── health.js
 │   ├── interceptors/
 │   │   ├── authentication-interceptor.js
 │   │   ├── authorization-interceptor.js

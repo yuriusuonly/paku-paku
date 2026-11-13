@@ -1,1 +1,1 @@
-export { GET, POST } from "../../../endpoints/session.js";
+export { GET, POST } from "../../../endpoints/session/index.js";

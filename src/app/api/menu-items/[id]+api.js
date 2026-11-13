@@ -1,1 +1,1 @@
-export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-item.js";
+export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-items/[id].js";
