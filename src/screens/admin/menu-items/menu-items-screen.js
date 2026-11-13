@@ -17,7 +17,7 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/menu-items/menu-items-screen
  */
 
-const emptyForm = { name: "", description: "", price_cents: "", sort_order: "0", is_available: true };
+const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true };
 
 const columns = [
   { key: "name", label: "Name", width: 180 },
@@ -35,7 +35,7 @@ const columns = [
  * @param {{value: string | number | null | undefined, onSave: (value: string) => Promise<void> | void, numeric?: boolean, align?: "left" | "right", placeholder?: string}} props
  * @returns {JSX.Element}
  */
-function InlineEditableCell({ value, onSave, numeric = false, placeholder = "" }) {
+function InlineEditableCell({ value, onSave, numeric = false, placeholder = "", multiline = false }) {
   const stringValue = value == null ? "" : String(value);
   const [draft, setDraft] = useState(stringValue);
   const [focused, setFocused] = useState(false);
@@ -60,10 +60,12 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "" }
       onChangeText={setDraft}
       onFocus={() => setFocused(true)}
       onBlur={() => { void commit(); }}
-      onSubmitEditing={() => { void commit(); }}
+      onSubmitEditing={multiline ? undefined : () => { void commit(); }}
       placeholder={placeholder}
       keyboardType={numeric ? "numeric" : "default"}
-      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm ${cx.textInk70}`}
+      multiline={multiline}
+      textAlignVertical={multiline ? "top" : "center"}
+      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm ${cx.textInk70} ${multiline ? "min-h-[72px]" : ""}`}
     />
   );
 }
@@ -125,17 +127,19 @@ export default function AdminMenuItemsScreen() {
     setLocalError("");
     const name = form.name.trim();
     const price = Number(form.price_cents);
-    const sortOrder = Number(form.sort_order);
-    if (!name || !Number.isInteger(price) || price < 0 || !Number.isInteger(sortOrder)) {
-      setLocalError("Please provide a valid name, a non-negative whole-number price in cents, and a whole-number sort order.");
+    const sortOrderRaw = form.sort_order.trim();
+    const hasSortOrder = sortOrderRaw !== "";
+    const sortOrder = hasSortOrder ? Number(sortOrderRaw) : undefined;
+    if (!name || !Number.isInteger(price) || price < 0 || (hasSortOrder && !Number.isInteger(sortOrder))) {
+      setLocalError("Please provide a valid name, a non-negative whole-number price in cents, and an optional whole-number sort order.");
       return;
     }
     const payload = {
       name,
       description: form.description.trim() || null,
       price_cents: price,
-      sort_order: sortOrder,
-      is_available: Boolean(form.is_available)
+      is_available: Boolean(form.is_available),
+      ...(hasSortOrder ? { sort_order: sortOrder } : {})
     };
     setSaving(true);
     try {
@@ -265,9 +269,9 @@ export default function AdminMenuItemsScreen() {
         <View className={`mt-4 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
           <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>New item</Text>
           <TextField label="Name" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Takoyaki" />
-          <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" />
+          <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Description" multiline numberOfLines={4} />
           <TextField label="Price (cents)" value={form.price_cents} onChangeText={(v) => setForm((f) => ({ ...f, price_cents: v }))} placeholder="650" keyboardType="numeric" />
-          <TextField label="Sort order" value={form.sort_order} onChangeText={(v) => setForm((f) => ({ ...f, sort_order: v }))} placeholder="0" keyboardType="numeric" />
+          <TextField label="Sort order (optional)" value={form.sort_order} onChangeText={(v) => setForm((f) => ({ ...f, sort_order: v }))} placeholder="Auto" keyboardType="numeric" />
           <View className="flex-row items-center gap-3">
             <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />
             <Button label="Create item" onPress={save} loading={saving} />
@@ -358,6 +362,7 @@ export default function AdminMenuItemsScreen() {
                               value={rawValue ?? (column.key === "description" ? "" : rawValue)}
                               onSave={(draft) => saveField(item, column.key, draft)}
                               numeric={column.key === "price_cents" || column.key === "sort_order"}
+                              multiline={column.key === "description"}
                               placeholder={column.key === "description" ? "Add description" : ""}
                             />
                           ) : (

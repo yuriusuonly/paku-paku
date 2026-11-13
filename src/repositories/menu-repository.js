@@ -58,9 +58,26 @@ export async function listMenuItems(client) {
  */
 export async function createMenuItem(client, input) {
   const database = resolveClient(client);
+  const payload = { ...input };
+
+  if (payload.sort_order == null) {
+    const { data: lastItem, error: sortError } = await database
+      .from("menu_items")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (sortError) {
+      throw databaseUpstream("menu_item_create_failed", "Could not determine the next sort order.", sortError);
+    }
+
+    payload.sort_order = Number.isInteger(lastItem?.sort_order) ? lastItem.sort_order + 1 : 0;
+  }
+
   const { data, error } = await database
     .from("menu_items")
-    .insert(input)
+    .insert(payload)
     .select(MENU_ITEM_SELECT)
     .single();
 

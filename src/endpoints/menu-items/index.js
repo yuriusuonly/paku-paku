@@ -51,12 +51,24 @@ function normalizeMenuItemInput(body, { partial }) {
     input.is_available = body.is_available;
   }
 
-  if (!partial || Object.prototype.hasOwnProperty.call(body, "sort_order")) {
-    const sortOrder = Number(body.sort_order);
-    if (!Number.isInteger(sortOrder)) {
-      throw badRequest("invalid_menu_item", "Menu item sort_order must be an integer.");
+  const hasSortOrder = Object.prototype.hasOwnProperty.call(body, "sort_order");
+  const sortOrderValue = body.sort_order;
+  const sortOrderProvided =
+    hasSortOrder && !(sortOrderValue === "" || sortOrderValue == null);
+
+  if (partial ? sortOrderProvided : (sortOrderProvided || hasSortOrder)) {
+    // On update, validate when a value is provided; on create, validate when provided (including explicit 0).
+    if (partial && !sortOrderProvided) {
+      // ignore empty sort_order on partial updates
+    } else {
+      const sortOrder = Number(sortOrderValue);
+      if (!Number.isInteger(sortOrder)) {
+        throw badRequest("invalid_menu_item", "Menu item sort_order must be an integer.");
+      }
+      input.sort_order = sortOrder;
     }
-    input.sort_order = sortOrder;
+  } else if (!partial) {
+    // Optional on create: omit to allow auto-increment assignment.
   }
 
   if (partial && Object.keys(input).length === 0) {

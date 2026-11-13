@@ -49,12 +49,15 @@ function normalizeMenuItemInput(body, { partial }) {
     input.is_available = body.is_available;
   }
 
-  if (!partial || Object.prototype.hasOwnProperty.call(body, "sort_order")) {
-    const sortOrder = Number(body.sort_order);
-    if (!Number.isInteger(sortOrder)) {
-      throw badRequest("invalid_menu_item", "Menu item sort_order must be an integer.");
+  if (Object.prototype.hasOwnProperty.call(body, "sort_order")) {
+    const sortOrderValue = body.sort_order;
+    if (!(sortOrderValue === "" || sortOrderValue == null)) {
+      const sortOrder = Number(sortOrderValue);
+      if (!Number.isInteger(sortOrder)) {
+        throw badRequest("invalid_menu_item", "Menu item sort_order must be an integer.");
+      }
+      input.sort_order = sortOrder;
     }
-    input.sort_order = sortOrder;
   }
 
   if (partial && Object.keys(input).length === 0) {

@@ -16,6 +16,8 @@ import { alpha, cx } from "../shared/constants/theme.js";
  * @property {string} [autoCapitalize] - Auto-capitalization mode.
  * @property {string} [autoComplete] - Auto-complete hint.
  * @property {string} [keyboardType] - Keyboard type.
+ * @property {boolean} [multiline] - Whether to allow multiple lines.
+ * @property {number} [numberOfLines] - Suggested number of visible lines when multiline.
  */
 
 /**
@@ -32,7 +34,9 @@ export function TextField({
   secureTextEntry = false,
   autoCapitalize = "none",
   autoComplete,
-  keyboardType
+  keyboardType,
+  multiline = false,
+  numberOfLines
 }) {
   return (
     <View className="w-full">
@@ -48,7 +52,10 @@ export function TextField({
         autoCapitalize={autoCapitalize}
         autoComplete={autoComplete}
         keyboardType={keyboardType}
-        className={`font-outfit w-full rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk}`}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
+        textAlignVertical={multiline ? "top" : "center"}
+        className={`font-outfit w-full rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""}`}
       />
     </View>
   );
