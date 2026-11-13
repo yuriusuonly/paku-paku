@@ -23,13 +23,13 @@
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `sign-in.js`, `admin.js`, `+not-found.js`, `+html.js`, and `api/**/+api.js`). Screens live under `src/screens/` (`home.js`, `sign-in.js`, `admin.js`); reusable UI lives under `src/components/`.
 - **API/architecture layers:**
-  - `src/interceptors/` — middleware pipeline with request context (`pipeline.js`, `context.js`) and interceptors (`log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
-  - `src/requests/` — incoming request handling/validation helpers (`index.js`, `auth-request.js`).
-  - `src/responses/` — outgoing response helpers (`index.js`).
+  - `src/interceptors/` — request context and interceptors (`context.js`, `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, `body-interceptor.js`).
+  - `src/requests/` — incoming request handling/validation helpers (`request.js`, `auth-request.js`).
+  - `src/responses/` — outgoing response helpers (`response.js`).
   - `src/repositories/` — API-to-database/auth contracts and server data access (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
   - `src/services/` — client-to-API contracts used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`).
   - `src/stores/` — client state/DTO-style stores in Zustand (`auth-store.js`, `app-store.js`).
-  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API config, `errors.js`, `supabase.js`, `supabase-server.js`).
+  - `src/shared/` — helpers/utilities and cross-cutting infrastructure (`config.js` as single source of truth for app/API/Supabase config, `middleware.js` pipeline, `errors.js`, `supabase.js` for browser and server clients). No barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Data lives under `supabase/`: `config.toml`, `migrations/*.sql` (schema + RLS), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.
 - API routes use Expo Router `+api` naming under `src/app/api/` (e.g. `health+api.js`, `menu-items+api.js`, `auth/sign-in+api.js`, `auth/session+api.js`, `auth/sign-out+api.js`, `admin/profiles+api.js`) plus special routes `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`. Keep route handlers thin and run them through the interceptor pipeline.
 - `app.config.js` derives app name/version from `EXPO_PUBLIC_TITLE`/`EXPO_PUBLIC_VERSION` and the Expo/EAS slug from `EAS_PROJECT_SLUG`.
@@ -38,7 +38,7 @@
 
 ## Runtime & deployment notes
 - `.env` holds `EXPO_PUBLIC_*` (bundled/client-visible), server/proxy vars (`URL_PROTOCOL`, `URL_HOST`, `URL_PORT`, `URL_PROXY_PROTOCOL`, `URL_PROXY_HOST`, `URL_PROXY_PORT`, `URL_BASE`, `URL_API`), Supabase credentials (`EXPO_PUBLIC_SUPABASE_*`, `SUPABASE_LOCAL_SERVER_URL`, `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`), Expo/EAS deploy auth and linkage (`EAS_TOKEN`, `EAS_PROJECT_ID`, `EAS_PROJECT_SLUG`), and deploy-push config (`GH_TOKEN`, `GH_REPO`).
-- Supabase environment selection is enforced in `src/shared/supabase.js` (client) and `src/shared/supabase-server.js` (server): `EXPO_PUBLIC_SUPABASE_TARGET` defaults to `local`, and only `npm run eas:deploy` overrides it to `hosted`. Never add a fallback, never bypass the override, and never expose a service-role key.
+- Supabase environment/config selection is composed in `src/shared/config.js` and consumed by the unified `src/shared/supabase.js` module (browser and server clients): `EXPO_PUBLIC_SUPABASE_TARGET` defaults to `local`, and only `npm run eas:deploy` overrides it to `hosted`. Never add a fallback, never bypass the override, and never expose a service-role key.
 - Server API routes use anon key + forwarded user bearer tokens so RLS applies. Dockerized local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` (`http://api.supabase.internal:8000`) by joining the external `supabase_network_paku-paku` network created by `supabase start`.
 - The local Supabase stack is private to the machine (API `54321`, PostgreSQL `54322`, Studio `54323`, Mailpit `54324`); never proxy or tunnel those ports.
 - `eas:deploy` requires hosted Supabase URL/anon key, exports the web build, and runs `eas deploy --prod --environment production` so EAS production env vars are available to server-side API routes.

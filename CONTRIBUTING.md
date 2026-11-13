@@ -67,15 +67,15 @@ flowchart TD
 ### API architecture & auth
 
 - **Routes (`src/app/api/`)**: Expo Router `+api.js` handlers are the HTTP/controller layer. Keep them thin: compose interceptors, call repositories/use-cases, and return responses.
-- **Interceptors (`src/interceptors/`)**: composable middleware pipeline with request context (`pipeline.js`, `context.js`). Use `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js` for cross-cutting concerns.
-- **Requests (`src/requests/`)**: incoming request parsing/validation helpers (e.g. body/token extraction, auth credential validation).
-- **Responses (`src/responses/`)**: outgoing response helpers (`ok`, `jsonResponse`, `errorResponse`, `methodNotAllowed`) with consistent no-store/error envelopes.
+- **Interceptors (`src/interceptors/`)**: request context (`context.js`) and interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js` for cross-cutting concerns. Compose routes with the middleware pipeline in `src/shared/middleware.js`.
+- **Requests (`src/requests/`)**: incoming request parsing/validation helpers (`request.js`, `auth-request.js`).
+- **Responses (`src/responses/`)**: outgoing response helpers (`response.js`) with consistent no-store/error envelopes.
 - **Repositories (`src/repositories/`)**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
 - **Services (`src/services/`)**: client-to-API contracts used by the UI (`http.js`, `auth.js`, `menu.js`, `admin.js`).
 - **Stores (`src/stores/`)**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`).
-- **Shared (`src/shared/`)**: helpers/utilities and cross-cutting infrastructure (`config.js` single source of truth for app/API config, `errors.js`, `supabase.js`, `supabase-server.js`).
+- **Shared (`src/shared/`)**: helpers/utilities and cross-cutting infrastructure (`config.js` single source of truth for app/API/Supabase config, `middleware.js`, `errors.js`, `supabase.js` unified browser/server client). Do not add barrel `index.js` files in `interceptors/`, `requests/`, or `responses/`.
 - Use `src/shared/errors.js` (`AppError` and factories) for layered error handling: throw typed errors in requests/repositories/interceptors and map them centrally to HTTP responses.
-- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
 
 ```mermaid
 flowchart LR

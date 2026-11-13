@@ -1,4 +1,4 @@
-import { getBearerToken } from "../requests/index.js";
+import { getBearerToken } from "../requests/request.js";
 
 /**
  * Request context creation for the API middleware pipeline.

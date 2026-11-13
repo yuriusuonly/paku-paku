@@ -1,12 +1,10 @@
-import {
-  authenticationInterceptor,
-  errorInterceptor,
-  logInterceptor,
-  methodInterceptor,
-  withMiddleware
-} from "../../../interceptors/index.js";
+import { authenticationInterceptor } from "../../../interceptors/authentication-interceptor.js";
+import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
+import { logInterceptor } from "../../../interceptors/log-interceptor.js";
+import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
+import { withMiddleware } from "../../../shared/middleware.js";
 import { getSession } from "../../../repositories/auth-repository.js";
-import { ok } from "../../../responses/index.js";
+import { ok } from "../../../responses/response.js";
 
 /**
  * Current-session endpoint.

@@ -1,70 +1,34 @@
 import { createClient } from "@supabase/supabase-js";
+import { supabase as supabaseConfig } from "./config.js";
 
 /**
- * Supabase client selection and initialization.
- *
- * `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time:
- * `"hosted"` (set by `npm run eas:deploy`) uses the hosted project, while
- * anything else — including local dev and local static builds — uses the local
- * Supabase stack. There is no fallback between the two environments.
- *
+ * Unified Supabase client module for browser and server runtimes.
+ * Configuration is sourced from `shared/config.js`.
  * @module shared/supabase
  */
 
 /**
- * Whether this build targets the hosted Supabase project instead of the local
- * stack. Only the deploy pipeline sets `EXPO_PUBLIC_SUPABASE_TARGET=hosted`.
- *
- * @type {boolean}
- */
-const isHosted = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted";
-
-/**
- * Supabase API URL for the selected environment.
- *
- * @type {string | undefined}
- */
-const supabaseUrl = isHosted
-  ? process.env.EXPO_PUBLIC_SUPABASE_URL
-  : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL;
-
-/**
- * Supabase anon (publishable) key for the selected environment.
- *
- * @type {string | undefined}
- */
-const supabaseAnonKey = isHosted
-  ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
-  : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY;
-
-/**
- * Lazily created shared client, so importing this module never initializes
- * Supabase until a caller actually needs it.
- *
  * @type {import("@supabase/supabase-js").SupabaseClient | null}
  */
-let client = null;
+let browserClient = null;
 
 /**
- * Returns the shared Supabase client for the selected environment.
+ * Returns the shared browser Supabase client for the configured environment.
  *
- * Throws a descriptive error when the matching environment is not configured,
- * so local and hosted credentials can never be mixed up silently.
- *
- * @returns {import("@supabase/supabase-js").SupabaseClient} The shared Supabase client.
+ * @returns {import("@supabase/supabase-js").SupabaseClient} Browser client.
  */
 export function getSupabase() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    const environment = isHosted ? "hosted" : "local";
-    const prefix = isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
+  if (!supabaseConfig.url || !supabaseConfig.anonKey) {
+    const environment = supabaseConfig.isHosted ? "hosted" : "local";
+    const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
     throw new Error(
       `Supabase ${environment} environment is not configured. ` +
         `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env.`
     );
   }
 
-  if (!client) {
-    client = createClient(supabaseUrl, supabaseAnonKey, {
+  if (!browserClient) {
+    browserClient = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -73,5 +37,53 @@ export function getSupabase() {
     });
   }
 
-  return client;
+  return browserClient;
+}
+
+/**
+ * Returns server-side Supabase configuration for the selected environment.
+ *
+ * @returns {{url: string, anonKey: string, isHosted: boolean}} Server config.
+ */
+export function getSupabaseServerConfig() {
+  if (!supabaseConfig.serverUrl || !supabaseConfig.serverAnonKey) {
+    const environment = supabaseConfig.isHosted ? "hosted" : "local";
+    const prefix = supabaseConfig.isHosted ? "EXPO_PUBLIC_SUPABASE" : "EXPO_PUBLIC_SUPABASE_LOCAL";
+    throw new Error(
+      `Supabase ${environment} environment is not configured for server routes. ` +
+        `Set ${prefix}_URL and ${prefix}_ANON_KEY in .env (Docker also accepts SUPABASE_LOCAL_SERVER_URL).`
+    );
+  }
+
+  return {
+    url: supabaseConfig.serverUrl,
+    anonKey: supabaseConfig.serverAnonKey,
+    isHosted: supabaseConfig.isHosted
+  };
+}
+
+/**
+ * Creates a request-scoped Supabase client for server API routes.
+ *
+ * @param {object} [options] - Client options.
+ * @param {string} [options.accessToken] - Caller bearer token.
+ * @returns {import("@supabase/supabase-js").SupabaseClient} Server client.
+ */
+export function createSupabaseServerClient({ accessToken } = {}) {
+  const { url, anonKey } = getSupabaseServerConfig();
+
+  return createClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    },
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        }
+      : undefined
+  });
 }

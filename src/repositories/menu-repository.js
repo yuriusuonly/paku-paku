@@ -1,5 +1,5 @@
 import { badGateway, serviceUnavailable } from "../shared/errors.js";
-import { createSupabaseServerClient } from "../shared/supabase-server.js";
+import { createSupabaseServerClient } from "../shared/supabase.js";
 
 /**
  * Menu data access (API to database contracts).

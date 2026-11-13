@@ -1,9 +1,7 @@
-import {
-  errorInterceptor,
-  logInterceptor,
-  methodInterceptor,
-  withMiddleware
-} from "../../../interceptors/index.js";
+import { errorInterceptor } from "../../../interceptors/error-interceptor.js";
+import { logInterceptor } from "../../../interceptors/log-interceptor.js";
+import { methodInterceptor } from "../../../interceptors/method-interceptor.js";
+import { withMiddleware } from "../../../shared/middleware.js";
 import { signOut } from "../../../repositories/auth-repository.js";
 
 /**

@@ -281,19 +281,17 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── body-interceptor.js
 │   │   ├── context.js
 │   │   ├── error-interceptor.js
-│   │   ├── index.js
 │   │   ├── log-interceptor.js
-│   │   ├── method-interceptor.js
-│   │   └── pipeline.js
+│   │   └── method-interceptor.js
 │   ├── repositories/
 │   │   ├── auth-repository.js
 │   │   ├── menu-repository.js
 │   │   └── profile-repository.js
 │   ├── requests/
 │   │   ├── auth-request.js
-│   │   └── index.js
+│   │   └── request.js
 │   ├── responses/
-│   │   └── index.js
+│   │   └── response.js
 │   ├── screens/
 │   │   ├── admin.js
 │   │   ├── home.js
@@ -306,8 +304,8 @@ containers themselves are not part of the app compose stack. |
 │   ├── shared/
 │   │   ├── config.js
 │   │   ├── errors.js
-│   │   ├── supabase.js
-│   │   └── supabase-server.js
+│   │   ├── middleware.js
+│   │   └── supabase.js
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   └── auth-store.js

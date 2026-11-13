@@ -1,40 +1,47 @@
 /**
  * Application configuration composed from environment variables.
- * This module is the single source of truth for client-visible app and API settings.
+ * This module is the single source of truth for app, API, and Supabase settings.
  * @module shared/config
  */
 
 /**
- * API endpoint paths relative to the API base path.
- *
  * @typedef {object} ApiEndpoints
- * @property {string} health - Health check endpoint.
- * @property {string} menuItems - Public menu items endpoint.
- * @property {string} authSignIn - Sign-in endpoint.
- * @property {string} authSession - Current session endpoint.
- * @property {string} authSignOut - Sign-out endpoint.
- * @property {string} adminProfiles - Admin profiles endpoint.
+ * @property {string} health
+ * @property {string} menuItems
+ * @property {string} authSignIn
+ * @property {string} authSession
+ * @property {string} authSignOut
+ * @property {string} adminProfiles
  */
 
 /**
- * API configuration.
- *
  * @typedef {object} ApiConfig
- * @property {string} basePath - Base path for API routes.
- * @property {ApiEndpoints} endpoints - Named API endpoint paths.
+ * @property {string} basePath
+ * @property {ApiEndpoints} endpoints
  */
 
 /**
- * App metadata and API configuration.
- *
+ * @typedef {object} SupabaseConfig
+ * @property {string} target - `local` or `hosted`.
+ * @property {boolean} isHosted - Whether target is hosted.
+ * @property {string | undefined} url - Client-facing Supabase API URL for selected target.
+ * @property {string | undefined} anonKey - Client-facing anon key for selected target.
+ * @property {string | undefined} serverUrl - Server-side Supabase API URL for selected target.
+ * @property {string | undefined} serverAnonKey - Server-side anon key for selected target.
+ */
+
+/**
  * @typedef {object} AppConfig
- * @property {string} [title] - App/site title (`EXPO_PUBLIC_TITLE`).
- * @property {string} [description] - App/site description (`EXPO_PUBLIC_DESCRIPTION`).
- * @property {string} [version] - App version string (`EXPO_PUBLIC_VERSION`).
- * @property {ApiConfig} api - API configuration.
+ * @property {string | undefined} title
+ * @property {string | undefined} description
+ * @property {string | undefined} version
+ * @property {ApiConfig} api
+ * @property {SupabaseConfig} supabase
  */
 
 const apiBasePath = process.env.EXPO_PUBLIC_API_BASE_PATH || "/api";
+const supabaseTarget = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted" ? "hosted" : "local";
+const isHosted = supabaseTarget === "hosted";
 
 /**
  * Centralized API configuration.
@@ -54,7 +61,27 @@ export const api = {
 };
 
 /**
- * Default shared app config consumed by routes and UI.
+ * Centralized Supabase configuration.
+ *
+ * @type {SupabaseConfig}
+ */
+export const supabase = {
+  target: supabaseTarget,
+  isHosted,
+  url: isHosted ? process.env.EXPO_PUBLIC_SUPABASE_URL : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL,
+  anonKey: isHosted
+    ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+    : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY,
+  serverUrl: isHosted
+    ? process.env.EXPO_PUBLIC_SUPABASE_URL
+    : process.env.SUPABASE_LOCAL_SERVER_URL || process.env.EXPO_PUBLIC_SUPABASE_LOCAL_URL,
+  serverAnonKey: isHosted
+    ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+    : process.env.EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY
+};
+
+/**
+ * Default shared app config.
  *
  * @type {AppConfig}
  */
@@ -62,7 +89,8 @@ const config = {
   title: process.env.EXPO_PUBLIC_TITLE,
   description: process.env.EXPO_PUBLIC_DESCRIPTION,
   version: process.env.EXPO_PUBLIC_VERSION,
-  api
+  api,
+  supabase
 };
 
 export default config;

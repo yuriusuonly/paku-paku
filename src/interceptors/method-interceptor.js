@@ -1,4 +1,4 @@
-import { methodNotAllowed } from "../responses/index.js";
+import { methodNotAllowed } from "../responses/response.js";
 
 /**
  * HTTP method enforcement interceptor.

@@ -1,4 +1,4 @@
-import { getBearerToken } from "../requests/index.js";
+import { getBearerToken } from "../requests/request.js";
 import { parseSignInCredentials } from "../requests/auth-request.js";
 import {
   AppError,
@@ -11,7 +11,7 @@ import {
 import {
   createSupabaseServerClient,
   getSupabaseServerConfig
-} from "../shared/supabase-server.js";
+} from "../shared/supabase.js";
 import { findProfileByUserId, toPublicProfile } from "./profile-repository.js";
 
 /**
