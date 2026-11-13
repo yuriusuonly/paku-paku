@@ -4,7 +4,7 @@
  */
 
 /**
- * Validates the menu items request.
+ * Validates the menu items request (authentication is enforced by interceptors).
  *
  * @param {Request} request - Incoming request.
  * @returns {Request} The same request.

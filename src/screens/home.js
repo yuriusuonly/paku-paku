@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Alert } from "../components/alert.js";
+import { Button } from "../components/button.js";
 import { Header } from "../components/header.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/config.js";
 import { getMenuItems } from "../services/menu.js";
+import { useAuthStore } from "../stores/auth-store.js";
 
 /**
- * Home/storefront screen with menu loaded from the API.
+ * Home/storefront screen with menu loaded for signed-in users.
  * @module screens/home
  */
 
@@ -27,14 +30,45 @@ function formatPrice(cents) {
  * @returns {JSX.Element} Home screen.
  */
 export default function HomeScreen() {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const session = useAuthStore((state) => state.session);
+  const authStatus = useAuthStore((state) => state.status);
+  const hydrated = useAuthStore((state) => state.hydrated);
+  const hydrate = useAuthStore((state) => state.hydrate);
+
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const isAuthenticated = authStatus === "authenticated" && Boolean(user && session?.access_token);
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
   useEffect(() => {
     let active = true;
 
-    getMenuItems()
+    if (!hydrated) {
+      return () => {
+        active = false;
+      };
+    }
+
+    if (!isAuthenticated || !session?.access_token) {
+      setItems([]);
+      setError("");
+      setLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    setLoading(true);
+    setError("");
+
+    getMenuItems(session.access_token)
       .then((data) => {
         if (active) {
           setItems(data.items || []);
@@ -43,6 +77,7 @@ export default function HomeScreen() {
       })
       .catch((err) => {
         if (active) {
+          setItems([]);
           setError(err?.message || "Could not load the menu.");
         }
       })
@@ -55,7 +90,9 @@ export default function HomeScreen() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [hydrated, isAuthenticated, session?.access_token]);
+
+  const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
 
   return (
     <ScreenContainer>
@@ -71,45 +108,61 @@ export default function HomeScreen() {
           </Text>
         </View>
 
-        <View className="mb-4 flex-row items-end justify-between">
-          <Text className="font-outfit text-2xl font-bold text-[#161823]">
-            Menu
-          </Text>
-          <Text className="font-outfit text-sm text-[#161823]/50">
-            {loading ? "Loading..." : `${items.length} items`}
-          </Text>
-        </View>
-
-        {error ? <Alert variant="error" message={error} /> : null}
-
-        {!loading && !error && items.length === 0 ? (
-          <Alert variant="info" message="No menu items are available right now." />
-        ) : null}
-
-        <View className="mt-4 gap-4">
-          {items.map((item) => (
-            <View
-              key={item.id}
-              className="rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 md:p-6"
-            >
-              <View className="flex-row items-start justify-between gap-4">
-                <View className="flex-1">
-                  <Text className="font-outfit text-xl font-bold text-[#161823]">
-                    {item.name}
-                  </Text>
-                  {item.description ? (
-                    <Text className="font-outfit mt-2 text-sm md:text-base leading-relaxed text-[#161823]/70">
-                      {item.description}
-                    </Text>
-                  ) : null}
-                </View>
-                <Text className="font-outfit text-lg font-bold text-[#FE2C55]">
-                  {formatPrice(item.price_cents)}
-                </Text>
-              </View>
+        {!authReady ? (
+          <Alert variant="info" message="Checking your session..." />
+        ) : !isAuthenticated ? (
+          <View className="gap-4">
+            <Alert
+              variant="info"
+              message="Sign in to view the menu."
+            />
+            <View className="self-start">
+              <Button label="Sign in" onPress={() => router.push("/sign-in")} />
             </View>
-          ))}
-        </View>
+          </View>
+        ) : (
+          <>
+            <View className="mb-4 flex-row items-end justify-between">
+              <Text className="font-outfit text-2xl font-bold text-[#161823]">
+                Menu
+              </Text>
+              <Text className="font-outfit text-sm text-[#161823]/50">
+                {loading ? "Loading..." : `${items.length} items`}
+              </Text>
+            </View>
+
+            {error ? <Alert variant="error" message={error} /> : null}
+
+            {!loading && !error && items.length === 0 ? (
+              <Alert variant="info" message="No menu items are available right now." />
+            ) : null}
+
+            <View className="mt-4 gap-4">
+              {items.map((item) => (
+                <View
+                  key={item.id}
+                  className="rounded-3xl border border-[#161823]/10 bg-[#161823]/[0.02] p-5 md:p-6"
+                >
+                  <View className="flex-row items-start justify-between gap-4">
+                    <View className="flex-1">
+                      <Text className="font-outfit text-xl font-bold text-[#161823]">
+                        {item.name}
+                      </Text>
+                      {item.description ? (
+                        <Text className="font-outfit mt-2 text-sm md:text-base leading-relaxed text-[#161823]/70">
+                          {item.description}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <Text className="font-outfit text-lg font-bold text-[#FE2C55]">
+                      {formatPrice(item.price_cents)}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
     </ScreenContainer>
   );

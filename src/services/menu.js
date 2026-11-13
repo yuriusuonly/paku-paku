@@ -7,10 +7,11 @@ import { apiRequest } from "./http.js";
  */
 
 /**
- * Loads available menu items.
+ * Loads available menu items for a signed-in user.
  *
+ * @param {string} token - Access token.
  * @returns {Promise<{items: object[]}>} Menu payload.
  */
-export function getMenuItems() {
-  return apiRequest(api.endpoints.menuItems);
+export function getMenuItems(token) {
+  return apiRequest(api.endpoints.menuItems, { token });
 }
