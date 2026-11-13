@@ -83,7 +83,7 @@ flowchart LR
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/stylesheets/global.css`.
 - Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
-- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/config.js`, `app.config.js`). Keep secrets out of `EXPO_PUBLIC_*`.
+- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/config.js`, `app.config.js`). `src/shared/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
 
 ## Documentation conventions
 - Always include JSDoc for modules with a top-level `@module` tag.

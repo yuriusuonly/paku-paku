@@ -1,8 +1,9 @@
+import { api } from "../../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
  * Client-side admin API calls.
- * @module services/admin-client
+ * @module services/client/admin-client
  */
 
 /**
@@ -12,7 +13,7 @@ import { apiRequest } from "./http.js";
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
  */
 export function getProfiles(token) {
-  return apiRequest("/api/admin/profiles", {
+  return apiRequest(api.endpoints.adminProfiles, {
     token
   });
 }

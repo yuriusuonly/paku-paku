@@ -1,8 +1,9 @@
+import { api } from "../../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
  * Client-side menu API calls.
- * @module services/menu-client
+ * @module services/client/menu-client
  */
 
 /**
@@ -11,5 +12,5 @@ import { apiRequest } from "./http.js";
  * @returns {Promise<{items: object[]}>} Menu payload.
  */
 export function getMenuItems() {
-  return apiRequest("/api/menu-items");
+  return apiRequest(api.endpoints.menuItems);
 }

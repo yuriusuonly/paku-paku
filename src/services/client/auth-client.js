@@ -1,8 +1,9 @@
+import { api } from "../../shared/config.js";
 import { apiRequest } from "./http.js";
 
 /**
  * Client-side authentication API calls.
- * @module services/auth-client
+ * @module services/client/auth-client
  */
 
 /**
@@ -12,7 +13,7 @@ import { apiRequest } from "./http.js";
  * @returns {Promise<{user: object, session: {access_token: string, refresh_token: string, expires_at?: number, expires_in?: number, token_type?: string}}>} Session payload.
  */
 export function signIn(credentials) {
-  return apiRequest("/api/auth/sign-in", {
+  return apiRequest(api.endpoints.authSignIn, {
     method: "POST",
     body: credentials
   });
@@ -25,7 +26,7 @@ export function signIn(credentials) {
  * @returns {Promise<{user: object}>} Session payload.
  */
 export function getSession(token) {
-  return apiRequest("/api/auth/session", {
+  return apiRequest(api.endpoints.authSession, {
     token
   });
 }
@@ -37,7 +38,7 @@ export function getSession(token) {
  * @returns {Promise<null>} Resolves when the session is revoked.
  */
 export function signOut(token) {
-  return apiRequest("/api/auth/sign-out", {
+  return apiRequest(api.endpoints.authSignOut, {
     method: "POST",
     token
   });
