@@ -108,7 +108,7 @@ export default function SignUpScreen() {
               autoComplete="new-password"
             />
 
-            <Tooltip variant="error" message={localError || storeError} />
+            <Tooltip variant="error" message={localError || storeError} placement="bottom" align="start" />
             <Alert variant="success" message={success} />
 
             <Button

@@ -12,39 +12,47 @@ import { cx } from "../shared/constants/theme.js";
  * @property {string} message - Tooltip message.
  * @property {"error" | "info" | "success"} [variant] - Visual variant.
  * @property {"top" | "bottom"} [placement] - Tooltip placement relative to anchor.
+ * @property {"start" | "center" | "end"} [align] - Horizontal alignment relative to anchor.
+ * @property {number} [offset] - Distance from anchor in pixels.
  * @property {boolean} [visible] - Controlled visibility. When omitted, visibility follows hover/focus/press for wrapped children or is always shown for standalone usage.
  * @property {import("react").ReactNode} [children] - Optional anchor element. When provided, tooltip behavior is attached to this element.
+ * @property {string} [className] - Additional classes for the anchor/wrapper container.
  */
 
 /**
  * Displays a tooltip bubble with pointer.
  *
- * @param {{message: string, variant: "error" | "info" | "success", placement: "top" | "bottom"}} props
+ * @param {{message: string, variant: "error" | "info" | "success", placement: "top" | "bottom", align: "start" | "center" | "end", offset: number}} props
  * @returns {JSX.Element | null}
  */
-function TooltipBubble({ message, variant, placement }) {
+function TooltipBubble({ message, variant, placement, align, offset }) {
   if (!message) return null;
 
-  const variantStyle = cx.alert[variant] || cx.alert.info;
-  const arrowStyle =
-    variant === "error"
-      ? `${cx.bgPrimarySoft} ${cx.borderPrimary20}`
-      : variant === "success"
-        ? "border-emerald-200 bg-emerald-50"
-        : `${cx.bgSurfaceSoft} ${cx.borderSubtle}`;
-
+  const variantStyle = cx.tooltip[variant] || cx.tooltip.info;
+  const arrowStyle = cx.tooltipArrow[variant] || cx.tooltipArrow.info;
   const isTop = placement === "top";
+
+  const alignClass =
+    align === "center" ? "left-1/2 -translate-x-1/2" : align === "end" ? "right-0" : "left-0";
+  const arrowAlignClass =
+    align === "center" ? "ml-auto mr-auto" : align === "end" ? "ml-auto mr-4" : "ml-4";
+  const positionStyle = isTop ? { bottom: "100%", marginBottom: offset } : { top: "100%", marginTop: offset };
 
   return (
     <View
       pointerEvents="none"
-      className={`absolute left-0 z-50 max-w-[280px] ${isTop ? "bottom-full mb-2" : "top-full mt-2"}`}
+      style={positionStyle}
+      className={`absolute z-50 max-w-[280px] ${alignClass}`}
     >
-      {!isTop ? <View className={`ml-4 mb-[-5px] h-2.5 w-2.5 rotate-45 border-l border-t ${arrowStyle}`} /> : null}
+      {!isTop ? (
+        <View className={`${arrowAlignClass} mb-[-5px] h-2.5 w-2.5 rotate-45 border-l border-t ${arrowStyle}`} />
+      ) : null}
       <View className={`rounded-lg border px-3 py-2 shadow-lg ${variantStyle}`}>
         <Text className={`font-outfit text-sm leading-snug ${variantStyle}`}>{message}</Text>
       </View>
-      {isTop ? <View className={`ml-4 -mt-1.5 h-2.5 w-2.5 rotate-45 border-b border-r ${arrowStyle}`} /> : null}
+      {isTop ? (
+        <View className={`${arrowAlignClass} -mt-1.5 h-2.5 w-2.5 rotate-45 border-b border-r ${arrowStyle}`} />
+      ) : null}
     </View>
   );
 }
@@ -61,8 +69,11 @@ export function Tooltip({
   message,
   variant = "error",
   placement = "top",
+  align = "start",
+  offset = 8,
   visible,
-  children
+  children,
+  className = ""
 }) {
   const [active, setActive] = useState(false);
 
@@ -73,8 +84,14 @@ export function Tooltip({
 
   if (!children) {
     return (
-      <View className="relative z-20 h-0 w-full">
-        <TooltipBubble message={message} variant={variant} placement={placement} />
+      <View className={`relative z-20 h-0 w-full ${className}`}>
+        <TooltipBubble
+          message={message}
+          variant={variant}
+          placement={placement}
+          align={align}
+          offset={offset}
+        />
       </View>
     );
   }
@@ -82,7 +99,7 @@ export function Tooltip({
   const isVisible = typeof visible === "boolean" ? visible : active;
 
   return (
-    <View className="relative">
+    <View className={`relative ${className}`}>
       <Pressable
         onHoverIn={() => setActive(true)}
         onHoverOut={() => setActive(false)}
@@ -93,7 +110,15 @@ export function Tooltip({
       >
         {children}
       </Pressable>
-      {isVisible ? <TooltipBubble message={message} variant={variant} placement={placement} /> : null}
+      {isVisible ? (
+        <TooltipBubble
+          message={message}
+          variant={variant}
+          placement={placement}
+          align={align}
+          offset={offset}
+        />
+      ) : null}
     </View>
   );
 }

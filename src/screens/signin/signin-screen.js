@@ -101,7 +101,7 @@ export default function SignInScreen() {
               autoComplete="password"
             />
 
-            <Tooltip variant="error" message={localError || storeError} />
+            <Tooltip variant="error" message={localError || storeError} placement="bottom" align="start" />
 
             <Button
               label="Sign in"
