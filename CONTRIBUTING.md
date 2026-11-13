@@ -66,7 +66,9 @@ flowchart TD
 
 ### API routes & auth
 
-- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`). Routes are the HTTP/controller layer: parse input, call services, and map service results to responses.
+- Keep APIs under `src/app/api/` as Expo Router `+api.js` routes (web `Request`/`Response`). Routes are the HTTP/controller layer: parse input, run through interceptors, call services, and map service results to responses.
+- Use `src/interceptors/` for the composable middleware pipeline and request context (`withMiddleware`, common interceptors for errors/methods/auth/json body). Share cross-cutting API concerns there instead of duplicating logic in routes.
+- Use `src/shared/errors.js` (`AppError` and factories) for layered error handling: services/interceptors throw typed application errors and the pipeline maps them to standardized HTTP responses.
 - Put server-side API business/use-case logic in `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`). Services own auth/profile/menu workflows and data access coordination; they return transport-agnostic results. Keep them outside `src/app/` so Expo Router does not treat them as routes.
 - Put client-side API callers in `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`) and shared client state in `src/stores/` (Zustand).
 - Use `src/shared/supabase-server.js` as server-side Supabase infrastructure (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` on the Supabase Docker network.

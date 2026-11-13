@@ -1,8 +1,8 @@
-import { createSupabaseServerClient } from "../../shared/supabase-server.js";
+import { badGateway, forbidden, internalError } from "../../shared/errors.js";
 
 /**
  * Profile service: domain rules and data access for app profiles.
- * @module services/profile-service
+ * @module services/server/profile-service
  */
 
 /**
@@ -68,7 +68,8 @@ export function toPublicProfile(profile) {
  *
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Request-scoped Supabase client.
  * @param {string} userId - Auth user id.
- * @returns {Promise<{profile?: object, error?: {status: number, code: string, message: string}}>} Profile result.
+ * @returns {Promise<object>} Profile row.
+ * @throws {import("../../shared/errors.js").AppError} When the profile cannot be loaded.
  */
 export async function getProfileByUserId(supabase, userId) {
   const { data: profile, error } = await supabase
@@ -78,33 +79,22 @@ export async function getProfileByUserId(supabase, userId) {
     .maybeSingle();
 
   if (error) {
-    return {
-      error: {
-        status: 500,
-        code: "profile_unavailable",
-        message: "Could not load the account profile."
-      }
-    };
+    throw internalError("profile_unavailable", "Could not load the account profile.", error);
   }
 
   if (!profile) {
-    return {
-      error: {
-        status: 403,
-        code: "profile_missing",
-        message: "This account has no profile."
-      }
-    };
+    throw forbidden("profile_missing", "This account has no profile.");
   }
 
-  return { profile };
+  return profile;
 }
 
 /**
  * Lists all profiles for an authenticated admin request.
  *
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase - Admin-scoped Supabase client.
- * @returns {Promise<{profiles?: object[], error?: {status: number, code: string, message: string}}>} Profiles result.
+ * @returns {Promise<{profiles: object[]}>} Profiles payload.
+ * @throws {import("../../shared/errors.js").AppError} When profiles cannot be loaded.
  */
 export async function listProfiles(supabase) {
   const { data, error } = await supabase
@@ -113,19 +103,10 @@ export async function listProfiles(supabase) {
     .order("username", { ascending: true });
 
   if (error) {
-    return {
-      error: {
-        status: 502,
-        code: "profiles_unavailable",
-        message: "Could not load profiles."
-      }
-    };
+    throw badGateway("profiles_unavailable", "Could not load profiles.", error);
   }
 
   return {
-    ok: true,
-    data: {
-      profiles: data.map(toPublicProfile)
-    }
+    profiles: data.map(toPublicProfile)
   };
 }

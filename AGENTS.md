@@ -22,8 +22,9 @@
 ## Project structure / conventions
 - **No absolute paths anywhere in the project** (source, configs, docs). Use workspace-relative paths; exception: `node_modules/` internals may do what the tooling requires.
 - Routing uses Expo Router file-based routes under `src/app/` (`_layout.js`, `index.js`, `+not-found.js`, `+html.js`). Screens live under `src/screens/`; the home screen is `src/screens/root.js`.
-- Shared modules live under `src/shared/`: `config.js` (single source of truth for composed app/API client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers).
-- Server-side API services live under `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the business/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, call services, map results to responses). (Kept outside `src/app/` so Expo Router does not treat them as routes.)
+- Shared modules live under `src/shared/`: `config.js` (single source of truth for composed app/API client config), `supabase.js` (browser client selector), `supabase-server.js` (server route client/infrastructure), `api.js` (HTTP response/request helpers), `errors.js` (application error types/factories).
+- API middleware/interceptors live under `src/interceptors/` (`context.js`, `pipeline.js`, `common.js`, `index.js`) providing a composable request pipeline with shared context for Expo Router API routes.
+- Server-side API services live under `src/services/server/` (`auth-service.js`, `menu-service.js`, `profile-service.js`) as the business/use-case layer; Expo Router `+api` routes stay thin (parse HTTP, run middleware, call services, map results to responses). (Kept outside `src/app/` so Expo Router does not treat them as routes.)
 - Client-side API callers live under `src/services/client/` (`http.js`, `auth-client.js`, `menu-client.js`, `admin-client.js`).
 - Client state stores live under `src/stores/` (Zustand).
 - Data lives under `supabase/`: `config.toml` (local ports/auth URLs), `migrations/*.sql` (schema + RLS, including `profiles`), and `seeds/*.sql` (menu + seeded admin `root`/`root`). Do not edit generated Supabase state under `supabase/.temp/` or `supabase/.branches/`.

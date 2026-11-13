@@ -1,39 +1,21 @@
-import { errorResponse, jsonResponse, methodNotAllowed } from "../../../shared/api.js";
-import { authenticateAdmin } from "../../../services/server/auth-service.js";
 import { listProfiles } from "../../../services/server/profile-service.js";
+import {
+  ok,
+  withAdminAuth,
+  withErrorHandling,
+  withMethods,
+  withMiddleware
+} from "../../../interceptors/index.js";
 
 /**
  * Admin-only profiles endpoint.
  * @module app/api/admin/profiles+api
  */
 
-/**
- * GET handler for `/api/admin/profiles`.
- *
- * @param {Request} request - Incoming request with an admin bearer token.
- * @returns {Promise<Response>} Profile list or an error response.
- */
-export async function GET(request) {
-  const auth = await authenticateAdmin(request);
+const route = withMiddleware(
+  withErrorHandling,
+  withMethods("GET"),
+  withAdminAuth
+)(async (context) => ok(await listProfiles(context.locals.auth.supabase)));
 
-  if (!auth.ok) {
-    return errorResponse(auth.status, auth.code, auth.message);
-  }
-
-  const result = await listProfiles(auth.supabase);
-
-  if (!result.ok) {
-    return errorResponse(result.status, result.code, result.message);
-  }
-
-  return jsonResponse(result.data);
-}
-
-/**
- * Rejects unsupported methods.
- *
- * @returns {Response} `405 Method Not Allowed`.
- */
-export function POST() {
-  return methodNotAllowed("GET");
-}
+export { route as GET, route as POST };

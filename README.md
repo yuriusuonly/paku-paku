@@ -275,6 +275,11 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── container.js
 │   │   ├── header.js
 │   │   └── text-field.js
+│   ├── interceptors/
+│   │   ├── common.js
+│   │   ├── context.js
+│   │   ├── index.js
+│   │   └── pipeline.js
 │   ├── screens/
 │   │   ├── admin.js
 │   │   ├── home.js
@@ -295,6 +300,7 @@ containers themselves are not part of the app compose stack. |
 │   ├── shared/
 │   │   ├── api.js
 │   │   ├── config.js
+│   │   ├── errors.js
 │   │   ├── supabase.js
 │   │   └── supabase-server.js
 │   └── stylesheets/

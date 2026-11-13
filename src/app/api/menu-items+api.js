@@ -1,31 +1,14 @@
-import { errorResponse, jsonResponse, methodNotAllowed } from "../../shared/api.js";
 import { listMenuItems } from "../../services/server/menu-service.js";
+import { ok, withErrorHandling, withMethods, withMiddleware } from "../../interceptors/index.js";
 
 /**
- * Public menu endpoint. RLS limits results to available items.
+ * Public menu endpoint.
  * @module app/api/menu-items+api
  */
 
-/**
- * GET handler for `/api/menu-items`.
- *
- * @returns {Promise<Response>} Available menu items or an error response.
- */
-export async function GET() {
-  const result = await listMenuItems();
+const route = withMiddleware(
+  withErrorHandling,
+  withMethods("GET")
+)(async () => ok(await listMenuItems()));
 
-  if (!result.ok) {
-    return errorResponse(result.status, result.code, result.message);
-  }
-
-  return jsonResponse(result.data);
-}
-
-/**
- * Rejects unsupported methods.
- *
- * @returns {Response} `405 Method Not Allowed`.
- */
-export function POST() {
-  return methodNotAllowed("GET");
-}
+export { route as GET, route as POST };
