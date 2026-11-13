@@ -23,6 +23,14 @@ export function Alert({ message, variant = "info" }) {
     return null;
   }
 
+  if (variant === "error") {
+    return (
+      <Text className={`font-outfit w-full text-sm leading-relaxed ${cx.textError}`}>
+        {message}
+      </Text>
+    );
+  }
+
   const styles = cx.alert;
   const variantStyle = styles[variant] || styles.info;
 
