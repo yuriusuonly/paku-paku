@@ -86,9 +86,7 @@ export default function AdminScreen() {
     const total = profiles.length;
     const active = profiles.filter((profile) => profile.is_active !== false).length;
     const inactive = total - active;
-    const admins = profiles.filter((profile) => profile.role === "admin").length;
-    const customers = total - admins;
-    return { total, active, inactive, admins, customers };
+    return { total, active, inactive };
   }, [profiles]);
 
   if (!hydrated || !isAdmin) {
@@ -140,8 +138,6 @@ export default function AdminScreen() {
               <StatItem label="Total profiles" value={profileStats.total} loading={profileCountLoading} />
               <StatItem label="Active" value={profileStats.active} loading={profileCountLoading} />
               <StatItem label="Inactive" value={profileStats.inactive} loading={profileCountLoading} />
-              <StatItem label="Admins" value={profileStats.admins} loading={profileCountLoading} />
-              <StatItem label="Customers" value={profileStats.customers} loading={profileCountLoading} />
             </View>
             <View className="mt-6">
               <Link href="/admin/profiles" asChild>
