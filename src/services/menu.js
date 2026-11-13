@@ -1,5 +1,5 @@
 import { api } from "../shared/config.js";
-import { apiRequest } from "./http.js";
+import { apiRequest } from "../shared/http.js";
 
 /**
  * Client-to-API menu contracts.

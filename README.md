@@ -311,12 +311,12 @@ containers themselves are not part of the app compose stack. |
 │   ├── services/
 │   │   ├── admin.js
 │   │   ├── auth.js
-│   │   ├── http.js
 │   │   └── menu.js
 │   ├── shared/
 │   │   ├── config.js
 │   │   ├── context.js
 │   │   ├── errors.js
+│   │   ├── http.js
 │   │   ├── middleware.js
 │   │   ├── request.js
 │   │   ├── response.js
