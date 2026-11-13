@@ -39,7 +39,8 @@ export function TextField({
   autoComplete,
   keyboardType,
   multiline = false,
-  numberOfLines
+  numberOfLines,
+  error = false
 }) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const canTogglePassword = secureTextEntry && enablePasswordToggle && !multiline;
@@ -63,7 +64,7 @@ export function TextField({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlignVertical={multiline ? "top" : "center"}
-          className={`font-outfit w-full rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-12" : ""}`}
+          className={`font-outfit w-full rounded-2xl border ${error ? cx.borderPrimary : cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-12" : ""}`}
         />
         {canTogglePassword ? (
           <Pressable

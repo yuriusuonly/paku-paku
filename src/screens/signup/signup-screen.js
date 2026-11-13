@@ -6,7 +6,6 @@ import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
-import { Tooltip } from "../../components/tooltip.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -33,6 +32,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false });
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
@@ -46,16 +46,21 @@ export default function SignUpScreen() {
     setLocalError("");
     setSuccess("");
 
-    if (!username.trim() || !password) {
+    const usernameMissing = !username.trim();
+    const passwordMissing = !password;
+    if (usernameMissing || passwordMissing) {
+      setFieldErrors({ username: usernameMissing, password: passwordMissing });
       setLocalError("Enter a username and password.");
       return;
     }
 
+    setFieldErrors({ username: false, password: false });
     setSubmitting(true);
     const result = await signUp({ username, password });
     setSubmitting(false);
 
     if (!result.ok) {
+      setFieldErrors({ username: true, password: true });
       setLocalError(result.error || "Unable to create account.");
       return;
     }
@@ -72,6 +77,9 @@ export default function SignUpScreen() {
       </ScreenContainer>
     );
   }
+
+  const errorMessage = localError || storeError;
+  const showStoreError = !localError && storeError;
 
   return (
     <ScreenContainer>
@@ -94,21 +102,31 @@ export default function SignUpScreen() {
             <TextField
               label="Username"
               value={username}
-              onChangeText={setUsername}
+              onChangeText={(value) => {
+                setUsername(value);
+                if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
+              }}
               placeholder="yourname"
               autoCapitalize="none"
               autoComplete="username"
+              error={fieldErrors.username || showStoreError}
             />
             <TextField
               label="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
+              }}
               placeholder="At least 6 characters"
               secureTextEntry
               autoComplete="new-password"
+              error={fieldErrors.password || showStoreError}
             />
 
-            <Tooltip variant="error" message={localError || storeError} />
+            {errorMessage ? (
+              <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
+            ) : null}
             <Alert variant="success" message={success} />
 
             <Button

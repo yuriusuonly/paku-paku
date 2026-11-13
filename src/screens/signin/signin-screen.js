@@ -5,7 +5,6 @@ import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
-import { Tooltip } from "../../components/tooltip.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -32,6 +31,7 @@ export default function SignInScreen() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({ username: false, password: false });
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
@@ -43,16 +43,21 @@ export default function SignInScreen() {
     clearError();
     setLocalError("");
 
-    if (!username.trim() || !password) {
+    const usernameMissing = !username.trim();
+    const passwordMissing = !password;
+    if (usernameMissing || passwordMissing) {
+      setFieldErrors({ username: usernameMissing, password: passwordMissing });
       setLocalError("Enter your username and password.");
       return;
     }
 
+    setFieldErrors({ username: false, password: false });
     setSubmitting(true);
     const result = await signIn({ username, password });
     setSubmitting(false);
 
     if (!result.ok) {
+      setFieldErrors({ username: true, password: true });
       setLocalError(result.error || "Unable to sign in.");
     }
   };
@@ -64,6 +69,9 @@ export default function SignInScreen() {
       </ScreenContainer>
     );
   }
+
+  const errorMessage = localError || storeError;
+  const showStoreError = !localError && storeError;
 
   return (
     <ScreenContainer>
@@ -86,22 +94,32 @@ export default function SignInScreen() {
             <TextField
               label="Username"
               value={username}
-              onChangeText={setUsername}
+              onChangeText={(value) => {
+                setUsername(value);
+                if (fieldErrors.username) setFieldErrors((current) => ({ ...current, username: false }));
+              }}
               placeholder="root"
               autoCapitalize="none"
               autoComplete="username"
+              error={fieldErrors.username || showStoreError}
             />
             <TextField
               label="Password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
+              }}
               placeholder="••••"
               secureTextEntry
               enablePasswordToggle
               autoComplete="password"
+              error={fieldErrors.password || showStoreError}
             />
 
-            <Tooltip variant="error" message={localError || storeError} />
+            {errorMessage ? (
+              <Text className={`font-outfit text-sm ${cx.textError}`}>{errorMessage}</Text>
+            ) : null}
 
             <Button
               label="Sign in"
