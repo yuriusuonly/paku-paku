@@ -204,11 +204,11 @@ containers themselves are not part of the app compose stack. |
 | Route | Source | Purpose |
 | --- | --- | --- |
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/sign-in` | `src/app/sign-in.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
-| `/signup` | `src/app/signup.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
+| `/sign-in` | `src/app/sign-in/index.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
+| `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin dashboard (protected). |
-| `/admin/menu-items` | `src/app/admin/menu-items.js` → `src/screens/admin/menu-items.js` | Admin menu items management (protected). |
-| `/admin/profiles` | `src/app/admin/profiles.js` → `src/screens/admin/profiles.js` | Admin profiles view/audit (protected). |
+| `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items-screen.js` | Admin menu items management (protected). |
+| `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles-screen.js` | Admin profiles view/audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
@@ -260,12 +260,16 @@ containers themselves are not part of the app compose stack. |
 │   │   ├── +html.js
 │   │   ├── +not-found.js
 │   │   ├── index.js
-│   │   ├── signup.js
-│   │   ├── sign-in.js
+│   │   ├── sign-in/
+│   │   │   └── index.js
+│   │   ├── signup/
+│   │   │   └── index.js
 │   │   ├── admin/
 │   │   │   ├── index.js
-│   │   │   ├── menu-items.js
-│   │   │   └── profiles.js
+│   │   │   ├── menu-items/
+│   │   │   │   └── index.js
+│   │   │   └── profiles/
+│   │   │       └── index.js
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   └── profiles+api.js
@@ -327,8 +331,10 @@ containers themselves are not part of the app compose stack. |
 │   ├── screens/
 │   │   ├── admin/
 │   │   │   ├── admin-screen.js
-│   │   │   ├── menu-items.js
-│   │   │   └── profiles.js
+│   │   │   ├── menu-items/
+│   │   │   │   └── menu-items-screen.js
+│   │   │   └── profiles/
+│   │   │       └── profiles-screen.js
 │   │   ├── signin/
 │   │   │   └── signin-screen.js
 │   │   ├── signup/
