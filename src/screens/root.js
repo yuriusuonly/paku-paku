@@ -138,7 +138,7 @@ export default function HomeScreen() {
         <Header />
 
         <View className="w-full items-center justify-center py-2">
-          <View className="w-full flex-col-reverse items-stretch gap-4 md:flex-row md:items-center md:gap-8">
+          <View className="w-full flex-col-reverse items-stretch gap-2 md:flex-row md:items-center md:gap-8">
             <View className="w-full items-center justify-start text-center md:flex-1 md:items-start md:justify-center md:text-left">
               <Text className={`font-outfit text-center text-4xl md:text-left md:text-6xl font-black tracking-tight ${cx.textInk}`}>
                 {config.title}
@@ -147,12 +147,12 @@ export default function HomeScreen() {
                 {config.description}
               </Text>
             </View>
-            <View className="w-full items-center justify-end overflow-hidden rounded-3xl md:flex-1 md:justify-center">
+            <View className="w-full items-center justify-end md:flex-1 md:justify-center">
               <Image
                 source={logo}
                 accessibilityLabel={`${config.title} logo`}
                 resizeMode="contain"
-                className="max-h-full max-w-full"
+                className="max-h-40 max-w-full md:max-h-full"
                 style={{ objectFit: "contain", objectPosition: "50% 50%" }}
               />
             </View>
