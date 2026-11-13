@@ -213,7 +213,7 @@ containers themselves are not part of the app compose stack. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/menu-items` | `src/app/api/menu-items/+api.js` | Menu items listing and admin create (`GET`/`POST`). |
-| `/api/menu-items/[id]` | `src/app/api/menu-items/[id]/+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
+| `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
 | `/api/auth/signup` | `src/app/api/auth/signup+api.js` | Signs up a customer account and returns session/profile when available. |
 | `/api/auth/sign-in` | `src/app/api/auth/sign-in+api.js` | Username/password sign-in; returns session tokens and profile. |
 | `/api/auth/session` | `src/app/api/auth/session+api.js` | Validates bearer token and returns the current profile. |
@@ -280,8 +280,7 @@ containers themselves are not part of the app compose stack. |
 │   │   │   │   └── sign-out+api.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── +api.js
-│   │   │   │   └── [id]/
-│   │   │   │       └── +api.js
+│   │   │   │   └── [id]+api.js
 │   │   │   └── health+api.js
 │   │   ├── manifest.json+api.js
 │   │   ├── robots.txt+api.js
