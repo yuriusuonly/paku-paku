@@ -1,10 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <title>Paku Paku maskable bento box icon</title>
+  <defs>
+    <linearGradient id="woodBase" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ddb07a"/>
+      <stop offset="100%" stop-color="#b8834d"/>
+    </linearGradient>
+    <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="24" height="24">
+      <rect width="24" height="24" fill="url(#woodBase)"/>
+      <rect x="0" y="0" width="4" height="24" fill="#a96f3d" fill-opacity="0.18"/>
+      <rect x="12" y="0" width="2" height="24" fill="#f1d3a6" fill-opacity="0.12"/>
+    </pattern>
+  </defs>
 
   <!-- Bento box on a transparent background, scaled inside the maskable safe zone -->
   <g transform="translate(512 512) scale(1.1) translate(-512 -512)">
     <rect x="196" y="292" width="632" height="460" rx="60" fill="#141414"/>
-    <rect x="240" y="336" width="544" height="372" rx="36" fill="#B5121B"/>
+    <rect x="240" y="336" width="544" height="372" rx="36" fill="url(#woodGrain)"/>
 
     <!-- Compartment dividers -->
     <rect x="500" y="336" width="20" height="372" fill="#141414"/>
