@@ -57,7 +57,7 @@ npm run expo:start:tunnel # tunnel mode
 ## Build & serve (static)
 
 ```bash
-npm run expo:build  # exports to build/ (web, Metro)
+npm run expo:build  # exports to build/ (web, Metro), then copies the PNG icons to build/client/png/
 npm run expo:serve  # serves build/ on $URL_PORT
 ```
 
@@ -136,7 +136,7 @@ become healthy.
 ├── .dockerignore
 ├── .env
 ├── .gitignore
-├── public/
+├── png/
 │   ├── logo.png
 │   └── logo-maskable.png
 ├── svg/

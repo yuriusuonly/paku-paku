@@ -1,4 +1,6 @@
 import config from "../shared/config.js";
+import logo from "../../png/logo.png";
+import maskableLogo from "../../png/logo-maskable.png";
 
 /**
  * PWA manifest web API route (`src/app/manifest.json+api.js`): serves a
@@ -10,11 +12,22 @@ import config from "../shared/config.js";
  * Manifest icon entry rendered in the manifest's `icons` array.
  *
  * @typedef {object} ManifestIcon
- * @property {string} src Icon asset URL (public root path).
+ * @property {string} src Icon asset URL.
  * @property {string} sizes Icon size specifier (e.g. `"1024x1024"`).
  * @property {string} type Icon MIME type.
  * @property {string} purpose Icon purpose hint (`"any"` or `"maskable"`).
  */
+
+/**
+ * Whether the manifest is being generated for the static production export.
+ *
+ * Development serves the source PNGs through Expo's `unstable_path` asset
+ * middleware; production uses the copies that `npm run expo:build` places in
+ * `build/client/png/`.
+ *
+ * @type {boolean}
+ */
+const isProduction = process.env.NODE_ENV === "production";
 
 /**
  * Manifest document for `/manifest.json` (name, description, display, icons).
@@ -46,13 +59,13 @@ const manifest = {
   display: "standalone",
   icons: [
     {
-      src: "/logo.png",
+      src: isProduction ? "/png/logo.png" : logo.uri,
       sizes: "1024x1024",
       type: "image/png",
       purpose: "any"
     },
     {
-      src: "/logo-maskable.png",
+      src: isProduction ? "/png/logo-maskable.png" : maskableLogo.uri,
       sizes: "1024x1024",
       type: "image/png",
       purpose: "maskable"
