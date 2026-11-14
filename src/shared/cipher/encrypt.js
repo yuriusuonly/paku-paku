@@ -1,4 +1,4 @@
-import { encryptError } from "../shared/errors/encrypt-error.js";
+import { encryptError } from "../errors/encrypt-error.js";
 import { encodeBase64Url } from "./encode.js";
 
 /**
