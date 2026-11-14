@@ -1,4 +1,4 @@
-import { decryptError } from "../shared/errors/decrypt-error.js";
+import { decryptError } from "../errors/decrypt-error.js";
 import { decodeBase64Url } from "./decode.js";
 
 /**
