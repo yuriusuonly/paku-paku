@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { Pressable, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
 import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
+import { clearRememberedEmail, loadRememberedEmail, saveRememberedEmail } from "../../shared/cipher/remember-email.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -21,6 +22,7 @@ import { cx } from "../../shared/constants/theme.js";
  */
 export default function SignInScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
   const signIn = useAuthStore((state) => state.signIn);
   const user = useAuthStore((state) => state.user);
   const status = useAuthStore((state) => state.status);
@@ -30,9 +32,11 @@ export default function SignInScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
@@ -40,9 +44,29 @@ export default function SignInScreen() {
     }
   }, [hydrated, status, user, router]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const prefillEmail = typeof params?.email === "string" ? params.email.trim().toLowerCase() : "";
+    if (prefillEmail) {
+      setEmail(prefillEmail);
+      setSuccessMessage("Account created. You can sign in with your registered email.");
+    }
+    void (async () => {
+      if (prefillEmail) return;
+      const remembered = await loadRememberedEmail();
+      if (cancelled || !remembered) return;
+      setEmail(remembered);
+      setRememberMe(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [params?.email]);
+
   const onSubmit = async () => {
     clearError();
     setLocalError("");
+    setSuccessMessage("");
 
     const trimmedEmail = email.trim().toLowerCase();
     const emailMissing = !trimmedEmail;
@@ -53,7 +77,17 @@ export default function SignInScreen() {
       setLocalError(emailInvalid ? "Enter a valid email address." : "Enter your email and password.");
       setEmail("");
       setPassword("");
+      if (rememberMe) {
+        clearRememberedEmail();
+        setRememberMe(false);
+      }
       return;
+    }
+
+    if (rememberMe) {
+      await saveRememberedEmail(trimmedEmail);
+    } else {
+      clearRememberedEmail();
     }
 
     setFieldErrors({ email: false, password: false });
@@ -64,7 +98,7 @@ export default function SignInScreen() {
     if (!result.ok) {
       setFieldErrors({ email: true, password: true });
       setLocalError(result.error || "Unable to sign in.");
-      setEmail("");
+      setEmail(rememberMe ? trimmedEmail : "");
       setPassword("");
     }
   };
@@ -123,6 +157,27 @@ export default function SignInScreen() {
             error={fieldErrors.password || showStoreError}
           />
 
+          <Pressable
+            onPress={() => {
+              setRememberMe((current) => {
+                const next = !current;
+                if (!next) clearRememberedEmail();
+                return next;
+              });
+            }}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: rememberMe }}
+            className="flex-row items-center gap-3 self-start"
+          >
+            <View
+              className={`h-5 w-5 items-center justify-center rounded border ${rememberMe ? "border-transparent" : cx.borderSubtle} ${rememberMe ? cx.bgPrimary : "bg-transparent"}`}
+            >
+              {rememberMe ? <Text className="font-outfit text-xs font-bold text-white">✓</Text> : null}
+            </View>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textInk70}`}>Remember me</Text>
+          </Pressable>
+
+          <Alert variant="success" message={successMessage} />
           <Alert variant="error" message={errorMessage} />
 
           <Button

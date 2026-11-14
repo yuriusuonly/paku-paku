@@ -38,19 +38,26 @@ export default function SignUpScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false, confirmPassword: false });
-  const [success, setSuccess] = useState("");
-  const [recoveryCode, setRecoveryCode] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(null);
 
   useEffect(() => {
-    if (hydrated && status === "authenticated" && user && !recoveryCode) {
+    if (hydrated && status === "authenticated" && user && !signupSuccess) {
       router.replace("/menu");
     }
-  }, [hydrated, status, user, recoveryCode, router]);
+  }, [hydrated, status, user, signupSuccess, router]);
+
+  useEffect(() => {
+    if (!signupSuccess?.email) return;
+    const timeout = setTimeout(() => {
+      router.replace({ pathname: "/signin", params: { email: signupSuccess.email } });
+    }, 4000);
+    return () => clearTimeout(timeout);
+  }, [signupSuccess, router]);
 
   const onSubmit = async () => {
     clearError();
     setLocalError("");
-    setSuccess("");
+    setSignupSuccess(null);
 
     const trimmedEmail = email.trim().toLowerCase();
     const emailMissing = !trimmedEmail;
@@ -80,22 +87,18 @@ export default function SignUpScreen() {
       return;
     }
 
-    if (result.recoveryCode) {
-      setRecoveryCode(result.recoveryCode);
-      setSuccess("Account created. Save your recovery code now.");
-      return;
-    }
-
-    if (result.requiresSignIn) {
-      setSuccess("Account created. Please sign in.");
-    }
+    setSignupSuccess({
+      email: trimmedEmail,
+      requiresSignIn: Boolean(result.requiresSignIn),
+      recoveryCode: result.recoveryCode || ""
+    });
   };
 
   const copyRecoveryCode = async () => {
-    if (!recoveryCode) return;
+    if (!signupSuccess?.recoveryCode) return;
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(recoveryCode);
+        await navigator.clipboard.writeText(signupSuccess.recoveryCode);
         showSuccess("Recovery code copied.");
         return;
       }
@@ -107,6 +110,60 @@ export default function SignUpScreen() {
     return (
       <ScreenContainer>
         <CircularProgress message="Preparing sign-up..." />
+      </ScreenContainer>
+    );
+  }
+
+  if (signupSuccess) {
+    return (
+      <ScreenContainer scrollable contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
+        <View className="mx-auto w-full max-w-md">
+          <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
+            Sign-up successful
+          </Text>
+          <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
+            {signupSuccess.requiresSignIn
+              ? "Your account has been created. Please confirm your email if required, then sign in."
+              : "Your account has been created."}
+          </Text>
+
+          <View className={`mt-8 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-5`}>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textInk70}`}>Registered email</Text>
+            <Text selectable className={`font-outfit text-base font-bold ${cx.textInk}`}>
+              {signupSuccess.email}
+            </Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+              You’ll be redirected to sign in shortly.
+            </Text>
+          </View>
+
+          {signupSuccess.recoveryCode ? (
+            <View className={`mt-4 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-5`}>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
+                Recovery code (show once)
+              </Text>
+              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
+                {signupSuccess.recoveryCode}
+              </Text>
+              <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+                Save this code in a safe place. You can use it to recover your account if you lose access.
+              </Text>
+              <Pressable onPress={copyRecoveryCode} className="self-start">
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy recovery code</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          <View className="mt-6 gap-3">
+            <Button
+              label="Go to sign in now"
+              onPress={() => router.replace({ pathname: "/signin", params: { email: signupSuccess.email } })}
+            />
+            <Text className={`font-outfit text-center text-sm ${cx.textInk70}`}>
+              Redirecting to sign in…
+            </Text>
+          </View>
+        </View>
       </ScreenContainer>
     );
   }
@@ -175,37 +232,13 @@ export default function SignUpScreen() {
           />
 
           <Alert variant="error" message={errorMessage} />
-          <Alert variant="success" message={success} />
 
-          {recoveryCode ? (
-            <View className={`mt-2 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
-                Recovery code (show once)
-              </Text>
-              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
-                {recoveryCode}
-              </Text>
-              <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-                Save this code in a safe place. You can use it to recover your account if you lose access.
-              </Text>
-              <View className="flex-row items-center gap-3">
-                <Pressable onPress={copyRecoveryCode}>
-                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy</Text>
-                </Pressable>
-                <Button
-                  label="Continue"
-                  onPress={() => router.replace("/menu")}
-                />
-              </View>
-            </View>
-          ) : (
-            <Button
-              label="Sign up"
-              onPress={onSubmit}
-              loading={submitting || status === "loading"}
-              className="mt-2"
-            />
-          )}
+          <Button
+            label="Sign up"
+            onPress={onSubmit}
+            loading={submitting || status === "loading"}
+            className="mt-2"
+          />
         </View>
 
         <View className="mt-6 flex-row items-center gap-2">
