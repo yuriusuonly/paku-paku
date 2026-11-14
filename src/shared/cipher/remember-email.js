@@ -1,101 +1,155 @@
 /**
- * Remembered-email encryption helpers (Web Crypto + localStorage).
+ * Remembered-email encryption helpers (Web Crypto + IndexedDB).
  * @module shared/cipher/remember-email
  */
 
-import { decodeBase64Url } from "./decode.js";
-import { encodeBase64Url } from "./encode.js";
 import { decryptAesGcm } from "./decrypt.js";
 import { encryptAesGcm } from "./encrypt.js";
 
-const KEY_STORAGE_KEY = "paku-paku.remember-email.key";
-const EMAIL_STORAGE_KEY = "paku-paku.remember-email.value";
+const DB_NAME = "paku-paku";
+const DB_VERSION = 1;
+const STORE_NAME = "remember-email";
+const KEY_RECORD = "key";
+const EMAIL_RECORD = "value";
 
-function toBase64UrlBytes(bytes) {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  const base64 = typeof btoa === "function" ? btoa(binary) : Buffer.from(binary, "binary").toString("base64");
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-function fromBase64UrlBytes(value) {
-  const base64 = value.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((value.length + 3) % 4);
-  const binary = typeof atob === "function" ? atob(base64) : Buffer.from(base64, "base64").toString("binary");
-  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
-}
-
-async function getOrCreateKey() {
-  const subtle = globalThis.crypto?.subtle;
-  if (!subtle || typeof window === "undefined" || !window.localStorage) return null;
-
-  const existing = window.localStorage.getItem(KEY_STORAGE_KEY);
-  if (existing) {
+/**
+ * Opens the IndexedDB database for remembered-email storage.
+ *
+ * @returns {Promise<IDBDatabase | null>} Database instance or null when unavailable.
+ */
+function openDatabase() {
+  if (typeof indexedDB === "undefined") return Promise.resolve(null);
+  return new Promise((resolve) => {
     try {
-      const raw = fromBase64UrlBytes(existing);
-      return await subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME);
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => resolve(null);
+      request.onblocked = () => resolve(null);
     } catch {
-      window.localStorage.removeItem(KEY_STORAGE_KEY);
-      window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+      resolve(null);
     }
-  }
-
-  const raw = globalThis.crypto.getRandomValues(new Uint8Array(32));
-  const key = await subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
-  window.localStorage.setItem(KEY_STORAGE_KEY, toBase64UrlBytes(raw));
-  return key;
+  });
 }
 
 /**
- * Saves a remembered email encrypted in localStorage.
+ * Runs a transaction on the remember-email object store.
+ *
+ * @template T
+ * @param {"readonly" | "readwrite"} mode - Transaction mode.
+ * @param {(store: IDBObjectStore) => IDBRequest<T> | void} operation - Store operation.
+ * @returns {Promise<T | undefined>} Request result.
+ */
+async function withStore(mode, operation) {
+  const db = await openDatabase();
+  if (!db) return undefined;
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(STORE_NAME, mode);
+      const store = tx.objectStore(STORE_NAME);
+      const request = operation(store);
+      tx.oncomplete = () => {
+        db.close();
+        resolve(request ? request.result : undefined);
+      };
+      tx.onerror = () => {
+        db.close();
+        resolve(undefined);
+      };
+      tx.onabort = () => {
+        db.close();
+        resolve(undefined);
+      };
+    } catch {
+      db.close();
+      resolve(undefined);
+    }
+  });
+}
+
+/**
+ * Gets or creates the AES-GCM key used for remembered-email encryption.
+ *
+ * @returns {Promise<CryptoKey | null>} Crypto key or null when unavailable.
+ */
+async function getOrCreateKey() {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) return null;
+
+  const existing = await withStore("readonly", (store) => store.get(KEY_RECORD));
+  if (existing) {
+    try {
+      const raw = existing instanceof Uint8Array ? existing : new Uint8Array(existing);
+      return await subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    } catch {
+      await withStore("readwrite", (store) => {
+        store.delete(KEY_RECORD);
+        store.delete(EMAIL_RECORD);
+      });
+    }
+  }
+
+  try {
+    const raw = globalThis.crypto.getRandomValues(new Uint8Array(32));
+    const key = await subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    await withStore("readwrite", (store) => store.put(raw, KEY_RECORD));
+    return key;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Saves a remembered email encrypted in IndexedDB.
  *
  * @param {string} email - Email address to remember.
  * @returns {Promise<void>}
  */
 export async function saveRememberedEmail(email) {
-  if (typeof window === "undefined" || !window.localStorage) return;
   const value = String(email || "").trim().toLowerCase();
   if (!value) {
-    window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+    await clearRememberedEmail();
     return;
   }
   try {
     const key = await getOrCreateKey();
     if (!key) return;
     const payload = await encryptAesGcm(value, key);
-    window.localStorage.setItem(EMAIL_STORAGE_KEY, JSON.stringify({ v: 1, ...payload }));
+    await withStore("readwrite", (store) => store.put({ v: 1, ...payload }, EMAIL_RECORD));
   } catch {
-    window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+    await withStore("readwrite", (store) => store.delete(EMAIL_RECORD));
   }
 }
 
 /**
- * Loads and decrypts the remembered email from localStorage.
+ * Loads and decrypts the remembered email from IndexedDB.
  *
  * @returns {Promise<string>} Remembered email or empty string.
  */
 export async function loadRememberedEmail() {
-  if (typeof window === "undefined" || !window.localStorage) return "";
-  const raw = window.localStorage.getItem(EMAIL_STORAGE_KEY);
-  if (!raw) return "";
   try {
-    const parsed = JSON.parse(raw);
-    if (!parsed?.ciphertext || !parsed?.iv) return "";
+    const stored = await withStore("readonly", (store) => store.get(EMAIL_RECORD));
+    if (!stored?.ciphertext || !stored?.iv) return "";
     const key = await getOrCreateKey();
     if (!key) return "";
-    const email = await decryptAesGcm({ ciphertext: parsed.ciphertext, iv: parsed.iv }, key);
+    const email = await decryptAesGcm({ ciphertext: stored.ciphertext, iv: stored.iv }, key);
     return typeof email === "string" ? email : "";
   } catch {
-    window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+    await withStore("readwrite", (store) => store.delete(EMAIL_RECORD));
     return "";
   }
 }
 
 /**
- * Clears the remembered email from localStorage.
+ * Clears the remembered email from IndexedDB.
  *
- * @returns {void}
+ * @returns {Promise<void>}
  */
-export function clearRememberedEmail() {
-  if (typeof window === "undefined" || !window.localStorage) return;
-  window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+export async function clearRememberedEmail() {
+  await withStore("readwrite", (store) => store.delete(EMAIL_RECORD));
 }
