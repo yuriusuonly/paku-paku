@@ -27,6 +27,7 @@
     "github:secrets": "set -a && . ./.env && set +a && gh secret set DOT_ENV --repo \"$GH_REPO\" < .env",
     "github:remote": "set -a && . ./.env && set +a && git remote add origin \"$GH_REPO\"",
     "github:deploy": "set -a && . ./.env && set +a && npm run github:secrets && git -c \"credential.helper=!gh auth git-credential\" push origin HEAD",
+    "github:workflow": "set -a && . ./.env && set +a && gh workflow run deploy.yml --repo \"$GH_REPO\" --ref main",
     "eas:initialize": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && npx --yes eas-cli init",
     "eas:deploy": "set -a && . ./.env && set +a && test -n \"$EXPO_PUBLIC_SUPABASE_URL\" && test -n \"$EXPO_PUBLIC_SUPABASE_ANON_KEY\" && export EXPO_TOKEN=\"$EAS_TOKEN\" && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --environment production --export-dir build"
   },
