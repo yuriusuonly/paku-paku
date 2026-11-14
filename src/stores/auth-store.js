@@ -161,7 +161,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Signs up a new customer account and persists the session when returned.
+   * Signs up a new customer account without signing in immediately.
    *
    * @param {{email: string, password: string}} credentials - Sign-up credentials.
    * @returns {Promise<{ok: boolean, error?: string, recoveryCode?: string | null, requiresSignIn?: boolean}>} Result for the caller/UI.
@@ -171,18 +171,7 @@ export const useAuthStore = create((set, get) => ({
 
     try {
       const data = await signUpApi(credentials);
-      if (data.session) {
-        writeStoredSession(data.session);
-        set({
-          user: data.user,
-          session: data.session,
-          status: "authenticated",
-          error: null,
-          hydrated: true
-        });
-      } else {
-        set({ status: "unauthenticated", error: null, hydrated: true });
-      }
+      set({ user: null, session: null, status: "unauthenticated", error: null, hydrated: true });
       return { ok: true, requiresSignIn: !data.session, recoveryCode: data.recovery_code || null };
     } catch (error) {
       const message = friendlyError(error, "Unable to create your account. Please try again.");

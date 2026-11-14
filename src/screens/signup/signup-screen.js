@@ -46,14 +46,6 @@ export default function SignUpScreen() {
     }
   }, [hydrated, status, user, signupSuccess, router]);
 
-  useEffect(() => {
-    if (!signupSuccess?.email) return;
-    const timeout = setTimeout(() => {
-      router.replace({ pathname: "/signin", params: { email: signupSuccess.email } });
-    }, 4000);
-    return () => clearTimeout(timeout);
-  }, [signupSuccess, router]);
-
   const onSubmit = async () => {
     clearError();
     setLocalError("");
@@ -119,49 +111,42 @@ export default function SignUpScreen() {
       <ScreenContainer scrollable contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
         <View className="mx-auto w-full max-w-md">
           <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
-            Sign-up successful
+            Save your recovery code
           </Text>
           <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
-            {signupSuccess.requiresSignIn
-              ? "Your account has been created. Please confirm your email if required, then sign in."
-              : "Your account has been created."}
+            Your account has been created for{" "}
+            <Text className={`font-outfit font-semibold ${cx.textInk}`}>{signupSuccess.email}</Text>.
+            {signupSuccess.requiresSignIn ? " Please confirm your email if required, then sign in." : " Sign in when you’re ready."}
           </Text>
 
           <View className={`mt-8 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-5`}>
-            <Text className={`font-outfit text-sm font-semibold ${cx.textInk70}`}>Registered email</Text>
-            <Text selectable className={`font-outfit text-base font-bold ${cx.textInk}`}>
-              {signupSuccess.email}
+            <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
+              Recovery code (show once)
             </Text>
-            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-              You’ll be redirected to sign in shortly.
-            </Text>
-          </View>
-
-          {signupSuccess.recoveryCode ? (
-            <View className={`mt-4 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-5`}>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
-                Recovery code (show once)
-              </Text>
-              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
-                {signupSuccess.recoveryCode}
-              </Text>
+            {signupSuccess.recoveryCode ? (
+              <>
+                <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
+                  {signupSuccess.recoveryCode}
+                </Text>
+                <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+                  Save this code in a safe place. You can use it to recover your account if you lose access.
+                </Text>
+                <Pressable onPress={copyRecoveryCode} className="self-start">
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy recovery code</Text>
+                </Pressable>
+              </>
+            ) : (
               <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-                Save this code in a safe place. You can use it to recover your account if you lose access.
+                Your recovery code will be available after you confirm your email and complete account setup. Keep your account details safe.
               </Text>
-              <Pressable onPress={copyRecoveryCode} className="self-start">
-                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy recovery code</Text>
-              </Pressable>
-            </View>
-          ) : null}
+            )}
+          </View>
 
           <View className="mt-6 gap-3">
             <Button
-              label="Go to sign in now"
+              label="Go to sign in"
               onPress={() => router.replace({ pathname: "/signin", params: { email: signupSuccess.email } })}
             />
-            <Text className={`font-outfit text-center text-sm ${cx.textInk70}`}>
-              Redirecting to sign in…
-            </Text>
           </View>
         </View>
       </ScreenContainer>
