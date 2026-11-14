@@ -47,7 +47,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `SUPABASE_LOCAL_SERVER_URL` | Local Supabase API URL used by Dockerized server routes (`http://api.supabase.internal:8000`, Kong on the Supabase Docker network). |
 | `SUPABASE_PROJECT_REF` | Hosted project reference; used by `npm run supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
 | `SUPABASE_ACCESS_TOKEN` | Supabase personal access token for non-interactive CLI auth (linking/pushing hosted migrations, e.g. in CI); never bundled into the app. |
-| `EAS_TOKEN` | EAS access token (remapped to `EXPO_TOKEN` by the `eas:*` scripts). |
+| `EXPO_TOKEN` | Expo/EAS access token used by the `eas:*` scripts and `eas-cli`. |
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `npm run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GH_REPO` | HTTPS repository URL used by the `github:*` scripts. |
@@ -161,7 +161,7 @@ npm run caddy:trust  # trust Caddy's local CA (needed for service workers)
 
 One-time setup:
 
-1. Put an EAS access token in `EAS_TOKEN` (expo.dev → Account settings → Access tokens).
+1. Put an Expo/EAS access token in `EXPO_TOKEN` (expo.dev → Account settings → Access tokens).
 2. Run `npm run eas:initialize` and paste the printed project id into
    `EAS_PROJECT_ID` in `.env`.
 3. Create the GitHub repository, then run `npm run github:remote` and

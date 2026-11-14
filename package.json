@@ -29,8 +29,8 @@
     "github:deploy": "set -a && . ./.env && set +a && npm run github:secrets && git -c \"credential.helper=!gh auth git-credential\" push origin HEAD",
     "github:workflow:supabase": "set -a && . ./.env && set +a && gh workflow run deploy-supabase.yml --repo \"$GH_REPO\" --ref main",
     "github:workflow:expo": "set -a && . ./.env && set +a && gh workflow run deploy-expo.yml --repo \"$GH_REPO\" --ref main",
-    "eas:initialize": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && npx --yes eas-cli init",
-    "eas:deploy": "set -a && . ./.env && set +a && export EXPO_TOKEN=\"$EAS_TOKEN\" && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --environment production --export-dir build"
+    "eas:initialize": "set -a && . ./.env && set +a && npx --yes eas-cli init",
+    "eas:deploy": "set -a && . ./.env && set +a && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --environment production --export-dir build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
