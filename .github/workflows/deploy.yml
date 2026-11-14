@@ -46,8 +46,8 @@ jobs:
       - name: Push migrations to hosted Supabase
         run: |
           set -a && . ./.env && set +a
-          npx --yes supabase link --project-ref "$SUPABASE_PROJECT_REF"
-          npx --yes supabase db push --remote
+          npm run supabase:link
+          npm run supabase:push
 
       - name: Export the web build and deploy it to Expo Hosting
         run: npm run eas:deploy
