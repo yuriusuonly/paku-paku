@@ -1,10 +1,10 @@
 /**
  * Remembered-email encryption helpers (Web Crypto + IndexedDB).
- * @module shared/cipher/remember-email
+ * @module stores/remember-email
  */
 
-import { decryptAesGcm } from "./decrypt.js";
-import { encryptAesGcm } from "./encrypt.js";
+import { decryptAesGcm } from "../shared/cipher/decrypt.js";
+import { encryptAesGcm } from "../shared/cipher/encrypt.js";
 
 const DB_NAME = "paku-paku";
 const DB_VERSION = 1;

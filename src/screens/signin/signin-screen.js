@@ -6,7 +6,7 @@ import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
-import { clearRememberedEmail, loadRememberedEmail, saveRememberedEmail } from "../../shared/cipher/remember-email.js";
+import { clearRememberedEmail, loadRememberedEmail, saveRememberedEmail } from "../../stores/remember-email.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
