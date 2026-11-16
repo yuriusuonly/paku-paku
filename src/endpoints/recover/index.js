@@ -6,7 +6,7 @@ import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { recoverAccount } from "../../repositories/auth-repository.js";
-import { normalizeEmail } from "../../shared/utils/string.js";
+import { normalizeEmail } from "../../shared/format/email.js";
 
 /**
  * Composed account recovery endpoint handlers.

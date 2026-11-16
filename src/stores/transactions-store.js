@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { sortByCreatedDesc } from "../shared/utils/lists.js";
+import { getErrorMessage } from "../shared/errors/message.js";
 import {
   createAdminTransaction,
   createTransaction,
@@ -16,12 +18,6 @@ import { notifyBackgroundError } from "./notification-store.js";
  * @module stores/transactions-store
  */
 
-const friendlyError = (error, fallback) =>
-  error && typeof error.message === "string" && error.message.trim() ? error.message : fallback;
-
-function sortTx(items) {
-  return [...items].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-}
 
 export const useTransactionsStore = create((set, get) => ({
   myTransactions: [],
@@ -42,9 +38,9 @@ export const useTransactionsStore = create((set, get) => ({
     if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
     try {
       const data = await getMyTransactions(token);
-      set({ myTransactions: sortTx(data.transactions || []), loading: false, syncing: false });
+      set({ myTransactions: sortByCreatedDesc(data.transactions || []), loading: false, syncing: false });
     } catch (e) {
-      set({ loading: false, syncing: false, error: friendlyError(e, "Could not load transactions.") });
+      set({ loading: false, syncing: false, error: getErrorMessage(e, "Could not load transactions.") });
       throw e;
     }
   },
@@ -56,9 +52,9 @@ export const useTransactionsStore = create((set, get) => ({
     if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
     try {
       const data = await getAdminTransactions(token);
-      set({ adminTransactions: sortTx(data.transactions || []), loading: false, syncing: false });
+      set({ adminTransactions: sortByCreatedDesc(data.transactions || []), loading: false, syncing: false });
     } catch (e) {
-      set({ loading: false, syncing: false, error: friendlyError(e, "Could not load transactions.") });
+      set({ loading: false, syncing: false, error: getErrorMessage(e, "Could not load transactions.") });
       throw e;
     }
   },
@@ -87,7 +83,7 @@ export const useTransactionsStore = create((set, get) => ({
       const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
       set({ channels: [orders, items] });
     } catch (error) {
-      notifyBackgroundError(friendlyError(error, "Could not connect to live transaction updates."));
+      notifyBackgroundError(getErrorMessage(error, "Could not connect to live transaction updates."));
     }
   },
 
@@ -104,7 +100,7 @@ export const useTransactionsStore = create((set, get) => ({
       const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
       set({ channels: [orders, items] });
     } catch (error) {
-      notifyBackgroundError(friendlyError(error, "Could not connect to live transaction updates."));
+      notifyBackgroundError(getErrorMessage(error, "Could not connect to live transaction updates."));
     }
   },
 
@@ -121,10 +117,10 @@ export const useTransactionsStore = create((set, get) => ({
     set({ syncing: true, error: null });
     try {
       const data = await createTransaction(token, input);
-      if (data?.transaction) set((s) => ({ myTransactions: sortTx([data.transaction, ...s.myTransactions]) }));
+      if (data?.transaction) set((s) => ({ myTransactions: sortByCreatedDesc([data.transaction, ...s.myTransactions]) }));
       return data;
     } catch (e) {
-      set({ error: friendlyError(e, "Could not place the transaction.") });
+      set({ error: getErrorMessage(e, "Could not place the transaction.") });
       throw e;
     } finally {
       set({ syncing: false });
@@ -138,7 +134,7 @@ export const useTransactionsStore = create((set, get) => ({
       if (data?.transaction) set((s) => ({ myTransactions: s.myTransactions.map((t) => (t.id === id ? data.transaction : t)) }));
       return data?.transaction;
     } catch (e) {
-      set({ error: friendlyError(e, "Could not update the transaction.") });
+      set({ error: getErrorMessage(e, "Could not update the transaction.") });
       throw e;
     } finally {
       set({ syncing: false });
@@ -149,10 +145,10 @@ export const useTransactionsStore = create((set, get) => ({
     set({ syncing: true, error: null });
     try {
       const data = await createAdminTransaction(token, input);
-      if (data?.transaction) set((s) => ({ adminTransactions: sortTx([data.transaction, ...s.adminTransactions]) }));
+      if (data?.transaction) set((s) => ({ adminTransactions: sortByCreatedDesc([data.transaction, ...s.adminTransactions]) }));
       return data?.transaction;
     } catch (e) {
-      set({ error: friendlyError(e, "Could not create the transaction.") });
+      set({ error: getErrorMessage(e, "Could not create the transaction.") });
       throw e;
     } finally { set({ syncing: false }); }
   },
@@ -164,7 +160,7 @@ export const useTransactionsStore = create((set, get) => ({
       if (data?.transaction) set((s) => ({ adminTransactions: s.adminTransactions.map((t) => (t.id === id ? data.transaction : t)) }));
       return data?.transaction;
     } catch (e) {
-      set({ error: friendlyError(e, "Could not update the transaction.") });
+      set({ error: getErrorMessage(e, "Could not update the transaction.") });
       throw e;
     } finally { set({ syncing: false }); }
   },
@@ -175,7 +171,7 @@ export const useTransactionsStore = create((set, get) => ({
       await deleteAdminTransaction(token, id);
       set((s) => ({ adminTransactions: s.adminTransactions.filter((t) => t.id !== id) }));
     } catch (e) {
-      set({ error: friendlyError(e, "Could not delete the transaction.") });
+      set({ error: getErrorMessage(e, "Could not delete the transaction.") });
       throw e;
     } finally { set({ syncing: false }); }
   }

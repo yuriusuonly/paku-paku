@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeEmail } from "../../../src/shared/utils/string.js";
+import { normalizeEmail } from "../../../src/shared/format/email.js";
 
 /**
- * Tests for string helpers.
- * @module test/shared/utils/string
+ * Tests for email formatting.
+ * @module test/shared/format/email
  */
 
 describe("normalizeEmail", () => {

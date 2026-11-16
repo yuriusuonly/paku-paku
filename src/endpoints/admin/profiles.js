@@ -9,7 +9,7 @@ import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js
 import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { listProfiles, updateProfile } from "../../repositories/profile-repository.js";
 import { createManagedUser } from "../../repositories/auth-repository.js";
-import { normalizeEmail } from "../../shared/utils/string.js";
+import { normalizeEmail } from "../../shared/format/email.js";
 
 /**
  * Composed admin profiles endpoint handlers.

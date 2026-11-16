@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { isSameRecord } from "../shared/utils/compare.js";
+import { isSameRecord, upsertById } from "../shared/utils/records.js";
+import { sortByOrder } from "../shared/utils/lists.js";
+import { getErrorMessage } from "../shared/errors/message.js";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
@@ -9,46 +11,6 @@ import { notifyBackgroundError } from "./notification-store.js";
  * @module stores/menu-store
  */
 
-const friendlyError = (error, fallback) =>
-  error && typeof error.message === "string" && error.message.trim()
-    ? error.message
-    : fallback;
-
-/**
- * @param {object[]} items - Menu items.
- * @returns {object[]} Sorted items.
- */
-function sortItems(items) {
-  return [...items].sort((a, b) => {
-    const order = (a.sort_order ?? 0) - (b.sort_order ?? 0);
-    if (order !== 0) return order;
-    return String(a.name || "").localeCompare(String(b.name || ""));
-  });
-}
-
-/**
- * @param {object | null | undefined} a - First record.
- * @param {object | null | undefined} b - Second record.
- * @returns {boolean} Whether records are equivalent.
- */
-
-/**
- * @param {object[]} items - Current items.
- * @param {object} item - Item to upsert.
- * @returns {object[]} Updated items.
- */
-function upsertItem(items, item) {
-  const index = items.findIndex((entry) => entry.id === item.id);
-  if (index === -1) {
-    return sortItems([...items, item]);
-  }
-  if (isSameRecord(items[index], { ...items[index], ...item })) {
-    return items;
-  }
-  const next = [...items];
-  next[index] = { ...next[index], ...item };
-  return sortItems(next);
-}
 
 /**
  * Zustand store hook for menu items state and bidirectional sync actions.
@@ -88,9 +50,9 @@ export const useMenuStore = create((set, get) => ({
 
     try {
       const data = await getMenuItems(token);
-      set({ items: sortItems(data.items || []), loading: false, syncing: false, error: null });
+      set({ items: sortByOrder(data.items || []), loading: false, syncing: false, error: null });
     } catch (error) {
-      const message = friendlyError(error, "Could not load the menu. Please try again.");
+      const message = getErrorMessage(error, "Could not load the menu. Please try again.");
       set({ loading: false, syncing: false, error: message });
       if (background || hasItems) {
         notifyBackgroundError(message);
@@ -131,7 +93,7 @@ export const useMenuStore = create((set, get) => ({
               const current = get().items.find((entry) => entry.id === item.id);
               if (!isSameRecord(current, current ? { ...current, ...item } : item)) {
                 changed = true;
-                set((s) => ({ items: upsertItem(s.items, item), syncing: true, error: null }));
+                set((s) => ({ items: upsertById(s.items, item, { sort: sortByOrder }), syncing: true, error: null }));
               }
             }
           }
@@ -154,7 +116,7 @@ export const useMenuStore = create((set, get) => ({
 
       set({ channel, subscribed: false, lastToken: token || state.lastToken });
     } catch (error) {
-      const message = friendlyError(error, "Could not connect to live menu updates.");
+      const message = getErrorMessage(error, "Could not connect to live menu updates.");
       set({ subscribed: false, error: message });
       notifyBackgroundError(message);
     }
@@ -192,11 +154,11 @@ export const useMenuStore = create((set, get) => ({
     try {
       const data = await createMenuItem(token, input);
       if (data?.item) {
-        set((s) => ({ items: upsertItem(s.items, data.item) }));
+        set((s) => ({ items: upsertById(s.items, data.item, { sort: sortByOrder }) }));
       }
       return data?.item;
     } catch (error) {
-      const message = friendlyError(error, "Could not create the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not create the menu item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -217,11 +179,11 @@ export const useMenuStore = create((set, get) => ({
     try {
       const data = await updateMenuItem(token, id, input);
       if (data?.item) {
-        set((s) => ({ items: upsertItem(s.items, data.item) }));
+        set((s) => ({ items: upsertById(s.items, data.item, { sort: sortByOrder }) }));
       }
       return data?.item;
     } catch (error) {
-      const message = friendlyError(error, "Could not update the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not update the menu item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -257,7 +219,7 @@ export const useMenuStore = create((set, get) => ({
       await deleteMenuItem(token, id);
       set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
     } catch (error) {
-      const message = friendlyError(error, "Could not delete the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not delete the menu item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -273,7 +235,7 @@ export const useMenuStore = create((set, get) => ({
    */
   setItems: (next) => {
     set((s) => ({
-      items: sortItems(typeof next === "function" ? next(s.items) : next)
+      items: sortByOrder(typeof next === "function" ? next(s.items) : next)
     }));
   },
 

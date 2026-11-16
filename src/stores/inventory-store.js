@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { isSameRecord } from "../shared/utils/compare.js";
+import { isSameRecord, upsertById } from "../shared/utils/records.js";
+import { sortByString } from "../shared/utils/lists.js";
+import { getErrorMessage } from "../shared/errors/message.js";
 import { createInventoryItem, deleteInventoryItem, getInventoryItems, updateInventoryItem } from "../services/inventory.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
@@ -9,22 +11,6 @@ import { notifyBackgroundError } from "./notification-store.js";
  * @module stores/inventory-store
  */
 
-const friendlyError = (error, fallback) =>
-  error && typeof error.message === "string" && error.message.trim() ? error.message : fallback;
-
-function sortItems(items) {
-  return [...items].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
-}
-
-
-function upsertItem(items, item) {
-  const index = items.findIndex((entry) => entry.id === item.id);
-  if (index === -1) return sortItems([...items, item]);
-  if (isSameRecord(items[index], { ...items[index], ...item })) return items;
-  const next = [...items];
-  next[index] = { ...next[index], ...item };
-  return sortItems(next);
-}
 
 /**
  * Zustand store hook for inventory state and actions.
@@ -56,9 +42,9 @@ export const useInventoryStore = create((set, get) => ({
     set({ loading: !isRefresh, syncing: isRefresh, error: null });
     try {
       const data = await getInventoryItems(token);
-      set({ items: sortItems(data.items || []), loading: false, syncing: false, error: null });
+      set({ items: sortByString(data.items || [], "name"), loading: false, syncing: false, error: null });
     } catch (error) {
-      const message = friendlyError(error, "Could not load inventory. Please try again.");
+      const message = getErrorMessage(error, "Could not load inventory. Please try again.");
       set({ loading: false, syncing: false, error: message });
       if (background || hasItems) notifyBackgroundError(message);
       throw error;
@@ -94,7 +80,7 @@ export const useInventoryStore = create((set, get) => ({
             const current = get().items.find((entry) => entry.id === item.id);
             if (!isSameRecord(current, current ? { ...current, ...item } : item)) {
               changed = true;
-              set((s) => ({ items: upsertItem(s.items, item), syncing: true }));
+              set((s) => ({ items: upsertById(s.items, item, { sort: (items) => sortByString(items, "name") }), syncing: true }));
             }
           }
           if (changed) setTimeout(() => set({ syncing: false }), 350);
@@ -108,7 +94,7 @@ export const useInventoryStore = create((set, get) => ({
       });
       set({ channel, subscribed: false });
     } catch (error) {
-      notifyBackgroundError(friendlyError(error, "Could not connect to live inventory updates."));
+      notifyBackgroundError(getErrorMessage(error, "Could not connect to live inventory updates."));
     }
   },
 
@@ -143,10 +129,10 @@ export const useInventoryStore = create((set, get) => ({
     set({ syncing: true, error: null });
     try {
       const data = await createInventoryItem(token, input);
-      if (data?.item) set((s) => ({ items: upsertItem(s.items, data.item) }));
+      if (data?.item) set((s) => ({ items: upsertById(s.items, data.item, { sort: (items) => sortByString(items, "name") }) }));
       return data?.item;
     } catch (error) {
-      const message = friendlyError(error, "Could not create the inventory item. Please try again.");
+      const message = getErrorMessage(error, "Could not create the inventory item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -166,10 +152,10 @@ export const useInventoryStore = create((set, get) => ({
     set({ syncing: true, error: null });
     try {
       const data = await updateInventoryItem(token, id, input);
-      if (data?.item) set((s) => ({ items: upsertItem(s.items, data.item) }));
+      if (data?.item) set((s) => ({ items: upsertById(s.items, data.item, { sort: (items) => sortByString(items, "name") }) }));
       return data?.item;
     } catch (error) {
-      const message = friendlyError(error, "Could not update the inventory item. Please try again.");
+      const message = getErrorMessage(error, "Could not update the inventory item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -190,7 +176,7 @@ export const useInventoryStore = create((set, get) => ({
       await deleteInventoryItem(token, id);
       set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
     } catch (error) {
-      const message = friendlyError(error, "Could not delete the inventory item. Please try again.");
+      const message = getErrorMessage(error, "Could not delete the inventory item. Please try again.");
       set({ error: message });
       throw error;
     } finally {

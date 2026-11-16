@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { getErrorMessage } from "../shared/errors/message.js";
 import { getSession, signUp as signUpApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
@@ -7,10 +8,6 @@ import { notifyBackgroundError } from "./notification-store.js";
  * @module stores/auth-store
  */
 
-const friendlyError = (error, fallback) =>
-  error && typeof error.message === "string" && error.message.trim()
-    ? error.message
-    : fallback;
 
 /**
  * Local storage key for the persisted session.
@@ -127,7 +124,7 @@ export const useAuthStore = create((set, get) => ({
         user: null,
         session: null,
         status: "unauthenticated",
-        error: friendlyError(error, "Your session expired. Please sign in again."),
+        error: getErrorMessage(error, "Your session expired. Please sign in again."),
         hydrated: true
       });
     }
@@ -154,7 +151,7 @@ export const useAuthStore = create((set, get) => ({
       });
       return { ok: true };
     } catch (error) {
-      const message = friendlyError(error, "Unable to sign in. Please check your details and try again.");
+      const message = getErrorMessage(error, "Unable to sign in. Please check your details and try again.");
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }
@@ -174,7 +171,7 @@ export const useAuthStore = create((set, get) => ({
       set({ user: null, session: null, status: "unauthenticated", error: null, hydrated: true });
       return { ok: true, requiresSignIn: !data.session, recoveryCode: data.recovery_code || null };
     } catch (error) {
-      const message = friendlyError(error, "Unable to create your account. Please try again.");
+      const message = getErrorMessage(error, "Unable to create your account. Please try again.");
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }
@@ -196,7 +193,7 @@ export const useAuthStore = create((set, get) => ({
       } catch (error) {
         // Local sign-out already completed; server revocation is best-effort.
         notifyBackgroundError(
-          friendlyError(error, "You were signed out locally, but we couldn't fully end the server session.")
+          getErrorMessage(error, "You were signed out locally, but we couldn't fully end the server session.")
         );
       }
     }

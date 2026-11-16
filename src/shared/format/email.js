@@ -1,6 +1,6 @@
 /**
- * String utility helpers.
- * @module shared/utils/string
+ * Email formatting helpers.
+ * @module shared/format/email
  */
 
 /**

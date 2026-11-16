@@ -446,6 +446,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── forbidden.js
 │   │   │   ├── hash-error.js
 │   │   │   ├── internal.js
+│   │   │   ├── message.js
 │   │   │   ├── normalize.js
 │   │   │   ├── not-found.js
 │   │   │   ├── service-unavailable.js
@@ -454,6 +455,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── format/
 │   │   │   ├── currency.js
 │   │   │   ├── date.js
+│   │   │   ├── email.js
 │   │   ├── network/
 │   │   │   ├── middleware.js
 │   │   │   ├── request.js
@@ -462,8 +464,8 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── stylesheets/
 │   │   │   ├── global.css
 │   │   ├── utils/
-│   │   │   ├── compare.js
-│   │   │   ├── string.js
+│   │   │   ├── lists.js
+│   │   │   ├── records.js
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js
@@ -508,18 +510,20 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── transactions.test.js
 │   ├── shared/
 │   │   ├── errors/
+│   │   │   ├── message.test.js
 │   │   │   ├── normalize.test.js
 │   │   ├── format/
 │   │   │   ├── currency.test.js
 │   │   │   ├── date.test.js
+│   │   │   ├── email.test.js
 │   │   ├── network/
 │   │   │   ├── middleware.test.js
 │   │   │   ├── request.test.js
 │   │   │   ├── response.test.js
 │   │   │   ├── transport.test.js
 │   │   ├── utils/
-│   │   │   ├── compare.test.js
-│   │   │   ├── string.test.js
+│   │   │   ├── lists.test.js
+│   │   │   ├── records.test.js
 ├── ttf/
 │   ├── Outfit-VariableFont_wght.ttf
 ```

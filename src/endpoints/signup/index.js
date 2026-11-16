@@ -7,7 +7,7 @@ import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { signUp } from "../../repositories/auth-repository.js";
-import { normalizeEmail } from "../../shared/utils/string.js";
+import { normalizeEmail } from "../../shared/format/email.js";
 
 /**
  * Composed sign-up endpoint handlers.

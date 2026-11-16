@@ -1,35 +1,14 @@
 import { create } from "zustand";
-import { isSameRecord } from "../shared/utils/compare.js";
+import { isSameRecord, upsertById } from "../shared/utils/records.js";
+import { sortByString } from "../shared/utils/lists.js";
+import { getErrorMessage } from "../shared/errors/message.js";
 import { getProfiles, createProfileUser, updateProfile as updateProfileApi } from "../services/admin.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
 
-const friendlyError = (error, fallback) =>
-  error && typeof error.message === "string" && error.message.trim() ? error.message : fallback;
 
 function isVisibleProfile(profile) {
   return profile?.email !== "root@paku-paku.official";
-}
-
-function sortProfiles(items) {
-  return [...items].sort((a, b) => String(a.email || "").localeCompare(String(b.email || "")));
-}
-
-
-function upsertProfile(items, profile) {
-  if (!isVisibleProfile(profile)) {
-    return items.filter((entry) => entry.id !== profile?.id && entry.email !== "root@paku-paku.official");
-  }
-  const index = items.findIndex((entry) => entry.id === profile.id);
-  if (index === -1) {
-    return sortProfiles([...items, profile]);
-  }
-  if (isSameRecord(items[index], { ...items[index], ...profile })) {
-    return items;
-  }
-  const next = [...items];
-  next[index] = { ...next[index], ...profile };
-  return sortProfiles(next);
 }
 
 export const useProfilesStore = create((set, get) => ({
@@ -53,13 +32,13 @@ export const useProfilesStore = create((set, get) => ({
     try {
       const data = await getProfiles(token);
       set({
-        profiles: sortProfiles((data.profiles || []).filter(isVisibleProfile)),
+        profiles: sortByString((data.profiles || []).filter(isVisibleProfile), "email"),
         loading: false,
         syncing: false,
         error: null
       });
     } catch (error) {
-      const message = friendlyError(error, "Could not load profiles. Please try again.");
+      const message = getErrorMessage(error, "Could not load profiles. Please try again.");
       set({ loading: false, syncing: false, error: message });
       if (background || hasData) notifyBackgroundError(message);
       throw error;
@@ -71,11 +50,11 @@ export const useProfilesStore = create((set, get) => ({
     try {
       const data = await createProfileUser(token, input);
       if (data?.profile) {
-        set((s) => ({ profiles: upsertProfile(s.profiles, data.profile) }));
+        set((s) => ({ profiles: upsertById(s.profiles, data.profile, { sort: (items) => sortByString(items, "email") }) }));
       }
       return data;
     } catch (error) {
-      const message = friendlyError(error, "Could not create the user. Please try again.");
+      const message = getErrorMessage(error, "Could not create the user. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -88,11 +67,11 @@ export const useProfilesStore = create((set, get) => ({
     try {
       const data = await updateProfileApi(token, { id, is_active: isActive });
       if (data?.profile) {
-        set((s) => ({ profiles: upsertProfile(s.profiles, data.profile) }));
+        set((s) => ({ profiles: upsertById(s.profiles, data.profile, { sort: (items) => sortByString(items, "email") }) }));
       }
       return data?.profile;
     } catch (error) {
-      const message = friendlyError(error, "Could not update the profile. Please try again.");
+      const message = getErrorMessage(error, "Could not update the profile. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -127,7 +106,7 @@ export const useProfilesStore = create((set, get) => ({
               set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.email !== "root@paku-paku.official"), syncing: true }));
             } else if (visible && !isSameRecord(current, current ? { ...current, ...profile } : profile)) {
               changed = true;
-              set((s) => ({ profiles: upsertProfile(s.profiles, profile), syncing: true }));
+              set((s) => ({ profiles: upsertById(s.profiles, profile, { sort: (items) => sortByString(items, "email") }), syncing: true }));
             }
           }
           if (changed) {
@@ -143,7 +122,7 @@ export const useProfilesStore = create((set, get) => ({
       });
       set({ channel });
     } catch (error) {
-      notifyBackgroundError(friendlyError(error, "Could not connect to live profile updates."));
+      notifyBackgroundError(getErrorMessage(error, "Could not connect to live profile updates."));
     }
   },
 
