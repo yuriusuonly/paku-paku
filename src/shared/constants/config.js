@@ -37,12 +37,19 @@
  */
 
 /**
+ * @typedef {object} CurrencyConfig
+ * @property {string} code - ISO-style currency code (e.g. PHP).
+ * @property {string} symbol - Currency symbol (e.g. ₱).
+ */
+
+/**
  * @typedef {object} AppConfig
  * @property {string | undefined} title
  * @property {string | undefined} description
  * @property {string | undefined} version
  * @property {ApiConfig} api
  * @property {DatabaseConfig} database
+ * @property {CurrencyConfig} currency
  */
 
 const apiBasePath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "/api";
@@ -97,6 +104,16 @@ export const database = {
 };
 
 /**
+ * Centralized currency configuration.
+ *
+ * @type {CurrencyConfig}
+ */
+export const currency = {
+  code: process.env.EXPO_PUBLIC_CURRENCY_CODE || "PHP",
+  symbol: process.env.EXPO_PUBLIC_CURRENCY_SYMBOL || "₱"
+};
+
+/**
  * Default shared app config.
  *
  * @type {AppConfig}
@@ -106,7 +123,8 @@ const config = {
   description: process.env.EXPO_PUBLIC_DESCRIPTION,
   version: process.env.EXPO_PUBLIC_VERSION,
   api,
-  database
+  database,
+  currency
 };
 
 export default config;

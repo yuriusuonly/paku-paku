@@ -36,6 +36,8 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_TITLE` | App/site title (client-visible): Expo `name`, UI, document title, PWA manifest. |
 | `EXPO_PUBLIC_DESCRIPTION` | App/site description (client-visible): UI, HTML meta description, PWA manifest. |
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
+| `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `src/shared/constants/config.js`. |
+| `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `src/shared/constants/config.js`. |
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
