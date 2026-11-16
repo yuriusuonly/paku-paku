@@ -64,6 +64,7 @@ export default function AdminInventoryScreen() {
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [localError, setLocalError] = useState("");
+  const [formExpanded, setFormExpanded] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -102,6 +103,7 @@ export default function AdminInventoryScreen() {
 
   const startEdit = (item) => {
     setEditingId(item.id);
+    setFormExpanded(true);
     setForm({
       name: item.name || "",
       sku: item.sku || "",
@@ -227,6 +229,8 @@ export default function AdminInventoryScreen() {
           menuItems={menuItems}
           onSave={save}
           onReset={resetForm}
+          expanded={formExpanded}
+          onToggleExpanded={() => setFormExpanded((v) => !v)}
         />
       </View>
 
