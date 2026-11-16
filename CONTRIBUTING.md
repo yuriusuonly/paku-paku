@@ -112,6 +112,7 @@ flowchart LR
 
 ## Styling, state & config
 - Use Zod for all request validation. Put reusable schemas/helpers in `src/shared/validation/` and domain-specific schemas next to their endpoints (e.g. `src/endpoints/menu-items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
+- Build screens from reusable primitives in `src/components/`. Use `DataTable` for audit tables, `SectionHeader` for consistent section titles/syncing state, `StatGrid`/`StatCard` for metrics, `StatusPill` for statuses, and `FormActions` for form buttons. Interactive components must expose `disabled`/`loading` consistently and include accessibility roles/labels.
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/shared/stylesheets/global.css`.
 - Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.

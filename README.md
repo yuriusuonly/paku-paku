@@ -326,11 +326,15 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── circular-progress.js
 │   │   ├── container.js
 │   │   ├── empty-state.js
+│   │   ├── form-actions.js
 │   │   ├── header.js
 │   │   ├── inline-editable-cell.js
 │   │   ├── inline-select.js
 │   │   ├── qr-code.js
+│   │   ├── section-header.js
 │   │   ├── snackbar.js
+│   │   ├── stat-card.js
+│   │   ├── stat-grid.js
 │   │   ├── status-pill.js
 │   │   ├── table.js
 │   │   ├── text-field.js
