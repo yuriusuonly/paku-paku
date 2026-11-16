@@ -7,31 +7,29 @@ import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { recoverAccount } from "../../repositories/auth-repository.js";
 import { normalizeEmail } from "../../shared/format/email.js";
+import { isValidEmail } from "../../shared/validation/email.js";
+import { requirePassword } from "../../shared/validation/password.js";
+import { requireObjectBody } from "../../shared/validation/request.js";
 
 /**
  * Composed account recovery endpoint handlers.
  * @module endpoints/recover/index
  */
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 async function parseRecoverRequest(request) {
-  const body = await readJsonBody(request);
-  if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with email, recovery code, and new password.");
-  }
+  const body = requireObjectBody(
+    await readJsonBody(request),
+    "Expected a JSON object with email, recovery code, and new password."
+  );
 
   const email = normalizeEmail(body.email);
   const recoveryCode = typeof body.recovery_code === "string" ? body.recovery_code.trim() : "";
-  const newPassword = typeof body.new_password === "string" ? body.new_password : "";
 
-  if (!EMAIL_PATTERN.test(email) || !recoveryCode) {
+  if (!isValidEmail(email) || !recoveryCode) {
     throw badRequest("invalid_recovery", "Enter a valid email and recovery code.");
   }
 
-  if (newPassword.length < 6) {
-    throw badRequest("invalid_password", "Password must be at least 6 characters.");
-  }
+  const newPassword = requirePassword(body.new_password);
 
   return {
     email,

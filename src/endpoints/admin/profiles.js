@@ -9,54 +9,60 @@ import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js
 import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { listProfiles, updateProfile } from "../../repositories/profile-repository.js";
 import { createManagedUser } from "../../repositories/auth-repository.js";
-import { normalizeEmail } from "../../shared/format/email.js";
+import { requireEmail } from "../../shared/validation/email.js";
+import { requirePassword } from "../../shared/validation/password.js";
+import {
+  hasOwn,
+  readBoolean,
+  readRouteId,
+  requireObjectBody,
+  requireUpdateFields
+} from "../../shared/validation/request.js";
 
 /**
  * Composed admin profiles endpoint handlers.
  * @module endpoints/admin/profiles
  */
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 async function parseCreateUserRequest(request) {
-  const body = await readJsonBody(request);
-  if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with email and password.");
-  }
+  const body = requireObjectBody(
+    await readJsonBody(request),
+    "Expected a JSON object with email and password."
+  );
 
-  const email = normalizeEmail(body.email ?? body.username);
-  const password = typeof body.password === "string" ? body.password : "";
-
-  if (!EMAIL_PATTERN.test(email)) {
-    throw badRequest("invalid_email", "Enter a valid email address.");
-  }
-
-  if (password.length < 6) {
-    throw badRequest("invalid_password", "Password must be at least 6 characters.");
-  }
-
-  return { email, password };
+  return {
+    email: requireEmail(body.email ?? body.username),
+    password: requirePassword(body.password)
+  };
 }
 
 async function parseUpdateProfileRequest(request) {
-  const body = await readJsonBody(request);
-  if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with profile fields.");
-  }
+  const body = requireObjectBody(
+    await readJsonBody(request),
+    "Expected a JSON object with profile fields."
+  );
 
-  const id = typeof body.id === "string" ? body.id.trim() : "";
-  if (!id) {
+  if (!hasOwn(body, "id")) {
     throw badRequest("invalid_profile", "Profile id is required.");
   }
 
+  const id = readRouteId({ params: { id: body.id } }, {
+    code: "invalid_profile",
+    message: "Profile id is required."
+  });
+
   const input = {};
-  if (Object.prototype.hasOwnProperty.call(body, "is_active")) {
-    input.is_active = Boolean(body.is_active);
+  if (hasOwn(body, "is_active")) {
+    input.is_active = readBoolean(body.is_active, {
+      code: "invalid_profile",
+      message: "Profile is_active must be a boolean."
+    });
   }
 
-  if (Object.keys(input).length === 0) {
-    throw badRequest("invalid_profile", "No profile fields to update.");
-  }
+  requireUpdateFields(input, {
+    code: "invalid_profile",
+    message: "No profile fields to update."
+  });
 
   return { id, input };
 }

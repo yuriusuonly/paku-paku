@@ -343,6 +343,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── inventory/
 │   │   │   │   ├── [id].js
 │   │   │   │   ├── index.js
+│   │   │   │   ├── validation.js
 │   │   │   ├── profiles.js
 │   │   │   ├── transactions/
 │   │   │   │   ├── [id].js
@@ -351,6 +352,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── menu-items/
 │   │   │   ├── [id].js
 │   │   │   ├── index.js
+│   │   │   ├── validation.js
 │   │   ├── recover/
 │   │   │   ├── index.js
 │   │   ├── session/
@@ -463,6 +465,10 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── transport.js
 │   │   ├── stylesheets/
 │   │   │   ├── global.css
+│   │   ├── validation/
+│   │   │   ├── email.js
+│   │   │   ├── password.js
+│   │   │   ├── request.js
 │   │   ├── utils/
 │   │   │   ├── lists.js
 │   │   │   ├── records.js
@@ -498,6 +504,9 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   ├── logo-maskable.svg
 │   ├── logo.svg
 ├── test/
+│   ├── endpoints/
+│   │   ├── inventory-validation.test.js
+│   │   ├── menu-items-validation.test.js
 │   ├── integration/
 │   │   ├── middleware-endpoint.test.js
 │   ├── services/
@@ -524,6 +533,10 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── utils/
 │   │   │   ├── lists.test.js
 │   │   │   ├── records.test.js
+│   │   ├── validation/
+│   │   │   ├── email.test.js
+│   │   │   ├── password.test.js
+│   │   │   ├── request.test.js
 ├── ttf/
 │   ├── Outfit-VariableFont_wght.ttf
 ```

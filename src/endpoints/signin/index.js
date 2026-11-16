@@ -6,37 +6,29 @@ import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { signIn } from "../../repositories/auth-repository.js";
-import { normalizeEmail } from "../../shared/format/email.js";
+import { isValidEmail } from "../../shared/validation/email.js";
+import { hasOwn, requireObjectBody } from "../../shared/validation/request.js";
 
 /**
  * Composed sign-in endpoint handlers.
  * @module endpoints/signin/index
  */
 
-export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 async function parseSignInRequest(request) {
-  const body = await readJsonBody(request);
+  const body = requireObjectBody(
+    await readJsonBody(request),
+    "Expected a JSON object with email and password."
+  );
 
-  if (!body) {
-    throw badRequest("invalid_body", "Expected a JSON object with email and password.");
-  }
-
-  const email = normalizeEmail(body.email ?? body.username);
+  const emailValue = hasOwn(body, "email") ? body.email : body.username;
+  const email = typeof emailValue === "string" ? emailValue.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!EMAIL_PATTERN.test(email) || password.length === 0) {
+  if (!isValidEmail(email) || password.length === 0) {
     throw badRequest("invalid_credentials", "Enter a valid email and password.");
   }
 
-  return {
-    email,
-    password
-  };
-}
-
-function signInResponse(data) {
-  return jsonResponse(data);
+  return { email, password };
 }
 
 const route = withMiddleware(
@@ -45,7 +37,7 @@ const route = withMiddleware(
   methodInterceptor("POST")
 )(async (context) => {
   const credentials = await parseSignInRequest(context.request);
-  return signInResponse(await signIn(credentials));
+  return jsonResponse(await signIn(credentials));
 });
 
 export const GET = route;

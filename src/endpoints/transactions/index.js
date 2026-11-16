@@ -2,11 +2,11 @@ import { authenticationInterceptor } from "../../interceptors/authentication-int
 import { errorInterceptor } from "../../interceptors/error-interceptor.js";
 import { logInterceptor } from "../../interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../interceptors/method-interceptor.js";
-import { badRequest } from "../../shared/errors/bad-request.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
 import { createBuyTransaction, listTransactions } from "../../repositories/transaction-repository.js";
+import { requireObjectBody } from "../../shared/validation/request.js";
 
 /**
  * Customer transactions endpoint handlers.
@@ -19,10 +19,10 @@ export const GET = withMiddleware(logInterceptor, errorInterceptor, methodInterc
 
 export const POST = withMiddleware(logInterceptor, errorInterceptor, methodInterceptor("POST"), authenticationInterceptor)(
   async (context) => {
-    const body = await readJsonBody(context.request);
-    if (!body) {
-      throw badRequest("invalid_body", "Expected a JSON object with transaction data.");
-    }
+    const body = requireObjectBody(
+      await readJsonBody(context.request),
+      "Expected a JSON object with transaction data."
+    );
     return jsonResponse(
       await createBuyTransaction(context.locals.auth.database, body, {
         customerId: context.locals.auth.user.id,
