@@ -1,18 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
-import { Button } from "../../../components/button.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
-import { EmptyState } from "../../../components/empty-state.js";
 import { Header } from "../../../components/header.js";
 import { ScreenContainer } from "../../../components/container.js";
-import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useInventoryStore } from "../../../stores/inventory-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { InventoryFormSection } from "./inventory-form-component.js";
+import { InventoryListSection } from "./inventory-list-component.js";
 
 /**
  * Admin inventory management screen.
@@ -196,8 +195,6 @@ export default function AdminInventoryScreen() {
     }
   };
 
-  const showInitialLoading = loading && items.length === 0;
-
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
@@ -221,75 +218,27 @@ export default function AdminInventoryScreen() {
           <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
         </View>
 
-        <Text className={`font-outfit mb-3 text-lg font-bold ${cx.textInk}`}>{editingId ? "Edit inventory item" : "Add inventory item"}</Text>
-        <View className="gap-3">
-          <TextField label="Name (*)" value={form.name} onChangeText={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="e.g. Chicken breast" />
-          <TextField label="SKU" value={form.sku} onChangeText={(v) => setForm((f) => ({ ...f, sku: v }))} placeholder="Optional SKU" />
-          <TextField label="Description" value={form.description} onChangeText={(v) => setForm((f) => ({ ...f, description: v }))} placeholder="Optional description" multiline numberOfLines={3} />
-          <TextField label="Quantity (*)" value={form.quantity} onChangeText={(v) => setForm((f) => ({ ...f, quantity: v }))} placeholder="0" keyboardType="numeric" />
-          <TextField label="Unit" value={form.unit} onChangeText={(v) => setForm((f) => ({ ...f, unit: v }))} placeholder="e.g. pcs, kg" />
-          <TextField label="Reorder level" value={form.reorder_level} onChangeText={(v) => setForm((f) => ({ ...f, reorder_level: v }))} placeholder="0" keyboardType="numeric" />
-          <TextField label="Unit cost (cents)" value={form.unit_cost_cents} onChangeText={(v) => setForm((f) => ({ ...f, unit_cost_cents: v }))} placeholder="0" keyboardType="numeric" />
-          <TextField label="Linked menu item ID" value={form.menu_item_id} onChangeText={(v) => setForm((f) => ({ ...f, menu_item_id: v }))} placeholder="Optional menu_items.id" />
-          <View className="flex-row items-center gap-3">
-            <Button label={form.is_active ? "Active" : "Inactive"} variant={form.is_active ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, is_active: !f.is_active }))} />
-            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Toggle stock record availability</Text>
-          </View>
-          {menuItems.length > 0 ? (
-            <Text className={`font-outfit text-xs ${cx.textInk60}`}>Tip: copy a menu item ID from Menu Items audit to link stock to a menu item.</Text>
-          ) : null}
-          <View className="flex-row flex-wrap items-center gap-3 pt-1">
-            <Button label={editingId ? "Update item" : "Create item"} onPress={save} loading={saving} disabled={syncing && !saving} />
-            <Button label="Clear" variant="ghost" onPress={resetForm} disabled={saving} />
-          </View>
-        </View>
+        <InventoryFormSection
+          form={form}
+          setForm={setForm}
+          editingId={editingId}
+          saving={saving}
+          syncing={syncing}
+          menuItems={menuItems}
+          onSave={save}
+          onReset={resetForm}
+        />
       </View>
 
-      <View className={`mt-6 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
-        <View className="mb-4 flex-row items-center justify-between">
-          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Inventory records</Text>
-          {syncing ? <Text className={`font-outfit text-xs ${cx.textInk60}`}>Syncing...</Text> : null}
-        </View>
-
-        {showInitialLoading ? (
-          <CircularProgress message="Loading inventory..." />
-        ) : items.length === 0 ? (
-          <EmptyState message="No inventory items yet. Add your first stock record above." />
-        ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator>
-            <View className="min-w-full gap-3">
-              {items.map((item) => {
-                const low = item.is_active && Number(item.quantity || 0) <= Number(item.reorder_level || 0);
-                return (
-                  <View key={item.id} className={`rounded-2xl border ${low ? cx.borderPrimary30 : cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
-                    <View className="flex-row flex-wrap items-start justify-between gap-3">
-                      <View className="flex-1 min-w-[220px]">
-                        <Text className={`font-outfit text-base font-bold ${cx.textInk}`}>{item.name}</Text>
-                        <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-                          SKU: {item.sku || "-"} · Unit: {item.unit || "-"} · Qty: {item.quantity} · Reorder: {item.reorder_level}
-                        </Text>
-                        <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-                          Unit cost: ₱{(Number(item.unit_cost_cents || 0) / 100).toFixed(2)} · Value: ₱{((Number(item.quantity || 0) * Number(item.unit_cost_cents || 0)) / 100).toFixed(2)}
-                        </Text>
-                        <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>
-                          Menu item: {item.menu_item_id || "-"} · {item.is_active ? "Active" : "Inactive"}{low ? " · Low stock" : ""}
-                        </Text>
-                        {item.description ? <Text className={`font-outfit mt-2 text-sm ${cx.textInk80}`}>{item.description}</Text> : null}
-                      </View>
-                      <View className="flex-row flex-wrap gap-2">
-                        <Button label="-1" variant="ghost" onPress={() => adjustQuantity(item, -1)} loading={busyId === item.id} disabled={busyId === item.id} />
-                        <Button label="+1" variant="ghost" onPress={() => adjustQuantity(item, 1)} loading={busyId === item.id} disabled={busyId === item.id} />
-                        <Button label="Edit" variant="secondary" onPress={() => startEdit(item)} disabled={busyId === item.id} />
-                        <Button label="Delete" variant="ghost" onPress={() => remove(item)} loading={busyId === item.id} disabled={busyId === item.id} />
-                      </View>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        )}
-      </View>
+      <InventoryListSection
+        items={items}
+        loading={loading}
+        syncing={syncing}
+        busyId={busyId}
+        onAdjust={adjustQuantity}
+        onEdit={startEdit}
+        onRemove={remove}
+      />
     </ScreenContainer>
   );
 }
