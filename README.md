@@ -11,9 +11,10 @@ Common Meanings & Uses:
 
 ## Expo web app
 
-A web-only Expo Router application with a Supabase-backed menu, username/password
-authentication, admin profiles view, and API routes, packaged for local
-development, Docker, and Expo Hosting.
+A web-only Expo Router application for menu browsing, cart checkout, unified
+buy/sell transactions with counter QR codes, inventory tracking, and admin
+operations, backed by Supabase and packaged for local development, Docker, and
+Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
   React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, plain
