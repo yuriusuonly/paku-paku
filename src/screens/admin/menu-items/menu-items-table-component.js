@@ -10,7 +10,6 @@ import { cx } from "../../../shared/constants/theme.js";
  */
 
 const columns = [
-  { key: "select", label: "", width: 56 },
   { key: "name", label: "Name", width: 180 },
   { key: "price_cents", label: "Price (cents)", width: 140 },
   { key: "sort_order", label: "Sort", width: 90 },
@@ -86,13 +85,10 @@ export function MenuItemsTableSection({
   loading,
   syncing,
   error,
-  selectedIds,
-  setSelectedIds,
   savingCell,
   onSaveField,
   onToggleAvailable,
-  onToggleBestSeller,
-  onToggleSelected
+  onToggleBestSeller
 }) {
   const showInitialLoading = loading && items.length === 0;
 
@@ -112,40 +108,17 @@ export function MenuItemsTableSection({
         >
           <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
             <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-              {(() => {
-                const selectedCount = sorted.filter((item) => selectedIds.includes(item.id)).length;
-                const allSelected = sorted.length > 0 && selectedCount === sorted.length;
-                const someSelected = selectedCount > 0 && !allSelected;
-                return columns.map((column, index) => (
-                  <View
-                    key={column.key}
-                    style={{ width: column.width }}
-                    className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
-                  >
-                    {column.key === "select" ? (
-                      <Pressable
-                        onPress={() => setSelectedIds(allSelected ? [] : sorted.map((item) => item.id))}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
-                        className={`h-5 w-5 items-center justify-center rounded border ${
-                          allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
-                        }`}
-                      >
-                        {allSelected ? (
-                          <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                        ) : null}
-                        {someSelected ? (
-                          <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
-                        ) : null}
-                      </Pressable>
-                    ) : (
-                      <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
-                        {column.label}
-                      </Text>
-                    )}
-                  </View>
-                ));
-              })()}
+              {columns.map((column, index) => (
+                <View
+                  key={column.key}
+                  style={{ width: column.width }}
+                  className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
+                >
+                  <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+                    {column.label}
+                  </Text>
+                </View>
+              ))}
             </View>
 
             {sorted.map((item, rowIndex) => {
@@ -172,18 +145,7 @@ export function MenuItemsTableSection({
                         style={{ width: column.width }}
                         className={`justify-center px-4 py-3 ${cellBorder}`}
                       >
-                        {column.key === "select" ? (
-                          <Pressable
-                            onPress={() => onToggleSelected(item.id)}
-                            accessibilityRole="checkbox"
-                            accessibilityState={{ checked: selectedIds.includes(item.id) }}
-                            className={`h-5 w-5 items-center justify-center rounded border ${selectedIds.includes(item.id) ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
-                          >
-                            {selectedIds.includes(item.id) ? (
-                              <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                            ) : null}
-                          </Pressable>
-                        ) : isAvailability ? (
+                        {isAvailability ? (
                           <Pressable
                             onPress={() => { void onToggleAvailable(item); }}
                             disabled={savingCell === `${item.id}:is_available`}

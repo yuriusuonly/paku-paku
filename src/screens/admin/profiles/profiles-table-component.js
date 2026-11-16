@@ -9,7 +9,6 @@ import { cx } from "../../../shared/constants/theme.js";
  */
 
 const columns = [
-  { key: "select", label: "", width: 56 },
   { key: "email", label: "Email", width: 220 },
   { key: "role", label: "Role", width: 110 },
   { key: "is_active", label: "Active", width: 110 },
@@ -25,7 +24,7 @@ function formatAuditTimestamp(value) {
   return date.toLocaleString();
 }
 
-export function ProfilesTableSection({ profiles, loading, syncing, error, selectedIds, setSelectedIds, updatingId, currentUserId, onToggleSelected, onToggleActive }) {
+export function ProfilesTableSection({ profiles, loading, syncing, error, updatingId, currentUserId, onToggleActive }) {
   const showInitialLoading = loading && profiles.length === 0;
   return (
     <>
@@ -35,28 +34,11 @@ export function ProfilesTableSection({ profiles, loading, syncing, error, select
         <ScrollView horizontal showsHorizontalScrollIndicator className={`${syncing ? "opacity-80" : "opacity-100"}`}>
           <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
             <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-              {(() => {
-                const selectedCount = profiles.filter((profile) => selectedIds.includes(profile.id)).length;
-                const allSelected = profiles.length > 0 && selectedCount === profiles.length;
-                const someSelected = selectedCount > 0 && !allSelected;
-                return columns.map((column, index) => (
-                  <View key={column.key} style={{ width: column.width }} className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}>
-                    {column.key === "select" ? (
-                      <Pressable
-                        onPress={() => setSelectedIds(allSelected ? [] : profiles.map((profile) => profile.id))}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
-                        className={`h-5 w-5 items-center justify-center rounded border ${allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
-                      >
-                        {allSelected ? <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text> : null}
-                        {someSelected ? <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} /> : null}
-                      </Pressable>
-                    ) : (
-                      <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>{column.label}</Text>
-                    )}
-                  </View>
-                ));
-              })()}
+              {columns.map((column, index) => (
+                <View key={column.key} style={{ width: column.width }} className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}>
+                  <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>{column.label}</Text>
+                </View>
+              ))}
             </View>
 
             {profiles.map((profile, rowIndex) => {
@@ -76,11 +58,7 @@ export function ProfilesTableSection({ profiles, loading, syncing, error, select
                     const isAdminRole = isRole && rawValue === "admin";
                     return (
                       <View key={`${rowKey}-${column.key}`} style={{ width: column.width }} className={`justify-center px-4 py-3 ${cellBorder}`}>
-                        {column.key === "select" ? (
-                          <Pressable onPress={() => onToggleSelected(profile.id)} accessibilityRole="checkbox" accessibilityState={{ checked: selectedIds.includes(profile.id) }} className={`h-5 w-5 items-center justify-center rounded border ${selectedIds.includes(profile.id) ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}>
-                            {selectedIds.includes(profile.id) ? <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text> : null}
-                          </Pressable>
-                        ) : isStatus ? (
+                        {isStatus ? (
                           <Pressable onPress={() => { void onToggleActive(profile); }} disabled={updatingId === profile.id || isSelf} className={`self-start rounded-full px-3 py-1 ${isActive ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}>
                             {updatingId === profile.id ? <CircularProgress size="small" /> : <Text className={`font-outfit text-xs font-semibold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}>{String(displayValue)}</Text>}
                           </Pressable>

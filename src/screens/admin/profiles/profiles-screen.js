@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
-import { Button } from "../../../components/button.js";
+// Button import removed (no bulk actions)
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
@@ -45,8 +45,6 @@ export default function AdminProfilesScreen() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
-  const [bulkUpdating, setBulkUpdating] = useState(false);
-  const [selectedIds, setSelectedIds] = useState([]);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
   const [createdRecoveryCode, setCreatedRecoveryCode] = useState("");
@@ -149,48 +147,7 @@ export default function AdminProfilesScreen() {
     }
   };
 
-  const toggleSelected = (id) => {
-    setSelectedIds((current) =>
-      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
-    );
-  };
-
-  const toggleSelectedActive = async () => {
-    if (!token || selectedIds.length === 0) return;
-    setLocalError("");
-    setBulkUpdating(true);
-    let updatedCount = 0;
-    const remaining = [...selectedIds];
-    try {
-      for (const id of selectedIds) {
-        const profile = profiles.find((item) => item.id === id);
-        if (!profile) {
-          remaining.shift();
-          continue;
-        }
-        if (profile.id === user?.id) {
-          remaining.shift();
-          continue;
-        }
-        await setProfileActive(token, profile.id, !profile.is_active);
-        updatedCount += 1;
-        remaining.shift();
-      }
-      setSelectedIds(remaining);
-      if (updatedCount > 0) {
-        showSuccess(`${updatedCount} profile${updatedCount === 1 ? "" : "s"} updated.`);
-      } else {
-        showError("No selected profiles could be updated.");
-      }
-    } catch (e) {
-      setSelectedIds(remaining);
-      const message = e?.message || "Could not update selected profiles. Please try again.";
-      setLocalError(message);
-      showError(message);
-    } finally {
-      setBulkUpdating(false);
-    }
-  };
+  // Per-row audit actions are handled inline in the table.
 
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
@@ -237,29 +194,13 @@ export default function AdminProfilesScreen() {
         )}
       </View>
 
-      <View className="mb-3 flex-row items-center gap-3">
-        <Button
-          label="Toggle active"
-          variant="ghost"
-          onPress={toggleSelectedActive}
-          loading={bulkUpdating}
-          disabled={selectedIds.length === 0 || bulkUpdating}
-        />
-        {selectedIds.length > 0 ? (
-          <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
-        ) : null}
-      </View>
-
       <ProfilesTableSection
         profiles={profiles}
         loading={loading}
         syncing={syncing}
         error={error}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
         updatingId={updatingId}
         currentUserId={user?.id}
-        onToggleSelected={toggleSelected}
         onToggleActive={toggleActive}
       />
     </ScreenContainer>

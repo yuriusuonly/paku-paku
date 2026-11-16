@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
-import { Button } from "../../../components/button.js";
+// Button import removed (no bulk actions)
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
@@ -44,8 +44,6 @@ export default function AdminMenuItemsScreen() {
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [bulkUpdating, setBulkUpdating] = useState(false);
-  const [selectedIds, setSelectedIds] = useState([]);
   const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ name: false, description: false, price_cents: false, sort_order: false });
@@ -212,44 +210,7 @@ export default function AdminMenuItemsScreen() {
     }
   };
 
-  const toggleSelected = (id) => {
-    setSelectedIds((current) =>
-      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id]
-    );
-  };
-
-  const toggleSelectedAvailability = async () => {
-    if (!token || selectedIds.length === 0) return;
-    setLocalError("");
-    setBulkUpdating(true);
-    let updatedCount = 0;
-    const remaining = [...selectedIds];
-    try {
-      for (const id of selectedIds) {
-        const item = items.find((entry) => entry.id === id);
-        if (!item) {
-          remaining.shift();
-          continue;
-        }
-        await updateItem(token, item.id, { is_available: !item.is_available });
-        updatedCount += 1;
-        remaining.shift();
-      }
-      setSelectedIds(remaining);
-      if (updatedCount > 0) {
-        showSuccess(`${updatedCount} menu item${updatedCount === 1 ? "" : "s"} updated.`);
-      } else {
-        showError("No selected menu items could be updated.");
-      }
-    } catch (e) {
-      setSelectedIds(remaining);
-      const message = e?.message || "Could not update selected menu items. Please try again.";
-      setLocalError(message);
-      showError(message);
-    } finally {
-      setBulkUpdating(false);
-    }
-  };
+  // Per-row audit actions are handled inline in the table.
 
   if (!hydrated || !isAdmin) {
     return (
@@ -302,32 +263,16 @@ export default function AdminMenuItemsScreen() {
         )}
       </View>
 
-      <View className="mb-3 flex-row items-center gap-3">
-        <Button
-          label="Toggle availability"
-          variant="ghost"
-          onPress={toggleSelectedAvailability}
-          loading={bulkUpdating}
-          disabled={selectedIds.length === 0 || bulkUpdating}
-        />
-        {selectedIds.length > 0 ? (
-          <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
-        ) : null}
-      </View>
-
       <MenuItemsTableSection
         items={items}
         sorted={sorted}
         loading={loading}
         syncing={syncing}
         error={error}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
         savingCell={savingCell}
         onSaveField={saveField}
         onToggleAvailable={toggleAvailable}
         onToggleBestSeller={toggleBestSeller}
-        onToggleSelected={toggleSelected}
       />
     </ScreenContainer>
   );
