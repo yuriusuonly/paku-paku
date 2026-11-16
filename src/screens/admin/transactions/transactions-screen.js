@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { EmptyState } from "../../../components/empty-state.js";
 import { Header } from "../../../components/header.js";
-import { QrCode } from "../../../components/qr-code.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
