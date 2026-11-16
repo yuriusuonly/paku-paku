@@ -6,10 +6,14 @@ import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
+import { SectionHeader } from "../../../components/section-header.js";
+import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useProfilesStore } from "../../../stores/profiles-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { isValidEmail } from "../../../shared/validation/email.js";
+import { isValidPassword } from "../../../shared/validation/password.js";
 import { ProfilesFormSection } from "./profiles-form-component.js";
 import { ProfilesTableSection } from "./profiles-table-component.js";
 
@@ -89,8 +93,8 @@ export default function AdminProfilesScreen() {
     const email = form.email.trim().toLowerCase();
     const password = form.password;
     const confirmPassword = form.confirmPassword;
-    const emailError = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    const passwordError = password.length < 6;
+    const emailError = !isValidEmail(email);
+    const passwordError = !isValidPassword(password);
     const confirmPasswordError = !confirmPassword || password !== confirmPassword;
     if (emailError || passwordError || confirmPasswordError) {
       setFieldErrors({ email: emailError, password: passwordError, confirmPassword: confirmPasswordError });
@@ -172,12 +176,14 @@ export default function AdminProfilesScreen() {
 
       <Alert variant="error" message={localError || error} />
 
-      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Total</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Active</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Inactive</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.inactive}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Admins</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.admins}</Text></View>
-      </View>
+      <StatGrid
+        stats={[
+          { label: "Total", value: stats.total },
+          { label: "Active", value: stats.active },
+          { label: "Inactive", value: stats.inactive },
+          { label: "Admins", value: stats.admins }
+        ]}
+      />
 
       <ProfilesFormSection
         form={form}
@@ -191,13 +197,12 @@ export default function AdminProfilesScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mt-6 mb-3 flex-row items-center justify-between">
-        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
-        <View className="flex-row items-center gap-2">
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{profiles.length} total</Text>
-          {syncing && profiles.length > 0 ? <CircularProgress size="small" /> : null}
-        </View>
-      </View>
+      <SectionHeader
+        title="Profiles"
+        syncing={syncing && profiles.length > 0}
+        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{profiles.length} total</Text>}
+        className="mt-6"
+      />
 
       <ProfilesTableSection
         profiles={profiles}

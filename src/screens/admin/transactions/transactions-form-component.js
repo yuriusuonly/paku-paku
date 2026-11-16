@@ -1,6 +1,9 @@
 import { Text, View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
+import { FormActions } from "../../../components/form-actions.js";
+import { InlineSelect } from "../../../components/inline-select.js";
+import { KIND_OPTIONS, PAYMENT_STATUSES, TRANSACTION_STATUSES } from "../../../shared/constants/domain.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -8,8 +11,6 @@ import { cx } from "../../../shared/constants/theme.js";
  * Admin create-transaction form section.
  * @module screens/admin/transactions/transactions-form-component
  */
-
-const KIND_OPTIONS = ["buy", "sell"];
 
 export function TransactionsFormSection({ form, setForm, lines, updateLine, addLine, removeLine, syncing, onCreate, expanded, onToggleExpanded }) {
   return (
@@ -20,8 +21,14 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
             <Button key={v} label={v} variant={form.kind === v ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, kind: v }))} />
           ))}
         </View>
-        <TextField label="Status" value={form.status} onChangeText={(v) => setForm((f) => ({ ...f, status: v }))} placeholder="pending, confirmed, preparing, completed, cancelled" />
-        <TextField label="Payment status" value={form.payment_status} onChangeText={(v) => setForm((f) => ({ ...f, payment_status: v }))} placeholder="unpaid, paid, refunded, partial" />
+        <View className="gap-2">
+          <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Status</Text>
+          <InlineSelect value={form.status} options={TRANSACTION_STATUSES} accessibilityLabel="Transaction status" onChange={(value) => setForm((f) => ({ ...f, status: value }))} />
+        </View>
+        <View className="gap-2">
+          <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Payment status</Text>
+          <InlineSelect value={form.payment_status} options={PAYMENT_STATUSES} accessibilityLabel="Payment status" onChange={(value) => setForm((f) => ({ ...f, payment_status: value }))} />
+        </View>
         <TextField label="Payment method" value={form.payment_method} onChangeText={(v) => setForm((f) => ({ ...f, payment_method: v }))} placeholder="cash, card, gcash..." />
         <TextField label="Customer name" value={form.customer_name} onChangeText={(v) => setForm((f) => ({ ...f, customer_name: v }))} placeholder="Optional" />
         <TextField label="Customer phone" value={form.customer_phone} onChangeText={(v) => setForm((f) => ({ ...f, customer_phone: v }))} placeholder="Optional" />
@@ -43,8 +50,8 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
         ))}
         <View className="flex-row flex-wrap gap-3">
           <Button label="Add item" variant="ghost" onPress={addLine} disabled={syncing} />
-          <Button label="Create transaction" onPress={onCreate} loading={syncing} />
         </View>
+        <FormActions onSave={onCreate} saveLabel="Create transaction" saving={syncing} />
       </View>
     </AccordionSection>
   );

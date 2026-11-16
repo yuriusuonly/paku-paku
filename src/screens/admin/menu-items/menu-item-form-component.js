@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
+import { FormActions } from "../../../components/form-actions.js";
 import { TextField } from "../../../components/text-field.js";
 
 /**
@@ -63,9 +64,8 @@ export function MenuItemFormSection({ form, setForm, fieldErrors, setFieldErrors
         <View className="flex-row flex-wrap items-center gap-3">
           <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />
           <Button label={form.is_best_seller ? "Best seller" : "Regular"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_best_seller: !f.is_best_seller }))} />
-          <Button label="Create item" onPress={onSave} loading={saving} />
-          <Button label="Clear" variant="ghost" onPress={onReset} />
         </View>
+        <FormActions onSave={onSave} onClear={onReset} saveLabel="Create item" saving={saving} />
       </View>
     </AccordionSection>
   );

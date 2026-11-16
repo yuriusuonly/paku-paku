@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
+import { FormActions } from "../../../components/form-actions.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -28,10 +29,13 @@ export function InventoryFormSection({ form, setForm, saving, syncing, menuItems
         {menuItems.length > 0 ? (
           <Text className={`font-outfit text-xs ${cx.textInk60}`}>Tip: copy a menu item ID from Menu Items audit to link stock to a menu item.</Text>
         ) : null}
-        <View className="flex-row flex-wrap items-center gap-3 pt-1">
-          <Button label="Create item" onPress={onSave} loading={saving} disabled={syncing && !saving} />
-          <Button label="Clear" variant="ghost" onPress={onReset} disabled={saving} />
-        </View>
+        <FormActions
+          onSave={onSave}
+          onClear={onReset}
+          saveLabel="Create item"
+          saving={saving}
+          disabled={syncing && !saving}
+        />
       </View>
     </AccordionSection>
   );

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
-import { Button } from "../../../components/button.js";
+import { FormActions } from "../../../components/form-actions.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -48,10 +48,7 @@ export function ProfilesFormSection({ form, setForm, fieldErrors, setFieldErrors
           enablePasswordToggle
           error={fieldErrors.confirmPassword}
         />
-        <View className="flex-row items-center gap-3">
-          <Button label="Create user" onPress={onSave} loading={saving} />
-          <Button label="Clear" variant="ghost" onPress={onClear} />
-        </View>
+        <FormActions onSave={onSave} onClear={onClear} saveLabel="Create user" saving={saving} />
       </View>
     </AccordionSection>
   );

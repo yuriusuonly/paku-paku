@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
+import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useMenuStore } from "../../stores/menu-store.js";
 import { useProfilesStore } from "../../stores/profiles-store.js";
@@ -16,31 +17,6 @@ import { cx } from "../../shared/constants/theme.js";
  * Administrator dashboard with live counts and audit navigation.
  * @module screens/admin/admin-screen
  */
-
-/**
- * Small stat display inside a dashboard card.
- *
- * @param {{label: string, value: string | number, loading?: boolean}} props
- * @returns {JSX.Element}
- */
-function StatItem({ label, value, loading = false }) {
-  return (
-    <View className="min-w-[96px] flex-1 sm:min-w-[120px] md:min-w-[140px]">
-      <Text className={`font-outfit text-[11px] font-semibold uppercase tracking-wide sm:text-xs ${cx.textInk60}`}>
-        {label}
-      </Text>
-      <View className="mt-1 min-h-[28px] flex-row items-center sm:mt-2 sm:min-h-[36px]">
-        {loading ? (
-          <CircularProgress size="small" />
-        ) : (
-          <Text className={`font-outfit text-xl font-black tracking-tight sm:text-2xl md:text-3xl ${cx.textInk}`}>
-            {value}
-          </Text>
-        )}
-      </View>
-    </View>
-  );
-}
 
 /**
  * @returns {JSX.Element} Admin dashboard.
@@ -210,11 +186,7 @@ export default function AdminScreen() {
                   {card.title}
                 </Text>
               </View>
-              <View className="flex-row flex-wrap gap-x-4 gap-y-4 sm:gap-x-6 sm:gap-y-5 md:gap-x-8 md:gap-y-5">
-                {card.stats.map((stat) => (
-                  <StatItem key={stat.label} label={stat.label} value={stat.value} loading={stat.loading} />
-                ))}
-              </View>
+              <StatGrid stats={card.stats} className="mb-0" />
               <View className="mt-5 items-start sm:mt-6 md:mt-8">
                 <Link href={card.href} asChild>
                   <Pressable>

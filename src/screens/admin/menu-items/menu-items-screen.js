@@ -6,6 +6,8 @@ import { Alert } from "../../../components/alert.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
+import { SectionHeader } from "../../../components/section-header.js";
+import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
@@ -235,12 +237,14 @@ export default function AdminMenuItemsScreen() {
 
       <Alert variant="error" message={localError || error} />
 
-      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Total</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Available</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.available}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Unavailable</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.unavailable}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Best sellers</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.bestSellers}</Text></View>
-      </View>
+      <StatGrid
+        stats={[
+          { label: "Total", value: stats.total },
+          { label: "Available", value: stats.available },
+          { label: "Unavailable", value: stats.unavailable },
+          { label: "Best sellers", value: stats.bestSellers }
+        ]}
+      />
 
       <MenuItemFormSection
         form={form}
@@ -254,13 +258,12 @@ export default function AdminMenuItemsScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mt-6 mb-3 flex-row items-center justify-between">
-        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Menu items</Text>
-        <View className="flex-row items-center gap-2">
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{sorted.length} total</Text>
-          {syncing && sorted.length > 0 ? <CircularProgress size="small" /> : null}
-        </View>
-      </View>
+      <SectionHeader
+        title="Menu items"
+        syncing={syncing && sorted.length > 0}
+        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{sorted.length} total</Text>}
+        className="mt-6"
+      />
 
       <MenuItemsTableSection
         items={items}

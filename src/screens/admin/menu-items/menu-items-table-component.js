@@ -1,9 +1,7 @@
 import { Text } from "react-native";
-import { CircularProgress } from "../../../components/circular-progress.js";
-import { EmptyState } from "../../../components/empty-state.js";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
 import { StatusPill } from "../../../components/status-pill.js";
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
+import { DataTable } from "../../../components/table.js";
 import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -24,6 +22,8 @@ const columns = [
   { key: "updated_at", label: "Updated at", width: 220 }
 ];
 
+const editableKeys = new Set(["name", "description", "price_cents", "sort_order"]);
+
 /**
  * @param {object} props
  * @returns {JSX.Element}
@@ -39,84 +39,67 @@ export function MenuItemsTableSection({
   onToggleAvailable,
   onToggleBestSeller
 }) {
-  const showInitialLoading = loading && items.length === 0;
-
   return (
-    <>
-      {showInitialLoading ? <CircularProgress message="Loading menu items..." /> : null}
+    <DataTable
+      columns={columns}
+      rows={sorted}
+      loading={loading && items.length === 0}
+      syncing={syncing}
+      error={error}
+      loadingMessage="Loading menu items..."
+      emptyMessage="No menu items yet. Create one above to get started."
+      renderCell={(item, column) => {
+        const rawValue = item[column.key];
+        const key = column.key;
 
-      {!loading && !error && sorted.length === 0 ? (
-        <EmptyState message="No menu items yet. Create one above to get started." />
-      ) : null}
+        if (key === "is_available") {
+          return (
+            <StatusPill
+              label={rawValue ? "available" : "unavailable"}
+              variant={rawValue ? "success" : "neutral"}
+              onPress={() => { void onToggleAvailable(item); }}
+              disabled={savingCell === `${item.id}:is_available`}
+            />
+          );
+        }
 
-      {sorted.length > 0 ? (
-        <TableScroll syncing={syncing}>
-          <Table>
-            <TableHeader>
-              {columns.map((column, index) => (
-                <TableHeaderCell key={column.key} width={column.width} last={index === columns.length - 1}>
-                  {column.label}
-                </TableHeaderCell>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {sorted.map((item, rowIndex) => {
-                const rowKey = String(item.id ?? `row-${rowIndex}`);
-                return (
-                  <TableRow key={rowKey} last={rowIndex === sorted.length - 1}>
-                    {columns.map((column, index) => {
-                      const rawValue = item[column.key];
-                      const displayValue =
-                        column.key === "created_at" || column.key === "updated_at"
-                          ? formatAuditTimestamp(rawValue)
-                          : (rawValue ?? "-");
-                      const last = index === columns.length - 1;
-                      const isEditable = ["name", "description", "price_cents", "sort_order"].includes(column.key);
-                      const isAvailability = column.key === "is_available";
-                      const isBestSeller = column.key === "is_best_seller";
+        if (key === "is_best_seller") {
+          return (
+            <StatusPill
+              label={rawValue ? "best seller" : "regular"}
+              variant={rawValue ? "success" : "neutral"}
+              onPress={() => { void onToggleBestSeller(item); }}
+              disabled={savingCell === `${item.id}:is_best_seller`}
+            />
+          );
+        }
 
-                      return (
-                        <TableCell key={`${rowKey}-${column.key}`} width={column.width} last={last}>
-                          {isAvailability ? (
-                            <StatusPill
-                              label={rawValue ? "available" : "unavailable"}
-                              active={Boolean(rawValue)}
-                              onPress={() => { void onToggleAvailable(item); }}
-                              disabled={savingCell === `${item.id}:is_available`}
-                            />
-                          ) : isBestSeller ? (
-                            <StatusPill
-                              label={rawValue ? "best seller" : "regular"}
-                              active={Boolean(rawValue)}
-                              onPress={() => { void onToggleBestSeller(item); }}
-                              disabled={savingCell === `${item.id}:is_best_seller`}
-                            />
-                          ) : isEditable ? (
-                            <InlineEditableCell
-                              value={rawValue ?? (column.key === "description" ? "" : rawValue)}
-                              onSave={(draft) => onSaveField(item, column.key, draft)}
-                              numeric={column.key === "price_cents" || column.key === "sort_order"}
-                              multiline={column.key === "description"}
-                              placeholder={column.key === "description" ? "Add description" : ""}
-                            />
-                          ) : (
-                            <Text
-                              selectable
-                              className={`font-outfit text-sm ${column.key === "name" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
-                            >
-                              {String(displayValue)}
-                            </Text>
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableScroll>
-      ) : null}
-    </>
+        if (editableKeys.has(key)) {
+          return (
+            <InlineEditableCell
+              value={rawValue ?? ""}
+              onSave={(draft) => onSaveField(item, key, draft)}
+              numeric={key === "price_cents" || key === "sort_order"}
+              multiline={key === "description"}
+              placeholder={key === "description" ? "Add description" : ""}
+              saving={savingCell === `${item.id}:${key}`}
+            />
+          );
+        }
+
+        const displayValue = key === "created_at" || key === "updated_at"
+          ? formatAuditTimestamp(rawValue)
+          : String(rawValue ?? "-");
+
+        return (
+          <Text
+            selectable
+            className={`font-outfit text-sm ${key === "name" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
+          >
+            {displayValue}
+          </Text>
+        );
+      }}
+    />
   );
 }

@@ -5,6 +5,8 @@ import { Alert } from "../../../components/alert.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { Header } from "../../../components/header.js";
 import { ScreenContainer } from "../../../components/container.js";
+import { SectionHeader } from "../../../components/section-header.js";
+import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useInventoryStore } from "../../../stores/inventory-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
@@ -210,12 +212,15 @@ export default function AdminInventoryScreen() {
 
       <Alert variant="error" message={localError || storeError} />
 
-      <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>In Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.inStock}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Out of Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.outOfStock}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{formatCurrencyCents(stats.stockValueCents)}</Text></View>
-      </View>
+      <StatGrid
+        className="mt-2"
+        stats={[
+          { label: "Items", value: stats.total },
+          { label: "In Stock", value: stats.inStock },
+          { label: "Out of Stock", value: stats.outOfStock },
+          { label: "Stock value", value: formatCurrencyCents(stats.stockValueCents) }
+        ]}
+      />
 
       <InventoryFormSection
         form={form}
@@ -229,13 +234,12 @@ export default function AdminInventoryScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mt-6 mb-3 flex-row items-center justify-between">
-        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Inventory records</Text>
-        <View className="flex-row items-center gap-2">
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} total</Text>
-          {syncing && items.length > 0 ? <CircularProgress size="small" /> : null}
-        </View>
-      </View>
+      <SectionHeader
+        title="Inventory records"
+        syncing={syncing && items.length > 0}
+        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} total</Text>}
+        className="mt-6"
+      />
 
       <InventoryListSection
         items={items}

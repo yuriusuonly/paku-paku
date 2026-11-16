@@ -5,6 +5,8 @@ import { Alert } from "../../../components/alert.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { Header } from "../../../components/header.js";
 import { ScreenContainer } from "../../../components/container.js";
+import { SectionHeader } from "../../../components/section-header.js";
+import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { useTransactionsStore } from "../../../stores/transactions-store.js";
@@ -143,13 +145,15 @@ export default function AdminTransactionsScreen() {
       </View>
       <Alert variant="error" message={localError || error} />
 
-      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Total</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Buy</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.buy}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Sell</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.sell}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Completed</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.completed}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Completed amount</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{formatCurrencyCents(stats.amountCents)}</Text></View>
-      </View>
+      <StatGrid
+        stats={[
+          { label: "Total", value: stats.total },
+          { label: "Buy", value: stats.buy },
+          { label: "Sell", value: stats.sell },
+          { label: "Completed", value: stats.completed },
+          { label: "Completed amount", value: formatCurrencyCents(stats.amountCents) }
+        ]}
+      />
 
       <TransactionsFormSection
         form={form}
@@ -164,13 +168,11 @@ export default function AdminTransactionsScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mb-3 flex-row items-center justify-between">
-        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Transactions</Text>
-        <View className="flex-row items-center gap-2">
-          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{transactions.length} total</Text>
-          {syncing && transactions.length > 0 ? <CircularProgress size="small" /> : null}
-        </View>
-      </View>
+      <SectionHeader
+        title="Transactions"
+        syncing={syncing && transactions.length > 0}
+        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{transactions.length} total</Text>}
+      />
 
       <TransactionsTableSection transactions={transactions} loading={loading} syncing={syncing} onSaveField={saveField} />
     </ScreenContainer>
