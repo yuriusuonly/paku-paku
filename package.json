@@ -4,6 +4,9 @@
   "main": "expo-router/entry",
   "scripts": {
     "test": "bun test",
+    "test:unit": "bun test",
+    "test:e2e": "npx playwright test",
+    "test:e2e:docker": "set -a && . ./.env && set +a && docker compose -f docker-compose.playwright.yml run --rm playwright",
     "expo:start": "set -a && . ./.env && set +a && expo start --clear --port $URL_PORT",
     "expo:start:tunnel": "expo start --clear --tunnel",
     "expo:build": "expo export --platform web --output-dir build && mkdir -p build/client/png && cp png/logo.png png/logo-maskable.png build/client/png/",
@@ -48,5 +51,8 @@
     "react-qr-code": "^2.2.0",
     "tailwindcss": "^3.4.17",
     "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
   }
 }

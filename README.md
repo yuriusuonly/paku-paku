@@ -149,6 +149,18 @@ npm run expo:build  # exports to build/ (web, Metro), then copies the PNG icons 
 npm run expo:serve  # serves build/ on $URL_PORT
 ```
 
+## Automated tests
+
+```bash
+npm test                 # unit + integration/mock tests (bun)
+npm run test:e2e         # Playwright browser smoke tests (app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, default http://127.0.0.1:3000)
+npm run test:e2e:docker  # run Playwright in Docker Compose using mcr.microsoft.com/playwright:v1.52.0-noble
+```
+
+- `npm test` runs Bun tests under `test/` (unit, integration, and service/mock coverage).
+- Playwright end-to-end smoke tests live in `test/e2e/` (`*.e2e.js`) and use `playwright.config.js`.
+- `docker-compose.playwright.yml` runs Playwright in the noble-based Playwright image (`mcr.microsoft.com/playwright:v1.52.0-noble`). Start the app first (for example `npm run expo:serve` or the Dockerized app) and set `PLAYWRIGHT_BASE_URL` if needed (defaults to `http://host.docker.internal:$URL_PORT` in the compose runner).
+
 `build/` is generated and gitignored — do not edit it by hand. Local static
 builds keep the local Supabase target, so start the local stack before opening
 `expo:serve`; only `npm run eas:deploy` switches the target to `hosted`.
@@ -258,11 +270,13 @@ containers themselves are not part of the app compose stack. |
 ├── app.config.js
 ├── babel.config.js
 ├── docker-compose.yml
+├── docker-compose.playwright.yml
 ├── eas.json
 ├── metro.config.js
 ├── opencode.json
 ├── package-lock.json
 ├── package.json
+├── playwright.config.js
 ├── tailwind.config.js
 ├── png/
 │   ├── logo-maskable.png
@@ -489,6 +503,8 @@ containers themselves are not part of the app compose stack. |
 │   ├── logo-maskable.svg
 │   ├── logo.svg
 ├── test/
+│   ├── e2e/
+│   │   ├── smoke.e2e.js
 │   ├── integration/
 │   │   ├── middleware-endpoint.test.js
 │   ├── services/
