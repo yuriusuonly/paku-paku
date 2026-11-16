@@ -25,6 +25,9 @@ Expo Hosting.
   build on the runner, and uploads only the artifact to Expo Hosting (EAS).
 - **Runtime:** `expo serve` locally or in Docker behind Caddy (`/api/health`
   healthcheck).
+- **Architecture:** layered modular monolith with thin routes, endpoint use-case
+  composition, repositories, and a pure domain layer for business rules/schemas
+  (see `CONTRIBUTING.md` → Architecture).
 
 ## Configuration
 
@@ -340,6 +343,22 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── text-field.js
 │   ├── database/
 │   │   ├── instance.js
+│   ├── domain/
+│   │   ├── inventory/
+│   │   │   ├── quantity.js
+│   │   │   ├── schema.js
+│   │   │   ├── status.js
+│   │   ├── menu-items/
+│   │   │   ├── schema.js
+│   │   ├── profiles/
+│   │   │   ├── schema.js
+│   │   ├── transactions/
+│   │   │   ├── constants.js
+│   │   │   ├── inventory-rules.js
+│   │   │   ├── items.js
+│   │   │   ├── schema.js
+│   │   │   ├── status.js
+│   │   │   ├── totals.js
 │   ├── endpoints/
 │   │   ├── account/
 │   │   │   ├── profile.js
@@ -439,7 +458,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── token.js
 │   │   ├── constants/
 │   │   │   ├── config.js
-│   │   │   ├── domain.js
 │   │   │   ├── http.js
 │   │   │   ├── layout.js
 │   │   │   ├── theme.js
@@ -509,6 +527,16 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   ├── logo-maskable.svg
 │   ├── logo.svg
 ├── test/
+│   ├── architecture/
+│   │   ├── layers.test.js
+│   ├── domain/
+│   │   ├── inventory/
+│   │   │   ├── rules.test.js
+│   │   ├── transactions/
+│   │   │   ├── items.test.js
+│   │   │   ├── rules.test.js
+│   │   │   ├── totals.test.js
+│   │   ├── schemas.test.js
 │   ├── endpoints/
 │   │   ├── inventory-validation.test.js
 │   │   ├── menu-items-validation.test.js

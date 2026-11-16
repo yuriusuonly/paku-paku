@@ -41,6 +41,53 @@ flowchart TD
   G --> H["Expo Hosting (artifact upload only)"]
 ```
 
+## Architecture
+
+This project is a **layered modular monolith**: one web app with thin routes, server use-case composition, data-access repositories, and a small pure domain layer.
+
+```mermaid
+flowchart TD
+  A["src/app pages"] --> B["src/screens + src/components"]
+  B --> C["src/stores"]
+  C --> D["src/services"]
+  D --> E["/api routes"]
+  E --> F["src/endpoints"]
+  F --> G["src/interceptors"]
+  F --> H["src/repositories"]
+  H --> I["src/database"]
+  F --> J["src/domain"]
+  B --> J
+  H --> J
+  J --> K["src/shared"]
+  I --> K
+```
+
+### Dependency rules
+
+Imports only point downward:
+
+| Layer | May import |
+| --- | --- |
+| `app` | `app`, `screens`, `components`, `endpoints`, `services`, `stores`, `domain`, `shared` |
+| `screens` | `screens`, `components`, `stores`, `services`, `domain`, `shared` |
+| `components` | `components`, `stores`, `domain`, `shared` |
+| `stores` | `stores`, `services`, `domain`, `shared` |
+| `services` | `services`, `database` (realtime client), `domain`, `shared` |
+| `endpoints` | `endpoints`, `interceptors`, `repositories`, `domain`, `shared` |
+| `interceptors` | `interceptors`, `repositories`, `domain`, `shared` |
+| `repositories` | `repositories`, `database`, `domain`, `shared` |
+| `database` | `database`, `shared` |
+| `domain` | `domain`, `shared` |
+| `shared` | `shared` |
+
+- `domain/*` holds pure business rules, constants, and Zod schemas. It must not import Supabase, React, HTTP, fetch, or browser APIs.
+- `shared/*` is a leaf layer of generic utilities; it must not import business or UI layers.
+- `repositories/*` perform data access only. Put business rules in `domain/*`.
+- `endpoints/*` compose request validation, interceptors, repositories, and responses.
+- `screens/*` must not import Supabase or server-only modules.
+- `services/*` are client-to-API contracts; the realtime service may use the shared database client.
+- These rules are enforced by `test/architecture/layers.test.js`.
+
 ## Routing & API conventions (Expo Router)
 - File-based routes live in `src/app/`.
 - API/special web routes use `+api` suffix naming, e.g. `api/health+api.js` → `/api/health`, `api/menu-items/+api.js` → `/api/menu-items`, `api/menu-items/[id]+api.js` → `/api/menu-items/:id`, `robots.txt+api.js`, `manifest.json+api.js`, `service-worker.js+api.js`. Handlers receive web `Request` and return `Response`.
