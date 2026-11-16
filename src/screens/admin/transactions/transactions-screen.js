@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
@@ -18,8 +18,75 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/transactions/transactions-screen
  */
 
+const STATUS_OPTIONS = ["pending", "confirmed", "preparing", "ready", "completed", "cancelled"];
+const PAYMENT_OPTIONS = ["unpaid", "paid", "partial", "refunded"];
+const KIND_OPTIONS = ["buy", "sell"];
+
 function emptyLine() {
   return { item_name: "", quantity: "1", unit_price_cents: "0", menu_item_id: "", inventory_item_id: "" };
+}
+
+function InlineEditableCell({ value, onSave, placeholder = "" }) {
+  const stringValue = value == null ? "" : String(value);
+  const [draft, setDraft] = useState(stringValue);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) setDraft(stringValue);
+  }, [stringValue, focused]);
+
+  const commit = async () => {
+    setFocused(false);
+    if (draft === stringValue) return;
+    try {
+      await onSave(draft);
+    } catch {
+      setDraft(stringValue);
+    }
+  };
+
+  return (
+    <TextInput
+      value={draft}
+      onChangeText={setDraft}
+      onFocus={() => setFocused(true)}
+      onBlur={() => { void commit(); }}
+      onSubmitEditing={() => { void commit(); }}
+      placeholder={placeholder}
+      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm ${cx.textInk}`}
+    />
+  );
+}
+
+function InlineSelect({ value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const current = value == null || value === "" ? "-" : String(value);
+  return (
+    <View style={{ position: "relative" }}>
+      <Pressable
+        onPress={() => setOpen((v) => !v)}
+        className={`rounded-lg border ${open ? cx.borderPrimary30 : cx.borderSubtle} ${cx.bgSurfaceSoft} px-2 py-1`}
+      >
+        <Text className={`font-outfit text-sm ${cx.textInk}`}>{current}</Text>
+      </Pressable>
+      {open ? (
+        <View className={`absolute left-0 top-9 z-50 min-w-[140px] rounded-xl border ${cx.borderSubtle} ${cx.bgSurface} p-1 shadow-sm`}>
+          {options.map((option) => (
+            <Pressable
+              key={option}
+              onPress={() => {
+                setOpen(false);
+                if (option !== value) void onChange(option);
+              }}
+              className={`rounded-lg px-3 py-2 ${option === value ? cx.bgSurfaceMuted : ""}`}
+            >
+              <Text className={`font-outfit text-sm ${cx.textInk}`}>{option}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 export default function AdminTransactionsScreen() {
@@ -38,7 +105,6 @@ export default function AdminTransactionsScreen() {
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
   const createAdminTransaction = useTransactionsStore((s) => s.createAdminTransaction);
   const updateAdminTransaction = useTransactionsStore((s) => s.updateAdminTransaction);
-  const removeAdminTransaction = useTransactionsStore((s) => s.removeAdminTransaction);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
@@ -76,6 +142,19 @@ export default function AdminTransactionsScreen() {
   const updateLine = (index, patch) => setLines((cur) => cur.map((l, i) => (i === index ? { ...l, ...patch } : l)));
   const addLine = () => setLines((cur) => [...cur, emptyLine()]);
   const removeLine = (index) => setLines((cur) => (cur.length === 1 ? [emptyLine()] : cur.filter((_, i) => i !== index)));
+
+  const saveField = async (tx, field, value) => {
+    if (!token) return;
+    const normalized = value == null ? null : String(value).trim();
+    const current = tx[field] == null ? null : String(tx[field]);
+    if ((normalized || null) === (current || null)) return;
+    try {
+      await updateAdminTransaction(token, tx.id, { [field]: normalized || null });
+    } catch (e) {
+      showError(e?.message || "Could not update transaction.");
+      throw e;
+    }
+  };
 
   const createRecord = async () => {
     setLocalError("");
@@ -115,15 +194,6 @@ export default function AdminTransactionsScreen() {
     }
   };
 
-  const setTx = async (tx, patch, message) => {
-    try {
-      await updateAdminTransaction(token, tx.id, patch);
-      showSuccess(message);
-    } catch (e) {
-      showError(e?.message || "Could not update the transaction.");
-    }
-  };
-
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
@@ -145,7 +215,7 @@ export default function AdminTransactionsScreen() {
       <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 gap-3`}>
         <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Create transaction</Text>
         <View className="flex-row flex-wrap gap-2">
-          {["buy", "sell"].map((v) => (
+          {KIND_OPTIONS.map((v) => (
             <Button key={v} label={v} variant={form.kind === v ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, kind: v }))} />
           ))}
         </View>
@@ -182,52 +252,65 @@ export default function AdminTransactionsScreen() {
       {transactions.length > 0 ? (
         <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 md:p-5`}>
           <ScrollView horizontal showsHorizontalScrollIndicator>
-            <View style={{ minWidth: 1100 }}>
+            <View style={{ minWidth: 1320 }}>
               <View className={`flex-row border-b ${cx.borderSubtle} pb-2`}>
                 {[
                   ["ID", 260],
-                  ["Kind", 80],
-                  ["Status", 120],
-                  ["Payment", 140],
+                  ["Kind", 120],
+                  ["Status", 160],
+                  ["Payment status", 160],
+                  ["Payment method", 160],
                   ["Total", 110],
-                  ["Customer", 180],
+                  ["Customer name", 180],
+                  ["Customer email", 220],
+                  ["Customer phone", 160],
+                  ["Notes", 220],
                   ["Created", 180],
-                  ["Items", 260],
-                  ["Actions", 360]
+                  ["Items", 260]
                 ].map(([label, width]) => (
-                  <View key={label} style={{ width }}>
+                  <View key={label} style={{ width, paddingRight: 8 }}>
                     <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>{label}</Text>
                   </View>
                 ))}
               </View>
 
-              <View className="gap-2 pt-2">
+              <View className="pt-1">
                 {transactions.map((tx) => (
-                  <View key={tx.id} className={`flex-row items-start border-b ${cx.borderSubtle} py-3`}>
+                  <View key={tx.id} className={`flex-row items-start border-b ${cx.borderSubtle} py-2`}>
                     <View style={{ width: 260, paddingRight: 8 }}>
                       <Text selectable className={`font-outfit text-xs ${cx.textInk}`}>{tx.id}</Text>
                     </View>
-                    <View style={{ width: 80, paddingRight: 8 }}>
-                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.kind === "sell" ? "Sell" : "Buy"}</Text>
-                    </View>
                     <View style={{ width: 120, paddingRight: 8 }}>
-                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.status || "-"}</Text>
+                      <InlineSelect value={tx.kind || "buy"} options={KIND_OPTIONS} onChange={(v) => saveField(tx, "kind", v)} />
                     </View>
-                    <View style={{ width: 140, paddingRight: 8 }}>
-                      <Text className={`font-outfit text-sm ${cx.textInk}`}>
-                        {tx.payment_status || "-"}{tx.payment_method ? ` (${tx.payment_method})` : ""}
-                      </Text>
+                    <View style={{ width: 160, paddingRight: 8 }}>
+                      <InlineSelect value={tx.status || "pending"} options={STATUS_OPTIONS} onChange={(v) => saveField(tx, "status", v)} />
                     </View>
-                    <View style={{ width: 110, paddingRight: 8 }}>
+                    <View style={{ width: 160, paddingRight: 8 }}>
+                      <InlineSelect value={tx.payment_status || "unpaid"} options={PAYMENT_OPTIONS} onChange={(v) => saveField(tx, "payment_status", v)} />
+                    </View>
+                    <View style={{ width: 160, paddingRight: 8 }}>
+                      <InlineEditableCell value={tx.payment_method} placeholder="method" onSave={(v) => saveField(tx, "payment_method", v)} />
+                    </View>
+                    <View style={{ width: 110, paddingRight: 8, paddingTop: 6 }}>
                       <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}</Text>
                     </View>
                     <View style={{ width: 180, paddingRight: 8 }}>
-                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.customer_name || tx.customer_email || "-"}</Text>
+                      <InlineEditableCell value={tx.customer_name} placeholder="name" onSave={(v) => saveField(tx, "customer_name", v)} />
                     </View>
-                    <View style={{ width: 180, paddingRight: 8 }}>
+                    <View style={{ width: 220, paddingRight: 8 }}>
+                      <InlineEditableCell value={tx.customer_email} placeholder="email" onSave={(v) => saveField(tx, "customer_email", v)} />
+                    </View>
+                    <View style={{ width: 160, paddingRight: 8 }}>
+                      <InlineEditableCell value={tx.customer_phone} placeholder="phone" onSave={(v) => saveField(tx, "customer_phone", v)} />
+                    </View>
+                    <View style={{ width: 220, paddingRight: 8 }}>
+                      <InlineEditableCell value={tx.notes} placeholder="notes" onSave={(v) => saveField(tx, "notes", v)} />
+                    </View>
+                    <View style={{ width: 180, paddingRight: 8, paddingTop: 6 }}>
                       <Text className={`font-outfit text-xs ${cx.textInk70}`}>{new Date(tx.created_at).toLocaleString()}</Text>
                     </View>
-                    <View style={{ width: 260, paddingRight: 8 }}>
+                    <View style={{ width: 260, paddingRight: 8, paddingTop: 6 }}>
                       {(tx.items || []).length ? (
                         <View className="gap-1">
                           {tx.items.map((item) => (
@@ -239,16 +322,6 @@ export default function AdminTransactionsScreen() {
                       ) : (
                         <Text className={`font-outfit text-xs ${cx.textInk60}`}>-</Text>
                       )}
-                      {tx.notes ? <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>Note: {tx.notes}</Text> : null}
-                    </View>
-                    <View style={{ width: 360 }}>
-                      <View className="flex-row flex-wrap gap-2">
-                        <Button label="Confirm" variant="ghost" onPress={() => void setTx(tx, { status: "confirmed" }, "Transaction confirmed.")} disabled={syncing} />
-                        <Button label="Complete" variant="ghost" onPress={() => void setTx(tx, { status: "completed", payment_status: "paid" }, "Transaction completed.")} disabled={syncing} />
-                        <Button label="Cancel" variant="ghost" onPress={() => void setTx(tx, { status: "cancelled" }, "Transaction cancelled.")} disabled={syncing} />
-                        <Button label="Mark paid" variant="secondary" onPress={() => void setTx(tx, { payment_status: "paid" }, "Marked as paid.")} disabled={syncing} />
-                        <Button label="Delete" variant="ghost" onPress={() => void removeAdminTransaction(token, tx.id).then(() => showSuccess("Transaction deleted.")).catch((e) => showError(e?.message || "Could not delete."))} disabled={syncing} />
-                      </View>
                     </View>
                   </View>
                 ))}
