@@ -1,8 +1,16 @@
 import { create } from "zustand";
-import { createAdminTransaction, deleteAdminTransaction, getAdminTransactions, getMyTransactions, updateAdminTransaction } from "../services/transactions.js";
+import {
+  createAdminTransaction,
+  createTransaction,
+  deleteAdminTransaction,
+  getAdminTransactions,
+  getMyTransactions,
+  updateAdminTransaction,
+  updateTransaction
+} from "../services/transactions.js";
 
 /**
- * Transactions store.
+ * Unified transactions store (buy/sell records).
  * @module stores/transactions-store
  */
 
@@ -42,6 +50,34 @@ export const useTransactionsStore = create((set) => ({
     } catch (e) {
       set({ loading: false, error: friendlyError(e, "Could not load transactions.") });
       throw e;
+    }
+  },
+
+  createMyTransaction: async (token, input) => {
+    set({ syncing: true, error: null });
+    try {
+      const data = await createTransaction(token, input);
+      if (data?.transaction) set((s) => ({ myTransactions: sortTx([data.transaction, ...s.myTransactions]) }));
+      return data;
+    } catch (e) {
+      set({ error: friendlyError(e, "Could not place the transaction.") });
+      throw e;
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
+  updateMyTransaction: async (token, id, input) => {
+    set({ syncing: true, error: null });
+    try {
+      const data = await updateTransaction(token, id, input);
+      if (data?.transaction) set((s) => ({ myTransactions: s.myTransactions.map((t) => (t.id === id ? data.transaction : t)) }));
+      return data?.transaction;
+    } catch (e) {
+      set({ error: friendlyError(e, "Could not update the transaction.") });
+      throw e;
+    } finally {
+      set({ syncing: false });
     }
   },
 

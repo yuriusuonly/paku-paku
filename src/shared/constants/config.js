@@ -13,13 +13,10 @@
  * @property {string} session
  * @property {string} signout
  * @property {string} recover
- * @property {string} orders
  * @property {string} transactions
  * @property {string} accountProfile
  * @property {string} adminProfiles
  * @property {string} adminInventory
- * @property {string} adminSales
- * @property {string} adminOrders
  * @property {string} adminTransactions
  */
 
@@ -67,13 +64,10 @@ export const api = {
     session: `${apiBasePath}/session`,
     signout: `${apiBasePath}/signout`,
     recover: `${apiBasePath}/recover`,
-    orders: `${apiBasePath}/orders`,
     transactions: `${apiBasePath}/transactions`,
     accountProfile: `${apiBasePath}/account/profile`,
     adminProfiles: `${apiBasePath}/admin/profiles`,
     adminInventory: `${apiBasePath}/admin/inventory`,
-    adminSales: `${apiBasePath}/admin/sales`,
-    adminOrders: `${apiBasePath}/admin/orders`,
     adminTransactions: `${apiBasePath}/admin/transactions`
   }
 };

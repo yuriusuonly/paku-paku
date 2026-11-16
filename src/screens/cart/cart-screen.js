@@ -12,7 +12,7 @@ import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useCartStore } from "../../stores/cart-store.js";
 import { useNotificationStore } from "../../stores/notification-store.js";
-import { useOrdersStore } from "../../stores/orders-store.js";
+import { useTransactionsStore } from "../../stores/transactions-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -34,14 +34,14 @@ export default function CartScreen() {
   const setQuantity = useCartStore((s) => s.setQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clear);
-  const placeOrder = useOrdersStore((s) => s.placeOrder);
-  const syncing = useOrdersStore((s) => s.syncing);
+  const createMyTransaction = useTransactionsStore((s) => s.createMyTransaction);
+  const syncing = useTransactionsStore((s) => s.syncing);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
   const [form, setForm] = useState({ customer_name: "", customer_phone: "", notes: "", payment_method: "cash" });
   const [error, setError] = useState("");
-  const [placedOrder, setPlacedOrder] = useState(null);
+  const [placedTransaction, setPlacedTransaction] = useState(null);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -81,7 +81,7 @@ export default function CartScreen() {
       return;
     }
     try {
-      const data = await placeOrder(token, {
+      const data = await createMyTransaction(token, {
         items: cartItems.map((item) => ({
           menu_item_id: item.menu_item_id || null,
           inventory_item_id: item.inventory_item_id || null,
@@ -98,11 +98,11 @@ export default function CartScreen() {
         status: "pending"
       });
       clearCart();
-      if (data?.order) setPlacedOrder(data.order);
-      showSuccess("Order placed. Present the QR code at the counter.");
+      if (data?.transaction) setPlacedTransaction(data.transaction);
+      showSuccess("Transaction placed. Present the QR code at the counter.");
       return data;
     } catch (e) {
-      const message = e?.message || "Could not place the order.";
+      const message = e?.message || "Could not place the transaction.";
       setError(message);
       showError(message);
     }
@@ -113,31 +113,31 @@ export default function CartScreen() {
       <Header />
       <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Cart & checkout</Text>
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-        Review your cart, place your order, and present the order QR code at the counter.
+        Add items, place a buy transaction, and present the QR code at the counter.
       </Text>
 
       <Alert variant="error" message={error} />
 
-      {placedOrder ? (
+      {placedTransaction ? (
         <View className="mt-6 gap-4">
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Order placed</Text>
+            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Transaction placed</Text>
             <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-              {placedOrder.order_number} · ₱{(Number(placedOrder.total_cents || 0) / 100).toFixed(2)}
+              {placedTransaction.order_number} · ₱{(Number(placedTransaction.total_cents || 0) / 100).toFixed(2)}
             </Text>
             <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-              Present this QR code at the counter to complete your buy/sell transaction.
+              Present this QR code at the counter to complete your transaction.
             </Text>
-            {placedOrder.qr_payload ? <View className="mt-2"><QrCode value={placedOrder.qr_payload} label="Order QR for counter" /></View> : null}
+            {placedTransaction.qr_payload ? <View className="mt-2"><QrCode value={placedTransaction.qr_payload} label="Transaction QR for counter" /></View> : null}
             <View className="flex-row flex-wrap gap-3 pt-2">
-              <Link href="/orders" asChild><Button label="View my orders" /></Link>
-              <Button label="Place another order" variant="ghost" onPress={() => { setPlacedOrder(null); router.push("/menu"); }} />
+              <Link href="/transactions" asChild><Button label="View my transactions" /></Link>
+              <Button label="New transaction" variant="ghost" onPress={() => { setPlacedTransaction(null); router.push("/menu"); }} />
             </View>
           </View>
         </View>
       ) : cartItems.length === 0 ? (
         <View className="mt-6 gap-4">
-          <EmptyState message="Your cart is empty. Add items from the menu to place an order." />
+          <EmptyState message="Your cart is empty. Add items from the menu to place a transaction." />
           <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text></Pressable></Link>
         </View>
       ) : (
@@ -172,13 +172,13 @@ export default function CartScreen() {
             <TextField label="Full name" value={form.customer_name} onChangeText={(v) => setForm((f) => ({ ...f, customer_name: v }))} placeholder="Your name" />
             <TextField label="Phone" value={form.customer_phone} onChangeText={(v) => setForm((f) => ({ ...f, customer_phone: v }))} placeholder="Contact number" />
             <TextField label="Payment method" value={form.payment_method} onChangeText={(v) => setForm((f) => ({ ...f, payment_method: v }))} placeholder="cash, card, gcash..." />
-            <TextField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Order notes (optional)" multiline numberOfLines={3} />
+            <TextField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Notes (optional)" multiline numberOfLines={3} />
             <View className="flex-row flex-wrap gap-3 pt-2">
-              <Button label="Place order" onPress={checkout} loading={syncing} />
+              <Button label="Place transaction" onPress={checkout} loading={syncing} />
               <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
             </View>
             <Text className={`font-outfit text-xs ${cx.textInk60}`}>
-              Placing an order generates an order QR code for you to present at the counter.
+              Placing a transaction generates a QR code for you to present at the counter.
             </Text>
           </View>
         </View>

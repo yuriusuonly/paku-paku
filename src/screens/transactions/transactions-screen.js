@@ -1,18 +1,20 @@
 import { useEffect } from "react";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
+import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { EmptyState } from "../../components/empty-state.js";
 import { Header } from "../../components/header.js";
 import { QrCode } from "../../components/qr-code.js";
 import { ScreenContainer } from "../../components/container.js";
 import { useAuthStore } from "../../stores/auth-store.js";
+import { useNotificationStore } from "../../stores/notification-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Customer transactions/records screen.
+ * Customer transactions screen (unified buy/sell records).
  * @module screens/transactions/transactions-screen
  */
 
@@ -26,8 +28,12 @@ export default function TransactionsScreen() {
   const isCustomer = status === "authenticated" && user && user.role !== "admin";
   const transactions = useTransactionsStore((s) => s.myTransactions);
   const loading = useTransactionsStore((s) => s.loading);
+  const syncing = useTransactionsStore((s) => s.syncing);
   const error = useTransactionsStore((s) => s.error);
   const fetchMyTransactions = useTransactionsStore((s) => s.fetchMyTransactions);
+  const updateMyTransaction = useTransactionsStore((s) => s.updateMyTransaction);
+  const showSuccess = useNotificationStore((s) => s.showSuccess);
+  const showError = useNotificationStore((s) => s.showError);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -38,32 +44,58 @@ export default function TransactionsScreen() {
     if (hydrated && isCustomer && token) void fetchMyTransactions(token).catch(() => {});
   }, [hydrated, isCustomer, token, fetchMyTransactions]);
 
-  if (!hydrated || !isCustomer) return <ScreenContainer><CircularProgress message="Loading records..." /></ScreenContainer>;
+  if (!hydrated || !isCustomer) return <ScreenContainer><CircularProgress message="Loading transactions..." /></ScreenContainer>;
 
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Transactions & records</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Your payment transactions and account records.</Text>
+      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Transactions</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+        Your buy/sell transactions. Present the QR code at the counter for pending transactions.
+      </Text>
       <Alert variant="error" message={error} />
 
-      {loading && transactions.length === 0 ? <View className="mt-6"><CircularProgress message="Loading records..." /></View> : null}
-      {!loading && transactions.length === 0 ? <View className="mt-6"><EmptyState message="No transaction records yet." /></View> : null}
+      {loading && transactions.length === 0 ? <View className="mt-6"><CircularProgress message="Loading transactions..." /></View> : null}
+      {!loading && transactions.length === 0 ? (
+        <View className="mt-6 gap-4">
+          <EmptyState message="No transactions yet." />
+          <Link href="/menu" asChild><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text></Link>
+        </View>
+      ) : null}
 
       <View className="mt-6 gap-4">
         {transactions.map((tx) => (
           <View key={tx.id} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>
-              {tx.transaction_number} · ₱{(Number(tx.amount_cents || 0) / 100).toFixed(2)}
+              {tx.order_number} · ₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}
             </Text>
             <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-              {tx.type} · {tx.status} · {tx.method || "-"} · {new Date(tx.created_at).toLocaleString()}
+              {tx.kind === "sell" ? "Sell" : "Buy"} · Status: {tx.status} · Payment: {tx.payment_status}
+              {tx.payment_method ? ` (${tx.payment_method})` : ""} · {new Date(tx.created_at).toLocaleString()}
             </Text>
-            <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>
-              Order: {tx.order_id || "-"} · Ref: {tx.reference || "-"}
-            </Text>
+            {(tx.items || []).length ? (
+              <View className="mt-2 gap-1">
+                {tx.items.map((item) => (
+                  <Text key={item.id} className={`font-outfit text-sm ${cx.textInk70}`}>
+                    • {item.item_name} × {item.quantity} = ₱{(Number(item.line_total_cents || 0) / 100).toFixed(2)}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
             {tx.notes ? <Text className={`font-outfit mt-2 text-sm ${cx.textInk80}`}>{tx.notes}</Text> : null}
-            {tx.qr_payload ? <View className="mt-4"><QrCode value={tx.qr_payload} label="Record QR" /></View> : null}
+            {tx.qr_payload ? <View className="mt-4"><QrCode value={tx.qr_payload} label="Transaction QR for counter" /></View> : null}
+            {tx.status === "pending" ? (
+              <View className="mt-3 flex-row gap-2">
+                <Button
+                  label="Cancel transaction"
+                  variant="ghost"
+                  disabled={syncing}
+                  onPress={() => void updateMyTransaction(token, tx.id, { status: "cancelled" })
+                    .then(() => showSuccess("Transaction cancelled."))
+                    .catch((e) => showError(e?.message || "Could not cancel transaction."))}
+                />
+              </View>
+            ) : null}
           </View>
         ))}
       </View>

@@ -207,16 +207,13 @@ containers themselves are not part of the app compose stack. |
 | `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
 | `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
 | `/menu` | `src/app/menu/index.js` → `src/screens/menu/menu-screen.js` | Authenticated menu with add-to-cart. |
-| `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart-screen.js` | Customer cart and checkout; places an order and generates a QR code to present at the counter. |
-| `/orders` | `src/app/orders/index.js` → `src/screens/orders/orders-screen.js` | Customer orders with order QR codes for counter presentation. |
-| `/transactions` | `src/app/transactions/index.js` → `src/screens/transactions/transactions-screen.js` | Customer transaction/order records. |
+| `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart-screen.js` | Customer cart and checkout; places a buy transaction and generates a QR code to present at the counter. |
+| `/transactions` | `src/app/transactions/index.js` → `src/screens/transactions/transactions-screen.js` | Customer buy/sell transactions with QR codes for counter presentation. |
 | `/account` | `src/app/account/index.js` → `src/screens/account/account-screen.js` | Customer account/profile details. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin operations dashboard (protected). |
 | `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items-screen.js` | Admin menu items management (protected). |
 | `/admin/inventory` | `src/app/admin/inventory/index.js` → `src/screens/admin/inventory/inventory-screen.js` | Admin inventory management (protected). |
-| `/admin/sales` | `src/app/admin/sales/index.js` → `src/screens/admin/sales/sales-screen.js` | Admin sales management (protected). |
-| `/admin/orders` | `src/app/admin/orders/index.js` → `src/screens/admin/orders/orders-screen.js` | Admin customer orders management (protected). |
-| `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions-screen.js` | Admin transaction and operational records (protected). |
+| `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions-screen.js` | Admin unified buy/sell transactions management (protected). |
 | `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles-screen.js` | Admin profiles view/audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
@@ -227,19 +224,13 @@ containers themselves are not part of the app compose stack. |
 | `/api/signin` | `src/app/api/signin/+api.js` | Username/password sign-in; returns session tokens and profile. |
 | `/api/session` | `src/app/api/session/+api.js` | Validates bearer token and returns the current profile. |
 | `/api/signout` | `src/app/api/signout/+api.js` | Revokes the current session. |
-| `/api/orders` | `src/app/api/orders/+api.js` | Customer orders list/create (`GET`/`POST`, checkout creates an order, transaction record, and counter QR code). |
-| `/api/orders/[id]` | `src/app/api/orders/[id]+api.js` | Customer order read/update (`GET`/`PATCH`). |
-| `/api/transactions` | `src/app/api/transactions/+api.js` | Customer transaction/records list (`GET`). |
-| `/api/transactions/[id]` | `src/app/api/transactions/[id]+api.js` | Customer transaction/record read (`GET`). |
+| `/api/transactions` | `src/app/api/transactions/+api.js` | Customer transactions list/create (`GET`/`POST`, checkout creates a buy transaction with items and counter QR code). |
+| `/api/transactions/[id]` | `src/app/api/transactions/[id]+api.js` | Customer transaction read/update (`GET`/`PATCH`). |
 | `/api/account/profile` | `src/app/api/account/profile+api.js` | Authenticated customer account profile (`GET`/`PATCH`). |
 | `/api/admin/inventory` | `src/app/api/admin/inventory/+api.js` | Admin inventory listing and create (`GET`/`POST`). |
 | `/api/admin/inventory/[id]` | `src/app/api/admin/inventory/[id]+api.js` | Admin inventory update/delete (`PATCH`/`DELETE`). |
-| `/api/admin/sales` | `src/app/api/admin/sales/+api.js` | Admin sales listing and create (`GET`/`POST`). |
-| `/api/admin/sales/[id]` | `src/app/api/admin/sales/[id]+api.js` | Admin sale read/update/delete (`GET`/`PATCH`/`DELETE`). |
-| `/api/admin/orders` | `src/app/api/admin/orders/+api.js` | Admin orders listing (`GET`). |
-| `/api/admin/orders/[id]` | `src/app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
-| `/api/admin/transactions` | `src/app/api/admin/transactions/+api.js` | Admin transaction/records listing and create (`GET`/`POST`). |
-| `/api/admin/transactions/[id]` | `src/app/api/admin/transactions/[id]+api.js` | Admin transaction/record read/update/delete (`GET`/`PATCH`/`DELETE`). |
+| `/api/admin/transactions` | `src/app/api/admin/transactions/+api.js` | Admin transactions listing and create (`GET`/`POST`). |
+| `/api/admin/transactions/[id]` | `src/app/api/admin/transactions/[id]+api.js` | Admin transaction read/update/delete (`GET`/`PATCH`/`DELETE`). |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list and management (bearer token + admin role). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |

@@ -8,8 +8,6 @@ import { useAuthStore } from "../../stores/auth-store.js";
 import { useMenuStore } from "../../stores/menu-store.js";
 import { useProfilesStore } from "../../stores/profiles-store.js";
 import { useInventoryStore } from "../../stores/inventory-store.js";
-import { useSalesStore } from "../../stores/sales-store.js";
-import { useOrdersStore } from "../../stores/orders-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -68,15 +66,6 @@ export default function AdminScreen() {
   const fetchInventory = useInventoryStore((s) => s.fetchItems);
   const subscribeInventory = useInventoryStore((s) => s.subscribe);
 
-  const sales = useSalesStore((s) => s.sales);
-  const salesLoading = useSalesStore((s) => s.loading);
-  const fetchSales = useSalesStore((s) => s.fetchSales);
-  const subscribeSales = useSalesStore((s) => s.subscribe);
-
-  const orders = useOrdersStore((s) => s.adminOrders);
-  const ordersLoading = useOrdersStore((s) => s.loading);
-  const fetchAdminOrders = useOrdersStore((s) => s.fetchAdminOrders);
-
   const transactions = useTransactionsStore((s) => s.adminTransactions);
   const transactionsLoading = useTransactionsStore((s) => s.loading);
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
@@ -94,14 +83,11 @@ export default function AdminScreen() {
     void fetchMenuItems(token).catch(() => {});
     void fetchProfiles(token).catch(() => {});
     void fetchInventory(token).catch(() => {});
-    void fetchSales(token).catch(() => {});
-    void fetchAdminOrders(token).catch(() => {});
     void fetchAdminTransactions(token).catch(() => {});
     subscribeMenu(token);
     subscribeProfiles(token);
     subscribeInventory(token);
-    subscribeSales(token);
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchSales, fetchAdminOrders, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory, subscribeSales]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -126,26 +112,16 @@ export default function AdminScreen() {
     return { total, active, lowStock };
   }, [inventoryItems]);
 
-  const salesStats = useMemo(() => {
-    const total = sales.length;
-    const completed = sales.filter((sale) => sale.status === "completed").length;
-    const revenueCents = sales
-      .filter((sale) => sale.status === "completed")
-      .reduce((sum, sale) => sum + Number(sale.total_cents || 0), 0);
-    return { total, completed, revenueCents };
-  }, [sales]);
-
-  const ordersStats = useMemo(() => ({
-    total: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    paidCents: orders.filter((o) => o.payment_status === "paid").reduce((sum, o) => sum + Number(o.total_cents || 0), 0)
-  }), [orders]);
-
-  const transactionsStats = useMemo(() => ({
-    total: transactions.length,
-    completed: transactions.filter((t) => t.status === "completed").length,
-    amountCents: transactions.filter((t) => t.status === "completed").reduce((sum, t) => sum + Number(t.amount_cents || 0), 0)
-  }), [transactions]);
+  const transactionsStats = useMemo(() => {
+    const completed = transactions.filter((t) => t.status === "completed");
+    return {
+      total: transactions.length,
+      buy: transactions.filter((t) => t.kind === "buy").length,
+      sell: transactions.filter((t) => t.kind === "sell").length,
+      completed: completed.length,
+      amountCents: completed.reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
+    };
+  }, [transactions]);
 
   if (!hydrated || !isAdmin) {
     return (
@@ -158,8 +134,6 @@ export default function AdminScreen() {
   const menuCountLoading = menuLoading && menuItems.length === 0;
   const profileCountLoading = profilesLoading && profiles.length === 0;
   const inventoryCountLoading = inventoryLoading && inventoryItems.length === 0;
-  const salesCountLoading = salesLoading && sales.length === 0;
-  const ordersCountLoading = ordersLoading && orders.length === 0;
   const transactionsCountLoading = transactionsLoading && transactions.length === 0;
 
   const cards = [
@@ -186,36 +160,15 @@ export default function AdminScreen() {
       ]
     },
     {
-      key: "sales",
-      title: "Sales",
-      href: "/admin/sales",
-      linkLabel: "Open sales management →",
-      stats: [
-        { label: "Total sales", value: salesStats.total, loading: salesCountLoading },
-        { label: "Completed", value: salesStats.completed, loading: salesCountLoading },
-        { label: "Revenue", value: `₱${(salesStats.revenueCents / 100).toFixed(2)}`, loading: salesCountLoading }
-      ]
-    },
-    {
-      key: "orders",
-      title: "Orders",
-      href: "/admin/orders",
-      linkLabel: "Open orders management →",
-      stats: [
-        { label: "Total orders", value: ordersStats.total, loading: ordersCountLoading },
-        { label: "Pending", value: ordersStats.pending, loading: ordersCountLoading },
-        { label: "Paid", value: `₱${(ordersStats.paidCents / 100).toFixed(2)}`, loading: ordersCountLoading }
-      ]
-    },
-    {
       key: "transactions",
-      title: "Transactions & records",
+      title: "Transactions",
       href: "/admin/transactions",
-      linkLabel: "Open transactions & records →",
+      linkLabel: "Open transactions →",
       stats: [
-        { label: "Transactions", value: transactionsStats.total, loading: transactionsCountLoading },
-        { label: "Completed", value: transactionsStats.completed, loading: transactionsCountLoading },
-        { label: "Amount", value: `₱${(transactionsStats.amountCents / 100).toFixed(2)}`, loading: transactionsCountLoading }
+        { label: "Total", value: transactionsStats.total, loading: transactionsCountLoading },
+        { label: "Buy", value: transactionsStats.buy, loading: transactionsCountLoading },
+        { label: "Sell", value: transactionsStats.sell, loading: transactionsCountLoading },
+        { label: "Completed amount", value: `₱${(transactionsStats.amountCents / 100).toFixed(2)}`, loading: transactionsCountLoading }
       ]
     },
     {
@@ -239,7 +192,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu, inventory, sales, orders, transactions, and profiles.
+          Live operational overview across menu, inventory, transactions, and profiles.
         </Text>
       </View>
 
