@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
-import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
@@ -52,7 +51,9 @@ export default function MenuScreen() {
 
   const hydrateCart = useCartStore((state) => state.hydrate);
   const addToCart = useCartStore((state) => state.addItem);
-  const cartCount = useCartStore((state) => state.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0));
+  const setCartQuantity = useCartStore((state) => state.setQuantity);
+  const cartItems = useCartStore((state) => state.items);
+  const cartCount = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const showSuccess = useNotificationStore((state) => state.showSuccess);
 
   const isAuthenticated = authStatus === "authenticated" && Boolean(user && session?.access_token);
@@ -150,53 +151,84 @@ export default function MenuScreen() {
                 {section.title}
               </Text>
               <View className="-mx-2 flex-row flex-wrap">
-                {section.items.map((item) => (
-                  <View key={item.id} className="w-full p-2 md:w-1/2 lg:w-1/3">
-                    <View className={`h-full rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}>
-                      <View className="flex-1 flex-row items-start justify-between gap-4">
-                        <View className="flex-1">
-                          <View className="flex-row flex-wrap items-center gap-2">
-                            <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
-                              {item.name}
+                {section.items.map((item) => {
+                  const cartItem = cartItems.find(
+                    (entry) => (entry.menu_item_id || entry.inventory_item_id || entry.item_name) === item.id
+                  );
+                  const quantity = Number(cartItem?.quantity || 0);
+
+                  return (
+                    <View key={item.id} className="w-full p-2 md:w-1/2">
+                      <View className={`h-full rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}>
+                        <View className="flex-1 flex-row items-start justify-between gap-4">
+                          <View className="flex-1">
+                            <View className="flex-row flex-wrap items-center gap-2">
+                              <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
+                                {item.name}
+                              </Text>
+                              {item.is_best_seller ? (
+                                <View className={`rounded-full ${cx.bgPrimarySoft} px-2.5 py-1`}>
+                                  <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textPrimary}`}>
+                                    Best seller
+                                  </Text>
+                                </View>
+                              ) : null}
+                            </View>
+                            {item.description ? (
+                              <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
+                                {item.description}
+                              </Text>
+                            ) : null}
+                          </View>
+                          <View className="items-end gap-2">
+                            <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+                              {formatPrice(item.price_cents)}
                             </Text>
-                            {item.is_best_seller ? (
-                              <View className={`rounded-full ${cx.bgPrimarySoft} px-2.5 py-1`}>
-                                <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textPrimary}`}>
-                                  Best seller
+                            {user?.role !== "admin" ? (
+                              <View className="flex-row items-center gap-2">
+                                <Pressable
+                                  accessibilityRole="button"
+                                  accessibilityLabel={`Remove one ${item.name} from cart`}
+                                  onPress={() => {
+                                    if (quantity > 0) {
+                                      setCartQuantity(item.id, quantity - 1);
+                                    }
+                                  }}
+                                  className={`h-9 w-9 items-center justify-center rounded-full border ${cx.borderSubtle} ${cx.bgSurfaceSoft}`}
+                                >
+                                  <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>-</Text>
+                                </Pressable>
+                                <Text className={`font-outfit min-w-[24px] text-center text-base font-semibold ${cx.textInk}`}>
+                                  {quantity}
                                 </Text>
+                                <Pressable
+                                  accessibilityRole="button"
+                                  accessibilityLabel={`Add one ${item.name} to cart`}
+                                  onPress={() => {
+                                    if (quantity === 0) {
+                                      addToCart({
+                                        menu_item_id: item.id,
+                                        item_name: item.name,
+                                        unit_price_cents: Number(item.price_cents || 0),
+                                        quantity: 1
+                                      });
+                                      showSuccess(`${item.name} added to cart.`);
+                                    } else {
+                                      setCartQuantity(item.id, quantity + 1);
+                                    }
+                                  }}
+                                  className={`h-9 w-9 items-center justify-center rounded-full ${cx.bgPrimary}`}
+                                >
+                                  <Text className={`font-outfit text-lg font-bold ${cx.textWhite}`}>+</Text>
+                                </Pressable>
                               </View>
                             ) : null}
                           </View>
-                          {item.description ? (
-                            <Text className={`font-outfit mt-2 text-sm md:text-base leading-relaxed ${cx.textInk70}`}>
-                              {item.description}
-                            </Text>
-                          ) : null}
-                        </View>
-                        <View className="items-end gap-2">
-                          <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
-                            {formatPrice(item.price_cents)}
-                          </Text>
-                          {user?.role !== "admin" ? (
-                            <Button
-                              label="Add to cart"
-                              variant="secondary"
-                              onPress={() => {
-                                addToCart({
-                                  menu_item_id: item.id,
-                                  item_name: item.name,
-                                  unit_price_cents: Number(item.price_cents || 0),
-                                  quantity: 1
-                                });
-                                showSuccess(`${item.name} added to cart.`);
-                              }}
-                            />
-                          ) : null}
                         </View>
                       </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </View>
           ))}
