@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
-import { Button } from "../../../components/button.js";
+// (Button removed - no +/- controls in table)
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { EmptyState } from "../../../components/empty-state.js";
 import { cx } from "../../../shared/constants/theme.js";
@@ -56,7 +56,7 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "" }
   );
 }
 
-export function InventoryListSection({ items, loading, syncing, savingCell, onSaveField, onAdjust, onToggleActive }) {
+export function InventoryListSection({ items, loading, syncing, savingCell, onSaveField, onToggleActive }) {
   const showInitialLoading = loading && items.length === 0;
 
   return (
@@ -83,7 +83,6 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
 
             <View className="pt-1">
               {items.map((item) => {
-                const low = item.is_active && Number(item.quantity || 0) <= Number(item.reorder_level || 0);
                 const valueCents = Number(item.quantity || 0) * Number(item.unit_cost_cents || 0);
                 const busy = savingCell?.startsWith(`${item.id}:`);
                 return (
@@ -95,13 +94,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                       <InlineEditableCell value={item.sku} placeholder="sku" onSave={(v) => onSaveField(item, "sku", v)} />
                     </View>
                     <View style={{ width: columns[2].width, paddingRight: 8 }}>
-                      <View className="flex-row items-center gap-1">
-                        <Button label="-" variant="ghost" onPress={() => onAdjust(item, -1)} disabled={busy} />
-                        <View style={{ width: 52 }}>
-                          <InlineEditableCell value={item.quantity} numeric placeholder="0" onSave={(v) => onSaveField(item, "quantity", v)} />
-                        </View>
-                        <Button label="+" variant="ghost" onPress={() => onAdjust(item, 1)} disabled={busy} />
-                      </View>
+                      <InlineEditableCell value={item.quantity} numeric placeholder="0" onSave={(v) => onSaveField(item, "quantity", v)} />
                     </View>
                     <View style={{ width: columns[3].width, paddingRight: 8 }}>
                       <InlineEditableCell value={item.unit} placeholder="unit" onSave={(v) => onSaveField(item, "unit", v)} />
@@ -125,7 +118,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                         className={`self-start rounded-full px-3 py-1 ${item.is_active ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                       >
                         <Text className={`font-outfit text-xs font-semibold uppercase ${item.is_active ? cx.textPrimary : cx.textInk70}`}>
-                          {item.is_active ? (low ? "Out of Stock" : "In Stock") : "Inactive"}
+                          {item.is_active ? "In Stock" : "Out of Stock"}
                         </Text>
                       </Pressable>
                     </View>

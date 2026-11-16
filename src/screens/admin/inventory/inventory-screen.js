@@ -181,19 +181,6 @@ export default function AdminInventoryScreen() {
     }
   };
 
-  const adjustQuantity = async (item, delta) => {
-    if (!token) return;
-    const cellKey = `${item.id}:quantity`;
-    setSavingCell(cellKey);
-    try {
-      await updateItem(token, item.id, { quantity: Math.max(0, Number(item.quantity || 0) + delta) });
-    } catch (e) {
-      showError(e?.message || "Could not adjust stock.");
-    } finally {
-      setSavingCell(null);
-    }
-  };
-
   const toggleActive = async (item) => {
     if (!token) return;
     const cellKey = `${item.id}:is_active`;
@@ -247,7 +234,6 @@ export default function AdminInventoryScreen() {
         syncing={syncing}
         savingCell={savingCell}
         onSaveField={saveField}
-        onAdjust={adjustQuantity}
         onToggleActive={toggleActive}
       />
     </ScreenContainer>

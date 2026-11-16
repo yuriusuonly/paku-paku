@@ -22,7 +22,7 @@ export function InventoryFormSection({ form, setForm, saving, syncing, menuItems
         <TextField label="Unit cost (cents)" value={form.unit_cost_cents} onChangeText={(v) => setForm((f) => ({ ...f, unit_cost_cents: v }))} placeholder="0" keyboardType="numeric" />
         <TextField label="Linked menu item ID" value={form.menu_item_id} onChangeText={(v) => setForm((f) => ({ ...f, menu_item_id: v }))} placeholder="Optional menu_items.id" />
         <View className="flex-row items-center gap-3">
-          <Button label={form.is_active ? "In Stock" : "Inactive"} variant={form.is_active ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, is_active: !f.is_active }))} />
+          <Button label={form.is_active ? "In Stock" : "Out of Stock"} variant={form.is_active ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, is_active: !f.is_active }))} />
           <Text className={`font-outfit text-sm ${cx.textInk70}`}>Toggle stock record availability</Text>
         </View>
         {menuItems.length > 0 ? (
