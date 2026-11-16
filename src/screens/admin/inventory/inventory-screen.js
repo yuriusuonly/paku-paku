@@ -228,6 +228,14 @@ export default function AdminInventoryScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
+      <View className="mt-6 mb-3 flex-row items-center justify-between">
+        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Inventory records</Text>
+        <View className="flex-row items-center gap-2">
+          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{items.length} total</Text>
+          {syncing && items.length > 0 ? <CircularProgress size="small" /> : null}
+        </View>
+      </View>
+
       <InventoryListSection
         items={items}
         loading={loading}
