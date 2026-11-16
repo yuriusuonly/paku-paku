@@ -185,7 +185,7 @@ export default function MenuScreen() {
                               {formatPrice(item.price_cents)}
                             </Text>
                             {user?.role !== "admin" ? (
-                              <View className="flex-row items-center gap-2">
+                              <View className="flex-row items-center gap-3">
                                 <Pressable
                                   accessibilityRole="button"
                                   accessibilityLabel={`Remove one ${item.name} from cart`}
@@ -194,11 +194,11 @@ export default function MenuScreen() {
                                       setCartQuantity(item.id, quantity - 1);
                                     }
                                   }}
-                                  className={`h-9 w-9 items-center justify-center rounded-full border ${cx.borderSubtle} ${cx.bgSurfaceSoft}`}
+                                  className={`h-11 w-11 items-center justify-center rounded-full border ${cx.borderSubtle} ${cx.bgSurfaceSoft}`}
                                 >
-                                  <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>-</Text>
+                                  <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>-</Text>
                                 </Pressable>
-                                <Text className={`font-outfit min-w-[24px] text-center text-base font-semibold ${cx.textInk}`}>
+                                <Text className={`font-outfit min-w-[32px] text-center text-lg font-semibold ${cx.textInk}`}>
                                   {quantity}
                                 </Text>
                                 <Pressable
@@ -217,9 +217,9 @@ export default function MenuScreen() {
                                       setCartQuantity(item.id, quantity + 1);
                                     }
                                   }}
-                                  className={`h-9 w-9 items-center justify-center rounded-full ${cx.bgPrimary}`}
+                                  className={`h-11 w-11 items-center justify-center rounded-full ${cx.bgPrimary}`}
                                 >
-                                  <Text className={`font-outfit text-lg font-bold ${cx.textWhite}`}>+</Text>
+                                  <Text className={`font-outfit text-2xl font-bold ${cx.textWhite}`}>+</Text>
                                 </Pressable>
                               </View>
                             ) : null}
