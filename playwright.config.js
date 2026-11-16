@@ -2,30 +2,46 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
+const envPath = path.resolve(process.cwd(), ".env");
+
 /**
- * Loads key=value pairs from `.env` into process.env without overriding existing values.
- * @param {string} filePath
+ * Loads `.env` so Playwright configuration uses project environment values.
+ * `.env` is treated as the single source of truth for project configuration.
  * @returns {void}
  */
-function loadEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) return;
-  const content = fs.readFileSync(filePath, "utf8");
+function loadProjectEnv() {
+  if (!fs.existsSync(envPath)) return;
+
+  if (typeof process.loadEnvFile === "function") {
+    try {
+      process.loadEnvFile(envPath);
+      return;
+    } catch {
+      // Fall through to manual parsing for compatibility.
+    }
+  }
+
+  const content = fs.readFileSync(envPath, "utf8");
   for (const rawLine of content.split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line || line.startsWith("#")) continue;
-    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+    const normalized = line.startsWith("export ") ? line.slice(7).trim() : line;
+    const match = normalized.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
     if (!match) continue;
     const [, key, rawValue] = match;
     if (process.env[key] != null && process.env[key] !== "") continue;
     let value = rawValue.trim();
-    if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith("\"") && value.endsWith("\"")) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1);
     }
-    process.env[key] = value;
+    process.env[key] = value.replace(/\\n/g, "\n");
   }
 }
 
-loadEnvFile(path.resolve(process.cwd(), ".env"));
+loadProjectEnv();
 
 const baseURL =
   process.env.PLAYWRIGHT_BASE_URL ||
