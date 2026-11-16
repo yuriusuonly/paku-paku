@@ -152,12 +152,12 @@ npm run expo:serve  # serves build/ on $URL_PORT
 ## Automated tests
 
 ```bash
-npm test         # unit + integration/mock tests (bun)
-npm run test:e2e # Playwright browser smoke tests (loads .env; app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, else URL_PROTOCOL://URL_HOST:URL_PORT)
+npm test      # unit + integration/mock tests (bun)
+npm run test:auto # automated Playwright browser smoke tests (loads .env; app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, else URL_PROTOCOL://URL_HOST:URL_PORT)
 ```
 
 - `npm test` runs Bun tests under `test/` (unit, integration, and service/mock coverage).
-- Playwright end-to-end smoke tests live in `test/e2e/` (`*.e2e.js`) and use `playwright.config.js` (loads `.env`).
+- `npm run test:auto` runs Playwright end-to-end smoke tests in `test/e2e/` (`*.e2e.js`) using `playwright.config.js` (loads `.env`).
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1`) and `set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright` (Playwright, `mcr.microsoft.com/playwright:v1.52.0-noble`). Start a reachable app target before the `e2e` profile and set `PLAYWRIGHT_BASE_URL` if needed (defaults to `http://host.docker.internal:$URL_PORT`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
@@ -197,13 +197,13 @@ refresh the `DOT_ENV` secret and push the current branch.
 `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized build, local run, and test workflows.
 
 ```bash
-npm run docker:build         # build app image (profile: app)
-npm run docker:up            # start server + caddy (profile: app)
-npm run docker:logs          # follow app logs
-npm run docker:down          # stop/remove app/build/test/e2e services
-npm run docker:build:static  # export static build to ./build in Docker (profile: build)
+npm run docker:build  # build app image (profile: app)
+npm run docker:up     # start server + caddy (profile: app)
+npm run docker:logs   # follow app logs
+npm run docker:down   # stop/remove app/build/test/e2e services
 
-# one-shot containerized tests (via docker-compose.yml)
+# one-shot containerized build/tests (via docker-compose.yml)
+set -a && . ./.env && set +a && docker compose --profile build run --rm build
 set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright
 ```
