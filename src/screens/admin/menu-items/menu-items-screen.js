@@ -256,11 +256,10 @@ export default function AdminMenuItemsScreen() {
 
       <View className="mt-6 mb-3 flex-row items-center justify-between">
         <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Menu items</Text>
-        {loading || syncing ? (
-          <CircularProgress size="small" />
-        ) : (
+        <View className="flex-row items-center gap-2">
           <Text className={`font-outfit text-sm ${cx.textInk50}`}>{sorted.length} total</Text>
-        )}
+          {syncing && sorted.length > 0 ? <CircularProgress size="small" /> : null}
+        </View>
       </View>
 
       <MenuItemsTableSection

@@ -126,11 +126,10 @@ export default function MenuScreen() {
             </Text>
           ) : null}
         </View>
-        {loading || syncing ? (
-          <CircularProgress size="small" />
-        ) : (
+        <View className="flex-row items-center gap-2">
           <Text className={`font-outfit text-sm ${cx.textInk50}`}>{visibleItems.length} items</Text>
-        )}
+          {syncing && visibleItems.length > 0 ? <CircularProgress size="small" /> : null}
+        </View>
       </View>
 
       {error ? <Alert variant="error" message={error} /> : null}

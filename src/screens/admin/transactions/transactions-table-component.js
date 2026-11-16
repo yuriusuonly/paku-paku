@@ -80,13 +80,13 @@ function InlineSelect({ value, options, onChange }) {
  * @param {object} props
  * @returns {JSX.Element | null}
  */
-export function TransactionsTableSection({ transactions, loading, onSaveField }) {
+export function TransactionsTableSection({ transactions, loading, syncing, onSaveField }) {
   if (loading && transactions.length === 0) return <CircularProgress message="Loading transactions..." />;
   if (!loading && transactions.length === 0) return <EmptyState message="No transactions yet." />;
   if (transactions.length === 0) return null;
 
   return (
-    <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 md:p-5`}>
+    <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 md:p-5 ${syncing ? "opacity-80" : "opacity-100"}`}>
       <ScrollView horizontal showsHorizontalScrollIndicator>
         <View style={{ minWidth: 1320 }}>
           <View className={`flex-row border-b ${cx.borderSubtle} pb-2`}>

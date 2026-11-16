@@ -63,7 +63,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
     <View className={`mt-6 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 md:p-5`}>
       <View className="mb-3 flex-row items-center justify-between">
         <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Inventory records</Text>
-        {syncing ? <Text className={`font-outfit text-xs ${cx.textInk60}`}>Syncing...</Text> : null}
+        {syncing ? <CircularProgress size="small" /> : null}
       </View>
 
       {showInitialLoading ? (
@@ -71,7 +71,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
       ) : items.length === 0 ? (
         <EmptyState message="No inventory items yet. Add your first stock record above." />
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator>
+        <ScrollView horizontal showsHorizontalScrollIndicator className={`${syncing ? "opacity-80" : "opacity-100"}`}>
           <View style={{ minWidth: 1340 }}>
             <View className={`flex-row border-b ${cx.borderSubtle} pb-2`}>
               {columns.map((column) => (

@@ -163,7 +163,15 @@ export default function AdminTransactionsScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <TransactionsTableSection transactions={transactions} loading={loading} onSaveField={saveField} />
+      <View className="mb-3 flex-row items-center justify-between">
+        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Transactions</Text>
+        <View className="flex-row items-center gap-2">
+          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{transactions.length} total</Text>
+          {syncing && transactions.length > 0 ? <CircularProgress size="small" /> : null}
+        </View>
+      </View>
+
+      <TransactionsTableSection transactions={transactions} loading={loading} syncing={syncing} onSaveField={saveField} />
     </ScreenContainer>
   );
 }
