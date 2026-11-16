@@ -1,0 +1,34 @@
+import { describe, expect, test } from "bun:test";
+import { normalizeTransactionItems } from "../../../src/domain/transactions/items.js";
+
+/**
+ * Tests for transaction item normalization.
+ * @module test/domain/transactions/items
+ */
+
+describe("normalizeTransactionItems", () => {
+  test("normalizes valid items and calculates line totals", () => {
+    expect(normalizeTransactionItems([
+      {
+        item_name: "  Ramen  ",
+        quantity: "2",
+        unit_price_cents: "500",
+        menu_item_id: "m1"
+      }
+    ])).toEqual([{
+      menu_item_id: "m1",
+      inventory_item_id: null,
+      item_name: "Ramen",
+      quantity: 2,
+      unit_price_cents: 500,
+      line_total_cents: 1000
+    }]);
+  });
+
+  test("rejects empty, unnamed, invalid quantity, and invalid price items", () => {
+    expect(() => normalizeTransactionItems([])).toThrow();
+    expect(() => normalizeTransactionItems([{ item_name: "", quantity: 1, unit_price_cents: 0 }])).toThrow();
+    expect(() => normalizeTransactionItems([{ item_name: "A", quantity: 0, unit_price_cents: 0 }])).toThrow();
+    expect(() => normalizeTransactionItems([{ item_name: "A", quantity: 1, unit_price_cents: -1 }])).toThrow();
+  });
+});

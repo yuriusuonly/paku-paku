@@ -3,6 +3,15 @@ import { notFound } from "../shared/errors/not-found.js";
 import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
 import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
+import { normalizeTransactionItems } from "../domain/transactions/items.js";
+import { calculateTransactionSubtotal, buildQrPayload } from "../domain/transactions/totals.js";
+import { isCompleted, resolvePaymentStatus } from "../domain/transactions/status.js";
+import {
+  getSupplySkus,
+  hasPositiveStock,
+  shouldAdjustInventory
+} from "../domain/transactions/inventory-rules.js";
+import { calculateAdjustedQuantity } from "../domain/inventory/quantity.js";
 
 /**
  * Unified buy/sell transaction data access.
@@ -42,27 +51,6 @@ async function attachItems(database, transactions) {
   return transactions.map((t) => ({ ...t, items: grouped.get(t.id) || [] }));
 }
 
-function normalizeItems(items) {
-  const list = Array.isArray(items) ? items : [];
-  if (list.length === 0) throw badRequest("invalid_transaction", "Transaction must include at least one item.");
-  return list.map((item, index) => {
-    const itemName = item.item_name != null ? String(item.item_name).trim() : "";
-    const quantity = Number(item.quantity);
-    const unitPrice = Number(item.unit_price_cents ?? 0);
-    if (!itemName) throw badRequest("invalid_transaction", `Item ${index + 1}: name is required.`);
-    if (!Number.isInteger(quantity) || quantity <= 0) throw badRequest("invalid_transaction", `Item ${index + 1}: quantity must be a positive integer.`);
-    if (!Number.isInteger(unitPrice) || unitPrice < 0) throw badRequest("invalid_transaction", `Item ${index + 1}: unit price must be a non-negative integer.`);
-    return {
-      menu_item_id: item.menu_item_id || null,
-      inventory_item_id: item.inventory_item_id || null,
-      item_name: itemName,
-      quantity,
-      unit_price_cents: unitPrice,
-      line_total_cents: quantity * unitPrice
-    };
-  });
-}
-
 async function decrementInventoryRow(database, inventoryId, amount) {
   if (!inventoryId || !Number.isInteger(amount) || amount <= 0) return;
   const { data: current, error } = await database
@@ -71,7 +59,7 @@ async function decrementInventoryRow(database, inventoryId, amount) {
     .eq("id", inventoryId)
     .single();
   if (error || !current) return;
-  const nextQuantity = Math.max(0, Number(current.quantity || 0) - amount);
+  const nextQuantity = calculateAdjustedQuantity(current.quantity, -amount);
   await database
     .from("inventory_items")
     .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
@@ -87,7 +75,7 @@ async function decrementInventoryBySku(database, sku, amount) {
     .eq("is_active", true)
     .maybeSingle();
   if (error || !current) return;
-  const nextQuantity = Math.max(0, Number(current.quantity || 0) - amount);
+  const nextQuantity = calculateAdjustedQuantity(current.quantity, -amount);
   await database
     .from("inventory_items")
     .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
@@ -103,7 +91,7 @@ async function syncMenuAvailability(database, menuItemIds) {
       .eq("menu_item_id", menuItemId)
       .eq("is_active", true);
     if (error || !Array.isArray(data) || data.length === 0) continue;
-    const hasStock = data.some((row) => Number(row.quantity || 0) > 0);
+    const hasStock = hasPositiveStock(data);
     if (!hasStock) {
       await database
         .from("menu_items")
@@ -148,21 +136,13 @@ async function applyInventoryForTransaction(database, items) {
       }
     }
 
-    // Shared supplies (best-effort heuristics)
+    // Shared supplies (pure SKU selection lives in the domain layer)
     const menu = item.menu_item_id ? menuById.get(item.menu_item_id) : null;
     const name = String(item.item_name || menu?.name || "");
     const sortOrder = Number(menu?.sort_order ?? 1000);
-    const isBeverage = sortOrder < 150 || /tea|matcha|mugicha|sobacha/i.test(name);
-    const isCold = /iced|cold/i.test(name);
-
-    if (isBeverage) {
-      await decrementInventoryBySku(database, isCold ? "SUP-CUP-COLD" : "SUP-CUP-HOT", quantity);
-      await decrementInventoryBySku(database, "SUP-LID", quantity);
-    } else {
-      await decrementInventoryBySku(database, "SUP-CONTAINER", quantity);
-      await decrementInventoryBySku(database, "SUP-CHOPSTICKS", quantity);
+    for (const sku of getSupplySkus({ name, sortOrder })) {
+      await decrementInventoryBySku(database, sku, quantity);
     }
-    await decrementInventoryBySku(database, "SUP-NAPKIN", quantity);
   }
 
   await syncMenuAvailability(database, rows.map((item) => item.menu_item_id).filter(Boolean));
@@ -214,9 +194,9 @@ export async function getTransactionById(client, id) {
 export async function createBuyTransaction(client, input, { customerId, profile }) {
   const database = resolveClient(client);
   if (!customerId) throw badRequest("invalid_transaction", "Customer account is required.");
-  const items = normalizeItems(input.items);
-  const subtotal = items.reduce((sum, item) => sum + item.line_total_cents, 0);
-  const paymentStatus = input.payment_status === "paid" ? "paid" : "unpaid";
+  const items = normalizeTransactionItems(input.items);
+  const subtotal = calculateTransactionSubtotal(items);
+  const paymentStatus = resolvePaymentStatus(input.payment_status, "unpaid") === "paid" ? "paid" : "unpaid";
 
   const payload = {
     kind: "buy",
@@ -243,7 +223,7 @@ export async function createBuyTransaction(client, input, { customerId, profile 
     throw databaseUpstream("transaction_create_failed", "Could not create the transaction items.", itemsError);
   }
 
-  const qrPayload = `TXN:${row.order_number}|ID:${row.id}|TOTAL:${row.total_cents}`;
+  const qrPayload = buildQrPayload({ orderNumber: row.order_number, id: row.id, totalCents: row.total_cents });
   const { data: withQr, error: qrError } = await database
     .from("orders")
     .update({ qr_payload: qrPayload, updated_at: new Date().toISOString() })
@@ -252,7 +232,7 @@ export async function createBuyTransaction(client, input, { customerId, profile 
     .single();
   const finalRow = !qrError && withQr ? withQr : { ...row, qr_payload: qrPayload };
 
-  if ((finalRow.status || "pending") !== "cancelled") {
+  if (shouldAdjustInventory(finalRow.status || "pending")) {
     await applyInventoryForTransaction(database, itemRows);
   }
 
@@ -271,10 +251,10 @@ export async function createBuyTransaction(client, input, { customerId, profile 
 export async function createTransaction(client, input, options = {}) {
   const database = resolveClient(client);
   const kind = options.kind === "buy" ? "buy" : "sell";
-  const items = normalizeItems(input.items);
-  const subtotal = items.reduce((sum, item) => sum + item.line_total_cents, 0);
+  const items = normalizeTransactionItems(input.items);
+  const subtotal = calculateTransactionSubtotal(items);
   const status = input.status || "completed";
-  const paymentStatus = input.payment_status || (status === "completed" ? "paid" : "unpaid");
+  const paymentStatus = resolvePaymentStatus(input.payment_status, isCompleted(status) ? "paid" : "unpaid");
 
   const payload = {
     kind,
@@ -301,10 +281,10 @@ export async function createTransaction(client, input, options = {}) {
     throw databaseUpstream("transaction_create_failed", "Could not create the transaction items.", itemsError);
   }
 
-  const qrPayload = `TXN:${row.order_number}|ID:${row.id}|TOTAL:${row.total_cents}`;
+  const qrPayload = buildQrPayload({ orderNumber: row.order_number, id: row.id, totalCents: row.total_cents });
   await database.from("orders").update({ qr_payload: qrPayload, updated_at: new Date().toISOString() }).eq("id", row.id);
 
-  if (status !== "cancelled") {
+  if (shouldAdjustInventory(status)) {
     await applyInventoryForTransaction(database, itemRows);
   }
 
@@ -339,13 +319,13 @@ export async function updateTransaction(client, id, input) {
   }
 
   if (Array.isArray(items)) {
-    const normalized = normalizeItems(items);
+    const normalized = normalizeTransactionItems(items);
     const { error: deleteError } = await database.from("order_items").delete().eq("order_id", id);
     if (deleteError) throw databaseUpstream("transaction_update_failed", "Could not update transaction items.", deleteError);
     const rows = normalized.map((item) => ({ ...item, order_id: id }));
     const { error: insertError } = await database.from("order_items").insert(rows);
     if (insertError) throw databaseUpstream("transaction_update_failed", "Could not update transaction items.", insertError);
-    const subtotal = normalized.reduce((sum, item) => sum + item.line_total_cents, 0);
+    const subtotal = calculateTransactionSubtotal(normalized);
     await database.from("orders").update({ subtotal_cents: subtotal, total_cents: subtotal, updated_at: new Date().toISOString() }).eq("id", id);
   }
 

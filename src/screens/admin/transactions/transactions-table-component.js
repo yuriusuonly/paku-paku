@@ -5,10 +5,10 @@ import { DataTable } from "../../../components/table.js";
 import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import {
-  KIND_OPTIONS,
+  TRANSACTION_KINDS,
   PAYMENT_STATUSES,
   TRANSACTION_STATUSES
-} from "../../../shared/constants/domain.js";
+} from "../../../domain/transactions/constants.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -53,7 +53,7 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
           return (
             <InlineSelect
               value={tx.kind || "buy"}
-              options={KIND_OPTIONS}
+              options={TRANSACTION_KINDS}
               accessibilityLabel="Transaction kind"
               onChange={(value) => onSaveField(tx, key, value)}
             />

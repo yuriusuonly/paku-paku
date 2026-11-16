@@ -1,6 +1,6 @@
 /**
- * Shared business domain values and labels.
- * @module shared/constants/domain
+ * Transaction domain constants.
+ * @module domain/transactions/constants
  */
 
 /**
@@ -27,12 +27,3 @@ export const TRANSACTION_STATUSES = [
  * @type {string[]}
  */
 export const PAYMENT_STATUSES = ["unpaid", "paid", "partial", "refunded"];
-
-/**
- * Inventory status labels.
- * @type {{active: string, inactive: string}}
- */
-export const INVENTORY_STATUS = {
-  active: "In Stock",
-  inactive: "Out of Stock"
-};

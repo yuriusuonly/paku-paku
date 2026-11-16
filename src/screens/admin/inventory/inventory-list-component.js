@@ -3,7 +3,7 @@ import { InlineEditableCell } from "../../../components/inline-editable-cell.js"
 import { StatusPill } from "../../../components/status-pill.js";
 import { DataTable } from "../../../components/table.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
-import { INVENTORY_STATUS } from "../../../shared/constants/domain.js";
+import { INVENTORY_STATUS } from "../../../domain/inventory/status.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**

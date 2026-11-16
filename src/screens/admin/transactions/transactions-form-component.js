@@ -3,7 +3,7 @@ import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
 import { FormActions } from "../../../components/form-actions.js";
 import { InlineSelect } from "../../../components/inline-select.js";
-import { KIND_OPTIONS, PAYMENT_STATUSES, TRANSACTION_STATUSES } from "../../../shared/constants/domain.js";
+import { TRANSACTION_KINDS, PAYMENT_STATUSES, TRANSACTION_STATUSES } from "../../../domain/transactions/constants.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -17,7 +17,7 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
     <AccordionSection title="Create transaction" expanded={expanded} onToggle={onToggleExpanded} className="mb-6">
       <View className="gap-3">
         <View className="flex-row flex-wrap gap-2">
-          {KIND_OPTIONS.map((v) => (
+          {TRANSACTION_KINDS.map((v) => (
             <Button key={v} label={v} variant={form.kind === v ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, kind: v }))} />
           ))}
         </View>

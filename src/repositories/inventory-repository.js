@@ -3,6 +3,7 @@ import { notFound } from "../shared/errors/not-found.js";
 import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
 import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
+import { calculateAdjustedQuantity } from "../domain/inventory/quantity.js";
 
 /**
  * Inventory data access (API to database contracts).
@@ -161,6 +162,6 @@ export async function adjustInventoryQuantity(client, id, delta) {
     throw databaseUpstream("inventory_item_update_failed", "Could not read the inventory item.", readError);
   }
 
-  const nextQuantity = Math.max(0, (current.quantity || 0) + delta);
+  const nextQuantity = calculateAdjustedQuantity(current.quantity, delta);
   return updateInventoryItem(database, id, { quantity: nextQuantity });
 }
