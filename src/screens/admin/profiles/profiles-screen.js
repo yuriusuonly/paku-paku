@@ -69,6 +69,13 @@ export default function AdminProfilesScreen() {
     };
   }, [hydrated, isAdmin, token, fetchProfiles, subscribe, unsubscribe]);
 
+  const stats = {
+    total: profiles.length,
+    active: profiles.filter((p) => p.is_active !== false).length,
+    inactive: profiles.filter((p) => p.is_active === false).length,
+    admins: profiles.filter((p) => p.role === "admin").length
+  };
+
   if (!hydrated || !isAdmin) {
     return (
       <ScreenContainer>
@@ -200,6 +207,13 @@ export default function AdminProfilesScreen() {
 
       <Alert variant="error" message={localError || error} />
 
+      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Total</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Active</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Inactive</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.inactive}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Admins</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.admins}</Text></View>
+      </View>
+
       <ProfilesFormSection
         form={form}
         setForm={setForm}
@@ -214,7 +228,7 @@ export default function AdminProfilesScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mt-8 mb-3 flex-row items-center justify-between">
+      <View className="mt-6 mb-3 flex-row items-center justify-between">
         <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
         {loading || syncing ? (
           <CircularProgress size="small" />

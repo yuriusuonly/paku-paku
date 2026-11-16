@@ -67,6 +67,12 @@ export default function AdminMenuItemsScreen() {
   }, [hydrated, isAdmin, token, fetchItems, subscribe, unsubscribe]);
 
   const sorted = useMemo(() => items, [items]);
+  const stats = useMemo(() => ({
+    total: sorted.length,
+    available: sorted.filter((item) => item.is_available).length,
+    unavailable: sorted.filter((item) => !item.is_available).length,
+    bestSellers: sorted.filter((item) => item.is_best_seller).length
+  }), [sorted]);
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -268,6 +274,13 @@ export default function AdminMenuItemsScreen() {
 
       <Alert variant="error" message={localError || error} />
 
+      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Total</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Available</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.available}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Unavailable</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.unavailable}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Best sellers</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.bestSellers}</Text></View>
+      </View>
+
       <MenuItemFormSection
         form={form}
         setForm={setForm}
@@ -280,7 +293,7 @@ export default function AdminMenuItemsScreen() {
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
-      <View className="mt-8 mb-3 flex-row items-center justify-between">
+      <View className="mt-6 mb-3 flex-row items-center justify-between">
         <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Menu items</Text>
         {loading || syncing ? (
           <CircularProgress size="small" />

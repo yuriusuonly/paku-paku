@@ -116,7 +116,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                       <Text className={`font-outfit text-sm ${cx.textInk70}`}>₱{(valueCents / 100).toFixed(2)}</Text>
                     </View>
                     <View style={{ width: columns[7].width, paddingRight: 8 }}>
-                      <InlineEditableCell value={item.menu_item_id} placeholder="menu item id" onSave={(v) => onSaveField(item, "menu_item_id", v)} />
+                      <InlineEditableCell value={item.menu_item_id || ""} placeholder="N/A" onSave={(v) => onSaveField(item, "menu_item_id", v)} />
                     </View>
                     <View style={{ width: columns[8].width, paddingRight: 8, paddingTop: 4 }}>
                       <Pressable
