@@ -180,39 +180,84 @@ export default function AdminTransactionsScreen() {
       {loading && transactions.length === 0 ? <CircularProgress message="Loading transactions..." /> : null}
       {!loading && transactions.length === 0 ? <EmptyState message="No transactions yet." /> : null}
 
-      <View className="gap-4">
-        {transactions.map((tx) => (
-          <View key={tx.id} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>
-              {tx.order_number} · ₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}
-            </Text>
-            <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-              {tx.kind === "sell" ? "Sell" : "Buy"} · Status: {tx.status} · Payment: {tx.payment_status}{tx.payment_method ? ` (${tx.payment_method})` : ""}
-            </Text>
-            <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>
-              Customer: {tx.customer_name || tx.customer_email || "-"} · {new Date(tx.created_at).toLocaleString()}
-            </Text>
-            {(tx.items || []).length ? (
-              <View className="mt-2 gap-1">
-                {tx.items.map((item) => (
-                  <Text key={item.id} className={`font-outfit text-sm ${cx.textInk70}`}>
-                    • {item.item_name} × {item.quantity} = ₱{(Number(item.line_total_cents || 0) / 100).toFixed(2)}
-                  </Text>
+      {transactions.length > 0 ? (
+        <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 md:p-5`}>
+          <ScrollView horizontal showsHorizontalScrollIndicator>
+            <View style={{ minWidth: 1100 }}>
+              <View className={`flex-row border-b ${cx.borderSubtle} pb-2`}>
+                {[
+                  ["ID", 260],
+                  ["Kind", 80],
+                  ["Status", 120],
+                  ["Payment", 140],
+                  ["Total", 110],
+                  ["Customer", 180],
+                  ["Created", 180],
+                  ["Items", 260],
+                  ["Actions", 360]
+                ].map(([label, width]) => (
+                  <View key={label} style={{ width }}>
+                    <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>{label}</Text>
+                  </View>
                 ))}
               </View>
-            ) : null}
-            {tx.notes ? <Text className={`font-outfit mt-2 text-sm ${cx.textInk80}`}>{tx.notes}</Text> : null}
-            {tx.qr_payload ? <View className="mt-4"><QrCode value={tx.qr_payload} label="Transaction QR" /></View> : null}
-            <View className="mt-3 flex-row flex-wrap gap-2">
-              <Button label="Confirm" variant="ghost" onPress={() => void setTx(tx, { status: "confirmed" }, "Transaction confirmed.")} disabled={syncing} />
-              <Button label="Complete" variant="ghost" onPress={() => void setTx(tx, { status: "completed", payment_status: "paid" }, "Transaction completed.")} disabled={syncing} />
-              <Button label="Cancel" variant="ghost" onPress={() => void setTx(tx, { status: "cancelled" }, "Transaction cancelled.")} disabled={syncing} />
-              <Button label="Mark paid" variant="secondary" onPress={() => void setTx(tx, { payment_status: "paid" }, "Marked as paid.")} disabled={syncing} />
-              <Button label="Delete" variant="ghost" onPress={() => void removeAdminTransaction(token, tx.id).then(() => showSuccess("Transaction deleted.")).catch((e) => showError(e?.message || "Could not delete."))} disabled={syncing} />
+
+              <View className="gap-2 pt-2">
+                {transactions.map((tx) => (
+                  <View key={tx.id} className={`flex-row items-start border-b ${cx.borderSubtle} py-3`}>
+                    <View style={{ width: 260, paddingRight: 8 }}>
+                      <Text selectable className={`font-outfit text-xs ${cx.textInk}`}>{tx.id}</Text>
+                    </View>
+                    <View style={{ width: 80, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.kind === "sell" ? "Sell" : "Buy"}</Text>
+                    </View>
+                    <View style={{ width: 120, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.status || "-"}</Text>
+                    </View>
+                    <View style={{ width: 140, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-sm ${cx.textInk}`}>
+                        {tx.payment_status || "-"}{tx.payment_method ? ` (${tx.payment_method})` : ""}
+                      </Text>
+                    </View>
+                    <View style={{ width: 110, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}</Text>
+                    </View>
+                    <View style={{ width: 180, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-sm ${cx.textInk}`}>{tx.customer_name || tx.customer_email || "-"}</Text>
+                    </View>
+                    <View style={{ width: 180, paddingRight: 8 }}>
+                      <Text className={`font-outfit text-xs ${cx.textInk70}`}>{new Date(tx.created_at).toLocaleString()}</Text>
+                    </View>
+                    <View style={{ width: 260, paddingRight: 8 }}>
+                      {(tx.items || []).length ? (
+                        <View className="gap-1">
+                          {tx.items.map((item) => (
+                            <Text key={item.id} className={`font-outfit text-xs ${cx.textInk70}`}>
+                              • {item.item_name} × {item.quantity} (₱{(Number(item.line_total_cents || 0) / 100).toFixed(2)})
+                            </Text>
+                          ))}
+                        </View>
+                      ) : (
+                        <Text className={`font-outfit text-xs ${cx.textInk60}`}>-</Text>
+                      )}
+                      {tx.notes ? <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>Note: {tx.notes}</Text> : null}
+                    </View>
+                    <View style={{ width: 360 }}>
+                      <View className="flex-row flex-wrap gap-2">
+                        <Button label="Confirm" variant="ghost" onPress={() => void setTx(tx, { status: "confirmed" }, "Transaction confirmed.")} disabled={syncing} />
+                        <Button label="Complete" variant="ghost" onPress={() => void setTx(tx, { status: "completed", payment_status: "paid" }, "Transaction completed.")} disabled={syncing} />
+                        <Button label="Cancel" variant="ghost" onPress={() => void setTx(tx, { status: "cancelled" }, "Transaction cancelled.")} disabled={syncing} />
+                        <Button label="Mark paid" variant="secondary" onPress={() => void setTx(tx, { payment_status: "paid" }, "Marked as paid.")} disabled={syncing} />
+                        <Button label="Delete" variant="ghost" onPress={() => void removeAdminTransaction(token, tx.id).then(() => showSuccess("Transaction deleted.")).catch((e) => showError(e?.message || "Could not delete."))} disabled={syncing} />
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
-        ))}
-      </View>
+          </ScrollView>
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }

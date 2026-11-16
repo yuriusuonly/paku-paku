@@ -251,6 +251,11 @@ export async function createBuyTransaction(client, input, { customerId, profile 
     .select(TRANSACTION_SELECT)
     .single();
   const finalRow = !qrError && withQr ? withQr : { ...row, qr_payload: qrPayload };
+
+  if ((finalRow.status || "pending") !== "cancelled") {
+    await applyInventoryForTransaction(database, itemRows);
+  }
+
   const [transaction] = await attachItems(database, [finalRow]);
   return { transaction };
 }
@@ -299,8 +304,8 @@ export async function createTransaction(client, input, options = {}) {
   const qrPayload = `TXN:${row.order_number}|ID:${row.id}|TOTAL:${row.total_cents}`;
   await database.from("orders").update({ qr_payload: qrPayload, updated_at: new Date().toISOString() }).eq("id", row.id);
 
-  if (kind === "sell" && status === "completed") {
-    await applyInventoryDecrements(database, itemRows);
+  if (status !== "cancelled") {
+    await applyInventoryForTransaction(database, itemRows);
   }
 
   return getTransactionById(database, row.id);
