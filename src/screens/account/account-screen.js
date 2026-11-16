@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 import { Alert } from "../../components/alert.js";
-import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { Header } from "../../components/header.js";
 import { ScreenContainer } from "../../components/container.js";
-import { TextField } from "../../components/text-field.js";
 import { getMyAccount, changeMyPassword } from "../../services/account.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useNotificationStore } from "../../stores/notification-store.js";
 import { cx } from "../../shared/constants/theme.js";
+import { AccountFormSection } from "./account-form-component.js";
 
 /**
  * Customer account screen.
@@ -84,15 +83,16 @@ export default function AccountScreen() {
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your account sign-in details.</Text>
       <Alert variant="error" message={error} />
 
-      {loading ? <View className="mt-6"><CircularProgress message="Loading account..." /></View> : (
-        <View className={`mt-6 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-          <Text className={`font-outfit text-sm ${cx.textInk70}`}>Email: {email || "-"}</Text>
-          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Change password</Text>
-          <TextField label="New password" value={password} onChangeText={setPassword} placeholder="At least 6 characters" secureTextEntry enablePasswordToggle autoComplete="new-password" />
-          <TextField label="Confirm new password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Repeat new password" secureTextEntry enablePasswordToggle autoComplete="new-password" />
-          <View className="pt-2"><Button label="Change password" onPress={save} loading={saving} /></View>
-        </View>
-      )}
+      <AccountFormSection
+        email={email}
+        loading={loading}
+        saving={saving}
+        password={password}
+        confirmPassword={confirmPassword}
+        setPassword={setPassword}
+        setConfirmPassword={setConfirmPassword}
+        onSave={save}
+      />
     </ScreenContainer>
   );
 }
