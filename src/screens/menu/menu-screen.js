@@ -179,13 +179,8 @@ export default function MenuScreen() {
                                 {item.description}
                               </Text>
                             ) : null}
-                          </View>
-                          <View className="items-end gap-2">
-                            <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
-                              {formatPrice(item.price_cents)}
-                            </Text>
                             {user?.role !== "admin" ? (
-                              <View className="flex-row items-center gap-3">
+                              <View className="mt-4 flex-row items-center gap-3">
                                 <Pressable
                                   accessibilityRole="button"
                                   accessibilityLabel={`Remove one ${item.name} from cart`}
@@ -223,6 +218,11 @@ export default function MenuScreen() {
                                 </Pressable>
                               </View>
                             ) : null}
+                          </View>
+                          <View className="items-end">
+                            <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+                              {formatPrice(item.price_cents)}
+                            </Text>
                           </View>
                         </View>
                       </View>
