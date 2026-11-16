@@ -127,47 +127,50 @@ export default function CartScreen() {
           <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text></Pressable></Link>
         </View>
       ) : (
-        <View className="mt-6 gap-6">
-          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Items</Text>
-            {cartItems.map((item) => {
-              const key = keyOf(item);
-              return (
-                <View key={key} className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
-                  <View className="flex-row items-start justify-between gap-3">
-                    <View className="flex-1">
-                      <Text className={`font-outfit text-base font-bold ${cx.textInk}`}>{item.item_name}</Text>
-                      <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-                        ₱{(Number(item.unit_price_cents || 0) / 100).toFixed(2)} × {item.quantity} = ₱{((Number(item.unit_price_cents || 0) * Number(item.quantity || 0)) / 100).toFixed(2)}
-                      </Text>
-                    </View>
-                    <View className="flex-row gap-2">
-                      <Button label="-" variant="ghost" onPress={() => setQuantity(key, Number(item.quantity || 0) - 1)} />
-                      <Button label="+" variant="ghost" onPress={() => setQuantity(key, Number(item.quantity || 0) + 1)} />
-                      <Button label="Remove" variant="ghost" onPress={() => removeItem(key)} />
+        <View className="mt-6 gap-8">
+          <View>
+            <Text className={`font-outfit mb-3 text-xl font-black tracking-tight ${cx.textInk}`}>Items</Text>
+            <View className="gap-3">
+              {cartItems.map((item) => {
+                const key = keyOf(item);
+                return (
+                  <View key={key} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}>
+                    <View className="flex-row items-start justify-between gap-3">
+                      <View className="flex-1">
+                        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>{item.item_name}</Text>
+                        <Text className={`font-outfit mt-2 text-sm md:text-base ${cx.textInk70}`}>
+                          ₱{(Number(item.unit_price_cents || 0) / 100).toFixed(2)} × {item.quantity} = ₱{((Number(item.unit_price_cents || 0) * Number(item.quantity || 0)) / 100).toFixed(2)}
+                        </Text>
+                      </View>
+                      <View className="flex-row flex-wrap justify-end gap-2">
+                        <Button label="-" variant="ghost" onPress={() => setQuantity(key, Number(item.quantity || 0) - 1)} />
+                        <Button label="+" variant="ghost" onPress={() => setQuantity(key, Number(item.quantity || 0) + 1)} />
+                        <Button label="Remove" variant="ghost" onPress={() => removeItem(key)} />
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
-            <View className={`mt-1 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-2`}>
-              <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
-              <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-                Uses account details: {user?.full_name || "Name not set"} · {user?.phone || "Phone not set"} · {user?.email || "-"}
-              </Text>
-              <Link href="/account" asChild>
-                <Pressable>
-                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
-                </Pressable>
-              </Link>
-              <View className="flex-row flex-wrap gap-3 pt-1">
-                <Button label="Place transaction" onPress={checkout} loading={syncing} />
-                <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
-              </View>
-              <Text className={`font-outfit text-xs ${cx.textInk60}`}>
-                Placing a transaction generates a QR code for you to present at the counter.
-              </Text>
+                );
+              })}
             </View>
+          </View>
+
+          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6 gap-2`}>
+            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+              Uses account details: {user?.full_name || "Name not set"} · {user?.phone || "Phone not set"} · {user?.email || "-"}
+            </Text>
+            <Link href="/account" asChild>
+              <Pressable>
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
+              </Pressable>
+            </Link>
+            <View className="flex-row flex-wrap gap-3 pt-1">
+              <Button label="Place transaction" onPress={checkout} loading={syncing} />
+              <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
+            </View>
+            <Text className={`font-outfit text-xs ${cx.textInk60}`}>
+              Placing a transaction generates a QR code for you to present at the counter.
+            </Text>
           </View>
         </View>
       )}
