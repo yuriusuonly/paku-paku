@@ -7,6 +7,10 @@ import { cx } from "../shared/constants/theme.js";
  * @module components/snackbar
  */
 
+/**
+ * Host component that renders active transient notifications.
+ * @returns {JSX.Element | null} Snackbar host.
+ */
 export function SnackbarHost() {
   const items = useNotificationStore((s) => s.items);
   const dismiss = useNotificationStore((s) => s.dismiss);

@@ -6,7 +6,7 @@ import { methodNotAllowed } from "../shared/network/response.js";
  */
 
 /**
- * @typedef {import("./context.js").ApiContext} ApiContext
+ * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
  */
 
 /**

@@ -7,7 +7,7 @@ import { normalizeError } from "../shared/errors/normalize.js";
  */
 
 /**
- * @typedef {import("./context.js").ApiContext} ApiContext
+ * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
  */
 
 /**
@@ -26,8 +26,7 @@ export async function errorInterceptor(context, next) {
     const logPayload = {
       status: appError.status,
       code: appError.code,
-      reason: appError.message,
-      cause: appError.cause
+      reason: appError.message
     };
 
     if (appError.status >= 500) {

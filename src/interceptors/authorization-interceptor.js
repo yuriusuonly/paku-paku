@@ -6,7 +6,7 @@ import { authenticateAdmin } from "../repositories/auth-repository.js";
  */
 
 /**
- * @typedef {import("./context.js").ApiContext} ApiContext
+ * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
  */
 
 /**

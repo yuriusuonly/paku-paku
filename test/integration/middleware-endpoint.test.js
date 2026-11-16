@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { errorInterceptor } from "../../src/interceptors/error-interceptor.js";
 import { logInterceptor } from "../../src/interceptors/log-interceptor.js";
 import { methodInterceptor } from "../../src/interceptors/method-interceptor.js";
@@ -52,5 +52,22 @@ describe("composed endpoint flow", () => {
     expect(response.status).toBe(405);
     expect(response.headers.get("Allow")).toBe("GET");
     await expect(response.json()).resolves.toEqual({ error: { code: "method_not_allowed", message: "Use GET." } });
+  });
+
+  test("does not log error causes", async () => {
+    const warn = spyOn(console, "warn").mockImplementation(() => {});
+    const secret = "SECRET-UPSTREAM-DETAIL";
+    try {
+      const route = withMiddleware(errorInterceptor)(async () => {
+        const error = badRequest("invalid_request", "Invalid request.");
+        error.cause = secret;
+        throw error;
+      });
+      const response = await route(new Request("http://localhost/api/test"));
+      expect(response.status).toBe(400);
+      expect(JSON.stringify(warn.mock.calls)).not.toContain(secret);
+    } finally {
+      warn.mockRestore();
+    }
   });
 });
