@@ -119,6 +119,7 @@ flowchart LR
 - Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/constants/config.js`, `app.config.js`). `src/shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
 
 ## Documentation conventions
+- Name utility modules after their actual contents (for example `src/shared/format/email.js` for email normalization, `src/shared/utils/records.js` for record comparison/update helpers). Avoid generic names like `string.js`, `misc.js`, or `utils.js`.
 - Always include JSDoc for modules with a top-level `@module` tag.
 - Always add JSDoc for top-level exported functions and variables.
 - Never include the `@example` tag in JSDoc.
