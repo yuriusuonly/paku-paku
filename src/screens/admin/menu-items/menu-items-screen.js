@@ -49,6 +49,7 @@ export default function AdminMenuItemsScreen() {
   const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ name: false, description: false, price_cents: false, sort_order: false });
+  const [formExpanded, setFormExpanded] = useState(false);
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -275,6 +276,8 @@ export default function AdminMenuItemsScreen() {
         saving={saving}
         onSave={save}
         onReset={resetForm}
+        expanded={formExpanded}
+        onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
       <View className="mt-8 mb-3 flex-row items-center justify-between">

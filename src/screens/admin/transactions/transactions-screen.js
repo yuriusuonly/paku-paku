@@ -51,6 +51,7 @@ export default function AdminTransactionsScreen() {
   });
   const [lines, setLines] = useState([emptyLine()]);
   const [localError, setLocalError] = useState("");
+  const [formExpanded, setFormExpanded] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -153,6 +154,8 @@ export default function AdminTransactionsScreen() {
         removeLine={removeLine}
         syncing={syncing}
         onCreate={createRecord}
+        expanded={formExpanded}
+        onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
       <TransactionsTableSection transactions={transactions} loading={loading} onSaveField={saveField} />

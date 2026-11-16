@@ -50,6 +50,7 @@ export default function AdminProfilesScreen() {
   const [localError, setLocalError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
   const [createdRecoveryCode, setCreatedRecoveryCode] = useState("");
+  const [formExpanded, setFormExpanded] = useState(false);
 
   const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
@@ -209,6 +210,8 @@ export default function AdminProfilesScreen() {
         onSave={saveUser}
         onClear={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); setCreatedRecoveryCode(""); }}
         onCopyRecoveryCode={copyCreatedRecoveryCode}
+        expanded={formExpanded}
+        onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
 
       <View className="mt-8 mb-3 flex-row items-center justify-between">

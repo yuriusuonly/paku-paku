@@ -51,7 +51,6 @@ export default function AdminInventoryScreen() {
   const unsubscribe = useInventoryStore((s) => s.unsubscribe);
   const createItem = useInventoryStore((s) => s.createItem);
   const updateItem = useInventoryStore((s) => s.updateItem);
-  const removeItem = useInventoryStore((s) => s.removeItem);
 
   const menuItems = useMenuStore((s) => s.items);
   const fetchMenuItems = useMenuStore((s) => s.fetchItems);
@@ -60,9 +59,8 @@ export default function AdminInventoryScreen() {
   const showError = useNotificationStore((s) => s.showError);
 
   const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [busyId, setBusyId] = useState(null);
+  const [savingCell, setSavingCell] = useState(null);
   const [localError, setLocalError] = useState("");
   const [formExpanded, setFormExpanded] = useState(false);
 
@@ -97,25 +95,43 @@ export default function AdminInventoryScreen() {
 
   const resetForm = () => {
     setForm(emptyForm);
-    setEditingId(null);
     setLocalError("");
   };
 
-  const startEdit = (item) => {
-    setEditingId(item.id);
-    setFormExpanded(true);
-    setForm({
-      name: item.name || "",
-      sku: item.sku || "",
-      description: item.description || "",
-      quantity: String(item.quantity ?? 0),
-      unit: item.unit || "",
-      reorder_level: String(item.reorder_level ?? 0),
-      unit_cost_cents: String(item.unit_cost_cents ?? 0),
-      menu_item_id: item.menu_item_id || "",
-      is_active: Boolean(item.is_active)
-    });
-    setLocalError("");
+  const saveField = async (item, field, draftValue) => {
+    if (!token) return;
+    const payload = {};
+    if (["name", "sku", "unit", "description", "menu_item_id"].includes(field)) {
+      const raw = String(draftValue ?? "").trim();
+      const normalized = raw || null;
+      const current = item[field] == null ? null : String(item[field]);
+      if ((normalized || null) === (current || null)) return;
+      if (field === "name" && !normalized) {
+        const msg = "Inventory item name is required.";
+        showError(msg);
+        throw new Error(msg);
+      }
+      payload[field] = normalized;
+    } else if (["quantity", "reorder_level", "unit_cost_cents"].includes(field)) {
+      const num = Number(draftValue);
+      if (!Number.isInteger(num) || num < 0) {
+        const msg = `${field.replace(/_/g, " ")} must be a non-negative whole number.`;
+        showError(msg);
+        throw new Error(msg);
+      }
+      if (num === Number(item[field] ?? 0)) return;
+      payload[field] = num;
+    }
+    const cellKey = `${item.id}:${field}`;
+    setSavingCell(cellKey);
+    try {
+      await updateItem(token, item.id, payload);
+    } catch (e) {
+      showError(e?.message || "Could not update inventory item.");
+      throw e;
+    } finally {
+      setSavingCell(null);
+    }
   };
 
   const buildPayload = () => {
@@ -153,13 +169,8 @@ export default function AdminInventoryScreen() {
     }
     setSaving(true);
     try {
-      if (editingId) {
-        await updateItem(token, editingId, payload);
-        showSuccess("Inventory item updated.");
-      } else {
-        await createItem(token, payload);
-        showSuccess("Inventory item created.");
-      }
+      await createItem(token, payload);
+      showSuccess("Inventory item created.");
       resetForm();
     } catch (e) {
       const message = e?.message || "Could not save the inventory item.";
@@ -172,28 +183,27 @@ export default function AdminInventoryScreen() {
 
   const adjustQuantity = async (item, delta) => {
     if (!token) return;
-    setBusyId(item.id);
+    const cellKey = `${item.id}:quantity`;
+    setSavingCell(cellKey);
     try {
       await updateItem(token, item.id, { quantity: Math.max(0, Number(item.quantity || 0) + delta) });
-      showSuccess(delta > 0 ? "Stock increased." : "Stock decreased.");
     } catch (e) {
       showError(e?.message || "Could not adjust stock.");
     } finally {
-      setBusyId(null);
+      setSavingCell(null);
     }
   };
 
-  const remove = async (item) => {
+  const toggleActive = async (item) => {
     if (!token) return;
-    setBusyId(item.id);
+    const cellKey = `${item.id}:is_active`;
+    setSavingCell(cellKey);
     try {
-      await removeItem(token, item.id);
-      if (editingId === item.id) resetForm();
-      showSuccess("Inventory item deleted.");
+      await updateItem(token, item.id, { is_active: !item.is_active });
     } catch (e) {
-      showError(e?.message || "Could not delete the inventory item.");
+      showError(e?.message || "Could not update inventory item.");
     } finally {
-      setBusyId(null);
+      setSavingCell(null);
     }
   };
 
@@ -212,36 +222,33 @@ export default function AdminInventoryScreen() {
 
       <Alert variant="error" message={localError || storeError} />
 
-      <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
-        <View className="mb-4 flex-row flex-wrap gap-x-6 gap-y-3">
-          <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-          <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Active</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
-          <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Low stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.lowStock}</Text></View>
-          <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
-        </View>
-
-        <InventoryFormSection
-          form={form}
-          setForm={setForm}
-          editingId={editingId}
-          saving={saving}
-          syncing={syncing}
-          menuItems={menuItems}
-          onSave={save}
-          onReset={resetForm}
-          expanded={formExpanded}
-          onToggleExpanded={() => setFormExpanded((v) => !v)}
-        />
+      <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Active</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Low stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.lowStock}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
       </View>
+
+      <InventoryFormSection
+        form={form}
+        setForm={setForm}
+        saving={saving}
+        syncing={syncing}
+        menuItems={menuItems}
+        onSave={save}
+        onReset={resetForm}
+        expanded={formExpanded}
+        onToggleExpanded={() => setFormExpanded((v) => !v)}
+      />
 
       <InventoryListSection
         items={items}
         loading={loading}
         syncing={syncing}
-        busyId={busyId}
+        savingCell={savingCell}
+        onSaveField={saveField}
         onAdjust={adjustQuantity}
-        onEdit={startEdit}
-        onRemove={remove}
+        onToggleActive={toggleActive}
       />
     </ScreenContainer>
   );
