@@ -12,13 +12,13 @@ import { internalError } from "../shared/errors/internal.js";
  *
  * @type {string}
  */
-export const PROFILE_COLUMNS = "id, email, role, is_active, created_at, updated_at";
+export const PROFILE_COLUMNS = "id, email, role, is_active, full_name, phone, created_at, updated_at";
 
 /**
  * Shapes a profile row into the public payload.
  *
- * @param {{id: string, email: string, role: string, is_active?: boolean, created_at: string, updated_at?: string}} profile - Profile row.
- * @returns {{id: string, email: string, role: string, is_active: boolean, created_at: string, updated_at?: string}} Public profile.
+ * @param {{id: string, email: string, role: string, is_active?: boolean, full_name?: string | null, phone?: string | null, created_at: string, updated_at?: string}} profile - Profile row.
+ * @returns {{id: string, email: string, role: string, is_active: boolean, full_name: string | null, phone: string | null, created_at: string, updated_at?: string}} Public profile.
  */
 export function toPublicProfile(profile) {
   return {
@@ -26,6 +26,8 @@ export function toPublicProfile(profile) {
     email: profile.email,
     role: profile.role,
     is_active: profile.is_active !== false,
+    full_name: profile.full_name ?? null,
+    phone: profile.phone ?? null,
     created_at: profile.created_at,
     updated_at: profile.updated_at
   };
@@ -111,7 +113,7 @@ export async function createProfile(database, { id, email, role = "customer", is
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
  * @param {string} id - Profile id.
- * @param {{is_active?: boolean}} input - Fields to update.
+ * @param {{is_active?: boolean, full_name?: string | null, phone?: string | null}} input - Fields to update.
  * @returns {Promise<{profile: object}>} Updated profile payload.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
  */
@@ -120,6 +122,12 @@ export async function updateProfile(database, id, input) {
 
   if (Object.prototype.hasOwnProperty.call(input, "is_active")) {
     payload.is_active = Boolean(input.is_active);
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "full_name")) {
+    payload.full_name = input.full_name == null || input.full_name === "" ? null : String(input.full_name).trim();
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "phone")) {
+    payload.phone = input.phone == null || input.phone === "" ? null : String(input.phone).trim();
   }
 
   const { data, error } = await database
@@ -131,6 +139,38 @@ export async function updateProfile(database, id, input) {
 
   if (error || !data) {
     throw databaseUpstream("profile_update_failed", "Could not update the profile.", error);
+  }
+
+  return { profile: toPublicProfile(data) };
+}
+
+/**
+ * Updates the authenticated customer's own profile fields.
+ *
+ * @param {import("../database/instance.js").DatabaseClient} database - Request-scoped database client.
+ * @param {string} id - Profile/user id (must match auth uid by RLS).
+ * @param {{full_name?: string | null, phone?: string | null}} input - Profile fields.
+ * @returns {Promise<{profile: object}>} Updated profile payload.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
+ */
+export async function updateOwnProfile(database, id, input) {
+  const payload = { updated_at: new Date().toISOString() };
+  if (Object.prototype.hasOwnProperty.call(input, "full_name")) {
+    payload.full_name = input.full_name == null || input.full_name === "" ? null : String(input.full_name).trim();
+  }
+  if (Object.prototype.hasOwnProperty.call(input, "phone")) {
+    payload.phone = input.phone == null || input.phone === "" ? null : String(input.phone).trim();
+  }
+
+  const { data, error } = await database
+    .from("profiles")
+    .update(payload)
+    .eq("id", id)
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error || !data) {
+    throw databaseUpstream("profile_update_failed", "Could not update your profile.", error);
   }
 
   return { profile: toPublicProfile(data) };

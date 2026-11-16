@@ -51,6 +51,19 @@ function normalizeMenuItemInput(body, { partial }) {
     input.is_available = body.is_available;
   }
 
+  if (!partial || Object.prototype.hasOwnProperty.call(body, "is_best_seller")) {
+    if (partial && !Object.prototype.hasOwnProperty.call(body, "is_best_seller")) {
+      // no-op
+    } else {
+      if (typeof body.is_best_seller !== "boolean") {
+        throw badRequest("invalid_menu_item", "Menu item is_best_seller must be a boolean.");
+      }
+      input.is_best_seller = body.is_best_seller;
+    }
+  } else if (!partial) {
+    input.is_best_seller = false;
+  }
+
   const hasSortOrder = Object.prototype.hasOwnProperty.call(body, "sort_order");
   const sortOrderValue = body.sort_order;
   const sortOrderProvided =

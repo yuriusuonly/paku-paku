@@ -9,7 +9,7 @@ import { createDatabaseClient } from "../database/instance.js";
  * @module repositories/menu-repository
  */
 
-const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, sort_order, created_at, updated_at";
+const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, is_best_seller, sort_order, created_at, updated_at";
 
 /**
  * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.

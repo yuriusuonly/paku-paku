@@ -18,7 +18,7 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/menu-items/menu-items-screen
  */
 
-const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true };
+const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true, is_best_seller: false };
 
 const columns = [
   { key: "select", label: "", width: 56 },
@@ -26,6 +26,7 @@ const columns = [
   { key: "price_cents", label: "Price (cents)", width: 140 },
   { key: "sort_order", label: "Sort", width: 90 },
   { key: "is_available", label: "Available", width: 130 },
+  { key: "is_best_seller", label: "Best seller", width: 140 },
   { key: "description", label: "Description", width: 320 },
   { key: "id", label: "Item ID", width: 320 },
   { key: "created_at", label: "Created at", width: 220 },
@@ -175,6 +176,7 @@ export default function AdminMenuItemsScreen() {
       description: form.description.trim() || null,
       price_cents: price,
       is_available: Boolean(form.is_available),
+      is_best_seller: Boolean(form.is_best_seller),
       ...(hasSortOrder ? { sort_order: sortOrder } : {})
     };
     setSaving(true);
@@ -257,6 +259,23 @@ export default function AdminMenuItemsScreen() {
     try {
       await updateItem(token, item.id, { is_available: !item.is_available });
       showSuccess(item.is_available ? "Menu item made unavailable." : "Menu item made available.");
+    } catch (e) {
+      const message = e?.message || "Could not update the menu item. Please try again.";
+      setLocalError(message);
+      showError(message);
+    } finally {
+      setSavingCell(null);
+    }
+  };
+
+  const toggleBestSeller = async (item) => {
+    if (!token) return;
+    setLocalError("");
+    const cellKey = `${item.id}:is_best_seller`;
+    setSavingCell(cellKey);
+    try {
+      await updateItem(token, item.id, { is_best_seller: !item.is_best_seller });
+      showSuccess(item.is_best_seller ? "Removed best seller label." : "Marked as best seller.");
     } catch (e) {
       const message = e?.message || "Could not update the menu item. Please try again.";
       setLocalError(message);
@@ -374,8 +393,9 @@ export default function AdminMenuItemsScreen() {
             keyboardType="numeric"
             error={fieldErrors.sort_order}
           />
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row flex-wrap items-center gap-3">
             <Button label={form.is_available ? "Available" : "Unavailable"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_available: !f.is_available }))} />
+            <Button label={form.is_best_seller ? "Best seller" : "Regular"} variant="ghost" onPress={() => setForm((f) => ({ ...f, is_best_seller: !f.is_best_seller }))} />
             <Button label="Create item" onPress={save} loading={saving} />
             <Button label="Clear" variant="ghost" onPress={resetForm} />
           </View>
@@ -468,7 +488,8 @@ export default function AdminMenuItemsScreen() {
                           : (rawValue ?? "-");
                       const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
                       const isEditable = ["name", "description", "price_cents", "sort_order"].includes(column.key);
-                      const isStatus = column.key === "is_available";
+                      const isAvailability = column.key === "is_available";
+                      const isBestSeller = column.key === "is_best_seller";
 
                       return (
                         <View
@@ -487,7 +508,7 @@ export default function AdminMenuItemsScreen() {
                                 <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
                               ) : null}
                             </Pressable>
-                          ) : isStatus ? (
+                          ) : isAvailability ? (
                             <Pressable
                               onPress={() => { void toggleAvailable(item); }}
                               disabled={savingCell === `${item.id}:is_available`}
@@ -500,6 +521,22 @@ export default function AdminMenuItemsScreen() {
                                   className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
                                 >
                                   {rawValue ? "available" : "unavailable"}
+                                </Text>
+                              )}
+                            </Pressable>
+                          ) : isBestSeller ? (
+                            <Pressable
+                              onPress={() => { void toggleBestSeller(item); }}
+                              disabled={savingCell === `${item.id}:is_best_seller`}
+                              className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
+                            >
+                              {savingCell === `${item.id}:is_best_seller` ? (
+                                <CircularProgress size="small" />
+                              ) : (
+                                <Text
+                                  className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
+                                >
+                                  {rawValue ? "best seller" : "regular"}
                                 </Text>
                               )}
                             </Pressable>

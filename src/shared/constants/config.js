@@ -12,7 +12,17 @@
  * @property {string} signin
  * @property {string} session
  * @property {string} signout
+ * @property {string} recover
+ * @property {string} orders
+ * @property {string} invoices
+ * @property {string} transactions
+ * @property {string} accountProfile
  * @property {string} adminProfiles
+ * @property {string} adminInventory
+ * @property {string} adminSales
+ * @property {string} adminOrders
+ * @property {string} adminInvoices
+ * @property {string} adminTransactions
  */
 
 /**
@@ -59,7 +69,16 @@ export const api = {
     session: `${apiBasePath}/session`,
     signout: `${apiBasePath}/signout`,
     recover: `${apiBasePath}/recover`,
-    adminProfiles: `${apiBasePath}/admin/profiles`
+    orders: `${apiBasePath}/orders`,
+    invoices: `${apiBasePath}/invoices`,
+    transactions: `${apiBasePath}/transactions`,
+    accountProfile: `${apiBasePath}/account/profile`,
+    adminProfiles: `${apiBasePath}/admin/profiles`,
+    adminInventory: `${apiBasePath}/admin/inventory`,
+    adminSales: `${apiBasePath}/admin/sales`,
+    adminOrders: `${apiBasePath}/admin/orders`,
+    adminInvoices: `${apiBasePath}/admin/invoices`,
+    adminTransactions: `${apiBasePath}/admin/transactions`
   }
 };
 
