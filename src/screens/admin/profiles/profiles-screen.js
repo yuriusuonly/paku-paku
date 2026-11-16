@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
-import { EmptyState } from "../../../components/empty-state.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
-import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useProfilesStore } from "../../../stores/profiles-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { ProfilesFormSection } from "./profiles-form-component.js";
+import { ProfilesTableSection } from "./profiles-table-component.js";
 
 /**
  * Admin profiles audit and management screen.
@@ -19,29 +19,6 @@ import { cx } from "../../../shared/constants/theme.js";
  */
 
 const emptyForm = { email: "", password: "" };
-
-/**
- * Formats an ISO timestamp for display.
- *
- * @param {string | null | undefined} value - Timestamp value.
- * @returns {string} Formatted timestamp or placeholder.
- */
-function formatAuditTimestamp(value) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString();
-}
-
-const columns = [
-  { key: "select", label: "", width: 56 },
-  { key: "email", label: "Email", width: 220 },
-  { key: "role", label: "Role", width: 110 },
-  { key: "is_active", label: "Active", width: 110 },
-  { key: "id", label: "User ID", width: 320 },
-  { key: "created_at", label: "Created at", width: 220 },
-  { key: "updated_at", label: "Updated at", width: 220 }
-];
 
 /**
  * @returns {JSX.Element} Admin profiles screen.
@@ -207,228 +184,67 @@ export default function AdminProfilesScreen() {
     }
   };
 
-  const showInitialLoading = loading && profiles.length === 0;
-
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
-        <Header />
-        <View className="mb-6">
-          <Link href="/admin" asChild>
-            <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>
-              ← Back to admin
-            </Text>
-          </Link>
-          <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>
-            Profiles audit
-          </Text>
-          <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-            Add users, audit profile fields, and manage active status in real time.
-          </Text>
-        </View>
+      <Header />
+      <View className="mb-6">
+        <Link href="/admin" asChild>
+          <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>← Back to admin</Text>
+        </Link>
+        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Profiles audit</Text>
+        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+          Add users, audit profile fields, and manage active status in real time.
+        </Text>
+      </View>
 
-        <Alert variant="error" message={localError || error} />
+      <Alert variant="error" message={localError || error} />
 
-        <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Add user</Text>
-          <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-            Create a customer account and profile.
-          </Text>
-          <TextField
-            label="Email (*)"
-            value={form.email}
-            onChangeText={(v) => {
-              setForm((f) => ({ ...f, email: v }));
-              if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: false }));
-            }}
-            placeholder="example@email.com"
-            error={fieldErrors.email}
-          />
-          <TextField
-            label="Password (*)"
-            value={form.password}
-            onChangeText={(v) => {
-              setForm((f) => ({ ...f, password: v }));
-              if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: false }));
-            }}
-            placeholder="At least 6 characters"
-            secureTextEntry
-            enablePasswordToggle
-            error={fieldErrors.password}
-          />
-          <View className="flex-row items-center gap-3">
-            <Button label="Create user" onPress={saveUser} loading={saving} />
-            <Button label="Clear" variant="ghost" onPress={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); setCreatedRecoveryCode(""); }} />
-          </View>
-          {createdRecoveryCode ? (
-            <View className={`mt-2 gap-2 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
-                Recovery code (show once)
-              </Text>
-              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>
-                {createdRecoveryCode}
-              </Text>
-              <Pressable onPress={copyCreatedRecoveryCode} className="self-start">
-                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Copy</Text>
-              </Pressable>
-            </View>
-          ) : null}
-        </View>
+      <ProfilesFormSection
+        form={form}
+        setForm={setForm}
+        fieldErrors={fieldErrors}
+        setFieldErrors={setFieldErrors}
+        saving={saving}
+        createdRecoveryCode={createdRecoveryCode}
+        onSave={saveUser}
+        onClear={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); setCreatedRecoveryCode(""); }}
+        onCopyRecoveryCode={copyCreatedRecoveryCode}
+      />
 
-        <View className="mt-8 mb-3 flex-row items-center justify-between">
-          <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
-          {loading || syncing ? (
-            <CircularProgress size="small" />
-          ) : (
-            <Text className={`font-outfit text-sm ${cx.textInk50}`}>{profiles.length} total</Text>
-          )}
-        </View>
+      <View className="mt-8 mb-3 flex-row items-center justify-between">
+        <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>Profiles</Text>
+        {loading || syncing ? (
+          <CircularProgress size="small" />
+        ) : (
+          <Text className={`font-outfit text-sm ${cx.textInk50}`}>{profiles.length} total</Text>
+        )}
+      </View>
 
-        <View className="mb-3 flex-row items-center gap-3">
-          <Button
-            label="Toggle active"
-            variant="ghost"
-            onPress={toggleSelectedActive}
-            loading={bulkUpdating}
-            disabled={selectedIds.length === 0 || bulkUpdating}
-          />
-          {selectedIds.length > 0 ? (
-            <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
-          ) : null}
-        </View>
-
-        {showInitialLoading ? <CircularProgress message="Loading profiles..." /> : null}
-
-        {!loading && !error && profiles.length === 0 ? (
-          <EmptyState message="No profiles found." />
+      <View className="mb-3 flex-row items-center gap-3">
+        <Button
+          label="Toggle active"
+          variant="ghost"
+          onPress={toggleSelectedActive}
+          loading={bulkUpdating}
+          disabled={selectedIds.length === 0 || bulkUpdating}
+        />
+        {selectedIds.length > 0 ? (
+          <Text className={`font-outfit text-sm ${cx.textInk60}`}>{selectedIds.length} selected</Text>
         ) : null}
+      </View>
 
-        {profiles.length > 0 ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator
-            className={`${syncing ? "opacity-80" : "opacity-100"}`}
-          >
-            <View className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}>
-              <View className={`flex-row ${cx.bgSurfaceSoft}`}>
-                {(() => {
-                  const selectedCount = profiles.filter((profile) => selectedIds.includes(profile.id)).length;
-                  const allSelected = profiles.length > 0 && selectedCount === profiles.length;
-                  const someSelected = selectedCount > 0 && !allSelected;
-                  return columns.map((column, index) => (
-                    <View
-                      key={column.key}
-                      style={{ width: column.width }}
-                      className={`justify-center px-4 py-3 ${index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : ""}`}
-                    >
-                      {column.key === "select" ? (
-                        <Pressable
-                          onPress={() => setSelectedIds(allSelected ? [] : profiles.map((profile) => profile.id))}
-                          accessibilityRole="checkbox"
-                          accessibilityState={{ checked: allSelected ? true : someSelected ? "mixed" : false }}
-                          className={`h-5 w-5 items-center justify-center rounded border ${
-                            allSelected || someSelected ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`
-                          }`}
-                        >
-                          {allSelected ? (
-                            <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                          ) : null}
-                          {someSelected ? (
-                            <View className={`h-0.5 w-2.5 rounded ${cx.bgWhite}`} />
-                          ) : null}
-                        </Pressable>
-                      ) : (
-                        <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
-                          {column.label}
-                        </Text>
-                      )}
-                    </View>
-                  ));
-                })()}
-              </View>
-
-              {profiles.map((profile, rowIndex) => {
-                const rowKey = String(profile.id ?? `row-${rowIndex}`);
-                const isSelf = profile.id === user?.id;
-                const isActive = profile.is_active !== false;
-                return (
-                  <View
-                    key={rowKey}
-                    className={`flex-row ${rowIndex < profiles.length - 1 ? `border-b ${cx.borderSubtle}` : ""} ${cx.bgSurface}`}
-                  >
-                    {columns.map((column, index) => {
-                      const rawValue = profile[column.key];
-                      let displayValue = rawValue ?? "-";
-                      if (column.key === "created_at" || column.key === "updated_at") {
-                        displayValue = formatAuditTimestamp(rawValue);
-                      } else if (column.key === "is_active") {
-                        displayValue = isActive ? "active" : "inactive";
-                      }
-
-                      const cellBorder = index < columns.length - 1 ? `border-r ${cx.borderSubtle}` : "";
-                      const isRole = column.key === "role";
-                      const isStatus = column.key === "is_active";
-                      const isAdminRole = isRole && rawValue === "admin";
-
-                      return (
-                        <View
-                          key={`${rowKey}-${column.key}`}
-                          style={{ width: column.width }}
-                          className={`justify-center px-4 py-3 ${cellBorder}`}
-                        >
-                          {column.key === "select" ? (
-                            <Pressable
-                              onPress={() => toggleSelected(profile.id)}
-                              accessibilityRole="checkbox"
-                              accessibilityState={{ checked: selectedIds.includes(profile.id) }}
-                              className={`h-5 w-5 items-center justify-center rounded border ${selectedIds.includes(profile.id) ? `${cx.bgPrimary} ${cx.borderPrimary}` : `${cx.bgSurface} ${cx.borderSubtle}`}`}
-                            >
-                              {selectedIds.includes(profile.id) ? (
-                                <Text className={`font-outfit text-xs font-bold ${cx.textWhite}`}>✓</Text>
-                              ) : null}
-                            </Pressable>
-                          ) : isStatus ? (
-                            <Pressable
-                              onPress={() => { void toggleActive(profile); }}
-                              disabled={updatingId === profile.id || isSelf}
-                              className={`self-start rounded-full px-3 py-1 ${isActive ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              {updatingId === profile.id ? (
-                                <CircularProgress size="small" />
-                              ) : (
-                                <Text
-                                  className={`font-outfit text-xs font-semibold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}
-                                >
-                                  {String(displayValue)}
-                                </Text>
-                              )}
-                            </Pressable>
-                          ) : isRole ? (
-                            <View
-                              className={`self-start rounded-full px-3 py-1 ${isAdminRole ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${isAdminRole ? cx.textPrimary : cx.textInk70}`}
-                              >
-                                {String(displayValue)}
-                              </Text>
-                            </View>
-                          ) : (
-                            <Text
-                              selectable
-                              className={`font-outfit text-sm ${column.key === "email" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}
-                            >
-                              {String(displayValue)}
-                            </Text>
-                          )}
-                        </View>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        ) : null}
+      <ProfilesTableSection
+        profiles={profiles}
+        loading={loading}
+        syncing={syncing}
+        error={error}
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+        updatingId={updatingId}
+        currentUserId={user?.id}
+        onToggleSelected={toggleSelected}
+        onToggleActive={toggleActive}
+      />
     </ScreenContainer>
   );
 }
