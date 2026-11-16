@@ -8,7 +8,6 @@ import { EmptyState } from "../../components/empty-state.js";
 import { Header } from "../../components/header.js";
 import { QrCode } from "../../components/qr-code.js";
 import { ScreenContainer } from "../../components/container.js";
-import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useCartStore } from "../../stores/cart-store.js";
 import { useNotificationStore } from "../../stores/notification-store.js";
@@ -39,7 +38,6 @@ export default function CartScreen() {
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
-  const [form, setForm] = useState({ customer_name: "", customer_phone: "", notes: "", payment_method: "cash" });
   const [error, setError] = useState("");
   const [placedTransaction, setPlacedTransaction] = useState(null);
 
@@ -51,16 +49,6 @@ export default function CartScreen() {
   useEffect(() => {
     if (hydrated && user?.id) hydrateCart(user.id);
   }, [hydrated, user?.id, hydrateCart]);
-
-  useEffect(() => {
-    if (user) {
-      setForm((f) => ({
-        ...f,
-        customer_name: f.customer_name || user.full_name || "",
-        customer_phone: f.customer_phone || user.phone || ""
-      }));
-    }
-  }, [user]);
 
   const totalCents = useMemo(
     () => cartItems.reduce((sum, item) => sum + Number(item.unit_price_cents || 0) * Number(item.quantity || 0), 0),
@@ -89,11 +77,9 @@ export default function CartScreen() {
           quantity: Number(item.quantity || 1),
           unit_price_cents: Number(item.unit_price_cents || 0)
         })),
-        customer_name: form.customer_name.trim() || user?.full_name || null,
-        customer_phone: form.customer_phone.trim() || user?.phone || null,
+        customer_name: user?.full_name || null,
+        customer_phone: user?.phone || null,
         customer_email: user?.email || null,
-        notes: form.notes.trim() || null,
-        payment_method: form.payment_method.trim() || "cash",
         payment_status: "unpaid",
         status: "pending"
       });
@@ -168,11 +154,20 @@ export default function CartScreen() {
           </View>
 
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Checkout details</Text>
-            <TextField label="Full name" value={form.customer_name} onChangeText={(v) => setForm((f) => ({ ...f, customer_name: v }))} placeholder="Your name" />
-            <TextField label="Phone" value={form.customer_phone} onChangeText={(v) => setForm((f) => ({ ...f, customer_phone: v }))} placeholder="Contact number" />
-            <TextField label="Payment method" value={form.payment_method} onChangeText={(v) => setForm((f) => ({ ...f, payment_method: v }))} placeholder="cash, card, gcash..." />
-            <TextField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Notes (optional)" multiline numberOfLines={3} />
+            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Checkout</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+              This transaction will use your account details.
+            </Text>
+            <View className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-1`}>
+              <Text className={`font-outfit text-sm ${cx.textInk}`}>Name: {user?.full_name || "Not set"}</Text>
+              <Text className={`font-outfit text-sm ${cx.textInk}`}>Phone: {user?.phone || "Not set"}</Text>
+              <Text className={`font-outfit text-sm ${cx.textInk}`}>Email: {user?.email || "-"}</Text>
+            </View>
+            <Link href="/account" asChild>
+              <Pressable>
+                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
+              </Pressable>
+            </Link>
             <View className="flex-row flex-wrap gap-3 pt-2">
               <Button label="Place transaction" onPress={checkout} loading={syncing} />
               <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />

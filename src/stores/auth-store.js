@@ -203,6 +203,22 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
+   * Refreshes the authenticated user/profile from the API.
+   *
+   * @returns {Promise<void>}
+   */
+  refreshUser: async () => {
+    const { session } = get();
+    if (!session?.access_token) return;
+    try {
+      const data = await getSession(session.access_token);
+      if (data?.user) set({ user: data.user });
+    } catch {
+      // Keep current user state; hydration/sign-in flows handle invalid sessions.
+    }
+  },
+
+  /**
    * Clears the current auth error message.
    *
    * @returns {void}

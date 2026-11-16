@@ -25,6 +25,7 @@ export default function AccountScreen() {
   const status = useAuthStore((s) => s.status);
   const token = session?.access_token;
   const isCustomer = status === "authenticated" && user && user.role !== "admin";
+  const refreshUser = useAuthStore((s) => s.refreshUser);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
@@ -58,6 +59,7 @@ export default function AccountScreen() {
     setError("");
     try {
       await updateMyProfile(token, form);
+      await refreshUser();
       showSuccess("Account updated.");
     } catch (e) {
       const message = e?.message || "Could not update your account.";
@@ -72,7 +74,7 @@ export default function AccountScreen() {
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
       <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>My account</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your customer account details used for orders and counter checkout.</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your customer account details used for transactions and counter checkout.</Text>
       <Alert variant="error" message={error} />
 
       {loading ? <View className="mt-6"><CircularProgress message="Loading account..." /></View> : (
