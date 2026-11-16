@@ -155,8 +155,8 @@ export default function AdminScreen() {
       linkLabel: "Open inventory management →",
       stats: [
         { label: "Total stock", value: inventoryStats.total, loading: inventoryCountLoading },
-        { label: "Active", value: inventoryStats.active, loading: inventoryCountLoading },
-        { label: "Low stock", value: inventoryStats.lowStock, loading: inventoryCountLoading }
+        { label: "In Stock", value: inventoryStats.active, loading: inventoryCountLoading },
+        { label: "Out of Stock", value: inventoryStats.lowStock, loading: inventoryCountLoading }
       ]
     },
     {

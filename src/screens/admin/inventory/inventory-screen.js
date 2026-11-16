@@ -224,8 +224,8 @@ export default function AdminInventoryScreen() {
 
       <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Active</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Low stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.lowStock}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>In Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Out of Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.lowStock}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
       </View>
 

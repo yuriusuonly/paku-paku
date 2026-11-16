@@ -125,7 +125,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                         className={`self-start rounded-full px-3 py-1 ${item.is_active ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                       >
                         <Text className={`font-outfit text-xs font-semibold uppercase ${item.is_active ? cx.textPrimary : cx.textInk70}`}>
-                          {item.is_active ? (low ? "Low stock" : "Active") : "Inactive"}
+                          {item.is_active ? (low ? "Out of Stock" : "In Stock") : "Inactive"}
                         </Text>
                       </Pressable>
                     </View>
