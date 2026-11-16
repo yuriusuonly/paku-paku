@@ -77,8 +77,6 @@ export default function CartScreen() {
           quantity: Number(item.quantity || 1),
           unit_price_cents: Number(item.unit_price_cents || 0)
         })),
-        customer_name: user?.full_name || null,
-        customer_phone: user?.phone || null,
         customer_email: user?.email || null,
         payment_status: "unpaid",
         status: "pending"
@@ -156,14 +154,6 @@ export default function CartScreen() {
 
           <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6 gap-2`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
-            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-              Uses account details: {user?.full_name || "Name not set"} · {user?.phone || "Phone not set"} · {user?.email || "-"}
-            </Text>
-            <Link href="/account" asChild>
-              <Pressable>
-                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
-              </Pressable>
-            </Link>
             <View className="flex-row flex-wrap gap-3 pt-1">
               <Button label="Place transaction" onPress={checkout} loading={syncing} />
               <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />

@@ -303,6 +303,29 @@ export async function recoverAccount({ email, recovery_code, new_password }) {
 }
 
 /**
+ * Updates the authenticated user's password.
+ *
+ * @param {import("../database/instance.js").DatabaseClient} database - Request-scoped authenticated database client.
+ * @param {string} password - New password.
+ * @returns {Promise<{ok: boolean}>} Result.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
+ */
+export async function updatePassword(database, password) {
+  if (typeof password !== "string" || password.length < 6) {
+    throw badRequest("invalid_password", "Password must be at least 6 characters.");
+  }
+  const { error } = await database.auth.updateUser({ password });
+  if (error) {
+    const message = String(error.message || "").toLowerCase();
+    if (message.includes("password")) {
+      throw badRequest("invalid_password", "Password must be at least 6 characters.");
+    }
+    throw databaseUpstream("password_update_failed", "Could not change the password.", error);
+  }
+  return { ok: true };
+}
+
+/**
  * Revokes the caller's session.
  *
  * @param {Request} request - Incoming request.

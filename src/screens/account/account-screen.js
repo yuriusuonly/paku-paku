@@ -7,13 +7,13 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { Header } from "../../components/header.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
-import { getMyProfile, updateMyProfile } from "../../services/account.js";
+import { getMyAccount, changeMyPassword } from "../../services/account.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useNotificationStore } from "../../stores/notification-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Customer account/profile screen.
+ * Customer account screen.
  * @module screens/account/account-screen
  */
 
@@ -25,11 +25,12 @@ export default function AccountScreen() {
   const status = useAuthStore((s) => s.status);
   const token = session?.access_token;
   const isCustomer = status === "authenticated" && user && user.role !== "admin";
-  const refreshUser = useAuthStore((s) => s.refreshUser);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
-  const [form, setForm] = useState({ full_name: "", phone: "" });
+  const [email, setEmail] = useState(user?.email || "");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -42,27 +43,33 @@ export default function AccountScreen() {
   useEffect(() => {
     if (!hydrated || !isCustomer || !token) return;
     setLoading(true);
-    void getMyProfile(token)
-      .then((data) => {
-        const p = data?.profile || user || {};
-        setForm({ full_name: p.full_name || "", phone: p.phone || "" });
-      })
+    void getMyAccount(token)
+      .then((data) => setEmail(data?.profile?.email || user?.email || ""))
       .catch((e) => setError(e?.message || "Could not load your account."))
       .finally(() => setLoading(false));
-  }, [hydrated, isCustomer, token, user]);
+  }, [hydrated, isCustomer, token, user?.email]);
 
   if (!hydrated || !isCustomer) return <ScreenContainer><CircularProgress message="Loading account..." /></ScreenContainer>;
 
   const save = async () => {
     if (!token) return;
-    setSaving(true);
     setError("");
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setSaving(true);
     try {
-      await updateMyProfile(token, form);
-      await refreshUser();
-      showSuccess("Account updated.");
+      await changeMyPassword(token, password);
+      setPassword("");
+      setConfirmPassword("");
+      showSuccess("Password changed.");
     } catch (e) {
-      const message = e?.message || "Could not update your account.";
+      const message = e?.message || "Could not change your password.";
       setError(message);
       showError(message);
     } finally {
@@ -73,16 +80,17 @@ export default function AccountScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>My account</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your customer account details used for transactions and counter checkout.</Text>
+      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Account</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your account sign-in details.</Text>
       <Alert variant="error" message={error} />
 
       {loading ? <View className="mt-6"><CircularProgress message="Loading account..." /></View> : (
         <View className={`mt-6 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-          <Text className={`font-outfit text-sm ${cx.textInk70}`}>Email: {user?.email}</Text>
-          <TextField label="Full name" value={form.full_name} onChangeText={(v) => setForm((f) => ({ ...f, full_name: v }))} placeholder="Your full name" />
-          <TextField label="Phone" value={form.phone} onChangeText={(v) => setForm((f) => ({ ...f, phone: v }))} placeholder="Contact number" />
-          <View className="pt-2"><Button label="Save account" onPress={save} loading={saving} /></View>
+          <Text className={`font-outfit text-sm ${cx.textInk70}`}>Email: {email || "-"}</Text>
+          <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Change password</Text>
+          <TextField label="New password" value={password} onChangeText={setPassword} placeholder="At least 6 characters" secureTextEntry enablePasswordToggle autoComplete="new-password" />
+          <TextField label="Confirm new password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Repeat new password" secureTextEntry enablePasswordToggle autoComplete="new-password" />
+          <View className="pt-2"><Button label="Change password" onPress={save} loading={saving} /></View>
         </View>
       )}
     </ScreenContainer>

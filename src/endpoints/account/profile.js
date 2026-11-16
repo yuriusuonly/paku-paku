@@ -6,10 +6,11 @@ import { badRequest } from "../../shared/errors/bad-request.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
-import { updateOwnProfile, toPublicProfile } from "../../repositories/profile-repository.js";
+import { toPublicProfile } from "../../repositories/profile-repository.js";
+import { updatePassword } from "../../repositories/auth-repository.js";
 
 /**
- * Authenticated account profile endpoint handlers.
+ * Authenticated account endpoint handlers.
  * @module endpoints/account/profile
  */
 
@@ -20,10 +21,12 @@ export const GET = withMiddleware(logInterceptor, errorInterceptor, methodInterc
 export const PATCH = withMiddleware(logInterceptor, errorInterceptor, methodInterceptor("PATCH"), authenticationInterceptor)(
   async (context) => {
     const body = await readJsonBody(context.request);
-    if (!body) throw badRequest("invalid_body", "Expected a JSON object with profile fields.");
-    return jsonResponse(
-      await updateOwnProfile(context.locals.auth.database, context.locals.auth.profile.id, body)
-    );
+    if (!body) throw badRequest("invalid_body", "Expected a JSON object with account fields.");
+    if (typeof body.password === "string" || typeof body.new_password === "string") {
+      const password = typeof body.password === "string" ? body.password : body.new_password;
+      return jsonResponse(await updatePassword(context.locals.auth.database, password));
+    }
+    throw badRequest("invalid_body", "No supported account fields to update.");
   }
 );
 
