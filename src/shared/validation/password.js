@@ -1,7 +1,8 @@
+import { z } from "zod";
 import { badRequest } from "../errors/bad-request.js";
 
 /**
- * Password validation helpers.
+ * Password validation helpers backed by Zod.
  * @module shared/validation/password
  */
 
@@ -12,12 +13,18 @@ import { badRequest } from "../errors/bad-request.js";
 export const MIN_PASSWORD_LENGTH = 6;
 
 /**
+ * Password schema.
+ * @type {import("zod").ZodString}
+ */
+export const passwordSchema = z.string().min(MIN_PASSWORD_LENGTH);
+
+/**
  * Checks whether a password meets the minimum length rule.
  * @param {unknown} value
  * @returns {boolean}
  */
 export function isValidPassword(value) {
-  return typeof value === "string" && value.length >= MIN_PASSWORD_LENGTH;
+  return passwordSchema.safeParse(value).success;
 }
 
 /**
@@ -31,8 +38,9 @@ export function requirePassword(value, {
   code = "invalid_password",
   message = "Password must be at least 6 characters."
 } = {}) {
-  if (!isValidPassword(value)) {
+  const result = passwordSchema.safeParse(value);
+  if (!result.success) {
     throw badRequest(code, message);
   }
-  return value;
+  return result.data;
 }

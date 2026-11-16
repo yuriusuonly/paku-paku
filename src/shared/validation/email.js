@@ -1,16 +1,16 @@
-import { badRequest } from "../errors/bad-request.js";
-import { normalizeEmail } from "../format/email.js";
+import { z } from "zod";
+import { parseWithSchema } from "./request.js";
 
 /**
- * Email validation helpers.
+ * Email validation helpers backed by Zod.
  * @module shared/validation/email
  */
 
 /**
- * Basic email shape used for request validation.
- * @type {RegExp}
+ * Email schema: trims, lowercases, and validates basic email shape.
+ * @type {import("zod").ZodType<string>}
  */
-export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const emailSchema = z.string().trim().toLowerCase().pipe(z.email());
 
 /**
  * Checks whether a value is a valid, normalized email.
@@ -18,7 +18,7 @@ export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * @returns {boolean}
  */
 export function isValidEmail(value) {
-  return EMAIL_PATTERN.test(normalizeEmail(value));
+  return emailSchema.safeParse(value).success;
 }
 
 /**
@@ -32,9 +32,5 @@ export function requireEmail(value, {
   code = "invalid_email",
   message = "Enter a valid email address."
 } = {}) {
-  const email = normalizeEmail(value);
-  if (!EMAIL_PATTERN.test(email)) {
-    throw badRequest(code, message);
-  }
-  return email;
+  return parseWithSchema(emailSchema, value, { code, message });
 }

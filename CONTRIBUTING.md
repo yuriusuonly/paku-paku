@@ -51,7 +51,7 @@ flowchart TD
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`src/shared/network/middleware.js`, `src/interceptors/*`), handle request parsing/validation/normalization, call repositories (`src/repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `src/endpoints/menu-items/index.js`, `src/endpoints/menu-items/[id].js`).
+1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`src/shared/network/middleware.js`, `src/interceptors/*`), parse requests with `readJsonBody`, validate/normalize with **Zod** schemas via `src/shared/validation/*` helpers, call repositories (`src/repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `src/endpoints/menu-items/index.js`, `src/endpoints/menu-items/[id].js`).
 2. Create a thin Expo Router `+api` wrapper under `src/app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/menu-items/[id]+api.js`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
@@ -111,6 +111,7 @@ flowchart LR
 ```
 
 ## Styling, state & config
+- Use Zod for all request validation. Put reusable schemas/helpers in `src/shared/validation/` and domain-specific schemas next to their endpoints (e.g. `src/endpoints/menu-items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Global CSS is `src/shared/stylesheets/global.css`.
 - Use Zustand stores under `src/stores/` for shared client state.
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.

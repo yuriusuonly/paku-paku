@@ -1,9 +1,31 @@
+import { z } from "zod";
 import { badRequest } from "../errors/bad-request.js";
 
 /**
- * Request body, field, and route parameter validation helpers.
+ * Zod-backed request body, field, and route parameter validation helpers.
  * @module shared/validation/request
  */
+
+/**
+ * Parses a value with a Zod schema, throwing a typed bad request error on failure.
+ *
+ * @template T
+ * @param {import("zod").ZodType<T>} schema
+ * @param {unknown} value
+ * @param {{code?: string, message?: string}} [options]
+ * @returns {T}
+ */
+export function parseWithSchema(schema, value, {
+  code = "invalid_request",
+  message
+} = {}) {
+  const result = schema.safeParse(value);
+  if (result.success) {
+    return result.data;
+  }
+  const issueMessage = result.error.issues.map((issue) => issue.message).join(" ");
+  throw badRequest(code, message || issueMessage || "Invalid request.");
+}
 
 /**
  * Requires a parsed JSON object body.
@@ -13,10 +35,10 @@ import { badRequest } from "../errors/bad-request.js";
  * @returns {Record<string, any>}
  */
 export function requireObjectBody(body, message = "Expected a JSON object.") {
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    throw badRequest("invalid_body", message);
-  }
-  return body;
+  return parseWithSchema(z.record(z.string(), z.unknown()), body, {
+    code: "invalid_body",
+    message
+  });
 }
 
 /**
@@ -40,11 +62,7 @@ export function requireString(value, {
   code = "invalid_request",
   message = "A value is required."
 } = {}) {
-  const result = typeof value === "string" ? value.trim() : "";
-  if (!result) {
-    throw badRequest(code, message);
-  }
-  return result;
+  return parseWithSchema(z.string().trim().min(1), value, { code, message });
 }
 
 /**
@@ -58,11 +76,11 @@ export function readNullableString(value, {
   code = "invalid_request",
   message = "Must be a string."
 } = {}) {
-  if (value == null || value === "") return null;
-  if (typeof value !== "string") {
-    throw badRequest(code, message);
-  }
-  return value.trim() || null;
+  const schema = z.preprocess(
+    (input) => (typeof input === "string" && input.trim() === "" ? null : input),
+    z.string().trim().nullable()
+  );
+  return parseWithSchema(schema, value, { code, message });
 }
 
 /**
@@ -78,14 +96,16 @@ export function readInteger(value, {
   min,
   defaultValue
 } = {}) {
-  if ((value == null || value === "") && defaultValue !== undefined) {
-    return defaultValue;
+  let schema = z.preprocess(
+    (input) => ((input == null || input === "") && defaultValue !== undefined ? defaultValue : input),
+    z.coerce.number().int()
+  );
+
+  if (typeof min === "number") {
+    schema = schema.pipe(z.number().min(min));
   }
-  const number = Number(value);
-  if (!Number.isInteger(number) || (typeof min === "number" && number < min)) {
-    throw badRequest(code, message);
-  }
-  return number;
+
+  return parseWithSchema(schema, value, { code, message });
 }
 
 /**
@@ -99,10 +119,7 @@ export function readBoolean(value, {
   code = "invalid_request",
   message = "Must be a boolean."
 } = {}) {
-  if (typeof value !== "boolean") {
-    throw badRequest(code, message);
-  }
-  return value;
+  return parseWithSchema(z.boolean(), value, { code, message });
 }
 
 /**

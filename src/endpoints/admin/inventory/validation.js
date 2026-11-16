@@ -1,16 +1,42 @@
-import {
-  hasOwn,
-  readBoolean,
-  readInteger,
-  readNullableString,
-  requireString,
-  requireUpdateFields
-} from "../../../shared/validation/request.js";
+import { z } from "zod";
+import { parseWithSchema, requireUpdateFields } from "../../../shared/validation/request.js";
 
 /**
- * Inventory item request validation shared by collection and by-id endpoints.
+ * Zod schemas for inventory item request validation.
+ * Shared by collection and by-id endpoints.
  * @module endpoints/admin/inventory/validation
  */
+
+const nullableString = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? null : value),
+  z.string().trim().nullable()
+);
+
+const nonNegativeInteger = z.coerce.number().int().min(0);
+
+const createSchema = z.object({
+  name: z.string().trim().min(1),
+  sku: nullableString.optional().default(null),
+  description: nullableString.optional().default(null),
+  quantity: nonNegativeInteger.default(0),
+  unit: nullableString.optional().default(null),
+  reorder_level: nonNegativeInteger.default(0),
+  unit_cost_cents: nonNegativeInteger.default(0),
+  menu_item_id: nullableString.optional().default(null),
+  is_active: z.boolean()
+});
+
+const partialSchema = z.object({
+  name: z.string().trim().min(1).optional(),
+  sku: nullableString.optional(),
+  description: nullableString.optional(),
+  quantity: nonNegativeInteger.optional(),
+  unit: nullableString.optional(),
+  reorder_level: nonNegativeInteger.optional(),
+  unit_cost_cents: nonNegativeInteger.optional(),
+  menu_item_id: nullableString.optional(),
+  is_active: z.boolean().optional()
+});
 
 /**
  * Normalizes and validates inventory item input.
@@ -20,81 +46,14 @@ import {
  * @returns {Record<string, any>}
  */
 export function normalizeInventoryInput(body, { partial = false } = {}) {
-  const input = {};
-  const code = "invalid_inventory_item";
-
-  if (!partial || hasOwn(body, "name")) {
-    input.name = requireString(body.name, {
-      code,
-      message: "Inventory item name is required."
-    });
-  }
-
-  if (!partial || hasOwn(body, "sku")) {
-    input.sku = readNullableString(body.sku, {
-      code,
-      message: "Inventory SKU must be a string."
-    });
-  }
-
-  if (!partial || hasOwn(body, "description")) {
-    input.description = readNullableString(body.description, {
-      code,
-      message: "Inventory description must be a string."
-    });
-  }
-
-  if (!partial || hasOwn(body, "quantity")) {
-    input.quantity = readInteger(body.quantity, {
-      code,
-      message: "Inventory quantity must be a non-negative integer.",
-      min: 0,
-      defaultValue: partial ? undefined : 0
-    });
-  }
-
-  if (!partial || hasOwn(body, "unit")) {
-    input.unit = readNullableString(body.unit, {
-      code,
-      message: "Inventory unit must be a string."
-    });
-  }
-
-  if (!partial || hasOwn(body, "reorder_level")) {
-    input.reorder_level = readInteger(body.reorder_level, {
-      code,
-      message: "Inventory reorder level must be a non-negative integer.",
-      min: 0,
-      defaultValue: partial ? undefined : 0
-    });
-  }
-
-  if (!partial || hasOwn(body, "unit_cost_cents")) {
-    input.unit_cost_cents = readInteger(body.unit_cost_cents, {
-      code,
-      message: "Inventory unit cost must be a non-negative integer (cents).",
-      min: 0,
-      defaultValue: partial ? undefined : 0
-    });
-  }
-
-  if (!partial || hasOwn(body, "menu_item_id")) {
-    input.menu_item_id = readNullableString(body.menu_item_id, {
-      code,
-      message: "Inventory menu_item_id must be a string."
-    });
-  }
-
-  if (!partial || hasOwn(body, "is_active")) {
-    input.is_active = readBoolean(body.is_active, {
-      code,
-      message: "Inventory is_active must be a boolean."
-    });
-  }
+  const input = parseWithSchema(partial ? partialSchema : createSchema, body, {
+    code: "invalid_inventory_item",
+    message: partial ? "Invalid inventory item fields." : "Invalid inventory item."
+  });
 
   if (partial) {
     requireUpdateFields(input, {
-      code,
+      code: "invalid_inventory_item",
       message: "No inventory item fields to update."
     });
   }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { EMAIL_PATTERN, isValidEmail, requireEmail } from "../../../src/shared/validation/email.js";
+import { emailSchema, isValidEmail, requireEmail } from "../../../src/shared/validation/email.js";
 
 /**
  * Tests for email validation.
@@ -12,7 +12,7 @@ describe("email validation", () => {
     expect(isValidEmail(" user@example.com ")).toBe(true);
     expect(isValidEmail("invalid")).toBe(false);
     expect(isValidEmail(null)).toBe(false);
-    expect(EMAIL_PATTERN.test("a@b.c")).toBe(true);
+    expect(emailSchema.safeParse("a@bc.co").success).toBe(true);
   });
 
   test("requireEmail returns normalized email", () => {
