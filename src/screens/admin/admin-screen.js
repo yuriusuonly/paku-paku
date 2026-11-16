@@ -10,7 +10,6 @@ import { useProfilesStore } from "../../stores/profiles-store.js";
 import { useInventoryStore } from "../../stores/inventory-store.js";
 import { useSalesStore } from "../../stores/sales-store.js";
 import { useOrdersStore } from "../../stores/orders-store.js";
-import { useInvoicesStore } from "../../stores/invoices-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -78,10 +77,6 @@ export default function AdminScreen() {
   const ordersLoading = useOrdersStore((s) => s.loading);
   const fetchAdminOrders = useOrdersStore((s) => s.fetchAdminOrders);
 
-  const invoices = useInvoicesStore((s) => s.adminInvoices);
-  const invoicesLoading = useInvoicesStore((s) => s.loading);
-  const fetchAdminInvoices = useInvoicesStore((s) => s.fetchAdminInvoices);
-
   const transactions = useTransactionsStore((s) => s.adminTransactions);
   const transactionsLoading = useTransactionsStore((s) => s.loading);
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
@@ -101,13 +96,12 @@ export default function AdminScreen() {
     void fetchInventory(token).catch(() => {});
     void fetchSales(token).catch(() => {});
     void fetchAdminOrders(token).catch(() => {});
-    void fetchAdminInvoices(token).catch(() => {});
     void fetchAdminTransactions(token).catch(() => {});
     subscribeMenu(token);
     subscribeProfiles(token);
     subscribeInventory(token);
     subscribeSales(token);
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchSales, fetchAdminOrders, fetchAdminInvoices, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory, subscribeSales]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchSales, fetchAdminOrders, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory, subscribeSales]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -147,12 +141,6 @@ export default function AdminScreen() {
     paidCents: orders.filter((o) => o.payment_status === "paid").reduce((sum, o) => sum + Number(o.total_cents || 0), 0)
   }), [orders]);
 
-  const invoicesStats = useMemo(() => ({
-    total: invoices.length,
-    issued: invoices.filter((i) => i.status === "issued").length,
-    paid: invoices.filter((i) => i.status === "paid").length
-  }), [invoices]);
-
   const transactionsStats = useMemo(() => ({
     total: transactions.length,
     completed: transactions.filter((t) => t.status === "completed").length,
@@ -172,7 +160,6 @@ export default function AdminScreen() {
   const inventoryCountLoading = inventoryLoading && inventoryItems.length === 0;
   const salesCountLoading = salesLoading && sales.length === 0;
   const ordersCountLoading = ordersLoading && orders.length === 0;
-  const invoicesCountLoading = invoicesLoading && invoices.length === 0;
   const transactionsCountLoading = transactionsLoading && transactions.length === 0;
 
   const cards = [
@@ -221,17 +208,6 @@ export default function AdminScreen() {
       ]
     },
     {
-      key: "invoices",
-      title: "Invoices",
-      href: "/admin/invoices",
-      linkLabel: "Open invoices & records →",
-      stats: [
-        { label: "Total invoices", value: invoicesStats.total, loading: invoicesCountLoading },
-        { label: "Issued", value: invoicesStats.issued, loading: invoicesCountLoading },
-        { label: "Paid", value: invoicesStats.paid, loading: invoicesCountLoading }
-      ]
-    },
-    {
       key: "transactions",
       title: "Transactions & records",
       href: "/admin/transactions",
@@ -263,7 +239,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu, inventory, sales, orders, invoices, transactions, and profiles.
+          Live operational overview across menu, inventory, sales, orders, transactions, and profiles.
         </Text>
       </View>
 

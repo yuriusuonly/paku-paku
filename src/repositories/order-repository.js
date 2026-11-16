@@ -13,8 +13,6 @@ const ORDER_SELECT =
   "id, order_number, customer_id, status, payment_status, subtotal_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
 const ORDER_ITEM_SELECT =
   "id, order_id, menu_item_id, inventory_item_id, item_name, quantity, unit_price_cents, line_total_cents, created_at";
-const INVOICE_SELECT =
-  "id, invoice_number, order_id, sale_id, customer_id, status, issue_date, due_date, subtotal_cents, tax_cents, total_cents, currency, notes, billing_name, billing_email, qr_payload, created_at, updated_at";
 const TRANSACTION_SELECT =
   "id, transaction_number, order_id, invoice_id, sale_id, customer_id, type, method, status, amount_cents, currency, reference, notes, qr_payload, processed_at, created_at, updated_at";
 
@@ -78,33 +76,7 @@ export async function getOrderById(client, id) {
 }
 
 /**
- * Creates an invoice for an order.
- *
- * @param {import("../database/instance.js").DatabaseClient} database - Database client.
- * @param {object} order - Order row with items.
- * @returns {Promise<object>} Invoice row.
- */
-async function createInvoiceForOrder(database, order) {
-  const payload = {
-    order_id: order.id,
-    customer_id: order.customer_id,
-    status: order.payment_status === "paid" ? "paid" : "issued",
-    subtotal_cents: order.subtotal_cents,
-    tax_cents: 0,
-    total_cents: order.total_cents,
-    currency: order.currency || "PHP",
-    notes: order.notes || null,
-    billing_name: order.customer_name || null,
-    billing_email: order.customer_email || null,
-    qr_payload: `INVOICE|ORDER:${order.order_number}|TOTAL:${order.total_cents}`
-  };
-  const { data, error } = await database.from("invoices").insert(payload).select(INVOICE_SELECT).single();
-  if (error || !data) throw databaseUpstream("invoice_create_failed", "Could not create the invoice for this order.", error);
-  return data;
-}
-
-/**
- * Creates a transaction for an order/invoice.
+ * Creates a transaction record for an order.
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Database client.
  * @param {object} params - Transaction params.
@@ -113,7 +85,7 @@ async function createInvoiceForOrder(database, order) {
 async function createTransactionForOrder(database, params) {
   const payload = {
     order_id: params.order_id,
-    invoice_id: params.invoice_id || null,
+    invoice_id: null,
     customer_id: params.customer_id,
     type: params.type || "payment",
     method: params.method || null,
@@ -122,7 +94,7 @@ async function createTransactionForOrder(database, params) {
     currency: params.currency || "PHP",
     reference: params.reference || null,
     notes: params.notes || null,
-    qr_payload: `TXN|ORDER:${params.order_number || params.order_id}|INVOICE:${params.invoice_number || params.invoice_id || ""}|AMOUNT:${params.amount_cents ?? 0}`
+    qr_payload: `TXN|ORDER:${params.order_number || params.order_id}|AMOUNT:${params.amount_cents ?? 0}`
   };
   const { data, error } = await database.from("transactions").insert(payload).select(TRANSACTION_SELECT).single();
   if (error || !data) throw databaseUpstream("transaction_create_failed", "Could not create the transaction for this order.", error);
@@ -130,12 +102,12 @@ async function createTransactionForOrder(database, params) {
 }
 
 /**
- * Creates a customer order with items, invoice, and transaction.
+ * Creates a customer order with items and a transaction record.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Authenticated database client.
  * @param {object} input - Order payload including items.
  * @param {{customerId: string, profile?: object}} context - Auth/customer context.
- * @returns {Promise<{order: object, invoice: object, transaction: object}>} Created records.
+ * @returns {Promise<{order: object, transaction: object}>} Created records.
  */
 export async function createOrder(client, input, { customerId, profile }) {
   const database = resolveClient(client);
@@ -193,12 +165,9 @@ export async function createOrder(client, input, { customerId, profile }) {
   const finalOrder = !qrError && orderWithQr ? orderWithQr : { ...order, qr_payload: qrPayload };
 
   const [full] = await attachOrderItems(database, [finalOrder]);
-  const invoice = await createInvoiceForOrder(database, full);
   const transaction = await createTransactionForOrder(database, {
     order_id: finalOrder.id,
     order_number: finalOrder.order_number,
-    invoice_id: invoice.id,
-    invoice_number: invoice.invoice_number,
     customer_id: customerId,
     type: "payment",
     method: input.payment_method || null,
@@ -208,7 +177,7 @@ export async function createOrder(client, input, { customerId, profile }) {
     notes: input.payment_reference ? `Reference: ${input.payment_reference}` : null
   });
 
-  return { order: full, invoice, transaction };
+  return { order: full, transaction };
 }
 
 /**

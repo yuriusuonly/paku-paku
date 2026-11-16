@@ -47,7 +47,7 @@ export default function OrdersScreen() {
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
       <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>My orders</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Track your orders, status, and order details.</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Track your orders and show the order QR at the counter when you buy.</Text>
       <Alert variant="error" message={error} />
 
       {loading && orders.length === 0 ? <View className="mt-6"><CircularProgress message="Loading orders..." /></View> : null}

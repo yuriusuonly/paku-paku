@@ -48,7 +48,6 @@ export function Header() {
             <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Menu</Text></Pressable></Link>
             <Link href="/cart" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Cart{cartCount ? ` (${cartCount})` : ""}</Text></Pressable></Link>
             <Link href="/orders" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Orders</Text></Pressable></Link>
-            <Link href="/invoices" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Invoices</Text></Pressable></Link>
             <Link href="/transactions" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Records</Text></Pressable></Link>
             <Link href="/account" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Account</Text></Pressable></Link>
           </>

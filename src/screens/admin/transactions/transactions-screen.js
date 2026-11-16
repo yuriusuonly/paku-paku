@@ -19,7 +19,7 @@ import { cx } from "../../../shared/constants/theme.js";
  * @module screens/admin/transactions/transactions-screen
  */
 
-const emptyForm = { type: "payment", method: "cash", status: "completed", amount_cents: "0", reference: "", notes: "", order_id: "", invoice_id: "" };
+const emptyForm = { type: "payment", method: "cash", status: "completed", amount_cents: "0", reference: "", notes: "", order_id: "" };
 
 export default function AdminTransactionsScreen() {
   const router = useRouter();
@@ -73,7 +73,6 @@ export default function AdminTransactionsScreen() {
         ...form,
         amount_cents: amount,
         order_id: form.order_id.trim() || null,
-        invoice_id: form.invoice_id.trim() || null,
         reference: form.reference.trim() || null,
         notes: form.notes.trim() || null
       });
@@ -109,7 +108,6 @@ export default function AdminTransactionsScreen() {
         <TextField label="Status" value={form.status} onChangeText={(v) => setForm((f) => ({ ...f, status: v }))} placeholder="pending, completed, failed, cancelled, refunded" />
         <TextField label="Amount (cents)" value={form.amount_cents} onChangeText={(v) => setForm((f) => ({ ...f, amount_cents: v }))} keyboardType="numeric" />
         <TextField label="Order ID" value={form.order_id} onChangeText={(v) => setForm((f) => ({ ...f, order_id: v }))} placeholder="Optional" />
-        <TextField label="Invoice ID" value={form.invoice_id} onChangeText={(v) => setForm((f) => ({ ...f, invoice_id: v }))} placeholder="Optional" />
         <TextField label="Reference" value={form.reference} onChangeText={(v) => setForm((f) => ({ ...f, reference: v }))} placeholder="Optional reference" />
         <TextField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Optional notes" multiline numberOfLines={3} />
         <View className="flex-row gap-3"><Button label="Create record" onPress={createRecord} loading={syncing} /><Button label="Clear" variant="ghost" onPress={() => setForm(emptyForm)} /></View>
@@ -123,7 +121,7 @@ export default function AdminTransactionsScreen() {
           <View key={tx.id} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>{tx.transaction_number} · ₱{(Number(tx.amount_cents || 0) / 100).toFixed(2)}</Text>
             <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>{tx.type} · {tx.status} · {tx.method || "-"} · {new Date(tx.created_at).toLocaleString()}</Text>
-            <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>Order: {tx.order_id || "-"} · Invoice: {tx.invoice_id || "-"} · Ref: {tx.reference || "-"}</Text>
+            <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>Order: {tx.order_id || "-"} · Ref: {tx.reference || "-"}</Text>
             {tx.notes ? <Text className={`font-outfit mt-2 text-sm ${cx.textInk80}`}>{tx.notes}</Text> : null}
             {tx.qr_payload ? <View className="mt-4"><QrCode value={tx.qr_payload} label="Record QR" /></View> : null}
             <View className="mt-3 flex-row flex-wrap gap-2">

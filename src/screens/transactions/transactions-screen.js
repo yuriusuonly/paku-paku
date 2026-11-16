@@ -60,7 +60,7 @@ export default function TransactionsScreen() {
               {tx.type} · {tx.status} · {tx.method || "-"} · {new Date(tx.created_at).toLocaleString()}
             </Text>
             <Text className={`font-outfit mt-1 text-xs ${cx.textInk60}`}>
-              Order: {tx.order_id || "-"} · Invoice: {tx.invoice_id || "-"} · Ref: {tx.reference || "-"}
+              Order: {tx.order_id || "-"} · Ref: {tx.reference || "-"}
             </Text>
             {tx.notes ? <Text className={`font-outfit mt-2 text-sm ${cx.textInk80}`}>{tx.notes}</Text> : null}
             {tx.qr_payload ? <View className="mt-4"><QrCode value={tx.qr_payload} label="Record QR" /></View> : null}

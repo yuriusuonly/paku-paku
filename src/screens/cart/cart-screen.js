@@ -6,6 +6,7 @@ import { Button } from "../../components/button.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { EmptyState } from "../../components/empty-state.js";
 import { Header } from "../../components/header.js";
+import { QrCode } from "../../components/qr-code.js";
 import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth-store.js";
@@ -40,6 +41,7 @@ export default function CartScreen() {
 
   const [form, setForm] = useState({ customer_name: "", customer_phone: "", notes: "", payment_method: "cash" });
   const [error, setError] = useState("");
+  const [placedOrder, setPlacedOrder] = useState(null);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -96,8 +98,8 @@ export default function CartScreen() {
         status: "pending"
       });
       clearCart();
-      showSuccess("Order placed successfully.");
-      router.replace("/orders");
+      if (data?.order) setPlacedOrder(data.order);
+      showSuccess("Order placed. Present the QR code at the counter.");
       return data;
     } catch (e) {
       const message = e?.message || "Could not place the order.";
@@ -110,11 +112,30 @@ export default function CartScreen() {
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
       <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Cart & checkout</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Review your cart, confirm details, and place your order.</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
+        Review your cart, place your order, and present the order QR code at the counter.
+      </Text>
 
       <Alert variant="error" message={error} />
 
-      {cartItems.length === 0 ? (
+      {placedOrder ? (
+        <View className="mt-6 gap-4">
+          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Order placed</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+              {placedOrder.order_number} · ₱{(Number(placedOrder.total_cents || 0) / 100).toFixed(2)}
+            </Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+              Present this QR code at the counter to complete your buy/sell transaction.
+            </Text>
+            {placedOrder.qr_payload ? <View className="mt-2"><QrCode value={placedOrder.qr_payload} label="Order QR for counter" /></View> : null}
+            <View className="flex-row flex-wrap gap-3 pt-2">
+              <Link href="/orders" asChild><Button label="View my orders" /></Link>
+              <Button label="Place another order" variant="ghost" onPress={() => { setPlacedOrder(null); router.push("/menu"); }} />
+            </View>
+          </View>
+        </View>
+      ) : cartItems.length === 0 ? (
         <View className="mt-6 gap-4">
           <EmptyState message="Your cart is empty. Add items from the menu to place an order." />
           <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text></Pressable></Link>
@@ -156,7 +177,9 @@ export default function CartScreen() {
               <Button label="Place order" onPress={checkout} loading={syncing} />
               <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
             </View>
-            <Text className={`font-outfit text-xs ${cx.textInk60}`}>Placing an order creates your order, invoice, and transaction record with a QR code for quick verification.</Text>
+            <Text className={`font-outfit text-xs ${cx.textInk60}`}>
+              Placing an order generates an order QR code for you to present at the counter.
+            </Text>
           </View>
         </View>
       )}

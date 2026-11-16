@@ -72,7 +72,7 @@ export default function AccountScreen() {
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
       <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>My account</Text>
-      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your customer account details used for orders, invoices, and QR records.</Text>
+      <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your customer account details used for orders and counter checkout.</Text>
       <Alert variant="error" message={error} />
 
       {loading ? <View className="mt-6"><CircularProgress message="Loading account..." /></View> : (
