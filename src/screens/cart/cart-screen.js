@@ -150,31 +150,24 @@ export default function CartScreen() {
                 </View>
               );
             })}
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
-          </View>
-
-          <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
-            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Checkout</Text>
-            <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-              This transaction will use your account details.
-            </Text>
-            <View className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-1`}>
-              <Text className={`font-outfit text-sm ${cx.textInk}`}>Name: {user?.full_name || "Not set"}</Text>
-              <Text className={`font-outfit text-sm ${cx.textInk}`}>Phone: {user?.phone || "Not set"}</Text>
-              <Text className={`font-outfit text-sm ${cx.textInk}`}>Email: {user?.email || "-"}</Text>
+            <View className={`mt-1 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-2`}>
+              <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
+              <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+                Uses account details: {user?.full_name || "Name not set"} · {user?.phone || "Phone not set"} · {user?.email || "-"}
+              </Text>
+              <Link href="/account" asChild>
+                <Pressable>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
+                </Pressable>
+              </Link>
+              <View className="flex-row flex-wrap gap-3 pt-1">
+                <Button label="Place transaction" onPress={checkout} loading={syncing} />
+                <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
+              </View>
+              <Text className={`font-outfit text-xs ${cx.textInk60}`}>
+                Placing a transaction generates a QR code for you to present at the counter.
+              </Text>
             </View>
-            <Link href="/account" asChild>
-              <Pressable>
-                <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Update account details →</Text>
-              </Pressable>
-            </Link>
-            <View className="flex-row flex-wrap gap-3 pt-2">
-              <Button label="Place transaction" onPress={checkout} loading={syncing} />
-              <Button label="Clear cart" variant="ghost" onPress={clearCart} disabled={syncing} />
-            </View>
-            <Text className={`font-outfit text-xs ${cx.textInk60}`}>
-              Placing a transaction generates a QR code for you to present at the counter.
-            </Text>
           </View>
         </View>
       )}
