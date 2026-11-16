@@ -1,8 +1,10 @@
-import { Pressable, Text } from "react-native";
+import { Text } from "react-native";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { EmptyState } from "../../../components/empty-state.js";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
+import { StatusPill } from "../../../components/status-pill.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
+import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -21,13 +23,6 @@ const columns = [
   { key: "created_at", label: "Created at", width: 220 },
   { key: "updated_at", label: "Updated at", width: 220 }
 ];
-
-function formatAuditTimestamp(value) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString();
-}
 
 /**
  * @param {object} props
@@ -83,25 +78,19 @@ export function MenuItemsTableSection({
                       return (
                         <TableCell key={`${rowKey}-${column.key}`} width={column.width} last={last}>
                           {isAvailability ? (
-                            <Pressable
+                            <StatusPill
+                              label={rawValue ? "available" : "unavailable"}
+                              active={Boolean(rawValue)}
                               onPress={() => { void onToggleAvailable(item); }}
                               disabled={savingCell === `${item.id}:is_available`}
-                              className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              <Text className={`font-outfit text-xs font-bold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}>
-                                {rawValue ? "available" : "unavailable"}
-                              </Text>
-                            </Pressable>
+                            />
                           ) : isBestSeller ? (
-                            <Pressable
+                            <StatusPill
+                              label={rawValue ? "best seller" : "regular"}
+                              active={Boolean(rawValue)}
                               onPress={() => { void onToggleBestSeller(item); }}
                               disabled={savingCell === `${item.id}:is_best_seller`}
-                              className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              <Text className={`font-outfit text-xs font-bold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}>
-                                {rawValue ? "best seller" : "regular"}
-                              </Text>
-                            </Pressable>
+                            />
                           ) : isEditable ? (
                             <InlineEditableCell
                               value={rawValue ?? (column.key === "description" ? "" : rawValue)}

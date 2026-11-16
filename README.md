@@ -243,119 +243,178 @@ containers themselves are not part of the app compose stack. |
 
 ```text
 ./
+├── .dockerignore
+├── .gitignore
 ├── .github/
-│   └── workflows/
-│       └── deploy.yml
+│   ├── workflows/
+│   │   ├── deploy-expo.yml
+│   │   ├── deploy-supabase.yml
+├── AGENTS.md
+├── CONTRIBUTING.md
 ├── Caddyfile
 ├── Dockerfile
-├── docker-compose.yml
-├── README.md
-├── CONTRIBUTING.md
-├── AGENTS.md
 ├── LICENSE.txt
-├── eas.json
-├── opencode.json
+├── README.md
 ├── app.config.js
 ├── babel.config.js
+├── docker-compose.yml
+├── eas.json
 ├── metro.config.js
-├── tailwind.config.js
-├── package.json
+├── opencode.json
 ├── package-lock.json
-├── .dockerignore
-├── .env
-├── .gitignore
+├── package.json
+├── tailwind.config.js
 ├── png/
+│   ├── logo-maskable.png
 │   ├── logo.png
-│   └── logo-maskable.png
-├── svg/
-│   ├── logo.svg
-│   └── logo-maskable.svg
 ├── src/
 │   ├── app/
-│   │   ├── _layout.js
-│   │   ├── +html.js
-│   │   ├── +not-found.js
-│   │   ├── index.js
-│   │   ├── signin/
-│   │   │   └── index.js
-│   │   ├── signup/
-│   │   │   └── index.js
+│   │   ├── account.js
 │   │   ├── admin/
 │   │   │   ├── index.js
-│   │   │   ├── menu-items/
-│   │   │   │   └── index.js
-│   │   │   └── profiles/
-│   │   │       └── index.js
+│   │   │   ├── inventory.js
+│   │   │   ├── menu-items.js
+│   │   │   ├── profiles.js
+│   │   │   ├── transactions.js
 │   │   ├── api/
+│   │   │   ├── account/
+│   │   │   │   ├── profile+api.js
 │   │   │   ├── admin/
-│   │   │   │   └── profiles+api.js
-│   │   │   ├── session/
-│   │   │   │   └── +api.js
-│   │   │   ├── signin/
-│   │   │   │   └── +api.js
-│   │   │   ├── signout/
-│   │   │   │   └── +api.js
-│   │   │   ├── signup/
-│   │   │   │   └── +api.js
+│   │   │   │   ├── inventory/
+│   │   │   │   │   ├── +api.js
+│   │   │   │   │   ├── [id]+api.js
+│   │   │   │   ├── profiles+api.js
+│   │   │   │   ├── transactions/
+│   │   │   │   │   ├── +api.js
+│   │   │   │   │   ├── [id]+api.js
+│   │   │   ├── health+api.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── +api.js
-│   │   │   │   └── [id]+api.js
-│   │   │   └── health+api.js
+│   │   │   │   ├── [id]+api.js
+│   │   │   ├── recover+api.js
+│   │   │   ├── session+api.js
+│   │   │   ├── signin+api.js
+│   │   │   ├── signout+api.js
+│   │   │   ├── signup+api.js
+│   │   │   ├── transactions/
+│   │   │   │   ├── +api.js
+│   │   │   │   ├── [id]+api.js
+│   │   ├── cart.js
+│   │   ├── +html.js
+│   │   ├── index.js
+│   │   ├── _layout.js
 │   │   ├── manifest.json+api.js
+│   │   ├── menu.js
+│   │   ├── +not-found.js
+│   │   ├── recover.js
 │   │   ├── robots.txt+api.js
-│   │   └── service-worker.js+api.js
+│   │   ├── service-worker.js+api.js
+│   │   ├── signin.js
+│   │   ├── signup.js
+│   │   ├── transactions.js
 │   ├── components/
+│   │   ├── accordion.js
 │   │   ├── alert.js
 │   │   ├── button.js
 │   │   ├── circular-progress.js
 │   │   ├── container.js
+│   │   ├── empty-state.js
 │   │   ├── header.js
+│   │   ├── inline-editable-cell.js
+│   │   ├── inline-select.js
+│   │   ├── qr-code.js
 │   │   ├── snackbar.js
-│   │   └── text-field.js
+│   │   ├── status-pill.js
+│   │   ├── table.js
+│   │   ├── text-field.js
+│   ├── database/
+│   │   ├── instance.js
 │   ├── endpoints/
+│   │   ├── account/
+│   │   │   ├── profile.js
 │   │   ├── admin/
-│   │   │   └── profiles.js
+│   │   │   ├── inventory/
+│   │   │   │   ├── [id].js
+│   │   │   │   ├── index.js
+│   │   │   ├── profiles.js
+│   │   │   ├── transactions/
+│   │   │   │   ├── [id].js
+│   │   │   │   ├── index.js
+│   │   ├── health.js
 │   │   ├── menu-items/
 │   │   │   ├── [id].js
-│   │   │   └── index.js
+│   │   │   ├── index.js
+│   │   ├── recover/
+│   │   │   ├── index.js
 │   │   ├── session/
-│   │   │   └── index.js
+│   │   │   ├── index.js
 │   │   ├── signin/
-│   │   │   └── index.js
+│   │   │   ├── index.js
 │   │   ├── signout/
-│   │   │   └── index.js
+│   │   │   ├── index.js
 │   │   ├── signup/
-│   │   │   └── index.js
-│   │   └── health.js
+│   │   │   ├── index.js
+│   │   ├── transactions/
+│   │   │   ├── [id].js
+│   │   │   ├── index.js
 │   ├── interceptors/
 │   │   ├── authentication-interceptor.js
 │   │   ├── authorization-interceptor.js
 │   │   ├── body-interceptor.js
 │   │   ├── error-interceptor.js
 │   │   ├── log-interceptor.js
-│   │   └── method-interceptor.js
+│   │   ├── method-interceptor.js
 │   ├── repositories/
 │   │   ├── auth-repository.js
+│   │   ├── inventory-repository.js
 │   │   ├── menu-repository.js
-│   │   └── profile-repository.js
+│   │   ├── profile-repository.js
+│   │   ├── transaction-repository.js
 │   ├── screens/
+│   │   ├── account/
+│   │   │   ├── account-form-component.js
+│   │   │   ├── account-screen.js
 │   │   ├── admin/
 │   │   │   ├── admin-screen.js
+│   │   │   ├── inventory/
+│   │   │   │   ├── inventory-form-component.js
+│   │   │   │   ├── inventory-list-component.js
+│   │   │   │   ├── inventory-screen.js
 │   │   │   ├── menu-items/
-│   │   │   │   └── menu-items-screen.js
-│   │   │   └── profiles/
-│   │   │       └── profiles-screen.js
+│   │   │   │   ├── menu-item-form-component.js
+│   │   │   │   ├── menu-items-screen.js
+│   │   │   │   ├── menu-items-table-component.js
+│   │   │   ├── profiles/
+│   │   │   │   ├── profiles-form-component.js
+│   │   │   │   ├── profiles-screen.js
+│   │   │   │   ├── profiles-table-component.js
+│   │   │   ├── transactions/
+│   │   │   │   ├── transactions-form-component.js
+│   │   │   │   ├── transactions-screen.js
+│   │   │   │   ├── transactions-table-component.js
+│   │   ├── cart/
+│   │   │   ├── cart-items-component.js
+│   │   │   ├── cart-placed-component.js
+│   │   │   ├── cart-screen.js
+│   │   ├── menu/
+│   │   │   ├── menu-screen.js
+│   │   ├── recover/
+│   │   │   ├── recover-screen.js
+│   │   ├── root.js
 │   │   ├── signin/
-│   │   │   └── signin-screen.js
+│   │   │   ├── signin-screen.js
 │   │   ├── signup/
-│   │   │   └── signup-screen.js
-│   │   └── root.js
+│   │   │   ├── signup-screen.js
+│   │   ├── transactions/
+│   │   │   ├── transactions-screen.js
 │   ├── services/
+│   │   ├── account.js
 │   │   ├── admin.js
 │   │   ├── auth.js
-│   │   └── menu.js
-│   ├── database/
-│   │   └── instance.js
+│   │   ├── inventory.js
+│   │   ├── menu.js
+│   │   ├── realtime.js
+│   │   ├── transactions.js
 │   ├── shared/
 │   │   ├── cipher/
 │   │   │   ├── decode.js
@@ -364,11 +423,12 @@ containers themselves are not part of the app compose stack. |
 │   │   │   ├── encrypt.js
 │   │   │   ├── hash.js
 │   │   │   ├── id.js
-│   │   │   └── token.js
+│   │   │   ├── token.js
 │   │   ├── constants/
 │   │   │   ├── config.js
 │   │   │   ├── http.js
-│   │   │   └── theme.js
+│   │   │   ├── layout.js
+│   │   │   ├── theme.js
 │   │   ├── errors/
 │   │   │   ├── bad-gateway.js
 │   │   │   ├── bad-request.js
@@ -383,31 +443,53 @@ containers themselves are not part of the app compose stack. |
 │   │   │   ├── not-found.js
 │   │   │   ├── service-unavailable.js
 │   │   │   ├── too-many-requests.js
-│   │   │   └── unauthorized.js
-│   │   └── network/
-│   │       ├── middleware.js
-│   │       ├── request.js
-│   │       ├── response.js
-│   │       └── transport.js
+│   │   │   ├── unauthorized.js
+│   │   ├── format/
+│   │   │   ├── date.js
+│   │   ├── network/
+│   │   │   ├── middleware.js
+│   │   │   ├── request.js
+│   │   │   ├── response.js
+│   │   │   ├── transport.js
+│   │   ├── stylesheets/
+│   │   │   ├── global.css
 │   ├── stores/
 │   │   ├── app-store.js
 │   │   ├── auth-store.js
+│   │   ├── cart-store.js
+│   │   ├── inventory-store.js
 │   │   ├── menu-store.js
 │   │   ├── notification-store.js
-│   │   └── profiles-store.js
-│   └── shared/
-│       └── stylesheets/
-│           └── global.css
+│   │   ├── profiles-store.js
+│   │   ├── remember-email.js
+│   │   ├── transactions-store.js
 ├── supabase/
+│   ├── .gitignore
 │   ├── config.toml
 │   ├── migrations/
 │   │   ├── 20261113000000_create_menu_items.sql
 │   │   ├── 20261113000001_create_profiles.sql
-│   │   ├── 20261113120000_allow_admin_menu_item_writes.sql
-│   │   └── 20261113123000_enforce_single_admin_and_registration.sql
-│   └── seeds/
-│       ├── 01_menu_items.sql
-│       └── 02_admin.sql
-└── ttf/
-    └── Outfit-VariableFont_wght.ttf
+│   │   ├── 20261113000002_configure_menu_items_access.sql
+│   │   ├── 20261113000003_configure_profiles_access.sql
+│   │   ├── 20261114000000_create_inventory_and_sales.sql
+│   │   ├── 20261116000000_full_business_operations.sql
+│   │   ├── 20261116000001_replace_delivery_address_with_qr.sql
+│   │   ├── 20261116000002_add_menu_item_best_seller.sql
+│   │   ├── 20261116000003_unify_into_transactions.sql
+│   ├── seeds/
+│   │   ├── 00_root.sql
+│   │   ├── 01_menu_items.sql
+│   │   ├── 03_inventory_items.sql
+│   ├── snippets/
+├── svg/
+│   ├── logo-maskable.svg
+│   ├── logo.svg
+├── test/
+│   ├── services/
+│   │   ├── admin.test.js
+│   │   ├── auth.test.js
+│   │   ├── http.test.js
+│   │   ├── menu.test.js
+├── ttf/
+│   ├── Outfit-VariableFont_wght.ttf
 ```

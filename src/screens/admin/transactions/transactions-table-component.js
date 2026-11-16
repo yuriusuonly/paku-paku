@@ -4,6 +4,7 @@ import { EmptyState } from "../../../components/empty-state.js";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
 import { InlineSelect } from "../../../components/inline-select.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
+import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -85,7 +86,7 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
                           ) : column.key === "notes" ? (
                             <InlineEditableCell value={tx.notes} placeholder="notes" onSave={(v) => onSaveField(tx, "notes", v)} />
                           ) : column.key === "created_at" ? (
-                            <Text className={`font-outfit text-sm ${cx.textInk70}`}>{tx.created_at ? new Date(tx.created_at).toLocaleString() : "-"}</Text>
+                            <Text className={`font-outfit text-sm ${cx.textInk70}`}>{formatAuditTimestamp(tx.created_at)}</Text>
                           ) : (
                             (tx.items || []).length ? (
                               <View className="gap-1">

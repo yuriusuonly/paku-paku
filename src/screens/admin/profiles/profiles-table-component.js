@@ -1,7 +1,9 @@
-import { Pressable, Text } from "react-native";
+import { Text } from "react-native";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { EmptyState } from "../../../components/empty-state.js";
+import { StatusPill } from "../../../components/status-pill.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
+import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -17,13 +19,6 @@ const columns = [
   { key: "created_at", label: "Created at", width: 220 },
   { key: "updated_at", label: "Updated at", width: 220 }
 ];
-
-function formatAuditTimestamp(value) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleString();
-}
 
 export function ProfilesTableSection({ profiles, loading, syncing, error, updatingId, currentUserId, onToggleActive }) {
   const showInitialLoading = loading && profiles.length === 0;
@@ -60,23 +55,15 @@ export function ProfilesTableSection({ profiles, loading, syncing, error, updati
                       return (
                         <TableCell key={`${rowKey}-${column.key}`} width={column.width} last={last}>
                           {isStatus ? (
-                            <Pressable
+                            <StatusPill
+                              label={String(displayValue)}
+                              active={isActive}
                               onPress={() => { void onToggleActive(profile); }}
                               disabled={updatingId === profile.id || isSelf}
-                              className={`self-start rounded-full px-3 py-1 ${isActive ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              {updatingId === profile.id ? (
-                                <CircularProgress size="small" />
-                              ) : (
-                                <Text className={`font-outfit text-xs font-bold uppercase ${isActive ? cx.textPrimary : cx.textInk70}`}>
-                                  {String(displayValue)}
-                                </Text>
-                              )}
-                            </Pressable>
+                              loading={updatingId === profile.id}
+                            />
                           ) : isRole ? (
-                            <Text className={`self-start rounded-full px-3 py-1 font-outfit text-xs font-bold uppercase ${isAdminRole ? `${cx.bgPrimarySoft} ${cx.textPrimary}` : `${cx.bgSurfaceMuted} ${cx.textInk70}`}`}>
-                              {String(displayValue)}
-                            </Text>
+                            <StatusPill label={String(displayValue)} active={isAdminRole} />
                           ) : (
                             <Text selectable className={`font-outfit text-sm ${column.key === "email" ? `font-semibold ${cx.textInk}` : cx.textInk70}`}>
                               {String(displayValue)}

@@ -1,7 +1,8 @@
-import { Pressable, Text } from "react-native";
+import { Text } from "react-native";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { EmptyState } from "../../../components/empty-state.js";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
+import { StatusPill } from "../../../components/status-pill.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -72,15 +73,12 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                           ) : column.key === "menu_item_id" ? (
                             <InlineEditableCell value={item.menu_item_id || ""} placeholder="N/A" onSave={(v) => onSaveField(item, "menu_item_id", v)} />
                           ) : column.key === "is_active" ? (
-                            <Pressable
+                            <StatusPill
+                              label={item.is_active ? "In Stock" : "Out of Stock"}
+                              active={Boolean(item.is_active)}
                               onPress={() => { void onToggleActive(item); }}
                               disabled={busy}
-                              className={`self-start rounded-full px-3 py-1 ${item.is_active ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
-                            >
-                              <Text className={`font-outfit text-xs font-bold uppercase ${item.is_active ? cx.textPrimary : cx.textInk70}`}>
-                                {item.is_active ? "In Stock" : "Out of Stock"}
-                              </Text>
-                            </Pressable>
+                            />
                           ) : (
                             <Text selectable className={`font-outfit text-sm ${cx.textInk70}`}>{String(item.id ?? "-")}</Text>
                           )}
