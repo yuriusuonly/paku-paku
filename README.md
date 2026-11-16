@@ -152,14 +152,15 @@ npm run expo:serve  # serves build/ on $URL_PORT
 ## Automated tests
 
 ```bash
-npm test                 # unit + integration/mock tests (bun)
-npm run test:e2e         # Playwright browser smoke tests (app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, default http://127.0.0.1:3000)
-npm run test:e2e:docker  # run Playwright in Docker Compose using mcr.microsoft.com/playwright:v1.52.0-noble
+npm test                   # unit + integration/mock tests (bun)
+npm run test:docker        # unit + integration/mock tests in Docker Compose (profile: test, oven/bun:1)
+npm run test:e2e           # Playwright browser smoke tests (loads .env; app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, else URL_PROTOCOL://URL_HOST:URL_PORT)
+npm run test:e2e:docker    # Playwright E2E in Docker Compose (profile: e2e, mcr.microsoft.com/playwright:v1.52.0-noble)
 ```
 
 - `npm test` runs Bun tests under `test/` (unit, integration, and service/mock coverage).
 - Playwright end-to-end smoke tests live in `test/e2e/` (`*.e2e.js`) and use `playwright.config.js`.
-- `docker-compose.playwright.yml` runs Playwright in the noble-based Playwright image (`mcr.microsoft.com/playwright:v1.52.0-noble`). Start the app first (for example `npm run expo:serve` or the Dockerized app) and set `PLAYWRIGHT_BASE_URL` if needed (defaults to `http://host.docker.internal:$URL_PORT` in the compose runner).
+- `docker-compose.yml` is all-in-one for local run/build/tests: `app` profile runs `server`+`caddy`, `build` exports static assets to `./build`, `test` runs Bun tests, and `e2e` runs Playwright in the noble image. Start a reachable app target before `test:e2e:docker` and set `PLAYWRIGHT_BASE_URL` if needed (defaults to `http://host.docker.internal:$URL_PORT`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
 builds keep the local Supabase target, so start the local stack before opening
@@ -193,26 +194,23 @@ builds. The `--environment production` flag makes EAS production environment
 variables available to server-side API routes. Use `npm run github:deploy` to
 refresh the `DOT_ENV` secret and push the current branch.
 
-## Docker
+## Docker (all-in-one compose)
+
+`docker-compose.yml` provides local run, build, and test workflows via profiles:
 
 ```bash
-npm run docker:build
-npm run docker:up
-npm run docker:logs
-npm run docker:down
+npm run docker:build         # build app image (profile: app)
+npm run docker:up            # start server + caddy (profile: app)
+npm run docker:logs          # follow app logs
+npm run docker:down          # stop/remove app/build/test/e2e services
+npm run docker:build:static  # export static build to ./build in Docker (profile: build)
+npm run test:docker          # run Bun unit/integration/mock tests in Docker (profile: test)
+npm run test:e2e:docker      # run Playwright E2E in Docker (profile: e2e, noble image)
 ```
 
-Two services share one multi-stage image: `server` runs `expo serve` on
-`$URL_PORT`, and `caddy` terminates HTTPS on `$URL_PROXY_PORT` and proxies to
-`server`. The server healthcheck hits `/api/health`; Caddy waits for it to
-become healthy.
-
-The compose stack serves the static app and its Expo Router API routes. For
-local development it joins the external `supabase_network_paku-paku` network
-created by `npm run supabase:start`, so server routes can reach Kong at
-`http://api.supabase.internal:8000` (`SUPABASE_LOCAL_SERVER_URL`). Start the
-local Supabase stack before `npm run docker:up`; PostgreSQL and Supabase
-containers themselves are not part of the app compose stack. |
+- **Local run (`app`)**: `server` runs `expo serve` on `$URL_PORT` and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `npm run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
+- **Build (`build`)**: one-shot container exports the static web app into `./build`.
+- **Tests (`test`, `e2e`)**: `test-unit` runs Bun tests in `oven/bun:1`; `playwright` runs browser/API smoke tests in `mcr.microsoft.com/playwright:v1.52.0-noble` against a reachable `PLAYWRIGHT_BASE_URL`.
 
 ## Routes & endpoints
 
@@ -270,7 +268,6 @@ containers themselves are not part of the app compose stack. |
 ├── app.config.js
 ├── babel.config.js
 ├── docker-compose.yml
-├── docker-compose.playwright.yml
 ├── eas.json
 ├── metro.config.js
 ├── opencode.json

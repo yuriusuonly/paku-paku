@@ -1,5 +1,7 @@
-# Shared build definition for both services (one image, two roles).
-x-build: &build
+# All-in-one Docker Compose for local run, build, and tests.
+# Requires `.env` (see `npm run docker:*` / `test:*:docker` scripts).
+
+x-app-build: &app-build
   context: .
   args:
     URL_PORT: ${URL_PORT}
@@ -13,7 +15,9 @@ x-build: &build
 
 services:
   server:
-    build: *build
+    profiles: ["app"]
+    build: *app-build
+    image: paku-paku-app:local
     # Server-side Supabase config is read at runtime, not inlined. Docker
     # reaches the local stack through Kong on the Supabase project network
     # instead of the host's loopback address (127.0.0.1 is not routable here).
@@ -39,9 +43,11 @@ services:
     restart: unless-stopped
 
   caddy:
+    profiles: ["app"]
+    build: *app-build
+    image: paku-paku-app:local
     # HTTPS edge; `BACKEND_HOST` points the Caddyfile's
     # `{$BACKEND_HOST:-localhost}` placeholder at the `server` service alias.
-    build: *build
     command: ["caddy", "run", "--config", "/app/Caddyfile"]
     environment:
       BACKEND_HOST: server
@@ -52,9 +58,58 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # One-shot: build static web export into ./build on the host.
+  build:
+    profiles: ["build"]
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - build_node_modules:/app/node_modules
+    environment:
+      EXPO_PUBLIC_SUPABASE_TARGET: ${EXPO_PUBLIC_SUPABASE_TARGET:-local}
+      EXPO_PUBLIC_SUPABASE_LOCAL_URL: ${EXPO_PUBLIC_SUPABASE_LOCAL_URL}
+      EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY}
+      EXPO_PUBLIC_SUPABASE_URL: ${EXPO_PUBLIC_SUPABASE_URL}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_ANON_KEY}
+    command: ["sh", "-lc", "npm ci && npm run expo:build"]
+
+  # One-shot: unit and integration/mock tests (Bun).
+  test-unit:
+    profiles: ["test"]
+    image: oven/bun:1
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - test_node_modules:/app/node_modules
+    command: ["sh", "-lc", "bun install --frozen-lockfile && bun test"]
+
+  # One-shot: Playwright browser E2E tests (noble image).
+  # Requires a running/reachable app target (PLAYWRIGHT_BASE_URL).
+  playwright:
+    profiles: ["e2e"]
+    image: mcr.microsoft.com/playwright:v1.52.0-noble
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - playwright_node_modules:/app/node_modules
+    environment:
+      PLAYWRIGHT_BASE_URL: ${PLAYWRIGHT_BASE_URL:-http://host.docker.internal:${URL_PORT:-3000}}
+      CI: ${CI:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ipc: host
+    init: true
+    command: ["bash", "-lc", "npm ci && npx playwright test"]
+
 networks:
   # Created by `npm run supabase:start` as `supabase_network_<project_id>`.
-  # Start the local Supabase stack before `npm run docker:up`.
+  # Start the local Supabase stack before running the `app` profile.
   supabase:
     external: true
     name: ${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}
+
+volumes:
+  build_node_modules:
+  test_node_modules:
+  playwright_node_modules:

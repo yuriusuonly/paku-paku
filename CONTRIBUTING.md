@@ -122,8 +122,8 @@ flowchart LR
 - Never include the `@example` tag in JSDoc.
 
 ## Verification
-- Run automated tests: `npm test` for Bun unit/integration/mock tests and `npm run test:e2e` for Playwright browser smoke tests (app must be running; `npm run test:e2e:docker` runs Playwright via `docker-compose.playwright.yml` using `mcr.microsoft.com/playwright:v1.52.0-noble`).
-- Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` if touching container/runtime config.
+- Run automated tests: `npm test` for Bun unit/integration/mock tests and `npm run test:e2e` for Playwright browser smoke tests (app must be running/reachable). Dockerized test runners are available in the all-in-one `docker-compose.yml`: `npm run test:docker` (profile `test`, `oven/bun:1`) and `npm run test:e2e:docker` (profile `e2e`, `mcr.microsoft.com/playwright:v1.52.0-noble`).
+- Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` / `npm run docker:up` or `npm run docker:build:static` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
 - With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/signin` with `{"username":"root","password":"admin"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
 
