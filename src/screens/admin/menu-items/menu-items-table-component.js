@@ -70,7 +70,7 @@ function InlineEditableCell({ value, onSave, numeric = false, placeholder = "", 
       keyboardType={numeric ? "numeric" : "default"}
       multiline={multiline}
       textAlignVertical={multiline ? "top" : "center"}
-      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm font-semibold ${cx.textInk} ${multiline ? "min-h-[72px]" : ""}`}
+      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm font-bold ${cx.textInk} ${multiline ? "min-h-[72px]" : ""}`}
     />
   );
 }
@@ -151,15 +151,11 @@ export function MenuItemsTableSection({
                             disabled={savingCell === `${item.id}:is_available`}
                             className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                           >
-                            {savingCell === `${item.id}:is_available` ? (
-                              <CircularProgress size="small" />
-                            ) : (
-                              <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
-                              >
-                                {rawValue ? "available" : "unavailable"}
-                              </Text>
-                            )}
+                            <Text
+                              className={`font-outfit text-xs font-bold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
+                            >
+                              {rawValue ? "available" : "unavailable"}
+                            </Text>
                           </Pressable>
                         ) : isBestSeller ? (
                           <Pressable
@@ -167,15 +163,11 @@ export function MenuItemsTableSection({
                             disabled={savingCell === `${item.id}:is_best_seller`}
                             className={`self-start rounded-full px-3 py-1 ${rawValue ? cx.bgPrimarySoft : cx.bgSurfaceMuted}`}
                           >
-                            {savingCell === `${item.id}:is_best_seller` ? (
-                              <CircularProgress size="small" />
-                            ) : (
-                              <Text
-                                className={`font-outfit text-xs font-semibold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
-                              >
-                                {rawValue ? "best seller" : "regular"}
-                              </Text>
-                            )}
+                            <Text
+                              className={`font-outfit text-xs font-bold uppercase ${rawValue ? cx.textPrimary : cx.textInk70}`}
+                            >
+                              {rawValue ? "best seller" : "regular"}
+                            </Text>
                           </Pressable>
                         ) : isEditable ? (
                           <InlineEditableCell
