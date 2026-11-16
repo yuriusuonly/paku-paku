@@ -12,6 +12,7 @@ import { useAuthStore } from "../../../stores/auth-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { menuItemCreateSchema } from "../../../domain/menu-items/schema.js";
 import { MenuItemFormSection } from "./menu-item-form-component.js";
 import { MenuItemsTableSection } from "./menu-items-table-component.js";
 
@@ -83,29 +84,36 @@ export default function AdminMenuItemsScreen() {
   const save = async () => {
     if (!token) return;
     setLocalError("");
-    const name = form.name.trim();
-    const priceRaw = form.price_cents.trim();
-    const price = priceRaw === "" ? 0 : Number(priceRaw);
     const sortOrderRaw = form.sort_order.trim();
-    const hasSortOrder = sortOrderRaw !== "";
-    const sortOrder = hasSortOrder ? Number(sortOrderRaw) : undefined;
-    const nameError = !name;
-    const priceError = !Number.isInteger(price) || price < 0;
-    const sortOrderError = hasSortOrder && !Number.isInteger(sortOrder);
-    if (nameError || priceError || sortOrderError) {
-      setFieldErrors({ name: nameError, description: false, price_cents: priceError, sort_order: sortOrderError });
-      setLocalError("Please provide a valid name, a non-negative whole-number price in cents, and an optional whole-number sort order.");
-      return;
-    }
-    setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
-    const payload = {
-      name,
-      description: form.description.trim() || null,
-      price_cents: price,
+    const parsed = menuItemCreateSchema.safeParse({
+      name: form.name.trim(),
+      description: form.description.trim(),
+      price_cents: form.price_cents.trim(),
       is_available: Boolean(form.is_available),
       is_best_seller: Boolean(form.is_best_seller),
-      ...(hasSortOrder ? { sort_order: sortOrder } : {})
-    };
+      ...(sortOrderRaw !== "" ? { sort_order: sortOrderRaw } : {})
+    });
+
+    if (!parsed.success) {
+      const invalidFields = new Set(parsed.error.issues.map((issue) => String(issue.path[0])));
+      setFieldErrors({
+        name: invalidFields.has("name"),
+        description: invalidFields.has("description"),
+        price_cents: invalidFields.has("price_cents"),
+        sort_order: invalidFields.has("sort_order")
+      });
+      const firstField = String(parsed.error.issues[0]?.path[0] || "");
+      const messages = {
+        name: "Menu item name is required.",
+        price_cents: "Price must be a non-negative whole number in cents.",
+        sort_order: "Sort order must be a whole number."
+      };
+      setLocalError(messages[firstField] || "Please provide valid menu item fields.");
+      return;
+    }
+
+    setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
+    const payload = parsed.data;
     setSaving(true);
     try {
       await createItem(token, payload);

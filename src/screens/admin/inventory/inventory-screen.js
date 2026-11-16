@@ -13,6 +13,7 @@ import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { inventoryItemCreateSchema } from "../../../domain/inventory/schema.js";
 import { InventoryFormSection } from "./inventory-form-component.js";
 import { InventoryListSection } from "./inventory-list-component.js";
 
@@ -138,25 +139,30 @@ export default function AdminInventoryScreen() {
   };
 
   const buildPayload = () => {
-    const name = form.name.trim();
-    const quantity = Number(form.quantity);
-    const reorderLevel = Number(form.reorder_level);
-    const unitCost = Number(form.unit_cost_cents);
-    if (!name) throw new Error("Inventory item name is required.");
-    if (!Number.isInteger(quantity) || quantity < 0) throw new Error("Quantity must be a non-negative whole number.");
-    if (!Number.isInteger(reorderLevel) || reorderLevel < 0) throw new Error("Reorder level must be a non-negative whole number.");
-    if (!Number.isInteger(unitCost) || unitCost < 0) throw new Error("Unit cost must be a non-negative whole number in cents.");
-    return {
-      name,
-      sku: form.sku.trim() || null,
-      description: form.description.trim() || null,
-      quantity,
-      unit: form.unit.trim() || null,
-      reorder_level: reorderLevel,
-      unit_cost_cents: unitCost,
-      menu_item_id: form.menu_item_id.trim() || null,
+    const parsed = inventoryItemCreateSchema.safeParse({
+      name: form.name.trim(),
+      sku: form.sku,
+      description: form.description,
+      quantity: form.quantity,
+      unit: form.unit,
+      reorder_level: form.reorder_level,
+      unit_cost_cents: form.unit_cost_cents,
+      menu_item_id: form.menu_item_id,
       is_active: Boolean(form.is_active)
-    };
+    });
+
+    if (!parsed.success) {
+      const firstField = String(parsed.error.issues[0]?.path[0] || "");
+      const messages = {
+        name: "Inventory item name is required.",
+        quantity: "Quantity must be a non-negative whole number.",
+        reorder_level: "Reorder level must be a non-negative whole number.",
+        unit_cost_cents: "Unit cost must be a non-negative whole number in cents."
+      };
+      throw new Error(messages[firstField] || "Invalid inventory item.");
+    }
+
+    return parsed.data;
   };
 
   const save = async () => {

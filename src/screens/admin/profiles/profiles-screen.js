@@ -12,8 +12,7 @@ import { useAuthStore } from "../../../stores/auth-store.js";
 import { useProfilesStore } from "../../../stores/profiles-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { cx } from "../../../shared/constants/theme.js";
-import { isValidEmail } from "../../../shared/validation/email.js";
-import { isValidPassword } from "../../../shared/validation/password.js";
+import { createUserSchema } from "../../../domain/profiles/schema.js";
 import { ProfilesFormSection } from "./profiles-form-component.js";
 import { ProfilesTableSection } from "./profiles-table-component.js";
 
@@ -90,12 +89,11 @@ export default function AdminProfilesScreen() {
     if (!token) return;
     setLocalError("");
     setCreatedRecoveryCode("");
-    const email = form.email.trim().toLowerCase();
-    const password = form.password;
-    const confirmPassword = form.confirmPassword;
-    const emailError = !isValidEmail(email);
-    const passwordError = !isValidPassword(password);
-    const confirmPasswordError = !confirmPassword || password !== confirmPassword;
+    const parsed = createUserSchema.safeParse({ email: form.email, password: form.password });
+    const issues = parsed.success ? [] : parsed.error.issues;
+    const emailError = issues.some((issue) => String(issue.path[0]) === "email");
+    const passwordError = issues.some((issue) => String(issue.path[0]) === "password");
+    const confirmPasswordError = !form.confirmPassword || form.password !== form.confirmPassword;
     if (emailError || passwordError || confirmPasswordError) {
       setFieldErrors({ email: emailError, password: passwordError, confirmPassword: confirmPasswordError });
       setLocalError(
@@ -110,7 +108,7 @@ export default function AdminProfilesScreen() {
     setFieldErrors({ email: false, password: false, confirmPassword: false });
     setSaving(true);
     try {
-      const data = await createUser(token, { email, password });
+      const data = await createUser(token, parsed.data);
       setForm(emptyForm);
       setFieldErrors({ email: false, password: false, confirmPassword: false });
       setCreatedRecoveryCode(data?.recovery_code || "");

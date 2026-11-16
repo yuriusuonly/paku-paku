@@ -12,6 +12,7 @@ import { useNotificationStore } from "../../../stores/notification-store.js";
 import { useTransactionsStore } from "../../../stores/transactions-store.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
+import { transactionCreateSchema } from "../../../domain/transactions/schema.js";
 import { TransactionsFormSection } from "./transactions-form-component.js";
 import { TransactionsTableSection } from "./transactions-table-component.js";
 
@@ -100,31 +101,38 @@ export default function AdminTransactionsScreen() {
   const createRecord = async () => {
     setLocalError("");
     try {
-      const items = lines.map((line, index) => {
-        const itemName = line.item_name.trim();
-        const quantity = Number(line.quantity);
-        const unitPrice = Number(line.unit_price_cents);
-        if (!itemName) throw new Error(`Item ${index + 1}: name is required.`);
-        if (!Number.isInteger(quantity) || quantity <= 0) throw new Error(`Item ${index + 1}: quantity must be a positive whole number.`);
-        if (!Number.isInteger(unitPrice) || unitPrice < 0) throw new Error(`Item ${index + 1}: unit price must be a non-negative whole number in cents.`);
-        return {
-          item_name: itemName,
-          quantity,
-          unit_price_cents: unitPrice,
-          menu_item_id: line.menu_item_id.trim() || null,
-          inventory_item_id: line.inventory_item_id.trim() || null
-        };
-      });
-      await createAdminTransaction(token, {
+      const parsed = transactionCreateSchema.safeParse({
         kind: form.kind,
         status: form.status,
         payment_status: form.payment_status,
-        payment_method: form.payment_method.trim() || null,
-        customer_name: form.customer_name.trim() || null,
-        customer_phone: form.customer_phone.trim() || null,
-        notes: form.notes.trim() || null,
-        items
+        payment_method: form.payment_method,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
+        notes: form.notes,
+        items: lines.map((line) => ({
+          item_name: line.item_name,
+          quantity: line.quantity,
+          unit_price_cents: line.unit_price_cents,
+          menu_item_id: line.menu_item_id,
+          inventory_item_id: line.inventory_item_id
+        }))
       });
+
+      if (!parsed.success) {
+        const issue = parsed.error.issues[0];
+        const path = issue?.path || [];
+        const itemIndex = typeof path[1] === "number" ? path[1] : null;
+        const field = String(path[path.length - 1] || "");
+        const messages = {
+          item_name: "name is required.",
+          quantity: "quantity must be a positive whole number.",
+          unit_price_cents: "unit price must be a non-negative whole number in cents."
+        };
+        const detail = field === "items" ? "at least one item is required." : (messages[field] || "is invalid.");
+        throw new Error(itemIndex != null ? `Item ${itemIndex + 1}: ${detail}` : `Transaction ${detail}`);
+      }
+
+      await createAdminTransaction(token, parsed.data);
       setForm({ kind: "sell", status: "completed", payment_status: "paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
       setLines([emptyLine()]);
       showSuccess("Transaction created.");
