@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Modal, Pressable, Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
-// Button import removed (no bulk actions)
+import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
 import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
@@ -18,7 +18,7 @@ import { ProfilesTableSection } from "./profiles-table-component.js";
  * @module screens/admin/profiles/profiles-screen
  */
 
-const emptyForm = { email: "", password: "" };
+const emptyForm = { email: "", password: "", confirmPassword: "" };
 
 /**
  * @returns {JSX.Element} Admin profiles screen.
@@ -46,7 +46,7 @@ export default function AdminProfilesScreen() {
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
   const [localError, setLocalError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({ email: false, password: false });
+  const [fieldErrors, setFieldErrors] = useState({ email: false, password: false, confirmPassword: false });
   const [createdRecoveryCode, setCreatedRecoveryCode] = useState("");
   const [formExpanded, setFormExpanded] = useState(false);
 
@@ -88,25 +88,33 @@ export default function AdminProfilesScreen() {
     setCreatedRecoveryCode("");
     const email = form.email.trim().toLowerCase();
     const password = form.password;
+    const confirmPassword = form.confirmPassword;
     const emailError = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const passwordError = password.length < 6;
-    if (emailError || passwordError) {
-      setFieldErrors({ email: emailError, password: passwordError });
-      setLocalError(emailError ? "Enter a valid email address." : "Password must be at least 6 characters.");
+    const confirmPasswordError = !confirmPassword || password !== confirmPassword;
+    if (emailError || passwordError || confirmPasswordError) {
+      setFieldErrors({ email: emailError, password: passwordError, confirmPassword: confirmPasswordError });
+      setLocalError(
+        emailError
+          ? "Enter a valid email address."
+          : passwordError
+            ? "Password must be at least 6 characters."
+            : "Passwords do not match."
+      );
       return;
     }
-    setFieldErrors({ email: false, password: false });
+    setFieldErrors({ email: false, password: false, confirmPassword: false });
     setSaving(true);
     try {
       const data = await createUser(token, { email, password });
       setForm(emptyForm);
-      setFieldErrors({ email: false, password: false });
+      setFieldErrors({ email: false, password: false, confirmPassword: false });
       setCreatedRecoveryCode(data?.recovery_code || "");
       showSuccess("User created.");
     } catch (e) {
       const message = e?.message || "Could not create the user. Please try again.";
       setLocalError(message);
-      setFieldErrors({ email: true, password: true });
+      setFieldErrors({ email: true, password: true, confirmPassword: true });
       showError(message);
     } finally {
       setSaving(false);
@@ -177,10 +185,8 @@ export default function AdminProfilesScreen() {
         fieldErrors={fieldErrors}
         setFieldErrors={setFieldErrors}
         saving={saving}
-        createdRecoveryCode={createdRecoveryCode}
         onSave={saveUser}
-        onClear={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false }); setLocalError(""); setCreatedRecoveryCode(""); }}
-        onCopyRecoveryCode={copyCreatedRecoveryCode}
+        onClear={() => { setForm(emptyForm); setFieldErrors({ email: false, password: false, confirmPassword: false }); setLocalError(""); setCreatedRecoveryCode(""); }}
         expanded={formExpanded}
         onToggleExpanded={() => setFormExpanded((v) => !v)}
       />
@@ -202,6 +208,22 @@ export default function AdminProfilesScreen() {
         currentUserId={user?.id}
         onToggleActive={toggleActive}
       />
+
+      <Modal visible={Boolean(createdRecoveryCode)} transparent animationType="fade" onRequestClose={() => setCreatedRecoveryCode("")}>
+        <View className="flex-1 items-center justify-center bg-black/50 p-5">
+          <View className={`w-full max-w-md rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+            <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>User created</Text>
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>Recovery code (show once). Copy and store it securely.</Text>
+            <View className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+              <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>{createdRecoveryCode}</Text>
+            </View>
+            <View className="flex-row flex-wrap gap-3 pt-1">
+              <Button label="Copy" variant="secondary" onPress={copyCreatedRecoveryCode} />
+              <Button label="Close" onPress={() => setCreatedRecoveryCode("")} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
