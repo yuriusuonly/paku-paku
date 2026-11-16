@@ -152,13 +152,11 @@ npm run expo:serve  # serves build/ on $URL_PORT
 ## Automated tests
 
 ```bash
-npm test      # unit + integration/mock tests (bun)
-npm run test:auto # automated Playwright browser smoke tests (loads .env; app must be reachable at PLAYWRIGHT_BASE_URL / BASE_URL, else URL_PROTOCOL://URL_HOST:URL_PORT)
+npm test  # unit + integration/mock tests (bun)
 ```
 
 - `npm test` runs Bun tests under `test/` (unit, integration, and service/mock coverage).
-- `npm run test:auto` runs Playwright end-to-end smoke tests in `test/e2e/` (`*.e2e.js`) using `playwright.config.js` (loads `.env`).
-- Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1`) and `set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright` (Playwright, `mcr.microsoft.com/playwright:v1.52.0-noble`). Start a reachable app target before the `e2e` profile and set `PLAYWRIGHT_BASE_URL` if needed (defaults to `http://host.docker.internal:$URL_PORT`).
+- Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
 builds keep the local Supabase target, so start the local stack before opening
@@ -200,17 +198,16 @@ refresh the `DOT_ENV` secret and push the current branch.
 npm run docker:build  # build app image (profile: app)
 npm run docker:up     # start server + caddy (profile: app)
 npm run docker:logs   # follow app logs
-npm run docker:down   # stop/remove app/build/test/e2e services
+npm run docker:down   # stop/remove app/build/test services
 
 # one-shot containerized build/tests (via docker-compose.yml)
 set -a && . ./.env && set +a && docker compose --profile build run --rm build
 set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
-set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright
 ```
 
 - **Local run (`app`)**: `server` runs `expo serve` on `$URL_PORT` and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `npm run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container exports the static web app into `./build`.
-- **Tests (`test`, `e2e`)**: `test-unit` runs Bun tests in `oven/bun:1`; `playwright` runs browser/API smoke tests in `mcr.microsoft.com/playwright:v1.52.0-noble` against a reachable `PLAYWRIGHT_BASE_URL`.
+- **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1`.
 
 ## Routes & endpoints
 
@@ -273,7 +270,6 @@ set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright
 ├── opencode.json
 ├── package-lock.json
 ├── package.json
-├── playwright.config.js
 ├── tailwind.config.js
 ├── png/
 │   ├── logo-maskable.png
@@ -500,8 +496,6 @@ set -a && . ./.env && set +a && docker compose --profile e2e run --rm playwright
 │   ├── logo-maskable.svg
 │   ├── logo.svg
 ├── test/
-│   ├── e2e/
-│   │   ├── smoke.e2e.js
 │   ├── integration/
 │   │   ├── middleware-endpoint.test.js
 │   ├── services/

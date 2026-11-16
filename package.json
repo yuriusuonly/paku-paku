@@ -4,7 +4,6 @@
   "main": "expo-router/entry",
   "scripts": {
     "test": "bun test",
-    "test:auto": "set -a && . ./.env && set +a && npx playwright test",
     "expo:start": "set -a && . ./.env && set +a && expo start --clear --port $URL_PORT",
     "expo:start:tunnel": "expo start --clear --tunnel",
     "expo:build": "expo export --platform web --output-dir build && mkdir -p build/client/png && cp png/logo.png png/logo-maskable.png build/client/png/",
@@ -23,7 +22,7 @@
     "supabase:reset:remote": "set -a && . ./.env && set +a && npx --yes supabase db query --remote --yes \"begin; drop schema public cascade; create schema public; grant usage on schema public to postgres, anon, authenticated, service_role; grant all on schema public to postgres, service_role; alter default privileges in schema public grant all on tables to postgres, service_role; alter default privileges in schema public grant all on functions to postgres, service_role; alter default privileges in schema public grant all on sequences to postgres, service_role; delete from supabase_migrations.schema_migrations; commit;\" && npm run supabase:push",
     "docker:build": "set -a && . ./.env && set +a && docker compose --profile app build --no-cache",
     "docker:up": "set -a && . ./.env && set +a && docker compose --profile app up -d",
-    "docker:down": "set -a && . ./.env && set +a && docker compose --profile app --profile build --profile test --profile e2e down --remove-orphans",
+    "docker:down": "set -a && . ./.env && set +a && docker compose --profile app --profile build --profile test down --remove-orphans",
     "docker:logs": "set -a && . ./.env && set +a && docker compose --profile app logs -f",
     "docker": "npm run docker:build && npm run docker:up && npm run docker:logs",
     "github:secrets": "set -a && . ./.env && set +a && gh secret set DOT_ENV --repo \"$GH_REPO\" < .env",
@@ -49,8 +48,5 @@
     "react-qr-code": "^2.2.0",
     "tailwindcss": "^3.4.17",
     "zustand": "^5.1.0"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.52.0"
   }
 }
