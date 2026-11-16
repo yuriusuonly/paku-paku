@@ -8,6 +8,8 @@ import {
   updateAdminTransaction,
   updateTransaction
 } from "../services/transactions.js";
+import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
+import { notifyBackgroundError } from "./notification-store.js";
 
 /**
  * Unified transactions store (buy/sell records).
@@ -21,36 +23,98 @@ function sortTx(items) {
   return [...items].sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 }
 
-export const useTransactionsStore = create((set) => ({
+export const useTransactionsStore = create((set, get) => ({
   myTransactions: [],
   adminTransactions: [],
   loading: false,
   syncing: false,
   error: null,
+  channels: [],
+  adminToken: null,
+  myToken: null,
+  refetchTimer: null,
   clearError: () => set({ error: null }),
 
-  fetchMyTransactions: async (token) => {
+  fetchMyTransactions: async (token, { background = false } = {}) => {
     if (!token) return set({ myTransactions: [], loading: false });
-    set({ loading: true, error: null });
+    const has = get().myTransactions.length > 0;
+    const isRefresh = background || has;
+    if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
     try {
       const data = await getMyTransactions(token);
-      set({ myTransactions: sortTx(data.transactions || []), loading: false });
+      set({ myTransactions: sortTx(data.transactions || []), loading: false, syncing: false });
     } catch (e) {
-      set({ loading: false, error: friendlyError(e, "Could not load transactions.") });
+      set({ loading: false, syncing: false, error: friendlyError(e, "Could not load transactions.") });
       throw e;
     }
   },
 
-  fetchAdminTransactions: async (token) => {
+  fetchAdminTransactions: async (token, { background = false } = {}) => {
     if (!token) return set({ adminTransactions: [], loading: false });
-    set({ loading: true, error: null });
+    const has = get().adminTransactions.length > 0;
+    const isRefresh = background || has;
+    if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
     try {
       const data = await getAdminTransactions(token);
-      set({ adminTransactions: sortTx(data.transactions || []), loading: false });
+      set({ adminTransactions: sortTx(data.transactions || []), loading: false, syncing: false });
     } catch (e) {
-      set({ loading: false, error: friendlyError(e, "Could not load transactions.") });
+      set({ loading: false, syncing: false, error: friendlyError(e, "Could not load transactions.") });
       throw e;
     }
+  },
+
+  scheduleRealtimeRefetch: () => {
+    const { refetchTimer, adminToken, myToken, fetchAdminTransactions, fetchMyTransactions } = get();
+    if (refetchTimer) clearTimeout(refetchTimer);
+    const timer = setTimeout(() => {
+      if (adminToken) void fetchAdminTransactions(adminToken, { background: true }).catch(() => {});
+      if (myToken) void fetchMyTransactions(myToken, { background: true }).catch(() => {});
+      set({ refetchTimer: null });
+    }, 250);
+    set({ refetchTimer: timer });
+  },
+
+  subscribeAdmin: (token) => {
+    if (!token) return;
+    set({ adminToken: token });
+    if (get().channels.length) {
+      setRealtimeAuth(token);
+      return;
+    }
+    try {
+      const onPayload = () => get().scheduleRealtimeRefetch();
+      const orders = subscribeToTableChanges({ channelName: "public:orders", table: "orders", token, onPayload });
+      const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
+      set({ channels: [orders, items] });
+    } catch (error) {
+      notifyBackgroundError(friendlyError(error, "Could not connect to live transaction updates."));
+    }
+  },
+
+  subscribeMy: (token) => {
+    if (!token) return;
+    set({ myToken: token });
+    if (get().channels.length) {
+      setRealtimeAuth(token);
+      return;
+    }
+    try {
+      const onPayload = () => get().scheduleRealtimeRefetch();
+      const orders = subscribeToTableChanges({ channelName: "public:orders", table: "orders", token, onPayload });
+      const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
+      set({ channels: [orders, items] });
+    } catch (error) {
+      notifyBackgroundError(friendlyError(error, "Could not connect to live transaction updates."));
+    }
+  },
+
+  unsubscribe: async () => {
+    const { channels, refetchTimer } = get();
+    if (refetchTimer) clearTimeout(refetchTimer);
+    for (const channel of channels) {
+      try { await removeRealtimeChannel(channel); } catch {}
+    }
+    set({ channels: [], refetchTimer: null, adminToken: null, myToken: null });
   },
 
   createMyTransaction: async (token, input) => {

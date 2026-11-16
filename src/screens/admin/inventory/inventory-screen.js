@@ -79,10 +79,10 @@ export default function AdminInventoryScreen() {
 
   const stats = useMemo(() => {
     const total = items.length;
-    const active = items.filter((item) => item.is_active).length;
-    const lowStock = items.filter((item) => item.is_active && Number(item.quantity || 0) <= Number(item.reorder_level || 0)).length;
+    const inStock = items.filter((item) => item.is_active).length;
+    const outOfStock = items.filter((item) => !item.is_active).length;
     const stockValueCents = items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unit_cost_cents || 0), 0);
-    return { total, active, lowStock, stockValueCents };
+    return { total, inStock, outOfStock, stockValueCents };
   }, [items]);
 
   if (!hydrated || !isAdmin) {
@@ -211,8 +211,8 @@ export default function AdminInventoryScreen() {
 
       <View className={`mt-2 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 mb-6 flex-row flex-wrap gap-x-6 gap-y-3`}>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>In Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.active}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Out of Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.lowStock}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>In Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.inStock}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Out of Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.outOfStock}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
       </View>
 

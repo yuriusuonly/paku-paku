@@ -35,6 +35,8 @@ export default function AdminTransactionsScreen() {
   const syncing = useTransactionsStore((s) => s.syncing);
   const error = useTransactionsStore((s) => s.error);
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
+  const subscribeAdmin = useTransactionsStore((s) => s.subscribeAdmin);
+  const unsubscribe = useTransactionsStore((s) => s.unsubscribe);
   const createAdminTransaction = useTransactionsStore((s) => s.createAdminTransaction);
   const updateAdminTransaction = useTransactionsStore((s) => s.updateAdminTransaction);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
@@ -59,8 +61,11 @@ export default function AdminTransactionsScreen() {
   }, [hydrated, isAdmin, status, router]);
 
   useEffect(() => {
-    if (hydrated && isAdmin && token) void fetchAdminTransactions(token).catch(() => {});
-  }, [hydrated, isAdmin, token, fetchAdminTransactions]);
+    if (!hydrated || !isAdmin || !token) return;
+    void fetchAdminTransactions(token).catch(() => {});
+    subscribeAdmin(token);
+    return () => { void unsubscribe(); };
+  }, [hydrated, isAdmin, token, fetchAdminTransactions, subscribeAdmin, unsubscribe]);
 
   const stats = useMemo(() => ({
     total: transactions.length,

@@ -31,6 +31,8 @@ export default function TransactionsScreen() {
   const syncing = useTransactionsStore((s) => s.syncing);
   const error = useTransactionsStore((s) => s.error);
   const fetchMyTransactions = useTransactionsStore((s) => s.fetchMyTransactions);
+  const subscribeMy = useTransactionsStore((s) => s.subscribeMy);
+  const unsubscribe = useTransactionsStore((s) => s.unsubscribe);
   const updateMyTransaction = useTransactionsStore((s) => s.updateMyTransaction);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
@@ -41,8 +43,11 @@ export default function TransactionsScreen() {
   }, [hydrated, isCustomer, status, router]);
 
   useEffect(() => {
-    if (hydrated && isCustomer && token) void fetchMyTransactions(token).catch(() => {});
-  }, [hydrated, isCustomer, token, fetchMyTransactions]);
+    if (!hydrated || !isCustomer || !token) return;
+    void fetchMyTransactions(token).catch(() => {});
+    subscribeMy(token);
+    return () => { void unsubscribe(); };
+  }, [hydrated, isCustomer, token, fetchMyTransactions, subscribeMy, unsubscribe]);
 
   if (!hydrated || !isCustomer) return <ScreenContainer><CircularProgress message="Loading transactions..." /></ScreenContainer>;
 

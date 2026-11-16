@@ -69,6 +69,8 @@ export default function AdminScreen() {
   const transactions = useTransactionsStore((s) => s.adminTransactions);
   const transactionsLoading = useTransactionsStore((s) => s.loading);
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
+  const subscribeAdminTransactions = useTransactionsStore((s) => s.subscribeAdmin);
+  const unsubscribeTransactions = useTransactionsStore((s) => s.unsubscribe);
 
   const isAdmin = status === "authenticated" && authUser?.role === "admin";
   const token = session?.access_token;
@@ -87,7 +89,11 @@ export default function AdminScreen() {
     subscribeMenu(token);
     subscribeProfiles(token);
     subscribeInventory(token);
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory]);
+    subscribeAdminTransactions(token);
+    return () => {
+      void unsubscribeTransactions();
+    };
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory, subscribeAdminTransactions, unsubscribeTransactions]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -105,11 +111,9 @@ export default function AdminScreen() {
 
   const inventoryStats = useMemo(() => {
     const total = inventoryItems.length;
-    const active = inventoryItems.filter((item) => item.is_active).length;
-    const lowStock = inventoryItems.filter(
-      (item) => item.is_active && Number(item.quantity ?? 0) <= Number(item.reorder_level ?? 0)
-    ).length;
-    return { total, active, lowStock };
+    const inStock = inventoryItems.filter((item) => item.is_active).length;
+    const outOfStock = inventoryItems.filter((item) => !item.is_active).length;
+    return { total, inStock, outOfStock };
   }, [inventoryItems]);
 
   const transactionsStats = useMemo(() => {
@@ -155,8 +159,8 @@ export default function AdminScreen() {
       linkLabel: "Open inventory management →",
       stats: [
         { label: "Total stock", value: inventoryStats.total, loading: inventoryCountLoading },
-        { label: "In Stock", value: inventoryStats.active, loading: inventoryCountLoading },
-        { label: "Out of Stock", value: inventoryStats.lowStock, loading: inventoryCountLoading }
+        { label: "In Stock", value: inventoryStats.inStock, loading: inventoryCountLoading },
+        { label: "Out of Stock", value: inventoryStats.outOfStock, loading: inventoryCountLoading }
       ]
     },
     {
