@@ -63,21 +63,109 @@ function normalizeItems(items) {
   });
 }
 
-async function applyInventoryDecrements(database, items) {
-  for (const item of items) {
-    if (!item.inventory_item_id || !Number.isInteger(item.quantity) || item.quantity <= 0) continue;
-    const { data: current, error: readError } = await database
+async function decrementInventoryRow(database, inventoryId, amount) {
+  if (!inventoryId || !Number.isInteger(amount) || amount <= 0) return;
+  const { data: current, error } = await database
+    .from("inventory_items")
+    .select("id, quantity")
+    .eq("id", inventoryId)
+    .single();
+  if (error || !current) return;
+  const nextQuantity = Math.max(0, Number(current.quantity || 0) - amount);
+  await database
+    .from("inventory_items")
+    .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
+    .eq("id", current.id);
+}
+
+async function decrementInventoryBySku(database, sku, amount) {
+  if (!sku || !Number.isInteger(amount) || amount <= 0) return;
+  const { data: current, error } = await database
+    .from("inventory_items")
+    .select("id, quantity")
+    .eq("sku", sku)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (error || !current) return;
+  const nextQuantity = Math.max(0, Number(current.quantity || 0) - amount);
+  await database
+    .from("inventory_items")
+    .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
+    .eq("id", current.id);
+}
+
+async function syncMenuAvailability(database, menuItemIds) {
+  const ids = [...new Set((menuItemIds || []).filter(Boolean))];
+  for (const menuItemId of ids) {
+    const { data, error } = await database
       .from("inventory_items")
-      .select("id, quantity")
-      .eq("id", item.inventory_item_id)
-      .single();
-    if (readError || !current) continue;
-    const nextQuantity = Math.max(0, Number(current.quantity || 0) - item.quantity);
-    await database
-      .from("inventory_items")
-      .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
-      .eq("id", current.id);
+      .select("quantity, is_active")
+      .eq("menu_item_id", menuItemId)
+      .eq("is_active", true);
+    if (error || !Array.isArray(data) || data.length === 0) continue;
+    const hasStock = data.some((row) => Number(row.quantity || 0) > 0);
+    if (!hasStock) {
+      await database
+        .from("menu_items")
+        .update({ is_available: false, updated_at: new Date().toISOString() })
+        .eq("id", menuItemId);
+    }
   }
+}
+
+async function applyInventoryForTransaction(database, items) {
+  const rows = Array.isArray(items) ? items : [];
+  if (rows.length === 0) return;
+
+  const menuIds = [...new Set(rows.map((item) => item.menu_item_id).filter(Boolean))];
+  let menuById = new Map();
+  if (menuIds.length) {
+    const { data } = await database
+      .from("menu_items")
+      .select("id, name, sort_order")
+      .in("id", menuIds);
+    menuById = new Map((data || []).map((m) => [m.id, m]));
+  }
+
+  for (const item of rows) {
+    const quantity = Number(item.quantity || 0);
+    if (!Number.isInteger(quantity) || quantity <= 0) continue;
+
+    // Explicit inventory target
+    if (item.inventory_item_id) {
+      await decrementInventoryRow(database, item.inventory_item_id, quantity);
+    }
+
+    // Inventory linked to the menu item (ingredients/servings stock)
+    if (item.menu_item_id) {
+      const { data: linked } = await database
+        .from("inventory_items")
+        .select("id")
+        .eq("menu_item_id", item.menu_item_id)
+        .eq("is_active", true);
+      for (const inv of linked || []) {
+        await decrementInventoryRow(database, inv.id, quantity);
+      }
+    }
+
+    // Shared supplies (best-effort heuristics)
+    const menu = item.menu_item_id ? menuById.get(item.menu_item_id) : null;
+    const name = String(item.item_name || menu?.name || "");
+    const sortOrder = Number(menu?.sort_order ?? 1000);
+    const isBeverage = sortOrder < 150 || /tea|matcha|mugicha|sobacha/i.test(name);
+    const isCold = /iced|cold/i.test(name);
+
+    if (isBeverage) {
+      await decrementInventoryBySku(database, isCold ? "SUP-CUP-COLD" : "SUP-CUP-HOT", quantity);
+      await decrementInventoryBySku(database, "SUP-LID", quantity);
+    } else {
+      await decrementInventoryBySku(database, "SUP-CONTAINER", quantity);
+      await decrementInventoryBySku(database, "SUP-CHOPSTICKS", quantity);
+    }
+    await decrementInventoryBySku(database, "SUP-NAPKIN", quantity);
+  }
+
+  await syncMenuAvailability(database, rows.map((item) => item.menu_item_id).filter(Boolean));
 }
 
 /**
