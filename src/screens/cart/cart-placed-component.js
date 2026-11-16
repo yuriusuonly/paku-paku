@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { QrCode } from "../../components/qr-code.js";
+import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -15,7 +16,7 @@ export function CartPlacedSection({ transaction, onNewTransaction }) {
       <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
         <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Transaction placed</Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-          {transaction.order_number} · ₱{(Number(transaction.total_cents || 0) / 100).toFixed(2)}
+          {transaction.order_number} · {formatCurrencyCents(transaction.total_cents)}
         </Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
           Present this QR code at the counter to complete your transaction.

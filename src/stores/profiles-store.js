@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isSameRecord } from "../shared/utils/compare.js";
 import { getProfiles, createProfileUser, updateProfile as updateProfileApi } from "../services/admin.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
@@ -14,14 +15,6 @@ function sortProfiles(items) {
   return [...items].sort((a, b) => String(a.email || "").localeCompare(String(b.email || "")));
 }
 
-function isSameRecord(a, b) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((key) => Object.is(a[key], b[key]));
-}
 
 function upsertProfile(items, profile) {
   if (!isVisibleProfile(profile)) {

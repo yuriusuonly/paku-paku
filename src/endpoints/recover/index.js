@@ -6,6 +6,7 @@ import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { recoverAccount } from "../../repositories/auth-repository.js";
+import { normalizeEmail } from "../../shared/utils/string.js";
 
 /**
  * Composed account recovery endpoint handlers.
@@ -13,10 +14,6 @@ import { recoverAccount } from "../../repositories/auth-repository.js";
  */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function normalizeEmail(value) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
 
 async function parseRecoverRequest(request) {
   const body = await readJsonBody(request);

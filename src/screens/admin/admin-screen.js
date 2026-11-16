@@ -9,6 +9,7 @@ import { useMenuStore } from "../../stores/menu-store.js";
 import { useProfilesStore } from "../../stores/profiles-store.js";
 import { useInventoryStore } from "../../stores/inventory-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
+import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -172,7 +173,7 @@ export default function AdminScreen() {
         { label: "Total", value: transactionsStats.total, loading: transactionsCountLoading },
         { label: "Buy", value: transactionsStats.buy, loading: transactionsCountLoading },
         { label: "Sell", value: transactionsStats.sell, loading: transactionsCountLoading },
-        { label: "Completed amount", value: `₱${(transactionsStats.amountCents / 100).toFixed(2)}`, loading: transactionsCountLoading }
+        { label: "Completed amount", value: formatCurrencyCents(transactionsStats.amountCents), loading: transactionsCountLoading }
       ]
     },
     {

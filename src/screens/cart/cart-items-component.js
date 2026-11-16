@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
+import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -34,7 +35,7 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
                   <View className="flex-1">
                     <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>{item.item_name}</Text>
                     <Text className={`font-outfit mt-2 text-sm md:text-base ${cx.textInk70}`}>
-                      ₱{(Number(item.unit_price_cents || 0) / 100).toFixed(2)} × {item.quantity} = ₱{((Number(item.unit_price_cents || 0) * Number(item.quantity || 0)) / 100).toFixed(2)}
+                      {formatCurrencyCents(item.unit_price_cents)} × {item.quantity} = {formatCurrencyCents(Number(item.unit_price_cents || 0) * Number(item.quantity || 0))}
                     </Text>
                   </View>
                   <View className="flex-row flex-wrap justify-end gap-2">
@@ -50,7 +51,7 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
       </View>
 
       <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6 gap-2`}>
-        <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: ₱{(totalCents / 100).toFixed(2)}</Text>
+        <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: {formatCurrencyCents(totalCents)}</Text>
         <View className="flex-row flex-wrap gap-3 pt-1">
           <Button label="Place transaction" onPress={onCheckout} loading={syncing} />
           <Button label="Clear cart" variant="ghost" onPress={onClearCart} disabled={syncing} />

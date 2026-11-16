@@ -9,6 +9,7 @@ import { useAuthStore } from "../../../stores/auth-store.js";
 import { useInventoryStore } from "../../../stores/inventory-store.js";
 import { useMenuStore } from "../../../stores/menu-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
+import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 import { InventoryFormSection } from "./inventory-form-component.js";
 import { InventoryListSection } from "./inventory-list-component.js";
@@ -213,7 +214,7 @@ export default function AdminInventoryScreen() {
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Items</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.total}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>In Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.inStock}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Out of Stock</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.outOfStock}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.stockValueCents / 100).toFixed(2)}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Stock value</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{formatCurrencyCents(stats.stockValueCents)}</Text></View>
       </View>
 
       <InventoryFormSection

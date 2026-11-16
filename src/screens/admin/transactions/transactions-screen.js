@@ -8,6 +8,7 @@ import { ScreenContainer } from "../../../components/container.js";
 import { useAuthStore } from "../../../stores/auth-store.js";
 import { useNotificationStore } from "../../../stores/notification-store.js";
 import { useTransactionsStore } from "../../../stores/transactions-store.js";
+import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 import { TransactionsFormSection } from "./transactions-form-component.js";
 import { TransactionsTableSection } from "./transactions-table-component.js";
@@ -147,7 +148,7 @@ export default function AdminTransactionsScreen() {
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Buy</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.buy}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Sell</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.sell}</Text></View>
         <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Completed</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{stats.completed}</Text></View>
-        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Completed amount</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>₱{(stats.amountCents / 100).toFixed(2)}</Text></View>
+        <View><Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>Completed amount</Text><Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{formatCurrencyCents(stats.amountCents)}</Text></View>
       </View>
 
       <TransactionsFormSection

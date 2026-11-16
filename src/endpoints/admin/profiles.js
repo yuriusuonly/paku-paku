@@ -9,6 +9,7 @@ import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js
 import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { listProfiles, updateProfile } from "../../repositories/profile-repository.js";
 import { createManagedUser } from "../../repositories/auth-repository.js";
+import { normalizeEmail } from "../../shared/utils/string.js";
 
 /**
  * Composed admin profiles endpoint handlers.
@@ -16,10 +17,6 @@ import { createManagedUser } from "../../repositories/auth-repository.js";
  */
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function normalizeEmail(value) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
 
 async function parseCreateUserRequest(request) {
   const body = await readJsonBody(request);

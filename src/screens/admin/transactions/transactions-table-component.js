@@ -5,6 +5,7 @@ import { InlineEditableCell } from "../../../components/inline-editable-cell.js"
 import { InlineSelect } from "../../../components/inline-select.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
 import { formatAuditTimestamp } from "../../../shared/format/date.js";
+import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -76,7 +77,7 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
                           ) : column.key === "payment_method" ? (
                             <InlineEditableCell value={tx.payment_method} placeholder="method" onSave={(v) => onSaveField(tx, "payment_method", v)} />
                           ) : column.key === "total" ? (
-                            <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}</Text>
+                            <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>{formatCurrencyCents(tx.total_cents)}</Text>
                           ) : column.key === "customer_name" ? (
                             <InlineEditableCell value={tx.customer_name} placeholder="name" onSave={(v) => onSaveField(tx, "customer_name", v)} />
                           ) : column.key === "customer_email" ? (
@@ -92,7 +93,7 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
                               <View className="gap-1">
                                 {tx.items.map((item) => (
                                   <Text key={item.id} className={`font-outfit text-xs ${cx.textInk70}`}>
-                                    • {item.item_name} × {item.quantity} (₱{(Number(item.line_total_cents || 0) / 100).toFixed(2)})
+                                    • {item.item_name} × {item.quantity} ({formatCurrencyCents(item.line_total_cents)})
                                   </Text>
                                 ))}
                               </View>

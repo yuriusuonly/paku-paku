@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isSameRecord } from "../shared/utils/compare.js";
 import { createInventoryItem, deleteInventoryItem, getInventoryItems, updateInventoryItem } from "../services/inventory.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
@@ -15,14 +16,6 @@ function sortItems(items) {
   return [...items].sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
 }
 
-function isSameRecord(a, b) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((key) => Object.is(a[key], b[key]));
-}
 
 function upsertItem(items, item) {
   const index = items.findIndex((entry) => entry.id === item.id);

@@ -6,6 +6,7 @@ import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { signIn } from "../../repositories/auth-repository.js";
+import { normalizeEmail } from "../../shared/utils/string.js";
 
 /**
  * Composed sign-in endpoint handlers.
@@ -13,10 +14,6 @@ import { signIn } from "../../repositories/auth-repository.js";
  */
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function normalizeEmail(value) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
 
 async function parseSignInRequest(request) {
   const body = await readJsonBody(request);

@@ -7,6 +7,7 @@ import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { signUp } from "../../repositories/auth-repository.js";
+import { normalizeEmail } from "../../shared/utils/string.js";
 
 /**
  * Composed sign-up endpoint handlers.
@@ -14,10 +15,6 @@ import { signUp } from "../../repositories/auth-repository.js";
  */
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function normalizeEmail(value) {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
 
 async function parseSignUpRequest(request) {
   const body = await readJsonBody(request);

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isSameRecord } from "../shared/utils/compare.js";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification-store.js";
@@ -30,14 +31,6 @@ function sortItems(items) {
  * @param {object | null | undefined} b - Second record.
  * @returns {boolean} Whether records are equivalent.
  */
-function isSameRecord(a, b) {
-  if (a === b) return true;
-  if (!a || !b) return false;
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((key) => Object.is(a[key], b[key]));
-}
 
 /**
  * @param {object[]} items - Current items.

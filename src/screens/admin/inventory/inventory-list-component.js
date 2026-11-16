@@ -4,6 +4,7 @@ import { EmptyState } from "../../../components/empty-state.js";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
 import { StatusPill } from "../../../components/status-pill.js";
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, TableScroll } from "../../../components/table.js";
+import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -69,7 +70,7 @@ export function InventoryListSection({ items, loading, syncing, savingCell, onSa
                           ) : column.key === "unit_cost_cents" ? (
                             <InlineEditableCell value={item.unit_cost_cents} numeric placeholder="0" onSave={(v) => onSaveField(item, "unit_cost_cents", v)} />
                           ) : column.key === "value" ? (
-                            <Text className={`font-outfit text-sm ${cx.textInk70}`}>₱{(valueCents / 100).toFixed(2)}</Text>
+                            <Text className={`font-outfit text-sm ${cx.textInk70}`}>{formatCurrencyCents(valueCents)}</Text>
                           ) : column.key === "menu_item_id" ? (
                             <InlineEditableCell value={item.menu_item_id || ""} placeholder="N/A" onSave={(v) => onSaveField(item, "menu_item_id", v)} />
                           ) : column.key === "is_active" ? (

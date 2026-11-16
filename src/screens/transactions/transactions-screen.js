@@ -11,6 +11,7 @@ import { ScreenContainer } from "../../components/container.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useNotificationStore } from "../../stores/notification-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
+import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -72,7 +73,7 @@ export default function TransactionsScreen() {
         {transactions.map((tx) => (
           <View key={tx.id} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>
-              {tx.order_number} · ₱{(Number(tx.total_cents || 0) / 100).toFixed(2)}
+              {tx.order_number} · {formatCurrencyCents(tx.total_cents)}
             </Text>
             <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
               {tx.kind === "sell" ? "Sell" : "Buy"} · Status: {tx.status} · Payment: {tx.payment_status}
@@ -82,7 +83,7 @@ export default function TransactionsScreen() {
               <View className="mt-2 gap-1">
                 {tx.items.map((item) => (
                   <Text key={item.id} className={`font-outfit text-sm ${cx.textInk70}`}>
-                    • {item.item_name} × {item.quantity} = ₱{(Number(item.line_total_cents || 0) / 100).toFixed(2)}
+                    • {item.item_name} × {item.quantity} = {formatCurrencyCents(item.line_total_cents)}
                   </Text>
                 ))}
               </View>
