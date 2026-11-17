@@ -109,7 +109,7 @@ Imports only point downward:
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/database/instance.js` — never hardcode URLs/keys or add a cross-environment fallback.
 - Use `getSupabase()` (or server helpers) from `src/database/instance.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
-- Schema changes: create a migration with `npm run supabase:migration -- <name>`, edit the SQL under `supabase/migrations/`, then run `npm run supabase:reset`. Verify with `npm run expo:build` and, when the local stack is running, by hitting `/api/menu-items`, `/api/signin`, `/api/signup`, `/api/session`, and `/api/signout`.
+- Schema changes are flattened by table: each migration under `supabase/migrations/` contains one table and its associated indexes, grants, RLS policies, helper functions, comments, and realtime publication. Do not reintroduce historical migration chains. After editing a table migration, run `npm run supabase:reset` and verify with `npm run expo:build` plus the relevant `/api/*` flows.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
 - Apply migrations to the hosted database with `npm run supabase:link` and `npm run supabase:push` using `SUPABASE_ACCESS_TOKEN` from `.env` for non-interactive CLI auth (or run `npx --yes supabase login` once locally as needed). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
 
@@ -149,7 +149,7 @@ flowchart LR
 - **`src/shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
 - **`src/database/`**: database/Supabase client instance and runtime selection (`instance.js`).
 - **`src/shared/constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.
-- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Usernames are public; internal Auth emails are never exposed. |
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Profile emails are readable by authenticated users; never expose access tokens or recovery codes. |
 
 ```mermaid
 flowchart LR
@@ -175,7 +175,7 @@ flowchart LR
 - Run tests: `npm test` for Bun unit/integration/mock tests. `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
 - Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` / `npm run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
-- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/signin` with `{"username":"root","password":"admin"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
+- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/signin` with `{"email":"root@paku-paku.official","password":"admin"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).

@@ -12,9 +12,8 @@ Common Meanings & Uses:
 ## Expo web app
 
 A web-only Expo Router application for menu browsing, cart checkout, unified
-buy/sell transactions with counter QR codes, inventory tracking, and admin
-operations, backed by Supabase and packaged for local development, Docker, and
-Expo Hosting.
+buy/sell transactions with counter QR codes and admin operations, backed by
+Supabase and packaged for local development, Docker, and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
   React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, Zod for
@@ -95,9 +94,9 @@ npm run supabase:stop
 ```
 
 `supabase:reset` reapplies migrations and seeds the sample menu plus the
-administrator account (`username: root`, `password: root`, role `admin`).
-Authentication is username/password; the app derives an internal Supabase Auth
-email (`root@paku-paku.local`) and never exposes it through the API. The seed
+administrator account (`email: root@paku-paku.official`, `password: admin`, role `admin`).
+Authentication is email/password; the seeded administrator uses the internal
+Supabase Auth email (`root@paku-paku.official`). The seed
 stores a static bcrypt hash so it does not depend on `pgcrypto`; rerunning the
 seed restores that local password. The local auth config keeps
 `minimum_password_length = 6`, so GoTrue may report the 4-character seed
@@ -217,7 +216,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 | Route | Source | Purpose |
 | --- | --- | --- |
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin-screen.js` | Username/password sign-in. |
+| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin-screen.js` | Email/password sign-in. |
 | `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
 | `/menu` | `src/app/menu/index.js` → `src/screens/menu/menu-screen.js` | Authenticated menu with add-to-cart. |
 | `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart-screen.js` | Customer cart and checkout; places a buy transaction and generates a QR code to present at the counter. |
@@ -225,7 +224,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 | `/account` | `src/app/account/index.js` → `src/screens/account/account-screen.js` | Customer account/profile details. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin operations dashboard (protected). |
 | `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items-screen.js` | Admin menu items management (protected). |
-| `/admin/inventory` | `src/app/admin/inventory/index.js` → `src/screens/admin/inventory/inventory-screen.js` | Admin inventory management (protected). |
 | `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions-screen.js` | Admin unified buy/sell transactions management (protected). |
 | `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles-screen.js` | Admin profiles view/audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
@@ -234,14 +232,12 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 | `/api/menu-items` | `src/app/api/menu-items/+api.js` | Menu items listing and admin create (`GET`/`POST`). |
 | `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
 | `/api/signup` | `src/app/api/signup/+api.js` | Signs up a customer account and returns session/profile when available. |
-| `/api/signin` | `src/app/api/signin/+api.js` | Username/password sign-in; returns session tokens and profile. |
+| `/api/signin` | `src/app/api/signin/+api.js` | Email/password sign-in; returns session tokens and profile. |
 | `/api/session` | `src/app/api/session/+api.js` | Validates bearer token and returns the current profile. |
 | `/api/signout` | `src/app/api/signout/+api.js` | Revokes the current session. |
 | `/api/transactions` | `src/app/api/transactions/+api.js` | Customer transactions list/create (`GET`/`POST`, checkout creates a buy transaction with items and counter QR code). |
 | `/api/transactions/[id]` | `src/app/api/transactions/[id]+api.js` | Customer transaction read/update (`GET`/`PATCH`). |
 | `/api/account/profile` | `src/app/api/account/profile+api.js` | Authenticated customer account profile (`GET`/`PATCH`). |
-| `/api/admin/inventory` | `src/app/api/admin/inventory/+api.js` | Admin inventory listing and create (`GET`/`POST`). |
-| `/api/admin/inventory/[id]` | `src/app/api/admin/inventory/[id]+api.js` | Admin inventory update/delete (`PATCH`/`DELETE`). |
 | `/api/admin/transactions` | `src/app/api/admin/transactions/+api.js` | Admin transactions listing and create (`GET`/`POST`). |
 | `/api/admin/transactions/[id]` | `src/app/api/admin/transactions/[id]+api.js` | Admin transaction read/update/delete (`GET`/`PATCH`/`DELETE`). |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list and management (bearer token + admin role). |
@@ -282,7 +278,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── account.js
 │   │   ├── admin/
 │   │   │   ├── index.js
-│   │   │   ├── inventory.js
 │   │   │   ├── menu-items.js
 │   │   │   ├── profiles.js
 │   │   │   ├── transactions.js
@@ -290,9 +285,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── account/
 │   │   │   │   ├── profile+api.js
 │   │   │   ├── admin/
-│   │   │   │   ├── inventory/
-│   │   │   │   │   ├── +api.js
-│   │   │   │   │   ├── [id]+api.js
 │   │   │   │   ├── profiles+api.js
 │   │   │   │   ├── transactions/
 │   │   │   │   │   ├── +api.js
@@ -344,17 +336,12 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   ├── database/
 │   │   ├── instance.js
 │   ├── domain/
-│   │   ├── inventory/
-│   │   │   ├── quantity.js
-│   │   │   ├── schema.js
-│   │   │   ├── status.js
 │   │   ├── menu-items/
 │   │   │   ├── schema.js
 │   │   ├── profiles/
 │   │   │   ├── schema.js
 │   │   ├── transactions/
 │   │   │   ├── constants.js
-│   │   │   ├── inventory-rules.js
 │   │   │   ├── items.js
 │   │   │   ├── schema.js
 │   │   │   ├── status.js
@@ -363,10 +350,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── account/
 │   │   │   ├── profile.js
 │   │   ├── admin/
-│   │   │   ├── inventory/
-│   │   │   │   ├── [id].js
-│   │   │   │   ├── index.js
-│   │   │   │   ├── validation.js
 │   │   │   ├── profiles.js
 │   │   │   ├── transactions/
 │   │   │   │   ├── [id].js
@@ -398,7 +381,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── method-interceptor.js
 │   ├── repositories/
 │   │   ├── auth-repository.js
-│   │   ├── inventory-repository.js
 │   │   ├── menu-repository.js
 │   │   ├── profile-repository.js
 │   │   ├── transaction-repository.js
@@ -408,10 +390,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── account-screen.js
 │   │   ├── admin/
 │   │   │   ├── admin-screen.js
-│   │   │   ├── inventory/
-│   │   │   │   ├── inventory-form-component.js
-│   │   │   │   ├── inventory-list-component.js
-│   │   │   │   ├── inventory-screen.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── menu-item-form-component.js
 │   │   │   │   ├── menu-items-screen.js
@@ -443,7 +421,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── account.js
 │   │   ├── admin.js
 │   │   ├── auth.js
-│   │   ├── inventory.js
 │   │   ├── menu.js
 │   │   ├── realtime.js
 │   │   ├── transactions.js
@@ -499,7 +476,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── app-store.js
 │   │   ├── auth-store.js
 │   │   ├── cart-store.js
-│   │   ├── inventory-store.js
 │   │   ├── menu-store.js
 │   │   ├── notification-store.js
 │   │   ├── profiles-store.js
@@ -509,19 +485,14 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   ├── .gitignore
 │   ├── config.toml
 │   ├── migrations/
-│   │   ├── 20261113000000_create_menu_items.sql
-│   │   ├── 20261113000001_create_profiles.sql
-│   │   ├── 20261113000002_configure_menu_items_access.sql
-│   │   ├── 20261113000003_configure_profiles_access.sql
-│   │   ├── 20261114000000_create_inventory_and_sales.sql
-│   │   ├── 20261116000000_full_business_operations.sql
-│   │   ├── 20261116000001_replace_delivery_address_with_qr.sql
-│   │   ├── 20261116000002_add_menu_item_best_seller.sql
-│   │   ├── 20261116000003_unify_into_transactions.sql
+│   │   ├── 20261117000000_extensions.sql
+│   │   ├── 20261117000001_profiles.sql
+│   │   ├── 20261117000002_menu_items.sql
+│   │   ├── 20261117000003_orders.sql
+│   │   ├── 20261117000004_order_items.sql
 │   ├── seeds/
 │   │   ├── 00_root.sql
 │   │   ├── 01_menu_items.sql
-│   │   ├── 03_inventory_items.sql
 │   ├── snippets/
 ├── svg/
 │   ├── logo-maskable.svg
@@ -530,15 +501,12 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   ├── architecture/
 │   │   ├── layers.test.js
 │   ├── domain/
-│   │   ├── inventory/
-│   │   │   ├── rules.test.js
 │   │   ├── transactions/
 │   │   │   ├── items.test.js
 │   │   │   ├── rules.test.js
 │   │   │   ├── totals.test.js
 │   │   ├── schemas.test.js
 │   ├── endpoints/
-│   │   ├── inventory-validation.test.js
 │   │   ├── menu-items-validation.test.js
 │   ├── integration/
 │   │   ├── middleware-endpoint.test.js
@@ -547,7 +515,6 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── admin.test.js
 │   │   ├── auth.test.js
 │   │   ├── http.test.js
-│   │   ├── inventory.test.js
 │   │   ├── menu.test.js
 │   │   ├── transactions.test.js
 │   ├── shared/

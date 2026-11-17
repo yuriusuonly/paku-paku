@@ -63,7 +63,7 @@ export default function AdminScreen() {
     return () => {
       void unsubscribeTransactions();
     };
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeAdminTransactions, unsubscribeTransactions]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeAdminTransactions, unsubscribeTransactions]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
