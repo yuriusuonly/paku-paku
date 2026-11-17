@@ -58,6 +58,21 @@ function extractRelativeImports(source) {
 }
 
 describe("source layer boundaries", () => {
+  test("files using cx tokens import the theme module", () => {
+    const themeFile = path.join(srcRoot, "shared", "constants", "theme.js");
+    const violations = [];
+
+    for (const file of collectFiles(srcRoot)) {
+      if (file === themeFile) continue;
+      const source = fs.readFileSync(file, "utf8");
+      if (/\bcx\./.test(source) && !/constants\/theme\.js/.test(source)) {
+        violations.push(path.relative(srcRoot, file));
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
   test("raw hex colors are confined to the theme token module", () => {
     const themeFile = path.join(srcRoot, "shared", "constants", "theme.js");
     const violations = [];
