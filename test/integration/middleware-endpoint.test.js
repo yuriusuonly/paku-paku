@@ -1,7 +1,7 @@
 import { describe, expect, spyOn, test } from "bun:test";
-import { errorInterceptor } from "../../src/interceptors/error-interceptor.js";
-import { logInterceptor } from "../../src/interceptors/log-interceptor.js";
-import { methodInterceptor } from "../../src/interceptors/method-interceptor.js";
+import { errorInterceptor } from "../../src/interceptors/error.interceptor.js";
+import { logInterceptor } from "../../src/interceptors/log.interceptor.js";
+import { methodInterceptor } from "../../src/interceptors/method.interceptor.js";
 import { badRequest } from "../../src/shared/errors/bad-request.js";
 import { withMiddleware } from "../../src/shared/network/middleware.js";
 import { readJsonBody } from "../../src/shared/network/request.js";

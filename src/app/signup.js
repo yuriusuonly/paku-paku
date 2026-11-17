@@ -1,4 +1,4 @@
-import SignUpScreen from "../screens/signup/signup-screen.js";
+import SignUpScreen from "../screens/signup/signup.screen.js";
 
 /**
  * Route module.

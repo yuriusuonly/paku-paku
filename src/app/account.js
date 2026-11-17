@@ -1,4 +1,4 @@
-import AccountScreen from "../screens/account/account-screen.js";
+import AccountScreen from "../screens/account/account.screen.js";
 
 /**
  * Route module.

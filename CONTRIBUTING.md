@@ -140,10 +140,10 @@ flowchart LR
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
-- **`src/interceptors/`**: cross-cutting interceptors `log-interceptor.js`, `error-interceptor.js`, `authentication-interceptor.js`, `authorization-interceptor.js`, `method-interceptor.js`, and `body-interceptor.js`. Compose routes with `src/shared/network/middleware.js` (pipeline and request context).
-- **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth-repository.js`, `menu-repository.js`, `profile-repository.js`).
+- **`src/interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `src/shared/network/middleware.js` (pipeline and request context).
+- **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `menu.repository.js`, `profile.repository.js`).
 
-- **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth-store.js`, `app-store.js`), updated from service/screen flows.
+- **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth.store.js`, `app.store.js`), updated from service/screen flows.
 - **`src/shared/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
 - **`src/shared/network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `transport.js` client transport).
 - **`src/shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
@@ -168,6 +168,7 @@ flowchart LR
 
 ## Documentation conventions
 - Name utility modules after their actual contents (for example `src/shared/format/email.js` for email normalization, `src/shared/utils/records.js` for record comparison/update helpers). Avoid generic names like `string.js`, `misc.js`, or `utils.js`.
+- Use dotted role suffixes: `*.screen.js`, `*.component.js`, `*.store.js`, `*.repository.js`, and `*.interceptor.js`. Error modules in `src/shared/errors/` keep plain names (no `*.error.js` suffix).
 - Always include JSDoc for modules with a top-level `@module` tag.
 - Always add JSDoc for top-level exported functions and variables.
 - Never include the `@example` tag in JSDoc.

@@ -1,11 +1,11 @@
-import { errorInterceptor } from "../../interceptors/error-interceptor.js";
-import { logInterceptor } from "../../interceptors/log-interceptor.js";
-import { methodInterceptor } from "../../interceptors/method-interceptor.js";
+import { errorInterceptor } from "../../interceptors/error.interceptor.js";
+import { logInterceptor } from "../../interceptors/log.interceptor.js";
+import { methodInterceptor } from "../../interceptors/method.interceptor.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse } from "../../shared/network/response.js";
 import { HTTP_STATUS } from "../../shared/constants/http.js";
-import { signUp } from "../../repositories/auth-repository.js";
+import { signUp } from "../../repositories/auth.repository.js";
 import { requireEmail } from "../../shared/validation/email.js";
 import { requirePassword } from "../../shared/validation/password.js";
 import { hasOwn, requireObjectBody } from "../../shared/validation/request.js";

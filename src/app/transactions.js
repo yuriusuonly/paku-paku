@@ -1,4 +1,4 @@
-import TransactionsScreen from "../screens/transactions/transactions-screen.js";
+import TransactionsScreen from "../screens/transactions/transactions.screen.js";
 
 /**
  * Route module.

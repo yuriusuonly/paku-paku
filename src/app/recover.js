@@ -1,4 +1,4 @@
-import RecoverScreen from "../screens/recover/recover-screen.js";
+import RecoverScreen from "../screens/recover/recover.screen.js";
 
 /**
  * Route module.

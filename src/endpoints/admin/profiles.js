@@ -1,14 +1,14 @@
-import { authorizationInterceptor } from "../../interceptors/authorization-interceptor.js";
-import { errorInterceptor } from "../../interceptors/error-interceptor.js";
-import { logInterceptor } from "../../interceptors/log-interceptor.js";
-import { methodInterceptor } from "../../interceptors/method-interceptor.js";
+import { authorizationInterceptor } from "../../interceptors/authorization.interceptor.js";
+import { errorInterceptor } from "../../interceptors/error.interceptor.js";
+import { logInterceptor } from "../../interceptors/log.interceptor.js";
+import { methodInterceptor } from "../../interceptors/method.interceptor.js";
 import { badRequest } from "../../shared/errors/bad-request.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
 import { HTTP_STATUS } from "../../shared/constants/http.js";
-import { listProfiles, updateProfile } from "../../repositories/profile-repository.js";
-import { createManagedUser } from "../../repositories/auth-repository.js";
+import { listProfiles, updateProfile } from "../../repositories/profile.repository.js";
+import { createManagedUser } from "../../repositories/auth.repository.js";
 import { requireEmail } from "../../shared/validation/email.js";
 import { requirePassword } from "../../shared/validation/password.js";
 import {

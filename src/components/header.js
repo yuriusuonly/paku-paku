@@ -1,7 +1,7 @@
 import { Link, usePathname, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
-import { useAuthStore } from "../stores/auth-store.js";
-import { useCartStore } from "../stores/cart-store.js";
+import { useAuthStore } from "../stores/auth.store.js";
+import { useCartStore } from "../stores/cart.store.js";
 import config from "../shared/constants/config.js";
 import { cx } from "../shared/constants/theme.js";
 

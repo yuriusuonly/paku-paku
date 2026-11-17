@@ -6,7 +6,7 @@ import { Text, View } from "react-native";
 import config from "../shared/constants/config.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
-import { useAuthStore } from "../stores/auth-store.js";
+import { useAuthStore } from "../stores/auth.store.js";
 import { colors, cx } from "../shared/constants/theme.js";
 
 import "../shared/stylesheets/global.css";

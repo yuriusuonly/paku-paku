@@ -216,16 +216,16 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 | Route | Source | Purpose |
 | --- | --- | --- |
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin-screen.js` | Email/password sign-in. |
-| `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup-screen.js` | Customer sign-up. |
-| `/menu` | `src/app/menu/index.js` → `src/screens/menu/menu-screen.js` | Authenticated menu with add-to-cart. |
-| `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart-screen.js` | Customer cart and checkout; places a buy transaction and generates a QR code to present at the counter. |
-| `/transactions` | `src/app/transactions/index.js` → `src/screens/transactions/transactions-screen.js` | Customer buy/sell transactions with QR codes for counter presentation. |
-| `/account` | `src/app/account/index.js` → `src/screens/account/account-screen.js` | Customer account/profile details. |
-| `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin-screen.js` | Admin operations dashboard (protected). |
-| `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items-screen.js` | Admin menu items management (protected). |
-| `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions-screen.js` | Admin unified buy/sell transactions management (protected). |
-| `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles-screen.js` | Admin profiles view/audit (protected). |
+| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin.screen.js` | Email/password sign-in. |
+| `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup.screen.js` | Customer sign-up. |
+| `/menu` | `src/app/menu/index.js` → `src/screens/menu/menu.screen.js` | Authenticated menu with add-to-cart. |
+| `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart.screen.js` | Customer cart and checkout; places a buy transaction and generates a QR code to present at the counter. |
+| `/transactions` | `src/app/transactions/index.js` → `src/screens/transactions/transactions.screen.js` | Customer buy/sell transactions with QR codes for counter presentation. |
+| `/account` | `src/app/account/index.js` → `src/screens/account/account.screen.js` | Customer account/profile details. |
+| `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin operations dashboard (protected). |
+| `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items.screen.js` | Admin menu items management (protected). |
+| `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions.screen.js` | Admin unified buy/sell transactions management (protected). |
+| `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles.screen.js` | Admin profiles view/audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
@@ -374,50 +374,50 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── [id].js
 │   │   │   ├── index.js
 │   ├── interceptors/
-│   │   ├── authentication-interceptor.js
-│   │   ├── authorization-interceptor.js
-│   │   ├── body-interceptor.js
-│   │   ├── error-interceptor.js
-│   │   ├── log-interceptor.js
-│   │   ├── method-interceptor.js
+│   │   ├── authentication.interceptor.js
+│   │   ├── authorization.interceptor.js
+│   │   ├── body.interceptor.js
+│   │   ├── error.interceptor.js
+│   │   ├── log.interceptor.js
+│   │   ├── method.interceptor.js
 │   ├── repositories/
-│   │   ├── auth-repository.js
-│   │   ├── menu-repository.js
-│   │   ├── profile-repository.js
-│   │   ├── transaction-repository.js
+│   │   ├── auth.repository.js
+│   │   ├── menu.repository.js
+│   │   ├── profile.repository.js
+│   │   ├── transaction.repository.js
 │   ├── screens/
 │   │   ├── account/
-│   │   │   ├── account-form-component.js
-│   │   │   ├── account-screen.js
+│   │   │   ├── account-form.component.js
+│   │   │   ├── account.screen.js
 │   │   ├── admin/
-│   │   │   ├── admin-screen.js
+│   │   │   ├── admin.screen.js
 │   │   │   ├── menu-items/
-│   │   │   │   ├── menu-item-form-component.js
-│   │   │   │   ├── menu-items-screen.js
-│   │   │   │   ├── menu-items-table-component.js
+│   │   │   │   ├── menu-item-form.component.js
+│   │   │   │   ├── menu-items.screen.js
+│   │   │   │   ├── menu-items-table.component.js
 │   │   │   ├── profiles/
-│   │   │   │   ├── profiles-form-component.js
-│   │   │   │   ├── profiles-screen.js
-│   │   │   │   ├── profiles-table-component.js
+│   │   │   │   ├── profiles-form.component.js
+│   │   │   │   ├── profiles.screen.js
+│   │   │   │   ├── profiles-table.component.js
 │   │   │   ├── transactions/
-│   │   │   │   ├── transactions-form-component.js
-│   │   │   │   ├── transactions-screen.js
-│   │   │   │   ├── transactions-table-component.js
+│   │   │   │   ├── transactions-form.component.js
+│   │   │   │   ├── transactions.screen.js
+│   │   │   │   ├── transactions-table.component.js
 │   │   ├── cart/
-│   │   │   ├── cart-items-component.js
-│   │   │   ├── cart-placed-component.js
-│   │   │   ├── cart-screen.js
+│   │   │   ├── cart-items.component.js
+│   │   │   ├── cart-placed.component.js
+│   │   │   ├── cart.screen.js
 │   │   ├── menu/
-│   │   │   ├── menu-screen.js
+│   │   │   ├── menu.screen.js
 │   │   ├── recover/
-│   │   │   ├── recover-screen.js
+│   │   │   ├── recover.screen.js
 │   │   ├── root.js
 │   │   ├── signin/
-│   │   │   ├── signin-screen.js
+│   │   │   ├── signin.screen.js
 │   │   ├── signup/
-│   │   │   ├── signup-screen.js
+│   │   │   ├── signup.screen.js
 │   │   ├── transactions/
-│   │   │   ├── transactions-screen.js
+│   │   │   ├── transactions.screen.js
 │   ├── services/
 │   │   ├── account.js
 │   │   ├── admin.js
@@ -474,14 +474,14 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── lists.js
 │   │   │   ├── records.js
 │   ├── stores/
-│   │   ├── app-store.js
-│   │   ├── auth-store.js
-│   │   ├── cart-store.js
-│   │   ├── menu-store.js
-│   │   ├── notification-store.js
-│   │   ├── profiles-store.js
+│   │   ├── app.store.js
+│   │   ├── auth.store.js
+│   │   ├── cart.store.js
+│   │   ├── menu.store.js
+│   │   ├── notification.store.js
+│   │   ├── profiles.store.js
 │   │   ├── remember-email.js
-│   │   ├── transactions-store.js
+│   │   ├── transactions.store.js
 ├── supabase/
 │   ├── .gitignore
 │   ├── config.toml

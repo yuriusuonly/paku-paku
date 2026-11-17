@@ -1,4 +1,4 @@
-import MenuScreen from "../screens/menu/menu-screen.js";
+import MenuScreen from "../screens/menu/menu.screen.js";
 
 /**
  * Route module.

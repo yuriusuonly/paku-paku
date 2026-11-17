@@ -1,6 +1,6 @@
-import { errorInterceptor } from "../interceptors/error-interceptor.js";
-import { logInterceptor } from "../interceptors/log-interceptor.js";
-import { methodInterceptor } from "../interceptors/method-interceptor.js";
+import { errorInterceptor } from "../interceptors/error.interceptor.js";
+import { logInterceptor } from "../interceptors/log.interceptor.js";
+import { methodInterceptor } from "../interceptors/method.interceptor.js";
 import { withMiddleware } from "../shared/network/middleware.js";
 import { jsonResponse } from "../shared/network/response.js";
 

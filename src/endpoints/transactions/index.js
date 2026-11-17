@@ -1,11 +1,11 @@
-import { authenticationInterceptor } from "../../interceptors/authentication-interceptor.js";
-import { errorInterceptor } from "../../interceptors/error-interceptor.js";
-import { logInterceptor } from "../../interceptors/log-interceptor.js";
-import { methodInterceptor } from "../../interceptors/method-interceptor.js";
+import { authenticationInterceptor } from "../../interceptors/authentication.interceptor.js";
+import { errorInterceptor } from "../../interceptors/error.interceptor.js";
+import { logInterceptor } from "../../interceptors/log.interceptor.js";
+import { methodInterceptor } from "../../interceptors/method.interceptor.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
-import { createBuyTransaction, listTransactions } from "../../repositories/transaction-repository.js";
+import { createBuyTransaction, listTransactions } from "../../repositories/transaction.repository.js";
 import { requireObjectBody } from "../../shared/validation/request.js";
 
 /**

@@ -1,4 +1,4 @@
-import AdminTransactionsScreen from "../../screens/admin/transactions/transactions-screen.js";
+import AdminTransactionsScreen from "../../screens/admin/transactions/transactions.screen.js";
 
 /**
  * Route module.

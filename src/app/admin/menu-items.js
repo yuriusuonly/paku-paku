@@ -1,4 +1,4 @@
-import AdminMenuItemsScreen from "../../screens/admin/menu-items/menu-items-screen.js";
+import AdminMenuItemsScreen from "../../screens/admin/menu-items/menu-items.screen.js";
 
 /**
  * Route module.

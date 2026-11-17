@@ -1,4 +1,4 @@
-import CartScreen from "../screens/cart/cart-screen.js";
+import CartScreen from "../screens/cart/cart.screen.js";
 
 /**
  * Route module.

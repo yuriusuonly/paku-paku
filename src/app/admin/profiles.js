@@ -1,4 +1,4 @@
-import AdminProfilesScreen from "../../screens/admin/profiles/profiles-screen.js";
+import AdminProfilesScreen from "../../screens/admin/profiles/profiles.screen.js";
 
 /**
  * Route module.
