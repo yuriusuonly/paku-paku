@@ -8,7 +8,6 @@ import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth-store.js";
 import { useMenuStore } from "../../stores/menu-store.js";
 import { useProfilesStore } from "../../stores/profiles-store.js";
-import { useInventoryStore } from "../../stores/inventory-store.js";
 import { useTransactionsStore } from "../../stores/transactions-store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
@@ -38,10 +37,6 @@ export default function AdminScreen() {
   const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
   const subscribeProfiles = useProfilesStore((s) => s.subscribe);
 
-  const inventoryItems = useInventoryStore((s) => s.items);
-  const inventoryLoading = useInventoryStore((s) => s.loading);
-  const fetchInventory = useInventoryStore((s) => s.fetchItems);
-  const subscribeInventory = useInventoryStore((s) => s.subscribe);
 
   const transactions = useTransactionsStore((s) => s.adminTransactions);
   const transactionsLoading = useTransactionsStore((s) => s.loading);
@@ -61,16 +56,14 @@ export default function AdminScreen() {
     if (!hydrated || !isAdmin || !token) return;
     void fetchMenuItems(token).catch(() => {});
     void fetchProfiles(token).catch(() => {});
-    void fetchInventory(token).catch(() => {});
     void fetchAdminTransactions(token).catch(() => {});
     subscribeMenu(token);
     subscribeProfiles(token);
-    subscribeInventory(token);
     subscribeAdminTransactions(token);
     return () => {
       void unsubscribeTransactions();
     };
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeInventory, subscribeAdminTransactions, unsubscribeTransactions]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchInventory, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeAdminTransactions, unsubscribeTransactions]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -85,13 +78,6 @@ export default function AdminScreen() {
     const inactive = total - active;
     return { total, active, inactive };
   }, [profiles]);
-
-  const inventoryStats = useMemo(() => {
-    const total = inventoryItems.length;
-    const inStock = inventoryItems.filter((item) => item.is_active).length;
-    const outOfStock = inventoryItems.filter((item) => !item.is_active).length;
-    return { total, inStock, outOfStock };
-  }, [inventoryItems]);
 
   const transactionsStats = useMemo(() => {
     const completed = transactions.filter((t) => t.status === "completed");
@@ -114,7 +100,6 @@ export default function AdminScreen() {
 
   const menuCountLoading = menuLoading && menuItems.length === 0;
   const profileCountLoading = profilesLoading && profiles.length === 0;
-  const inventoryCountLoading = inventoryLoading && inventoryItems.length === 0;
   const transactionsCountLoading = transactionsLoading && transactions.length === 0;
 
   const cards = [
@@ -127,17 +112,6 @@ export default function AdminScreen() {
         { label: "Total items", value: menuStats.total, loading: menuCountLoading },
         { label: "Available", value: menuStats.available, loading: menuCountLoading },
         { label: "Unavailable", value: menuStats.unavailable, loading: menuCountLoading }
-      ]
-    },
-    {
-      key: "inventory",
-      title: "Inventory",
-      href: "/admin/inventory",
-      linkLabel: "Open inventory management →",
-      stats: [
-        { label: "Total stock", value: inventoryStats.total, loading: inventoryCountLoading },
-        { label: "In Stock", value: inventoryStats.inStock, loading: inventoryCountLoading },
-        { label: "Out of Stock", value: inventoryStats.outOfStock, loading: inventoryCountLoading }
       ]
     },
     {
@@ -173,7 +147,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu, inventory, transactions, and profiles.
+          Live operational overview across menu, transactions, and profiles.
         </Text>
       </View>
 

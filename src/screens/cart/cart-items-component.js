@@ -11,7 +11,7 @@ import { cx } from "../../shared/constants/theme.js";
  */
 
 export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity, onRemoveItem, onCheckout, onClearCart }) {
-  const keyOf = (item) => `${item.menu_item_id || item.inventory_item_id || item.item_name}`;
+  const keyOf = (item) => `${item.menu_item_id || item.item_name}`;
 
   if (cartItems.length === 0) {
     return (

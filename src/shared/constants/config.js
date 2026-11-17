@@ -16,7 +16,6 @@
  * @property {string} transactions
  * @property {string} accountProfile
  * @property {string} adminProfiles
- * @property {string} adminInventory
  * @property {string} adminTransactions
  */
 
@@ -74,7 +73,6 @@ export const api = {
     transactions: `${apiBasePath}/transactions`,
     accountProfile: `${apiBasePath}/account/profile`,
     adminProfiles: `${apiBasePath}/admin/profiles`,
-    adminInventory: `${apiBasePath}/admin/inventory`,
     adminTransactions: `${apiBasePath}/admin/transactions`
   }
 };

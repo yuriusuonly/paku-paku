@@ -143,7 +143,7 @@ export default function MenuScreen() {
               <View className="-mx-2 flex-row flex-wrap">
                 {section.items.map((item) => {
                   const cartItem = cartItems.find(
-                    (entry) => (entry.menu_item_id || entry.inventory_item_id || entry.item_name) === item.id
+                    (entry) => (entry.menu_item_id || entry.item_name) === item.id
                   );
                   const quantity = Number(cartItem?.quantity || 0);
 

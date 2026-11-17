@@ -6,12 +6,6 @@ import { createDatabaseClient } from "../database/instance.js";
 import { normalizeTransactionItems } from "../domain/transactions/items.js";
 import { calculateTransactionSubtotal, buildQrPayload } from "../domain/transactions/totals.js";
 import { isCompleted, resolvePaymentStatus } from "../domain/transactions/status.js";
-import {
-  getSupplySkus,
-  hasPositiveStock,
-  shouldAdjustInventory
-} from "../domain/transactions/inventory-rules.js";
-import { calculateAdjustedQuantity } from "../domain/inventory/quantity.js";
 
 /**
  * Unified buy/sell transaction data access.
@@ -22,7 +16,7 @@ import { calculateAdjustedQuantity } from "../domain/inventory/quantity.js";
 const TRANSACTION_SELECT =
   "id, order_number, kind, customer_id, status, payment_status, payment_method, subtotal_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
 const ITEM_SELECT =
-  "id, order_id, menu_item_id, inventory_item_id, item_name, quantity, unit_price_cents, line_total_cents, created_at";
+  "id, order_id, menu_item_id, item_name, quantity, unit_price_cents, line_total_cents, created_at";
 
 function resolveClient(client) {
   if (client) return client;
@@ -49,103 +43,6 @@ async function attachItems(database, transactions) {
     grouped.set(item.order_id, list);
   }
   return transactions.map((t) => ({ ...t, items: grouped.get(t.id) || [] }));
-}
-
-async function decrementInventoryRow(database, inventoryId, amount) {
-  if (!inventoryId || !Number.isInteger(amount) || amount <= 0) return;
-  const { data: current, error } = await database
-    .from("inventory_items")
-    .select("id, quantity")
-    .eq("id", inventoryId)
-    .single();
-  if (error || !current) return;
-  const nextQuantity = calculateAdjustedQuantity(current.quantity, -amount);
-  await database
-    .from("inventory_items")
-    .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
-    .eq("id", current.id);
-}
-
-async function decrementInventoryBySku(database, sku, amount) {
-  if (!sku || !Number.isInteger(amount) || amount <= 0) return;
-  const { data: current, error } = await database
-    .from("inventory_items")
-    .select("id, quantity")
-    .eq("sku", sku)
-    .eq("is_active", true)
-    .maybeSingle();
-  if (error || !current) return;
-  const nextQuantity = calculateAdjustedQuantity(current.quantity, -amount);
-  await database
-    .from("inventory_items")
-    .update({ quantity: nextQuantity, updated_at: new Date().toISOString() })
-    .eq("id", current.id);
-}
-
-async function syncMenuAvailability(database, menuItemIds) {
-  const ids = [...new Set((menuItemIds || []).filter(Boolean))];
-  for (const menuItemId of ids) {
-    const { data, error } = await database
-      .from("inventory_items")
-      .select("quantity, is_active")
-      .eq("menu_item_id", menuItemId)
-      .eq("is_active", true);
-    if (error || !Array.isArray(data) || data.length === 0) continue;
-    const hasStock = hasPositiveStock(data);
-    if (!hasStock) {
-      await database
-        .from("menu_items")
-        .update({ is_available: false, updated_at: new Date().toISOString() })
-        .eq("id", menuItemId);
-    }
-  }
-}
-
-async function applyInventoryForTransaction(database, items) {
-  const rows = Array.isArray(items) ? items : [];
-  if (rows.length === 0) return;
-
-  const menuIds = [...new Set(rows.map((item) => item.menu_item_id).filter(Boolean))];
-  let menuById = new Map();
-  if (menuIds.length) {
-    const { data } = await database
-      .from("menu_items")
-      .select("id, name, sort_order")
-      .in("id", menuIds);
-    menuById = new Map((data || []).map((m) => [m.id, m]));
-  }
-
-  for (const item of rows) {
-    const quantity = Number(item.quantity || 0);
-    if (!Number.isInteger(quantity) || quantity <= 0) continue;
-
-    // Explicit inventory target
-    if (item.inventory_item_id) {
-      await decrementInventoryRow(database, item.inventory_item_id, quantity);
-    }
-
-    // Inventory linked to the menu item (ingredients/servings stock)
-    if (item.menu_item_id) {
-      const { data: linked } = await database
-        .from("inventory_items")
-        .select("id")
-        .eq("menu_item_id", item.menu_item_id)
-        .eq("is_active", true);
-      for (const inv of linked || []) {
-        await decrementInventoryRow(database, inv.id, quantity);
-      }
-    }
-
-    // Shared supplies (pure SKU selection lives in the domain layer)
-    const menu = item.menu_item_id ? menuById.get(item.menu_item_id) : null;
-    const name = String(item.item_name || menu?.name || "");
-    const sortOrder = Number(menu?.sort_order ?? 1000);
-    for (const sku of getSupplySkus({ name, sortOrder })) {
-      await decrementInventoryBySku(database, sku, quantity);
-    }
-  }
-
-  await syncMenuAvailability(database, rows.map((item) => item.menu_item_id).filter(Boolean));
 }
 
 /**
@@ -232,10 +129,6 @@ export async function createBuyTransaction(client, input, { customerId, profile 
     .single();
   const finalRow = !qrError && withQr ? withQr : { ...row, qr_payload: qrPayload };
 
-  if (shouldAdjustInventory(finalRow.status || "pending")) {
-    await applyInventoryForTransaction(database, itemRows);
-  }
-
   const [transaction] = await attachItems(database, [finalRow]);
   return { transaction };
 }
@@ -283,10 +176,6 @@ export async function createTransaction(client, input, options = {}) {
 
   const qrPayload = buildQrPayload({ orderNumber: row.order_number, id: row.id, totalCents: row.total_cents });
   await database.from("orders").update({ qr_payload: qrPayload, updated_at: new Date().toISOString() }).eq("id", row.id);
-
-  if (shouldAdjustInventory(status)) {
-    await applyInventoryForTransaction(database, itemRows);
-  }
 
   return getTransactionById(database, row.id);
 }

@@ -9,7 +9,7 @@ import { badRequest } from "../../shared/errors/bad-request.js";
  * Normalizes transaction line items for persistence.
  *
  * @param {unknown} items - Raw line items.
- * @returns {Array<{menu_item_id: string|null, inventory_item_id: string|null, item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized items.
+ * @returns {Array<{menu_item_id: string|null, item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized items.
  */
 export function normalizeTransactionItems(items) {
   const list = Array.isArray(items) ? items : [];
@@ -35,7 +35,6 @@ export function normalizeTransactionItems(items) {
 
     return {
       menu_item_id: entry.menu_item_id || null,
-      inventory_item_id: entry.inventory_item_id || null,
       item_name: itemName,
       quantity,
       unit_price_cents: unitPrice,

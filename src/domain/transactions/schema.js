@@ -23,8 +23,7 @@ export const transactionItemSchema = z.object({
   item_name: z.string().trim().min(1),
   quantity: z.coerce.number().int().positive(),
   unit_price_cents: z.coerce.number().int().min(0),
-  menu_item_id: nullableString.optional().default(null),
-  inventory_item_id: nullableString.optional().default(null)
+  menu_item_id: nullableString.optional().default(null)
 }).transform((item) => ({
   ...item,
   line_total_cents: item.quantity * item.unit_price_cents

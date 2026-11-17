@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { menuItemCreateSchema } from "../../src/domain/menu-items/schema.js";
-import { inventoryItemCreateSchema } from "../../src/domain/inventory/schema.js";
 import { createUserSchema } from "../../src/domain/profiles/schema.js";
 import { transactionCreateSchema } from "../../src/domain/transactions/schema.js";
 
@@ -31,22 +30,6 @@ describe("menuItemCreateSchema", () => {
   test("rejects invalid names and prices", () => {
     expect(menuItemCreateSchema.safeParse({ name: "", price_cents: 1, is_available: true }).success).toBe(false);
     expect(menuItemCreateSchema.safeParse({ name: "A", price_cents: -1, is_available: true }).success).toBe(false);
-  });
-});
-
-describe("inventoryItemCreateSchema", () => {
-  test("applies numeric and nullable defaults", () => {
-    const result = inventoryItemCreateSchema.safeParse({ name: "Rice", is_active: true });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.quantity).toBe(0);
-      expect(result.data.sku).toBeNull();
-      expect(result.data.menu_item_id).toBeNull();
-    }
-  });
-
-  test("requires is_active", () => {
-    expect(inventoryItemCreateSchema.safeParse({ name: "Rice" }).success).toBe(false);
   });
 });
 

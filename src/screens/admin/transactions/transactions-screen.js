@@ -22,7 +22,7 @@ import { TransactionsTableSection } from "./transactions-table-component.js";
  */
 
 function emptyLine() {
-  return { item_name: "", quantity: "1", unit_price_cents: "0", menu_item_id: "", inventory_item_id: "" };
+  return { item_name: "", quantity: "1", unit_price_cents: "0", menu_item_id: "" };
 }
 
 export default function AdminTransactionsScreen() {
@@ -113,8 +113,7 @@ export default function AdminTransactionsScreen() {
           item_name: line.item_name,
           quantity: line.quantity,
           unit_price_cents: line.unit_price_cents,
-          menu_item_id: line.menu_item_id,
-          inventory_item_id: line.inventory_item_id
+          menu_item_id: line.menu_item_id
         }))
       });
 

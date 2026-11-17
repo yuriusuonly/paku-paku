@@ -69,7 +69,6 @@ export default function CartScreen() {
       const data = await createMyTransaction(token, {
         items: cartItems.map((item) => ({
           menu_item_id: item.menu_item_id || null,
-          inventory_item_id: item.inventory_item_id || null,
           item_name: item.item_name,
           quantity: Number(item.quantity || 1),
           unit_price_cents: Number(item.unit_price_cents || 0)

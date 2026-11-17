@@ -45,7 +45,6 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
             <TextField label="Quantity (*)" value={line.quantity} onChangeText={(v) => updateLine(index, { quantity: v })} keyboardType="numeric" />
             <TextField label="Unit price (cents) (*)" value={line.unit_price_cents} onChangeText={(v) => updateLine(index, { unit_price_cents: v })} keyboardType="numeric" />
             <TextField label="Menu item ID" value={line.menu_item_id} onChangeText={(v) => updateLine(index, { menu_item_id: v })} placeholder="Optional" />
-            <TextField label="Inventory item ID" value={line.inventory_item_id} onChangeText={(v) => updateLine(index, { inventory_item_id: v })} placeholder="Optional (decrements on completed sell)" />
           </View>
         ))}
         <View className="flex-row flex-wrap gap-3">

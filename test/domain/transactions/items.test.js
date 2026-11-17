@@ -17,7 +17,6 @@ describe("normalizeTransactionItems", () => {
       }
     ])).toEqual([{
       menu_item_id: "m1",
-      inventory_item_id: null,
       item_name: "Ramen",
       quantity: 2,
       unit_price_cents: 500,
