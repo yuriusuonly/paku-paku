@@ -1,4 +1,3 @@
-import { authenticationInterceptor } from "../../interceptors/authentication.interceptor.js";
 import { authorizationInterceptor } from "../../interceptors/authorization.interceptor.js";
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
@@ -30,9 +29,8 @@ const menuItemCreatedResponse = (data) => jsonResponse(data, { status: HTTP_STAT
 export const GET = withMiddleware(
   logInterceptor,
   errorInterceptor,
-  methodInterceptor("GET"),
-  authenticationInterceptor
-)(async (context) => menuItemsResponse(await listMenuItems(context.locals.auth.database)));
+  methodInterceptor("GET")
+)(async () => menuItemsResponse(await listMenuItems()));
 
 export const POST = withMiddleware(
   logInterceptor,

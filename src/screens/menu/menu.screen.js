@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
 import { EmptyState } from "../../components/empty-state.js";
@@ -7,14 +6,13 @@ import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
-import { useAuthStore } from "../../stores/auth.store.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useMenuStore } from "../../stores/menu.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Authenticated menu screen.
+ * Public kiosk menu screen.
  * @module screens/menu/menu.screen
  */
 
@@ -24,13 +22,6 @@ import { cx } from "../../shared/constants/theme.js";
  * @returns {JSX.Element} Menu screen.
  */
 export default function MenuScreen() {
-  const router = useRouter();
-  const user = useAuthStore((state) => state.user);
-  const session = useAuthStore((state) => state.session);
-  const authStatus = useAuthStore((state) => state.status);
-  const hydrated = useAuthStore((state) => state.hydrated);
-  const hydrate = useAuthStore((state) => state.hydrate);
-
   const items = useMenuStore((state) => state.items);
   const loading = useMenuStore((state) => state.loading);
   const syncing = useMenuStore((state) => state.syncing);
@@ -38,7 +29,6 @@ export default function MenuScreen() {
   const fetchItems = useMenuStore((state) => state.fetchItems);
   const subscribe = useMenuStore((state) => state.subscribe);
   const unsubscribe = useMenuStore((state) => state.unsubscribe);
-  const resetMenu = useMenuStore((state) => state.reset);
 
   const hydrateCart = useCartStore((state) => state.hydrate);
   const addToCart = useCartStore((state) => state.addItem);
@@ -47,45 +37,18 @@ export default function MenuScreen() {
   const cartCount = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const showSuccess = useNotificationStore((state) => state.showSuccess);
 
-  const isAuthenticated = authStatus === "authenticated" && Boolean(user && session?.access_token);
+  useEffect(() => {
+    hydrateCart();
+  }, [hydrateCart]);
 
   useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
-
-  useEffect(() => {
-    if (hydrated && user?.id) hydrateCart(user.id);
-  }, [hydrated, user?.id, hydrateCart]);
-
-  useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-    if (authStatus === "unauthenticated" || !session?.access_token || !user) {
-      router.replace("/");
-    }
-  }, [hydrated, authStatus, session?.access_token, user, router]);
-
-  useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-
-    if (!isAuthenticated || !session?.access_token) {
-      void unsubscribe();
-      resetMenu();
-      return;
-    }
-
-    void fetchItems(session.access_token).catch(() => {});
-    subscribe(session.access_token);
-
+    void fetchItems().catch(() => {});
+    subscribe();
     return () => {
       void unsubscribe();
     };
-  }, [hydrated, isAuthenticated, session?.access_token, fetchItems, subscribe, unsubscribe, resetMenu]);
+  }, [fetchItems, subscribe, unsubscribe]);
 
-  const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
   const visibleItems = items.filter((item) => item?.is_available !== false);
   const beverageItems = visibleItems.filter((item) => Number(item?.sort_order ?? 0) < 150);
   const foodItems = visibleItems.filter((item) => Number(item?.sort_order ?? 0) >= 150);
@@ -95,15 +58,6 @@ export default function MenuScreen() {
   ].filter((section) => section.items.length > 0);
   const showInitialMenuLoading = loading && visibleItems.length === 0;
 
-  if (!authReady || !isAuthenticated) {
-    return (
-      <ScreenContainer>
-        <Header />
-        <CircularProgress message={!authReady ? "Checking your session..." : "Redirecting..."} />
-      </ScreenContainer>
-    );
-  }
-
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
@@ -111,11 +65,9 @@ export default function MenuScreen() {
       <View className="mb-4 flex-row items-end justify-between">
         <View>
           <Text className={`${cx.typography.title} ${cx.textInk}`}>Menu</Text>
-          {user?.role !== "admin" ? (
-            <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-              Add items to your cart, then place an order. Cart: {cartCount}
-            </Text>
-          ) : null}
+          <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
+            Add items to your cart, then place an order. Cart: {cartCount}
+          </Text>
         </View>
         <View className="flex-row items-center gap-2">
           <Text className={`font-outfit text-sm ${cx.textInk50}`}>{visibleItems.length} items</Text>
@@ -169,8 +121,7 @@ export default function MenuScreen() {
                                 {item.description}
                               </Text>
                             ) : null}
-                            {user?.role !== "admin" ? (
-                              <View className="mt-4 flex-row items-center gap-3">
+                            <View className="mt-4 flex-row items-center gap-3">
                                 <Pressable
                                   accessibilityRole="button"
                                   accessibilityLabel={`Remove one ${item.name} from cart`}
@@ -207,7 +158,6 @@ export default function MenuScreen() {
                                   <Text className={`font-outfit text-2xl font-bold ${cx.textWhite}`}>+</Text>
                                 </Pressable>
                               </View>
-                            ) : null}
                           </View>
                           <View className="items-end">
                             <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>

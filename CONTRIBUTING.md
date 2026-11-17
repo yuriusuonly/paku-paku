@@ -149,7 +149,7 @@ flowchart LR
 - **`src/shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
 - **`src/database/`**: database/Supabase client instance and runtime selection (`instance.js`).
 - **`src/shared/constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.
-- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Profile emails are readable by authenticated users; never expose access tokens or recovery codes. |
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `src/shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Profile emails are readable by authenticated users; never expose access tokens or staff credentials. |
 
 ```mermaid
 flowchart LR
@@ -162,7 +162,8 @@ flowchart LR
 - Build screens from reusable primitives in `src/components/`. Use `DataTable` for audit tables, `SectionHeader` for consistent section titles/syncing state, `StatGrid`/`StatCard` for metrics, `StatusPill` for statuses, and `FormActions` for form buttons. Interactive components must expose `disabled`/`loading` consistently and include accessibility roles/labels.
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `src/shared/constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `src/shared/stylesheets/global.css`.
 - Support wearable (`<640px`), phone (`sm:`), and tablet (`md:`+) viewports by following the responsive rules in `DESIGN.md`.
-- Use Zustand stores under `src/stores/` for shared client state.
+- Use Zustand stores under `src/stores/` for shared client state. Customers are anonymous kiosk visitors; only staff authenticate, and admin screens enforce the `admin` role.
+- Keep the storefront (`/`, `/menu`, `/cart`, `/api/checkout`) public. Do not add customer sign-up, account, or recovery flows back into the MVP. 
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
 - Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/constants/config.js`, `app.config.js`). `src/shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
 

@@ -14,17 +14,17 @@ afterEach(() => {
 });
 
 describe("services/menu", () => {
-  test("getMenuItems fetches menu with bearer token", async () => {
-    const payload = { items: [{ id: "m1", name: "Ramen" }] };
+  test("getMenuItems fetches the public menu without a token", async () => {
+    const payload = { items: [{ id: "m1", name: "Iced Matcha" }] };
     globalThis.fetch = mock(async (path, options) => {
       expect(path).toBe("/api/menu-items");
       expect(options.method).toBe("GET");
-      expect(options.headers.Authorization).toBe("Bearer t");
+      expect(options.headers.Authorization).toBeUndefined();
       return jsonResponse(payload, 200);
     });
 
     const { getMenuItems } = await import("../../src/services/menu.js");
-    expect(await getMenuItems("t")).toEqual(payload);
+    expect(await getMenuItems()).toEqual(payload);
   });
 
   test("createMenuItem posts item payload", async () => {

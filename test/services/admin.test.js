@@ -15,7 +15,7 @@ afterEach(() => {
 
 describe("services/admin", () => {
   test("getProfiles fetches admin profiles with bearer token", async () => {
-    const payload = { profiles: [{ id: "p1", username: "root", role: "admin" }] };
+    const payload = { profiles: [{ id: "p1", email: "root@paku-paku.official", role: "admin" }] };
     globalThis.fetch = mock(async (path, options) => {
       expect(path).toBe("/api/admin/profiles");
       expect(options.method).toBe("GET");

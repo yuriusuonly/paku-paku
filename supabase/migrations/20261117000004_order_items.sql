@@ -18,6 +18,7 @@ alter table public.order_items replica identity full;
 
 revoke all on table public.order_items from anon, authenticated;
 grant select, insert, update, delete on table public.order_items to authenticated;
+grant insert on table public.order_items to anon;
 
 drop policy if exists "Users can read own transaction items" on public.order_items;
 create policy "Users can read own transaction items"
@@ -59,6 +60,21 @@ create policy "Admins can delete transaction items"
   for delete
   to authenticated
   using (public.current_user_is_admin());
+
+drop policy if exists "Kiosk visitors can add order items" on public.order_items;
+create policy "Kiosk visitors can add order items"
+  on public.order_items
+  for insert
+  to anon
+  with check (
+    exists (
+      select 1 from public.orders o
+      where o.id = order_items.order_id
+        and o.kind = 'buy'
+        and o.customer_id is null
+        and o.status = 'pending'
+    )
+  );
 
 do $$
 begin

@@ -3,7 +3,7 @@ import { isSameRecord, upsertById } from "../shared/utils/records.js";
 import { sortByOrder } from "../shared/utils/lists.js";
 import { getErrorMessage } from "../shared/errors/message.js";
 import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
-import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
+import { removeRealtimeChannel, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
 /**
@@ -29,27 +29,20 @@ export const useMenuStore = create((set, get) => ({
   /**
    * Loads menu items from the API into the store.
    *
-   * @param {string} token - Access token.
    * @param {{background?: boolean}} [options] - Load options.
    * @returns {Promise<void>}
    */
-  fetchItems: async (token, { background = false } = {}) => {
-    if (!token) {
-      set({ items: [], loading: false, syncing: false, error: null });
-      return;
-    }
-
+  fetchItems: async ({ background = false } = {}) => {
     const hasItems = get().items.length > 0;
     const isRefresh = background || hasItems;
     set({
       loading: !isRefresh,
       syncing: isRefresh,
-      error: null,
-      lastToken: token
+      error: null
     });
 
     try {
-      const data = await getMenuItems(token);
+      const data = await getMenuItems();
       set({ items: sortByOrder(data.items || []), loading: false, syncing: false, error: null });
     } catch (error) {
       const message = getErrorMessage(error, "Could not load the menu. Please try again.");
@@ -64,13 +57,11 @@ export const useMenuStore = create((set, get) => ({
   /**
    * Subscribes to realtime menu item changes for DB -> store sync.
    *
-   * @param {string} token - Access token used for realtime authorization.
    * @returns {void}
    */
-  subscribe: (token) => {
+  subscribe: () => {
     const state = get();
     if (state.channel) {
-      setRealtimeAuth(token);
       return;
     }
 
@@ -78,7 +69,6 @@ export const useMenuStore = create((set, get) => ({
       const channel = subscribeToTableChanges({
         channelName: "public:menu_items",
         table: "menu_items",
-        token,
         onPayload: (payload) => {
           let changed = false;
           if (payload.eventType === "DELETE") {
@@ -114,7 +104,7 @@ export const useMenuStore = create((set, get) => ({
         }
       });
 
-      set({ channel, subscribed: false, lastToken: token || state.lastToken });
+      set({ channel, subscribed: false });
     } catch (error) {
       const message = getErrorMessage(error, "Could not connect to live menu updates.");
       set({ subscribed: false, error: message });

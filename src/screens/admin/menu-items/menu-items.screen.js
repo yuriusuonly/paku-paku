@@ -62,8 +62,8 @@ export default function AdminMenuItemsScreen() {
 
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
-    void fetchItems(token).catch(() => {});
-    subscribe(token);
+    void fetchItems().catch(() => {});
+    subscribe();
     return () => { void unsubscribe(); };
   }, [hydrated, isAdmin, token, fetchItems, subscribe, unsubscribe]);
 

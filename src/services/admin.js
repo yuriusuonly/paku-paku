@@ -2,7 +2,7 @@ import { api } from "../shared/constants/config.js";
 import { apiRequest } from "../shared/network/transport.js";
 
 /**
- * Client-to-API admin contracts.
+ * Client-to-API administration contracts.
  * @module services/admin
  */
 
@@ -13,24 +13,7 @@ import { apiRequest } from "../shared/network/transport.js";
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
  */
 export function getProfiles(token) {
-  return apiRequest(api.endpoints.adminProfiles, {
-    token
-  });
-}
-
-/**
- * Creates a customer user/profile as an administrator.
- *
- * @param {string} token - Access token for an admin session.
- * @param {{email: string, password: string}} input - User payload.
- * @returns {Promise<{profile: object}>} Created profile payload.
- */
-export function createProfileUser(token, input) {
-  return apiRequest(api.endpoints.adminProfiles, {
-    method: "POST",
-    token,
-    body: input
-  });
+  return apiRequest(api.endpoints.adminProfiles, { token });
 }
 
 /**

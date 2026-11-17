@@ -14,11 +14,17 @@ export function calculateTransactionSubtotal(items) {
 }
 
 /**
- * Builds the counter-facing QR payload.
+ * Builds the counter-facing QR payload with payment method and order summary.
  *
- * @param {{orderNumber?: string, id?: string, totalCents?: number}} transaction
+ * @param {{orderNumber?: string, id?: string, totalCents?: number, paymentMethod?: string|null, items?: Array<{item_name?: string, quantity?: number}>}} transaction
  * @returns {string}
  */
-export function buildQrPayload({ orderNumber, id, totalCents }) {
-  return `TXN:${orderNumber}|ID:${id}|TOTAL:${totalCents}`;
+export function buildQrPayload({ orderNumber, id, totalCents, paymentMethod, items }) {
+  const base = `TXN:${orderNumber}|ID:${id}|TOTAL:${totalCents}`;
+  if (!paymentMethod && !Array.isArray(items)) return base;
+  const payment = `PAY:${paymentMethod || "cash"}`;
+  const summary = Array.isArray(items) && items.length
+    ? `|ITEMS:${items.map((item) => `${item.item_name}x${item.quantity}`).join(",")}`
+    : "";
+  return `${base}|${payment}${summary}`;
 }

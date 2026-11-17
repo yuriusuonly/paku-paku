@@ -11,9 +11,10 @@ Common Meanings & Uses:
 
 ## Expo web app
 
-A web-only Expo Router application for menu browsing, cart checkout, unified
-buy/sell transactions with counter QR codes and admin operations, backed by
-Supabase and packaged for local development, Docker, and Expo Hosting.
+A web-only Expo Router application for a kiosk storefront: customers pick orders
+from the menu, choose a payment method, and receive a counter QR code. Staff sign
+in to manage menu items and audit transactions. Backed by Supabase and packaged
+for local development, Docker, and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
   React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, Zod for
@@ -213,34 +214,30 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 
 ## Routes & endpoints
 
+Only staff sign in. Customers use the storefront without an account.
+
 | Route | Source | Purpose |
 | --- | --- | --- |
-| `/` | `src/app/index.js` → `src/screens/root.js` | Storefront home with menu loaded from `/api/menu-items`. |
-| `/signin` | `src/app/signin/index.js` → `src/screens/signin/signin.screen.js` | Email/password sign-in. |
-| `/signup` | `src/app/signup/index.js` → `src/screens/signup/signup.screen.js` | Customer sign-up. |
-| `/menu` | `src/app/menu/index.js` → `src/screens/menu/menu.screen.js` | Authenticated menu with add-to-cart. |
-| `/cart` | `src/app/cart/index.js` → `src/screens/cart/cart.screen.js` | Customer cart and checkout; places a buy transaction and generates a QR code to present at the counter. |
-| `/transactions` | `src/app/transactions/index.js` → `src/screens/transactions/transactions.screen.js` | Customer buy/sell transactions with QR codes for counter presentation. |
-| `/account` | `src/app/account/index.js` → `src/screens/account/account.screen.js` | Customer account/profile details. |
-| `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin operations dashboard (protected). |
-| `/admin/menu-items` | `src/app/admin/menu-items/index.js` → `src/screens/admin/menu-items/menu-items.screen.js` | Admin menu items management (protected). |
-| `/admin/transactions` | `src/app/admin/transactions/index.js` → `src/screens/admin/transactions/transactions.screen.js` | Admin unified buy/sell transactions management (protected). |
-| `/admin/profiles` | `src/app/admin/profiles/index.js` → `src/screens/admin/profiles/profiles.screen.js` | Admin profiles view/audit (protected). |
+| `/` | `src/app/index.js` → `src/screens/root.js` | Storefront landing with a link to the menu. |
+| `/menu` | `src/app/menu.js` → `src/screens/menu/menu.screen.js` | Public menu with add-to-cart controls. |
+| `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
+| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Administrator sign-in. |
+| `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
+| `/admin/menu-items` | `src/app/admin/menu-items.js` → `src/screens/admin/menu-items/menu-items.screen.js` | Admin menu management (protected). |
+| `/admin/transactions` | `src/app/admin/transactions.js` → `src/screens/admin/transactions/transactions.screen.js` | Admin transaction audit (protected). |
+| `/admin/profiles` | `src/app/admin/profiles.js` → `src/screens/admin/profiles/profiles.screen.js` | Read-only profile audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
-| `/api/menu-items` | `src/app/api/menu-items/+api.js` | Menu items listing and admin create (`GET`/`POST`). |
+| `/api/menu-items` | `src/app/api/menu-items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
 | `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
-| `/api/signup` | `src/app/api/signup/+api.js` | Signs up a customer account and returns session/profile when available. |
-| `/api/signin` | `src/app/api/signin/+api.js` | Email/password sign-in; returns session tokens and profile. |
-| `/api/session` | `src/app/api/session/+api.js` | Validates bearer token and returns the current profile. |
-| `/api/signout` | `src/app/api/signout/+api.js` | Revokes the current session. |
-| `/api/transactions` | `src/app/api/transactions/+api.js` | Customer transactions list/create (`GET`/`POST`, checkout creates a buy transaction with items and counter QR code). |
-| `/api/transactions/[id]` | `src/app/api/transactions/[id]+api.js` | Customer transaction read/update (`GET`/`PATCH`). |
-| `/api/account/profile` | `src/app/api/account/profile+api.js` | Authenticated customer account profile (`GET`/`PATCH`). |
+| `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns transaction + counter QR. |
+| `/api/signin` | `src/app/api/signin+api.js` | Administrator sign-in. |
+| `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
+| `/api/signout` | `src/app/api/signout+api.js` | Revokes the current session. |
 | `/api/admin/transactions` | `src/app/api/admin/transactions/+api.js` | Admin transactions listing and create (`GET`/`POST`). |
 | `/api/admin/transactions/[id]` | `src/app/api/admin/transactions/[id]+api.js` | Admin transaction read/update/delete (`GET`/`PATCH`/`DELETE`). |
-| `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Admin-only profile list and management (bearer token + admin role). |
+| `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
 | `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
@@ -249,72 +246,44 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 
 ```text
 ./
-├── .dockerignore
-├── .gitignore
 ├── .github/
-│   ├── workflows/
-│   │   ├── deploy-expo.yml
-│   │   ├── deploy-supabase.yml
-├── AGENTS.md
-├── CONTRIBUTING.md
-├── DESIGN.md
-├── Caddyfile
-├── Dockerfile
-├── LICENSE.txt
-├── README.md
-├── app.config.js
-├── babel.config.js
-├── docker-compose.yml
-├── eas.json
-├── metro.config.js
-├── opencode.json
-├── package-lock.json
-├── package.json
-├── tailwind.config.js
+│   └── workflows/
+│       ├── deploy-expo.yml
+│       └── deploy-supabase.yml
 ├── png/
 │   ├── logo-maskable.png
-│   ├── logo.png
+│   └── logo.png
 ├── src/
 │   ├── app/
-│   │   ├── account.js
 │   │   ├── admin/
 │   │   │   ├── index.js
 │   │   │   ├── menu-items.js
 │   │   │   ├── profiles.js
-│   │   │   ├── transactions.js
+│   │   │   └── transactions.js
 │   │   ├── api/
-│   │   │   ├── account/
-│   │   │   │   ├── profile+api.js
 │   │   │   ├── admin/
-│   │   │   │   ├── profiles+api.js
 │   │   │   │   ├── transactions/
 │   │   │   │   │   ├── +api.js
-│   │   │   │   │   ├── [id]+api.js
-│   │   │   ├── health+api.js
+│   │   │   │   │   └── [id]+api.js
+│   │   │   │   └── profiles+api.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── +api.js
-│   │   │   │   ├── [id]+api.js
-│   │   │   ├── recover+api.js
+│   │   │   │   └── [id]+api.js
+│   │   │   ├── checkout+api.js
+│   │   │   ├── health+api.js
 │   │   │   ├── session+api.js
 │   │   │   ├── signin+api.js
-│   │   │   ├── signout+api.js
-│   │   │   ├── signup+api.js
-│   │   │   ├── transactions/
-│   │   │   │   ├── +api.js
-│   │   │   │   ├── [id]+api.js
-│   │   ├── cart.js
+│   │   │   └── signout+api.js
 │   │   ├── +html.js
-│   │   ├── index.js
+│   │   ├── +not-found.js
 │   │   ├── _layout.js
+│   │   ├── cart.js
+│   │   ├── index.js
 │   │   ├── manifest.json+api.js
 │   │   ├── menu.js
-│   │   ├── +not-found.js
-│   │   ├── recover.js
 │   │   ├── robots.txt+api.js
 │   │   ├── service-worker.js+api.js
-│   │   ├── signin.js
-│   │   ├── signup.js
-│   │   ├── transactions.js
+│   │   └── signin.js
 │   ├── components/
 │   │   ├── accordion.js
 │   │   ├── alert.js
@@ -333,98 +302,80 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── stat-grid.js
 │   │   ├── status-pill.js
 │   │   ├── table.js
-│   │   ├── text-field.js
+│   │   └── text-field.js
 │   ├── database/
-│   │   ├── instance.js
+│   │   └── instance.js
 │   ├── domain/
 │   │   ├── menu-items/
-│   │   │   ├── schema.js
+│   │   │   └── schema.js
 │   │   ├── profiles/
-│   │   │   ├── schema.js
-│   │   ├── transactions/
-│   │   │   ├── constants.js
-│   │   │   ├── items.js
-│   │   │   ├── schema.js
-│   │   │   ├── status.js
-│   │   │   ├── totals.js
+│   │   └── transactions/
+│   │       ├── constants.js
+│   │       ├── items.js
+│   │       ├── schema.js
+│   │       ├── status.js
+│   │       └── totals.js
 │   ├── endpoints/
-│   │   ├── account/
-│   │   │   ├── profile.js
 │   │   ├── admin/
-│   │   │   ├── profiles.js
 │   │   │   ├── transactions/
 │   │   │   │   ├── [id].js
-│   │   │   │   ├── index.js
-│   │   ├── health.js
+│   │   │   │   └── index.js
+│   │   │   └── profiles.js
+│   │   ├── checkout/
+│   │   │   └── index.js
 │   │   ├── menu-items/
 │   │   │   ├── [id].js
 │   │   │   ├── index.js
-│   │   │   ├── validation.js
-│   │   ├── recover/
-│   │   │   ├── index.js
+│   │   │   └── validation.js
 │   │   ├── session/
-│   │   │   ├── index.js
+│   │   │   └── index.js
 │   │   ├── signin/
-│   │   │   ├── index.js
+│   │   │   └── index.js
 │   │   ├── signout/
-│   │   │   ├── index.js
-│   │   ├── signup/
-│   │   │   ├── index.js
-│   │   ├── transactions/
-│   │   │   ├── [id].js
-│   │   │   ├── index.js
+│   │   │   └── index.js
+│   │   └── health.js
 │   ├── interceptors/
 │   │   ├── authentication.interceptor.js
 │   │   ├── authorization.interceptor.js
 │   │   ├── body.interceptor.js
 │   │   ├── error.interceptor.js
 │   │   ├── log.interceptor.js
-│   │   ├── method.interceptor.js
+│   │   └── method.interceptor.js
 │   ├── repositories/
 │   │   ├── auth.repository.js
 │   │   ├── menu.repository.js
 │   │   ├── profile.repository.js
-│   │   ├── transaction.repository.js
+│   │   └── transaction.repository.js
 │   ├── screens/
-│   │   ├── account/
-│   │   │   ├── account-form.component.js
-│   │   │   ├── account.screen.js
 │   │   ├── admin/
-│   │   │   ├── admin.screen.js
 │   │   │   ├── menu-items/
 │   │   │   │   ├── menu-item-form.component.js
-│   │   │   │   ├── menu-items.screen.js
 │   │   │   │   ├── menu-items-table.component.js
+│   │   │   │   └── menu-items.screen.js
 │   │   │   ├── profiles/
-│   │   │   │   ├── profiles-form.component.js
-│   │   │   │   ├── profiles.screen.js
 │   │   │   │   ├── profiles-table.component.js
+│   │   │   │   └── profiles.screen.js
 │   │   │   ├── transactions/
 │   │   │   │   ├── transactions-form.component.js
-│   │   │   │   ├── transactions.screen.js
 │   │   │   │   ├── transactions-table.component.js
+│   │   │   │   └── transactions.screen.js
+│   │   │   └── admin.screen.js
 │   │   ├── cart/
 │   │   │   ├── cart-items.component.js
 │   │   │   ├── cart-placed.component.js
-│   │   │   ├── cart.screen.js
+│   │   │   └── cart.screen.js
 │   │   ├── menu/
-│   │   │   ├── menu.screen.js
-│   │   ├── recover/
-│   │   │   ├── recover.screen.js
-│   │   ├── root.js
+│   │   │   └── menu.screen.js
 │   │   ├── signin/
-│   │   │   ├── signin.screen.js
-│   │   ├── signup/
-│   │   │   ├── signup.screen.js
-│   │   ├── transactions/
-│   │   │   ├── transactions.screen.js
+│   │   │   └── signin.screen.js
+│   │   └── root.js
 │   ├── services/
-│   │   ├── account.js
 │   │   ├── admin.js
 │   │   ├── auth.js
+│   │   ├── checkout.js
 │   │   ├── menu.js
 │   │   ├── realtime.js
-│   │   ├── transactions.js
+│   │   └── transactions.js
 │   ├── shared/
 │   │   ├── cipher/
 │   │   │   ├── decode.js
@@ -433,12 +384,12 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── encrypt.js
 │   │   │   ├── hash.js
 │   │   │   ├── id.js
-│   │   │   ├── token.js
+│   │   │   └── token.js
 │   │   ├── constants/
 │   │   │   ├── config.js
 │   │   │   ├── http.js
 │   │   │   ├── layout.js
-│   │   │   ├── theme.js
+│   │   │   └── theme.js
 │   │   ├── errors/
 │   │   │   ├── bad-gateway.js
 │   │   │   ├── bad-request.js
@@ -454,90 +405,108 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   │   ├── not-found.js
 │   │   │   ├── service-unavailable.js
 │   │   │   ├── too-many-requests.js
-│   │   │   ├── unauthorized.js
+│   │   │   └── unauthorized.js
 │   │   ├── format/
 │   │   │   ├── currency.js
 │   │   │   ├── date.js
-│   │   │   ├── email.js
+│   │   │   └── email.js
 │   │   ├── network/
 │   │   │   ├── middleware.js
 │   │   │   ├── request.js
 │   │   │   ├── response.js
-│   │   │   ├── transport.js
+│   │   │   └── transport.js
 │   │   ├── stylesheets/
-│   │   │   ├── global.css
-│   │   ├── validation/
-│   │   │   ├── email.js
-│   │   │   ├── password.js
-│   │   │   ├── request.js
+│   │   │   └── global.css
 │   │   ├── utils/
 │   │   │   ├── lists.js
-│   │   │   ├── records.js
-│   ├── stores/
-│   │   ├── app.store.js
-│   │   ├── auth.store.js
-│   │   ├── cart.store.js
-│   │   ├── menu.store.js
-│   │   ├── notification.store.js
-│   │   ├── profiles.store.js
-│   │   ├── remember-email.js
-│   │   ├── transactions.store.js
+│   │   │   └── records.js
+│   │   └── validation/
+│   │       ├── email.js
+│   │       ├── password.js
+│   │       └── request.js
+│   └── stores/
+│       ├── app.store.js
+│       ├── auth.store.js
+│       ├── cart.store.js
+│       ├── menu.store.js
+│       ├── notification.store.js
+│       ├── profiles.store.js
+│       └── transactions.store.js
 ├── supabase/
-│   ├── .gitignore
-│   ├── config.toml
 │   ├── migrations/
 │   │   ├── 20261117000000_extensions.sql
 │   │   ├── 20261117000001_profiles.sql
 │   │   ├── 20261117000002_menu_items.sql
 │   │   ├── 20261117000003_orders.sql
-│   │   ├── 20261117000004_order_items.sql
+│   │   └── 20261117000004_order_items.sql
 │   ├── seeds/
 │   │   ├── 00_root.sql
-│   │   ├── 01_menu_items.sql
+│   │   └── 01_menu_items.sql
 │   ├── snippets/
+│   ├── .gitignore
+│   └── config.toml
 ├── svg/
 │   ├── logo-maskable.svg
-│   ├── logo.svg
+│   └── logo.svg
 ├── test/
 │   ├── architecture/
-│   │   ├── layers.test.js
+│   │   └── layers.test.js
 │   ├── domain/
 │   │   ├── transactions/
 │   │   │   ├── items.test.js
 │   │   │   ├── rules.test.js
-│   │   │   ├── totals.test.js
-│   │   ├── schemas.test.js
+│   │   │   └── totals.test.js
+│   │   └── schemas.test.js
 │   ├── endpoints/
-│   │   ├── menu-items-validation.test.js
+│   │   └── menu-items-validation.test.js
 │   ├── integration/
-│   │   ├── middleware-endpoint.test.js
+│   │   ├── endpoints/
+│   │   └── middleware-endpoint.test.js
 │   ├── services/
-│   │   ├── account.test.js
 │   │   ├── admin.test.js
 │   │   ├── auth.test.js
+│   │   ├── checkout.test.js
 │   │   ├── http.test.js
 │   │   ├── menu.test.js
-│   │   ├── transactions.test.js
-│   ├── shared/
-│   │   ├── errors/
-│   │   │   ├── message.test.js
-│   │   │   ├── normalize.test.js
-│   │   ├── format/
-│   │   │   ├── currency.test.js
-│   │   │   ├── date.test.js
-│   │   │   ├── email.test.js
-│   │   ├── network/
-│   │   │   ├── middleware.test.js
-│   │   │   ├── request.test.js
-│   │   │   ├── response.test.js
-│   │   │   ├── transport.test.js
-│   │   ├── utils/
-│   │   │   ├── lists.test.js
-│   │   │   ├── records.test.js
-│   │   ├── validation/
-│   │   │   ├── email.test.js
-│   │   │   ├── password.test.js
-│   │   │   ├── request.test.js
+│   │   └── transactions.test.js
+│   └── shared/
+│       ├── errors/
+│       │   ├── message.test.js
+│       │   └── normalize.test.js
+│       ├── format/
+│       │   ├── currency.test.js
+│       │   ├── date.test.js
+│       │   └── email.test.js
+│       ├── network/
+│       │   ├── middleware.test.js
+│       │   ├── request.test.js
+│       │   ├── response.test.js
+│       │   └── transport.test.js
+│       ├── utils/
+│       │   ├── lists.test.js
+│       │   └── records.test.js
+│       └── validation/
+│           ├── email.test.js
+│           ├── password.test.js
+│           └── request.test.js
 ├── ttf/
-│   ├── Outfit-VariableFont_wght.ttf
+│   └── Outfit-VariableFont_wght.ttf
+├── .dockerignore
+├── .gitignore
+├── AGENTS.md
+├── CONTRIBUTING.md
+├── Caddyfile
+├── DESIGN.md
+├── Dockerfile
+├── LICENSE.txt
+├── README.md
+├── app.config.js
+├── babel.config.js
+├── docker-compose.yml
+├── eas.json
+├── metro.config.js
+├── opencode.json
+├── package-lock.json
+├── package.json
+└── tailwind.config.js
 ```

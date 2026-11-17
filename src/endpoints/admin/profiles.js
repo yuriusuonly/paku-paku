@@ -6,11 +6,7 @@ import { badRequest } from "../../shared/errors/bad-request.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
-import { HTTP_STATUS } from "../../shared/constants/http.js";
 import { listProfiles, updateProfile } from "../../repositories/profile.repository.js";
-import { createManagedUser } from "../../repositories/auth.repository.js";
-import { requireEmail } from "../../shared/validation/email.js";
-import { requirePassword } from "../../shared/validation/password.js";
 import {
   hasOwn,
   readBoolean,
@@ -21,20 +17,9 @@ import {
 
 /**
  * Composed admin profiles endpoint handlers.
+ * Profiles are read-only records; new accounts are not created from the app.
  * @module endpoints/admin/profiles
  */
-
-async function parseCreateUserRequest(request) {
-  const body = requireObjectBody(
-    await readJsonBody(request),
-    "Expected a JSON object with email and password."
-  );
-
-  return {
-    email: requireEmail(body.email ?? body.username),
-    password: requirePassword(body.password)
-  };
-}
 
 async function parseUpdateProfileRequest(request) {
   const body = requireObjectBody(
@@ -74,17 +59,6 @@ export const GET = withMiddleware(
   authorizationInterceptor
 )(async (context) => jsonResponse(await listProfiles(context.locals.auth.database)));
 
-export const POST = withMiddleware(
-  logInterceptor,
-  errorInterceptor,
-  methodInterceptor("POST"),
-  authorizationInterceptor
-)(async (context) => {
-  const input = await parseCreateUserRequest(context.request);
-  const data = await createManagedUser(context.locals.auth.database, input);
-  return jsonResponse(data, { status: HTTP_STATUS.CREATED });
-});
-
 export const PATCH = withMiddleware(
   logInterceptor,
   errorInterceptor,
@@ -95,10 +69,14 @@ export const PATCH = withMiddleware(
   return jsonResponse(await updateProfile(context.locals.auth.database, id, input));
 });
 
+export function POST() {
+  return methodNotAllowed("GET, PATCH");
+}
+
 export function PUT() {
-  return methodNotAllowed("GET, POST, PATCH");
+  return methodNotAllowed("GET, PATCH");
 }
 
 export function DELETE() {
-  return methodNotAllowed("GET, POST, PATCH");
+  return methodNotAllowed("GET, PATCH");
 }

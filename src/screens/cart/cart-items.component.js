@@ -3,21 +3,40 @@ import { Pressable, Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
+import { PAYMENT_METHODS } from "../../domain/transactions/constants.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Cart items and checkout summary section.
+ * Cart items, payment method selection, and checkout summary.
  * @module screens/cart/cart-items.component
  */
 
-export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity, onRemoveItem, onCheckout, onClearCart }) {
+/**
+ * @param {object} props
+ * @returns {JSX.Element}
+ */
+export function CartItemsSection({
+  cartItems,
+  totalCents,
+  syncing,
+  paymentMethod,
+  onPaymentMethodChange,
+  onSetQuantity,
+  onRemoveItem,
+  onCheckout,
+  onClearCart
+}) {
   const keyOf = (item) => `${item.menu_item_id || item.item_name}`;
 
   if (cartItems.length === 0) {
     return (
       <View className="mt-6 gap-4">
-        <EmptyState message="Your cart is empty. Add items from the menu to place a transaction." />
-        <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text></Pressable></Link>
+        <EmptyState message="Your cart is empty. Add items from the menu to place an order." />
+        <Link href="/menu" asChild>
+          <Pressable accessibilityRole="link">
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Browse menu →</Text>
+          </Pressable>
+        </Link>
       </View>
     );
   }
@@ -25,8 +44,8 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
   return (
     <View className="mt-6 gap-8">
       <View>
-        <Text className={`font-outfit mb-3 text-xl font-black tracking-tight ${cx.textInk}`}>Items</Text>
-        <View className="gap-3">
+        <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Items</Text>
+        <View className={cx.spacing.md}>
           {cartItems.map((item) => {
             const key = keyOf(item);
             return (
@@ -50,14 +69,36 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
         </View>
       </View>
 
-      <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} gap-2`}>
-        <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: {formatCurrencyCents(totalCents)}</Text>
+      <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.sm}`}>
+        <Text className={`${cx.typography.label} ${cx.textInk60}`}>Payment method</Text>
+        <View className="flex-row flex-wrap gap-2">
+          {PAYMENT_METHODS.map((method) => (
+            <Pressable
+              key={method}
+              onPress={() => onPaymentMethodChange(method)}
+              disabled={syncing}
+              accessibilityRole="button"
+              accessibilityState={{ selected: method === paymentMethod }}
+              className={`min-h-[44px] rounded-full border px-4 py-2 ${
+                method === paymentMethod
+                  ? `${cx.bgPrimary} ${cx.borderPrimary}`
+                  : `${cx.bgSurfaceSoft} ${cx.borderSubtle}`
+              }`}
+            >
+              <Text className={`font-outfit text-sm font-semibold ${method === paymentMethod ? cx.textWhite : cx.textInk}`}>
+                {method.toUpperCase()}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Text className={`mt-4 ${cx.typography.title} ${cx.textInk}`}>Total: {formatCurrencyCents(totalCents)}</Text>
         <View className="flex-row flex-wrap gap-3 pt-1">
-          <Button label="Place transaction" onPress={onCheckout} loading={syncing} />
+          <Button label="Place order" onPress={onCheckout} loading={syncing} />
           <Button label="Clear cart" variant="ghost" onPress={onClearCart} disabled={syncing} />
         </View>
         <Text className={`font-outfit text-xs ${cx.textInk60}`}>
-          Placing a transaction generates a QR code for you to present at the counter.
+          Your QR code will include the items and selected payment method.
         </Text>
       </View>
     </View>

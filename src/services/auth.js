@@ -2,7 +2,7 @@ import { api } from "../shared/constants/config.js";
 import { apiRequest } from "../shared/network/transport.js";
 
 /**
- * Client-to-API authentication contracts.
+ * Client-to-API administrator authentication contracts.
  * @module services/auth
  */
 
@@ -10,7 +10,7 @@ import { apiRequest } from "../shared/network/transport.js";
  * Signs in with email and password.
  *
  * @param {{email: string, password: string}} credentials - Sign-in credentials.
- * @returns {Promise<{user: object, session: {access_token: string, refresh_token: string, expires_at?: number, expires_in?: number, token_type?: string}}>} Session payload.
+ * @returns {Promise<{user: object, session: object}>} Session payload.
  */
 export function signIn(credentials) {
   return apiRequest(api.endpoints.signin, {
@@ -26,22 +26,7 @@ export function signIn(credentials) {
  * @returns {Promise<{user: object}>} Session payload.
  */
 export function getSession(token) {
-  return apiRequest(api.endpoints.session, {
-    token
-  });
-}
-
-/**
- * Signs up a new customer account.
- *
- * @param {{email: string, password: string}} credentials - Sign-up credentials.
- * @returns {Promise<{user: object, session?: object | null}>} Sign-up payload.
- */
-export function signUp(credentials) {
-  return apiRequest(api.endpoints.signup, {
-    method: "POST",
-    body: credentials
-  });
+  return apiRequest(api.endpoints.session, { token });
 }
 
 /**
@@ -54,18 +39,5 @@ export function signOut(token) {
   return apiRequest(api.endpoints.signout, {
     method: "POST",
     token
-  });
-}
-
-/**
- * Recovers an account using a one-time recovery code.
- *
- * @param {{email: string, recovery_code: string, new_password: string}} payload - Recovery payload.
- * @returns {Promise<{ok: boolean}>} Recovery result.
- */
-export function recoverAccount(payload) {
-  return apiRequest(api.endpoints.recover, {
-    method: "POST",
-    body: payload
   });
 }

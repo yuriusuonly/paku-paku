@@ -5,16 +5,12 @@ import { create } from "zustand";
  * @module stores/cart.store
  */
 
-const STORAGE_PREFIX = "paku-paku.cart";
+const STORAGE_KEY = "paku-paku.cart";
 
-function storageKey(userId) {
-  return `${STORAGE_PREFIX}:${userId || "guest"}`;
-}
-
-function readCart(userId) {
+function readCart() {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(storageKey(userId));
+    const raw = window.localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -22,10 +18,10 @@ function readCart(userId) {
   }
 }
 
-function writeCart(userId, items) {
+function writeCart(items) {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(storageKey(userId), JSON.stringify(items));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   } catch {}
 }
 
@@ -37,12 +33,10 @@ function lineKey(item) {
  * @type {import("zustand").UseBoundStore<import("zustand").StoreApi<any>>}
  */
 export const useCartStore = create((set, get) => ({
-  userId: null,
   items: [],
 
-  /** @param {string | null} userId */
-  hydrate: (userId) => {
-    set({ userId: userId || null, items: readCart(userId) });
+  hydrate: () => {
+    set({ items: readCart() });
   },
 
   /** @param {object} item */
@@ -58,7 +52,7 @@ export const useCartStore = create((set, get) => ({
       } else {
         next = [...state.items, { ...item, quantity: Number(item.quantity || 1) }];
       }
-      writeCart(state.userId, next);
+      writeCart(next);
       return { items: next };
     });
   },
@@ -70,7 +64,7 @@ export const useCartStore = create((set, get) => ({
       const next = qty === 0
         ? state.items.filter((entry) => lineKey(entry) !== key)
         : state.items.map((entry) => (lineKey(entry) === key ? { ...entry, quantity: qty } : entry));
-      writeCart(state.userId, next);
+      writeCart(next);
       return { items: next };
     });
   },
@@ -79,14 +73,14 @@ export const useCartStore = create((set, get) => ({
   removeItem: (key) => {
     set((state) => {
       const next = state.items.filter((entry) => lineKey(entry) !== key);
-      writeCart(state.userId, next);
+      writeCart(next);
       return { items: next };
     });
   },
 
   clear: () => {
     set((state) => {
-      writeCart(state.userId, []);
+      writeCart([]);
       return { items: [] };
     });
   },

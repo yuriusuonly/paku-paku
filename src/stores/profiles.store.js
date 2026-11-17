@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { isSameRecord, upsertById } from "../shared/utils/records.js";
 import { sortByString } from "../shared/utils/lists.js";
 import { getErrorMessage } from "../shared/errors/message.js";
-import { getProfiles, createProfileUser, updateProfile as updateProfileApi } from "../services/admin.js";
+import { getProfiles, updateProfile as updateProfileApi } from "../services/admin.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
@@ -42,23 +42,6 @@ export const useProfilesStore = create((set, get) => ({
       set({ loading: false, syncing: false, error: message });
       if (background || hasData) notifyBackgroundError(message);
       throw error;
-    }
-  },
-
-  createUser: async (token, input) => {
-    set({ syncing: true, error: null });
-    try {
-      const data = await createProfileUser(token, input);
-      if (data?.profile) {
-        set((s) => ({ profiles: upsertById(s.profiles, data.profile, { sort: (items) => sortByString(items, "email") }) }));
-      }
-      return data;
-    } catch (error) {
-      const message = getErrorMessage(error, "Could not create the user. Please try again.");
-      set({ error: message });
-      throw error;
-    } finally {
-      set({ syncing: false });
     }
   },
 

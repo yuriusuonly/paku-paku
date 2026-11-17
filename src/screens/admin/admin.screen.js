@@ -7,7 +7,6 @@ import { ScreenContainer } from "../../components/container.js";
 import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { useMenuStore } from "../../stores/menu.store.js";
-import { useProfilesStore } from "../../stores/profiles.store.js";
 import { useTransactionsStore } from "../../stores/transactions.store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
@@ -32,12 +31,6 @@ export default function AdminScreen() {
   const fetchMenuItems = useMenuStore((s) => s.fetchItems);
   const subscribeMenu = useMenuStore((s) => s.subscribe);
 
-  const profiles = useProfilesStore((s) => s.profiles);
-  const profilesLoading = useProfilesStore((s) => s.loading);
-  const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
-  const subscribeProfiles = useProfilesStore((s) => s.subscribe);
-
-
   const transactions = useTransactionsStore((s) => s.adminTransactions);
   const transactionsLoading = useTransactionsStore((s) => s.loading);
   const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
@@ -49,21 +42,19 @@ export default function AdminScreen() {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!isAdmin) router.replace(status === "authenticated" ? "/menu" : "/signin");
+    if (!isAdmin) router.replace("/signin");
   }, [hydrated, isAdmin, status, router]);
 
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
-    void fetchMenuItems(token).catch(() => {});
-    void fetchProfiles(token).catch(() => {});
+    void fetchMenuItems().catch(() => {});
     void fetchAdminTransactions(token).catch(() => {});
-    subscribeMenu(token);
-    subscribeProfiles(token);
+    subscribeMenu();
     subscribeAdminTransactions(token);
     return () => {
       void unsubscribeTransactions();
     };
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchProfiles, fetchAdminTransactions, subscribeMenu, subscribeProfiles, subscribeAdminTransactions, unsubscribeTransactions]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchAdminTransactions, subscribeMenu, subscribeAdminTransactions, unsubscribeTransactions]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -71,13 +62,6 @@ export default function AdminScreen() {
     const unavailable = total - available;
     return { total, available, unavailable };
   }, [menuItems]);
-
-  const profileStats = useMemo(() => {
-    const total = profiles.length;
-    const active = profiles.filter((profile) => profile.is_active !== false).length;
-    const inactive = total - active;
-    return { total, active, inactive };
-  }, [profiles]);
 
   const transactionsStats = useMemo(() => {
     const completed = transactions.filter((t) => t.status === "completed");
@@ -99,7 +83,6 @@ export default function AdminScreen() {
   }
 
   const menuCountLoading = menuLoading && menuItems.length === 0;
-  const profileCountLoading = profilesLoading && profiles.length === 0;
   const transactionsCountLoading = transactionsLoading && transactions.length === 0;
 
   const cards = [
@@ -126,17 +109,6 @@ export default function AdminScreen() {
         { label: "Completed amount", value: formatCurrencyCents(transactionsStats.amountCents), loading: transactionsCountLoading }
       ]
     },
-    {
-      key: "profiles",
-      title: "Profiles",
-      href: "/admin/profiles",
-      linkLabel: "Open profiles audit →",
-      stats: [
-        { label: "Total profiles", value: profileStats.total, loading: profileCountLoading },
-        { label: "Active", value: profileStats.active, loading: profileCountLoading },
-        { label: "Inactive", value: profileStats.inactive, loading: profileCountLoading }
-      ]
-    }
   ];
 
   return (
@@ -147,7 +119,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu, transactions, and profiles.
+          Live operational overview across menu and transactions.
         </Text>
       </View>
 

@@ -1,42 +1,21 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Image, Text, View } from "react-native";
 import logo from "../../png/logo.png";
 import { Header } from "../components/header.js";
-import { CircularProgress } from "../components/circular-progress.js";
+import { Button } from "../components/button.js";
 import { ScreenContainer } from "../components/container.js";
 import config from "../shared/constants/config.js";
-import { useAuthStore } from "../stores/auth.store.js";
 import { cx } from "../shared/constants/theme.js";
 
 /**
- * Landing/home screen.
+ * Storefront landing screen.
  * @module screens/root
  */
 
 /**
- * Home screen component.
- *
  * @returns {JSX.Element} Home screen.
  */
 export default function HomeScreen() {
-  const router = useRouter();
-  const authStatus = useAuthStore((state) => state.status);
-  const hydrated = useAuthStore((state) => state.hydrated);
-  const hydrate = useAuthStore((state) => state.hydrate);
-
-  useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
-
-  useEffect(() => {
-    if (hydrated && authStatus === "authenticated") {
-      router.replace("/menu");
-    }
-  }, [hydrated, authStatus, router]);
-
-  const authReady = hydrated && authStatus !== "loading" && authStatus !== "idle";
-
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
@@ -50,6 +29,11 @@ export default function HomeScreen() {
             <Text className={`font-outfit mt-4 max-w-2xl text-center text-base md:text-left md:text-lg leading-relaxed ${cx.textInk70}`}>
               {config.description}
             </Text>
+            <View className="mt-6 flex-row flex-wrap justify-center md:justify-start">
+              <Link href="/menu" asChild>
+                <Button label="Start ordering" />
+              </Link>
+            </View>
           </View>
           <View className="w-full items-center justify-end md:flex-1 md:justify-center">
             <Image
@@ -62,10 +46,6 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
-
-      {!authReady || authStatus === "authenticated" ? (
-        <CircularProgress message={!authReady ? "Checking your session..." : "Redirecting..."} />
-      ) : null}
     </ScreenContainer>
   );
 }

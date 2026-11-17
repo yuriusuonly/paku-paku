@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  PAYMENT_METHODS,
   PAYMENT_STATUSES,
   TRANSACTION_KINDS,
   TRANSACTION_STATUSES
@@ -42,5 +43,14 @@ export const transactionCreateSchema = z.object({
   customer_email: nullableString.optional().default(null),
   customer_phone: nullableString.optional().default(null),
   notes: nullableString.optional().default(null),
+  items: z.array(transactionItemSchema).min(1)
+});
+
+/**
+ * Public kiosk checkout schema.
+ * @type {import("zod").ZodType}
+ */
+export const checkoutSchema = z.object({
+  payment_method: z.enum(PAYMENT_METHODS).default("cash"),
   items: z.array(transactionItemSchema).min(1)
 });

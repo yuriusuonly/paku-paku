@@ -6,13 +6,11 @@ import config from "../shared/constants/config.js";
 import { cx } from "../shared/constants/theme.js";
 
 /**
- * Site header with navigation and auth actions.
+ * Site header with storefront navigation and staff sign-in actions.
  * @module components/header
  */
 
 /**
- * Top navigation bar.
- *
  * @returns {JSX.Element} Header element.
  */
 export function Header() {
@@ -29,48 +27,52 @@ export function Header() {
   };
 
   const isAdminPage = typeof pathname === "string" && pathname.startsWith("/admin");
-  const isAuthenticated = status === "authenticated" && user;
-  const isCustomer = isAuthenticated && user?.role !== "admin";
-  const showAdminButton = isAuthenticated && user?.role === "admin" && !isAdminPage;
+  const isAdmin = status === "authenticated" && user?.role === "admin";
 
   return (
     <View className={`mb-6 flex-row flex-wrap items-center justify-between ${cx.spacing.md} sm:mb-8 md:mb-10`}>
       <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
-        <Link href={isAuthenticated ? "/menu" : "/"} asChild>
-          <Pressable>
-            <Text className={`${cx.typography.title} ${cx.textInk}`}>
-              {config.title}
+        <Link href="/" asChild>
+          <Pressable accessibilityRole="link" accessibilityLabel={`${config.title} home`}>
+            <Text className={`${cx.typography.title} ${cx.textInk}`}>{config.title}</Text>
+          </Pressable>
+        </Link>
+        <Link href="/menu" asChild>
+          <Pressable accessibilityRole="link" accessibilityLabel="Menu">
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Menu</Text>
+          </Pressable>
+        </Link>
+        <Link href="/cart" asChild>
+          <Pressable accessibilityRole="link" accessibilityLabel={`Cart, ${cartCount} items`}>
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>
+              Cart{cartCount ? ` (${cartCount})` : ""}
             </Text>
           </Pressable>
         </Link>
-        {isCustomer ? (
-          <>
-            <Link href="/menu" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Menu</Text></Pressable></Link>
-            <Link href="/cart" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Cart{cartCount ? ` (${cartCount})` : ""}</Text></Pressable></Link>
-            <Link href="/transactions" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Transactions</Text></Pressable></Link>
-            <Link href="/account" asChild><Pressable><Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>Account</Text></Pressable></Link>
-          </>
-        ) : null}
       </View>
 
       <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
-        {isAuthenticated ? (
+        {isAdmin ? (
           <>
-            {showAdminButton ? (
+            {!isAdminPage ? (
               <Link href="/admin" asChild>
-                <Pressable className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
+                <Pressable accessibilityRole="link" className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
                   <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Admin</Text>
                 </Pressable>
               </Link>
             ) : null}
-            <Pressable onPress={onSignOut} className={`rounded-full ${cx.bgPrimary} px-4 py-2`}>
+            <Pressable
+              onPress={onSignOut}
+              accessibilityRole="button"
+              className={`min-h-[44px] rounded-full ${cx.bgPrimary} px-4 py-2`}
+            >
               <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>Sign out</Text>
             </Pressable>
           </>
         ) : (
           <Link href="/signin" asChild>
-            <Pressable className={`rounded-full ${cx.bgPrimary} px-4 py-2`}>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>Sign in</Text>
+            <Pressable accessibilityRole="link" className={`min-h-[44px] rounded-full ${cx.bgPrimary} px-4 py-2`}>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>Staff sign in</Text>
             </Pressable>
           </Link>
         )}

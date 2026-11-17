@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getErrorMessage } from "../shared/errors/message.js";
-import { getSession, signUp as signUpApi, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
+import { getSession, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
 /**
@@ -152,26 +152,6 @@ export const useAuthStore = create((set, get) => ({
       return { ok: true };
     } catch (error) {
       const message = getErrorMessage(error, "Unable to sign in. Please check your details and try again.");
-      set({ status: "unauthenticated", error: message, user: null, session: null });
-      return { ok: false, error: message };
-    }
-  },
-
-  /**
-   * Signs up a new customer account without signing in immediately.
-   *
-   * @param {{email: string, password: string}} credentials - Sign-up credentials.
-   * @returns {Promise<{ok: boolean, error?: string, recoveryCode?: string | null, requiresSignIn?: boolean}>} Result for the caller/UI.
-   */
-  signUp: async (credentials) => {
-    set({ status: "loading", error: null });
-
-    try {
-      const data = await signUpApi(credentials);
-      set({ user: null, session: null, status: "unauthenticated", error: null, hydrated: true });
-      return { ok: true, requiresSignIn: !data.session, recoveryCode: data.recovery_code || null };
-    } catch (error) {
-      const message = getErrorMessage(error, "Unable to create your account. Please try again.");
       set({ status: "unauthenticated", error: message, user: null, session: null });
       return { ok: false, error: message };
     }

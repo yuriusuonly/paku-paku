@@ -27,3 +27,9 @@ export const TRANSACTION_STATUSES = [
  * @type {string[]}
  */
 export const PAYMENT_STATUSES = ["unpaid", "paid", "partial", "refunded"];
+
+/**
+ * Payment methods offered at kiosk checkout.
+ * @type {string[]}
+ */
+export const PAYMENT_METHODS = ["cash", "card", "gcash"];

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { badRequest } from "../shared/errors/bad-request.js";
 import { notFound } from "../shared/errors/not-found.js";
 import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
@@ -81,56 +82,59 @@ export async function getTransactionById(client, id) {
 }
 
 /**
- * Creates a buy transaction from customer checkout.
+ * Creates a public kiosk checkout transaction and counter QR payload.
  *
- * @param {import("../database/instance.js").DatabaseClient} client - Authenticated database client.
- * @param {object} input - Transaction payload including items.
- * @param {{customerId: string, profile?: object}} context - Auth/customer context.
+ * @param {import("../database/instance.js").DatabaseClient} client - Database client.
+ * @param {{payment_method?: string, items: object[]}} input - Checkout payload.
  * @returns {Promise<{transaction: object}>} Created transaction.
  */
-export async function createBuyTransaction(client, input, { customerId, profile }) {
+export async function createCheckoutTransaction(client, input) {
   const database = resolveClient(client);
-  if (!customerId) throw badRequest("invalid_transaction", "Customer account is required.");
   const items = normalizeTransactionItems(input.items);
   const subtotal = calculateTransactionSubtotal(items);
-  const paymentStatus = resolvePaymentStatus(input.payment_status, "unpaid") === "paid" ? "paid" : "unpaid";
+  const paymentMethod = input.payment_method || "cash";
+  const id = randomUUID();
+  const orderNumber = `ORD-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+  const now = new Date().toISOString();
+
+  const qrPayload = buildQrPayload({
+    orderNumber,
+    id,
+    totalCents: subtotal,
+    paymentMethod,
+    items
+  });
 
   const payload = {
+    id,
+    order_number: orderNumber,
     kind: "buy",
-    customer_id: customerId,
-    status: input.status || "pending",
-    payment_status: paymentStatus,
-    payment_method: input.payment_method || null,
+    customer_id: null,
+    status: "pending",
+    payment_status: "unpaid",
+    payment_method: paymentMethod,
     subtotal_cents: subtotal,
     total_cents: subtotal,
     currency: input.currency || "PHP",
     notes: input.notes || null,
-    customer_name: input.customer_name || profile?.full_name || null,
-    customer_email: input.customer_email || profile?.email || null,
-    customer_phone: input.customer_phone || profile?.phone || null
+    qr_payload: qrPayload,
+    placed_at: now,
+    created_at: now,
+    updated_at: now
   };
 
-  const { data: row, error } = await database.from("orders").insert(payload).select(TRANSACTION_SELECT).single();
-  if (error || !row) throw databaseUpstream("transaction_create_failed", "Could not create the transaction.", error);
+  const { error } = await database.from("orders").insert(payload);
+  if (error) throw databaseUpstream("transaction_create_failed", "Could not place the order.", error);
 
-  const itemRows = items.map((item) => ({ ...item, order_id: row.id }));
+  const itemRows = items.map((item) => ({ ...item, order_id: id }));
   const { error: itemsError } = await database.from("order_items").insert(itemRows);
   if (itemsError) {
-    await database.from("orders").delete().eq("id", row.id);
-    throw databaseUpstream("transaction_create_failed", "Could not create the transaction items.", itemsError);
+    await database.from("orders").delete().eq("id", id);
+    throw databaseUpstream("transaction_create_failed", "Could not save the order items.", itemsError);
   }
 
-  const qrPayload = buildQrPayload({ orderNumber: row.order_number, id: row.id, totalCents: row.total_cents });
-  const { data: withQr, error: qrError } = await database
-    .from("orders")
-    .update({ qr_payload: qrPayload, updated_at: new Date().toISOString() })
-    .eq("id", row.id)
-    .select(TRANSACTION_SELECT)
-    .single();
-  const finalRow = !qrError && withQr ? withQr : { ...row, qr_payload: qrPayload };
-
-  const [transaction] = await attachItems(database, [finalRow]);
-  return { transaction };
+  const responseItems = itemRows.map((item, index) => ({ ...item, id: item.id || `line-${index + 1}` }));
+  return { transaction: { ...payload, items: responseItems } };
 }
 
 /**

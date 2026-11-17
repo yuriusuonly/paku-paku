@@ -3,47 +3,27 @@ import { sortByCreatedDesc } from "../shared/utils/lists.js";
 import { getErrorMessage } from "../shared/errors/message.js";
 import {
   createAdminTransaction,
-  createTransaction,
   deleteAdminTransaction,
   getAdminTransactions,
-  getMyTransactions,
-  updateAdminTransaction,
-  updateTransaction
+  updateAdminTransaction
 } from "../services/transactions.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
 /**
- * Unified transactions store (buy/sell records).
+ * Admin transaction store. Customer orders are placed through the public checkout.
  * @module stores/transactions.store
  */
 
-
 export const useTransactionsStore = create((set, get) => ({
-  myTransactions: [],
   adminTransactions: [],
   loading: false,
   syncing: false,
   error: null,
   channels: [],
-  adminToken: null,
-  myToken: null,
   refetchTimer: null,
-  clearError: () => set({ error: null }),
 
-  fetchMyTransactions: async (token, { background = false } = {}) => {
-    if (!token) return set({ myTransactions: [], loading: false });
-    const has = get().myTransactions.length > 0;
-    const isRefresh = background || has;
-    if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
-    try {
-      const data = await getMyTransactions(token);
-      set({ myTransactions: sortByCreatedDesc(data.transactions || []), loading: false, syncing: false });
-    } catch (e) {
-      set({ loading: false, syncing: false, error: getErrorMessage(e, "Could not load transactions.") });
-      throw e;
-    }
-  },
+  clearError: () => set({ error: null }),
 
   fetchAdminTransactions: async (token, { background = false } = {}) => {
     if (!token) return set({ adminTransactions: [], loading: false });
@@ -60,11 +40,11 @@ export const useTransactionsStore = create((set, get) => ({
   },
 
   scheduleRealtimeRefetch: () => {
-    const { refetchTimer, adminToken, myToken, fetchAdminTransactions, fetchMyTransactions } = get();
+    const { refetchTimer, fetchAdminTransactions } = get();
     if (refetchTimer) clearTimeout(refetchTimer);
     const timer = setTimeout(() => {
+      const { adminToken } = get();
       if (adminToken) void fetchAdminTransactions(adminToken, { background: true }).catch(() => {});
-      if (myToken) void fetchMyTransactions(myToken, { background: true }).catch(() => {});
       set({ refetchTimer: null });
     }, 250);
     set({ refetchTimer: timer });
@@ -87,58 +67,13 @@ export const useTransactionsStore = create((set, get) => ({
     }
   },
 
-  subscribeMy: (token) => {
-    if (!token) return;
-    set({ myToken: token });
-    if (get().channels.length) {
-      setRealtimeAuth(token);
-      return;
-    }
-    try {
-      const onPayload = () => get().scheduleRealtimeRefetch();
-      const orders = subscribeToTableChanges({ channelName: "public:orders", table: "orders", token, onPayload });
-      const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
-      set({ channels: [orders, items] });
-    } catch (error) {
-      notifyBackgroundError(getErrorMessage(error, "Could not connect to live transaction updates."));
-    }
-  },
-
   unsubscribe: async () => {
     const { channels, refetchTimer } = get();
     if (refetchTimer) clearTimeout(refetchTimer);
     for (const channel of channels) {
       try { await removeRealtimeChannel(channel); } catch {}
     }
-    set({ channels: [], refetchTimer: null, adminToken: null, myToken: null });
-  },
-
-  createMyTransaction: async (token, input) => {
-    set({ syncing: true, error: null });
-    try {
-      const data = await createTransaction(token, input);
-      if (data?.transaction) set((s) => ({ myTransactions: sortByCreatedDesc([data.transaction, ...s.myTransactions]) }));
-      return data;
-    } catch (e) {
-      set({ error: getErrorMessage(e, "Could not place the transaction.") });
-      throw e;
-    } finally {
-      set({ syncing: false });
-    }
-  },
-
-  updateMyTransaction: async (token, id, input) => {
-    set({ syncing: true, error: null });
-    try {
-      const data = await updateTransaction(token, id, input);
-      if (data?.transaction) set((s) => ({ myTransactions: s.myTransactions.map((t) => (t.id === id ? data.transaction : t)) }));
-      return data?.transaction;
-    } catch (e) {
-      set({ error: getErrorMessage(e, "Could not update the transaction.") });
-      throw e;
-    } finally {
-      set({ syncing: false });
-    }
+    set({ channels: [], refetchTimer: null, adminToken: null });
   },
 
   createAdminTransaction: async (token, input) => {

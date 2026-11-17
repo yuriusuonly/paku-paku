@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { menuItemCreateSchema } from "../../src/domain/menu-items/schema.js";
-import { createUserSchema } from "../../src/domain/profiles/schema.js";
 import { transactionCreateSchema } from "../../src/domain/transactions/schema.js";
 
 /**
@@ -30,18 +29,6 @@ describe("menuItemCreateSchema", () => {
   test("rejects invalid names and prices", () => {
     expect(menuItemCreateSchema.safeParse({ name: "", price_cents: 1, is_available: true }).success).toBe(false);
     expect(menuItemCreateSchema.safeParse({ name: "A", price_cents: -1, is_available: true }).success).toBe(false);
-  });
-});
-
-describe("createUserSchema", () => {
-  test("normalizes email and enforces password length", () => {
-    const result = createUserSchema.safeParse({
-      email: "  User@Example.COM ",
-      password: "secret1"
-    });
-    expect(result.success).toBe(true);
-    if (result.success) expect(result.data.email).toBe("user@example.com");
-    expect(createUserSchema.safeParse({ email: "a@bc.co", password: "short" }).success).toBe(false);
   });
 });
 

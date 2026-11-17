@@ -8,13 +8,10 @@
  * @typedef {object} ApiEndpoints
  * @property {string} health
  * @property {string} menuItems
- * @property {string} signup
  * @property {string} signin
  * @property {string} session
  * @property {string} signout
- * @property {string} recover
- * @property {string} transactions
- * @property {string} accountProfile
+ * @property {string} checkout
  * @property {string} adminProfiles
  * @property {string} adminTransactions
  */
@@ -65,13 +62,10 @@ export const api = {
   endpoints: {
     health: `${apiBasePath}/health`,
     menuItems: `${apiBasePath}/menu-items`,
-    signup: `${apiBasePath}/signup`,
     signin: `${apiBasePath}/signin`,
     session: `${apiBasePath}/session`,
     signout: `${apiBasePath}/signout`,
-    recover: `${apiBasePath}/recover`,
-    transactions: `${apiBasePath}/transactions`,
-    accountProfile: `${apiBasePath}/account/profile`,
+    checkout: `${apiBasePath}/checkout`,
     adminProfiles: `${apiBasePath}/admin/profiles`,
     adminTransactions: `${apiBasePath}/admin/transactions`
   }

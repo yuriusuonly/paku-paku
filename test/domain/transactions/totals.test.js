@@ -15,4 +15,14 @@ describe("transaction totals", () => {
   test("builds deterministic QR payload", () => {
     expect(buildQrPayload({ orderNumber: "ORD-1", id: "t1", totalCents: 999 })).toBe("TXN:ORD-1|ID:t1|TOTAL:999");
   });
+
+  test("includes payment method and items in QR payload", () => {
+    expect(buildQrPayload({
+      orderNumber: "ORD-1",
+      id: "t1",
+      totalCents: 999,
+      paymentMethod: "gcash",
+      items: [{ item_name: "Iced Tea", quantity: 2 }]
+    })).toBe("TXN:ORD-1|ID:t1|TOTAL:999|PAY:gcash|ITEMS:Iced Teax2");
+  });
 });

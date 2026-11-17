@@ -7,13 +7,12 @@ import { apiRequest } from "../shared/network/transport.js";
  */
 
 /**
- * Loads available menu items for a signed-in user.
+ * Loads available menu items for the public storefront.
  *
- * @param {string} token - Access token.
  * @returns {Promise<{items: object[]}>} Menu payload.
  */
-export function getMenuItems(token) {
-  return apiRequest(api.endpoints.menuItems, { token });
+export function getMenuItems() {
+  return apiRequest(api.endpoints.menuItems);
 }
 
 /**
