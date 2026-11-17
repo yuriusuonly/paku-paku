@@ -15,8 +15,8 @@ export function QrCode({ value, label = "QR code", size = 128 }) {
   if (!value) return null;
   return (
     <View className="items-start gap-2">
-      <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>{label}</Text>
-      <View className={`rounded-2xl border ${cx.borderSubtle} bg-white p-3`}>
+      <Text className={`${cx.typography.label} ${cx.textInk60}`}>{label}</Text>
+      <View className={`${cx.radius.md} border ${cx.borderSubtle} bg-white p-3`}>
         <QRCode value={String(value)} size={size} />
       </View>
       <Text selectable className={`font-outfit text-xs ${cx.textInk60}`}>{value}</Text>

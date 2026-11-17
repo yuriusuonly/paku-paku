@@ -110,7 +110,7 @@ export default function MenuScreen() {
 
       <View className="mb-4 flex-row items-end justify-between">
         <View>
-          <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>Menu</Text>
+          <Text className={`${cx.typography.title} ${cx.textInk}`}>Menu</Text>
           {user?.role !== "admin" ? (
             <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
               Add items to your cart, then place an order. Cart: {cartCount}
@@ -149,11 +149,11 @@ export default function MenuScreen() {
 
                   return (
                     <View key={item.id} className="w-full p-2 md:w-1/2">
-                      <View className={`h-full rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}>
+                      <View className={`h-full ${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad}`}>
                         <View className="flex-1 flex-row items-start justify-between gap-4">
                           <View className="flex-1">
                             <View className="flex-row flex-wrap items-center gap-2">
-                              <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>
+                              <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>
                                 {item.name}
                               </Text>
                               {item.is_best_seller ? (
@@ -181,7 +181,7 @@ export default function MenuScreen() {
                                   }}
                                   className={`h-11 w-11 items-center justify-center rounded-full border ${cx.borderSubtle} ${cx.bgSurfaceSoft}`}
                                 >
-                                  <Text className={`font-outfit text-2xl font-bold ${cx.textInk}`}>-</Text>
+                                  <Text className={`${cx.typography.title} ${cx.textInk}`}>-</Text>
                                 </Pressable>
                                 <Text className={`font-outfit min-w-[32px] text-center text-lg font-semibold ${cx.textInk}`}>
                                   {quantity}

@@ -12,7 +12,7 @@ import { cx } from "../../shared/constants/theme.js";
 export function AccountFormSection({ email, loading, saving, password, confirmPassword, setPassword, setConfirmPassword, onSave }) {
   if (loading) return <View className="mt-6"><CircularProgress message="Loading account..." /></View>;
   return (
-    <View className={`mt-6 rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+    <View className={`mt-6 ${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
       <Text className={`font-outfit text-sm ${cx.textInk70}`}>Email: {email || "-"}</Text>
       <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Change password</Text>
       <TextField label="New password" value={password} onChangeText={setPassword} placeholder="At least 6 characters" secureTextEntry enablePasswordToggle autoComplete="new-password" />

@@ -257,6 +257,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 │   │   ├── deploy-supabase.yml
 ├── AGENTS.md
 ├── CONTRIBUTING.md
+├── DESIGN.md
 ├── Caddyfile
 ├── Dockerfile
 ├── LICENSE.txt

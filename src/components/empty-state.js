@@ -23,8 +23,8 @@ export function EmptyState({ message }) {
   }
 
   return (
-    <View className={`w-full rounded-2xl border ${cx.borderSubtle} px-4 py-3`}>
-      <Text className={`font-outfit text-sm leading-relaxed ${cx.textInk70}`}>
+    <View className={`w-full ${cx.radius.md} border ${cx.borderSubtle} px-4 py-3`}>
+      <Text className={`${cx.typography.body} ${cx.textInk70}`}>
         {message}
       </Text>
     </View>

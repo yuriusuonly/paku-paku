@@ -15,7 +15,7 @@ export function SyncIndicator({ visible = true, message = "Syncing..." }) {
   return (
     <View className="flex-row items-center gap-2">
       <ActivityIndicator size="small" />
-      <Text className={`font-outfit text-xs font-semibold ${cx.textInk60}`}>{message}</Text>
+      <Text className={`${cx.typography.label} ${cx.textInk60}`}>{message}</Text>
     </View>
   );
 }
@@ -28,8 +28,8 @@ export function SectionHeader({ title, subtitle, syncing = false, right = null, 
   return (
     <View className={`mb-3 flex-row items-center justify-between gap-3 ${className}`}>
       <View className="flex-1">
-        <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>{title}</Text>
-        {subtitle ? <Text className={`font-outfit text-sm ${cx.textInk60}`}>{subtitle}</Text> : null}
+        <Text className={`${cx.typography.title} ${cx.textInk}`}>{title}</Text>
+        {subtitle ? <Text className={`${cx.typography.caption} ${cx.textInk60}`}>{subtitle}</Text> : null}
       </View>
       <View className="flex-row items-center gap-3">
         {right}

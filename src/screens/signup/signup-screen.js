@@ -110,7 +110,7 @@ export default function SignUpScreen() {
     return (
       <ScreenContainer scrollable contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}>
         <View className="mx-auto w-full max-w-md">
-          <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
+          <Text className={`${cx.typography.heading} ${cx.textInk}`}>
             Save your recovery code
           </Text>
           <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
@@ -119,7 +119,7 @@ export default function SignUpScreen() {
             {signupSuccess.requiresSignIn ? " Please confirm your email if required, then sign in." : " Sign in when you’re ready."}
           </Text>
 
-          <View className={`mt-8 gap-3 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-5`}>
+          <View className={`mt-8 gap-3 ${cx.radius.md} border ${cx.borderSubtle} ${cx.bgSurfaceSoft} ${cx.spacing.cardPad}`}>
             <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>
               Recovery code (show once)
             </Text>
@@ -165,7 +165,7 @@ export default function SignUpScreen() {
           </Text>
         </Link>
 
-        <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>
           Sign up
         </Text>
         <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>

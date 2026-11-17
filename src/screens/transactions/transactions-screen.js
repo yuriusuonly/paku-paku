@@ -55,7 +55,7 @@ export default function TransactionsScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Transactions</Text>
+      <Text className={`${cx.typography.heading} ${cx.textInk}`}>Transactions</Text>
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
         Your buy/sell transactions. Present the QR code at the counter for pending transactions.
       </Text>
@@ -71,7 +71,7 @@ export default function TransactionsScreen() {
 
       <View className="mt-6 gap-4">
         {transactions.map((tx) => (
-          <View key={tx.id} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5`}>
+          <View key={tx.id} className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad}`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>
               {tx.order_number} · {formatCurrencyCents(tx.total_cents)}
             </Text>

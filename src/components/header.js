@@ -34,11 +34,11 @@ export function Header() {
   const showAdminButton = isAuthenticated && user?.role === "admin" && !isAdminPage;
 
   return (
-    <View className="mb-10 flex-row flex-wrap items-center justify-between gap-3">
-      <View className="flex-row flex-wrap items-center gap-3">
+    <View className={`mb-6 flex-row flex-wrap items-center justify-between ${cx.spacing.md} sm:mb-8 md:mb-10`}>
+      <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
         <Link href={isAuthenticated ? "/menu" : "/"} asChild>
           <Pressable>
-            <Text className={`font-outfit text-xl font-black tracking-tight ${cx.textInk}`}>
+            <Text className={`${cx.typography.title} ${cx.textInk}`}>
               {config.title}
             </Text>
           </Pressable>
@@ -53,7 +53,7 @@ export function Header() {
         ) : null}
       </View>
 
-      <View className="flex-row items-center gap-3">
+      <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
         {isAuthenticated ? (
           <>
             {showAdminButton ? (

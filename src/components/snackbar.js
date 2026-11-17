@@ -33,12 +33,12 @@ export function SnackbarHost() {
       pointerEvents="box-none"
       style={{ position: "fixed", left: 0, right: 0, bottom: 16, zIndex: 50 }}
     >
-      <View className="mx-auto w-full max-w-xl px-4 gap-2">
+      <View className={`mx-auto w-full max-w-xl px-4 ${cx.spacing.sm}`}>
         {items.map((item) => (
           <Pressable key={item.id} onPress={() => dismiss(item.id)}>
-            <View className={`flex-row items-center rounded-2xl border px-4 py-3 shadow-lg ${styles[item.variant] || styles.info}`}>
+            <View className={`flex-row items-center ${cx.radius.md} border px-4 py-3 shadow-lg ${styles[item.variant] || styles.info}`}>
               <View className={`mr-3 h-2.5 w-2.5 rounded-full ${dot[item.variant] || dot.info}`} />
-              <Text className={`font-outfit flex-1 text-sm leading-relaxed ${cx.textWhite}`}>{item.message}</Text>
+              <Text className={`${cx.typography.body} flex-1 ${cx.textWhite}`}>{item.message}</Text>
               <Text className={`font-outfit ml-3 text-xs ${cx.textWhite60}`}>Dismiss</Text>
             </View>
           </Pressable>

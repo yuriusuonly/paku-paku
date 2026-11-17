@@ -48,7 +48,7 @@ export function TextField({
 
   return (
     <View className="w-full">
-      <Text className={`font-outfit mb-2 text-sm font-semibold ${cx.textInk}`}>
+      <Text className={`${cx.typography.label} mb-2 ${cx.textInk}`}>
         {label}
       </Text>
       <View className="relative w-full">
@@ -64,7 +64,7 @@ export function TextField({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlignVertical={multiline ? "top" : "center"}
-          className={`font-outfit w-full rounded-2xl border ${error ? cx.borderPrimary : cx.borderSubtle} ${cx.bgSurfaceSoft} px-4 py-3 text-base ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-16" : ""}`}
+          className={`${cx.typography.body} w-full min-h-[44px] ${cx.radius.md} border ${error ? cx.borderPrimary : cx.borderSubtle} ${cx.bgSurfaceSoft} px-3 py-3 sm:px-4 ${cx.textInk} ${multiline ? "min-h-[96px]" : ""} ${canTogglePassword ? "pr-16" : ""}`}
         />
         {canTogglePassword ? (
           <Pressable

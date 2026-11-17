@@ -36,7 +36,7 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
 
         <Text className={`font-outfit mt-2 text-base font-bold ${cx.textInk}`}>Line items</Text>
         {lines.map((line, index) => (
-          <View key={index} className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-2`}>
+          <View key={index} className={`${cx.radius.md} border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4 gap-2`}>
             <View className="flex-row items-center justify-between">
               <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Item {index + 1}</Text>
               <Button label="Remove" variant="ghost" onPress={() => removeLine(index)} disabled={syncing} />

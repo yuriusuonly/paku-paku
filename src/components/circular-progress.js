@@ -15,7 +15,7 @@ export function CircularProgress({ size = "small", color = colors.primary, class
     return (
       <View className={`items-center justify-center gap-3 py-8 ${className}`}>
         <ActivityIndicator size={size === "small" ? "large" : size} color={color} />
-        <Text className={`font-outfit text-sm ${cx.textInk60}`}>{message}</Text>
+        <Text className={`${cx.typography.body} ${cx.textInk60}`}>{message}</Text>
       </View>
     );
   }

@@ -143,7 +143,7 @@ export default function AdminScreen() {
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
       <View className="mb-6 sm:mb-8 md:mb-10">
-        <Text className={`font-outfit text-xl font-black tracking-tight sm:text-2xl md:text-3xl ${cx.textInk}`}>
+        <Text className={`${cx.typography.title} ${cx.textInk}`}>
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
@@ -154,7 +154,7 @@ export default function AdminScreen() {
       <View className="-mx-2 flex-row flex-wrap sm:-mx-3 md:-mx-4">
         {cards.map((card) => (
           <View key={card.key} className="w-full p-2 sm:p-3 md:w-1/2 md:p-4">
-            <View className={`h-full rounded-2xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 sm:rounded-3xl sm:p-6 md:p-7`}>
+            <View className={`h-full ${cx.layout.card} ${cx.spacing.cardPad}`}>
               <View className="mb-4 sm:mb-5">
                 <Text className={`font-outfit text-lg font-bold sm:text-xl md:text-2xl ${cx.textInk}`}>
                   {card.title}

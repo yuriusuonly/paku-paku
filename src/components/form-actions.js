@@ -20,7 +20,7 @@ export function FormActions({
   children = null
 }) {
   return (
-    <View className="flex-row flex-wrap items-center gap-3">
+    <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
       <Button label={saveLabel} onPress={onSave} loading={saving} disabled={disabled} />
       {onClear ? <Button label={clearLabel} variant="ghost" onPress={onClear} disabled={saving || disabled} /> : null}
       {children}

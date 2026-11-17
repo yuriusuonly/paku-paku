@@ -29,8 +29,8 @@ export function Alert({ message, variant = "info" }) {
     variant === "error" ? cx.textError : variant === "success" ? "text-emerald-800" : cx.textInk80;
 
   return (
-    <View className={`w-full rounded-2xl border px-4 py-3 ${variantStyle}`}>
-      <Text className={`font-outfit text-sm leading-relaxed ${textStyle}`}>
+    <View className={`w-full ${cx.radius.md} border px-4 py-3 ${variantStyle}`}>
+      <Text className={`${cx.typography.body} ${textStyle}`}>
         {message}
       </Text>
     </View>

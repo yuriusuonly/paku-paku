@@ -29,12 +29,12 @@ export function InlineSelect({ value, options, onChange, disabled = false, acces
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ disabled, expanded: open }}
-        className={`rounded-lg border ${open ? cx.borderPrimary30 : cx.borderSubtle} ${cx.bgSurfaceSoft} px-2 py-1 ${disabled ? "opacity-50" : ""}`}
+        className={`${cx.radius.sm} border ${open ? cx.borderPrimary30 : cx.borderSubtle} ${cx.bgSurfaceSoft} px-2 py-1 ${disabled ? "opacity-50" : ""}`}
       >
         <Text className={`font-outfit text-sm font-bold ${cx.textInk}`}>{current}</Text>
       </Pressable>
       {open ? (
-        <View className={`absolute left-0 top-9 z-50 min-w-[140px] rounded-xl border ${cx.borderSubtle} ${cx.bgSurface} p-1 shadow-sm`}>
+        <View className={`absolute left-0 top-9 z-50 min-w-[140px] ${cx.radius.md} border ${cx.borderSubtle} ${cx.bgSurface} p-1 shadow-sm`}>
           {options.map((option) => (
             <Pressable
               key={option}
@@ -44,7 +44,7 @@ export function InlineSelect({ value, options, onChange, disabled = false, acces
               }}
               accessibilityRole="button"
               accessibilityLabel={String(option)}
-              className={`rounded-lg px-3 py-2 ${option === value ? cx.bgSurfaceMuted : ""}`}
+              className={`${cx.radius.sm} px-3 py-2 ${option === value ? cx.bgSurfaceMuted : ""}`}
             >
               <Text className={`font-outfit text-sm ${cx.textInk}`}>{option}</Text>
             </Pressable>

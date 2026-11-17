@@ -79,7 +79,7 @@ export default function AccountScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Account</Text>
+      <Text className={`${cx.typography.heading} ${cx.textInk}`}>Account</Text>
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage your account sign-in details.</Text>
       <Alert variant="error" message={error} />
 

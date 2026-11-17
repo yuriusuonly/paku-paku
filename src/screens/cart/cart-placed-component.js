@@ -13,7 +13,7 @@ import { cx } from "../../shared/constants/theme.js";
 export function CartPlacedSection({ transaction, onNewTransaction }) {
   return (
     <View className="mt-6 gap-4">
-      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+      <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
         <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Transaction placed</Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
           {transaction.order_number} · {formatCurrencyCents(transaction.total_cents)}

@@ -166,7 +166,7 @@ export default function AdminProfilesScreen() {
         <Link href="/admin" asChild>
           <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>← Back to admin</Text>
         </Link>
-        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Profiles audit</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Profiles audit</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
           Add users, audit profile fields, and manage active status in real time.
         </Text>
@@ -214,10 +214,10 @@ export default function AdminProfilesScreen() {
 
       <Modal visible={Boolean(createdRecoveryCode)} transparent animationType="fade" onRequestClose={() => setCreatedRecoveryCode("")}>
         <View className="flex-1 items-center justify-center bg-black/50 p-5">
-          <View className={`w-full max-w-md rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 gap-3`}>
+          <View className={`w-full max-w-md ${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
             <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>User created</Text>
             <Text className={`font-outfit text-sm ${cx.textInk70}`}>Recovery code (show once). Copy and store it securely.</Text>
-            <View className={`rounded-2xl border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
+            <View className={`${cx.radius.md} border ${cx.borderSubtle} ${cx.bgSurfaceSoft} p-4`}>
               <Text selectable className={`font-outfit text-base font-bold tracking-widest ${cx.textInk}`}>{createdRecoveryCode}</Text>
             </View>
             <View className="flex-row flex-wrap gap-3 pt-1">

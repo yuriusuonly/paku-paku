@@ -58,6 +58,21 @@ function extractRelativeImports(source) {
 }
 
 describe("source layer boundaries", () => {
+  test("raw hex colors are confined to the theme token module", () => {
+    const themeFile = path.join(srcRoot, "shared", "constants", "theme.js");
+    const violations = [];
+
+    for (const file of collectFiles(srcRoot)) {
+      if (file === themeFile) continue;
+      const source = fs.readFileSync(file, "utf8");
+      if (/#[0-9A-Fa-f]{3,8}/.test(source)) {
+        violations.push(path.relative(srcRoot, file));
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
   test("relative imports only point to allowed layers", () => {
     const violations = [];
 

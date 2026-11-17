@@ -69,7 +69,7 @@ export function InlineEditableCell({
   if (disabled || saving) {
     return (
       <Text
-        className={`font-outfit w-full rounded-lg px-2 py-1 text-sm font-bold ${cx.textInk} ${saving ? "opacity-60" : ""}`}
+        className={`font-outfit w-full ${cx.radius.sm} px-2 py-1 text-sm font-bold ${cx.textInk} ${saving ? "opacity-60" : ""}`}
       >
         {stringValue || placeholder || "-"}
       </Text>
@@ -90,7 +90,7 @@ export function InlineEditableCell({
       keyboardType={numeric ? "numeric" : "default"}
       multiline={multiline}
       textAlignVertical={multiline ? "top" : "center"}
-      className={`font-outfit w-full rounded-lg border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm font-bold ${cx.textInk} ${multiline ? "min-h-[72px]" : ""}`}
+      className={`font-outfit w-full ${cx.radius.sm} border ${focused ? cx.borderPrimary30 : "border-transparent"} bg-transparent px-2 py-1 text-sm font-bold ${cx.textInk} ${multiline ? "min-h-[72px]" : ""}`}
     />
   );
 }

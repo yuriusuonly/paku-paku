@@ -147,7 +147,7 @@ export default function AdminTransactionsScreen() {
       <Header />
       <View className="mb-6">
         <Link href="/admin" asChild><Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>← Back to admin</Text></Link>
-        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Transactions</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Transactions</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage all buy/sell transactions in one place.</Text>
       </View>
       <Alert variant="error" message={localError || error} />

@@ -12,7 +12,7 @@ import { StatCard } from "./stat-card.js";
  */
 export function StatGrid({ stats, className = "" }) {
   return (
-    <View className={`mb-4 flex-row flex-wrap gap-3 ${className}`}>
+    <View className={`mb-4 flex-row flex-wrap ${cx.spacing.md} ${className}`}>
       {stats.map((stat) => (
         <StatCard
           key={stat.label}

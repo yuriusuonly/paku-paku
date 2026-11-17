@@ -30,10 +30,10 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
           {cartItems.map((item) => {
             const key = keyOf(item);
             return (
-              <View key={key} className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6`}>
+              <View key={key} className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad}`}>
                 <View className="flex-row items-start justify-between gap-3">
                   <View className="flex-1">
-                    <Text className={`font-outfit text-xl font-bold ${cx.textInk}`}>{item.item_name}</Text>
+                    <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>{item.item_name}</Text>
                     <Text className={`font-outfit mt-2 text-sm md:text-base ${cx.textInk70}`}>
                       {formatCurrencyCents(item.unit_price_cents)} × {item.quantity} = {formatCurrencyCents(Number(item.unit_price_cents || 0) * Number(item.quantity || 0))}
                     </Text>
@@ -50,7 +50,7 @@ export function CartItemsSection({ cartItems, totalCents, syncing, onSetQuantity
         </View>
       </View>
 
-      <View className={`rounded-3xl border ${cx.borderSubtle} ${cx.bgSurface} p-5 md:p-6 gap-2`}>
+      <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} gap-2`}>
         <Text className={`font-outfit text-lg font-bold ${cx.textInk}`}>Total: {formatCurrencyCents(totalCents)}</Text>
         <View className="flex-row flex-wrap gap-3 pt-1">
           <Button label="Place transaction" onPress={onCheckout} loading={syncing} />

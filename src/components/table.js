@@ -32,7 +32,7 @@ export function Table({ minWidth, children }) {
   return (
     <View
       style={minWidth ? { minWidth } : undefined}
-      className={`min-w-full overflow-hidden rounded-2xl border ${cx.borderSubtle}`}
+      className={`min-w-full overflow-hidden ${cx.radius.md} border ${cx.borderSubtle}`}
     >
       {children}
     </View>
@@ -55,10 +55,10 @@ export function TableHeaderCell({ width, last = false, children }) {
   return (
     <View
       style={{ width }}
-      className={`justify-center px-4 py-3 ${!last ? `border-r ${cx.borderSubtle}` : ""}`}
+      className={`justify-center px-3 py-3 sm:px-4 ${!last ? `border-r ${cx.borderSubtle}` : ""}`}
     >
       {typeof children === "string" ? (
-        <Text className={`font-outfit text-xs font-semibold uppercase tracking-wide ${cx.textInk60}`}>
+        <Text className={`${cx.typography.label} ${cx.textInk60}`}>
           {children}
         </Text>
       ) : children}
@@ -94,7 +94,7 @@ export function TableCell({ width, last = false, className = "", children }) {
   return (
     <View
       style={{ width }}
-      className={`justify-center px-4 py-3 ${!last ? `border-r ${cx.borderSubtle}` : ""} ${className}`}
+      className={`justify-center px-3 py-3 sm:px-4 ${!last ? `border-r ${cx.borderSubtle}` : ""} ${className}`}
     >
       {children}
     </View>

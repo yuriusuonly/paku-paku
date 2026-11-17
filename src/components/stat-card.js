@@ -13,14 +13,14 @@ import { cx } from "../shared/constants/theme.js";
  */
 export function StatCard({ label, value, hint, loading = false, className = "" }) {
   return (
-    <View className={`min-w-[150px] flex-1 rounded-2xl border ${cx.borderSubtle} ${cx.bgSurface} p-4 ${className}`}>
-      <Text className={`font-outfit text-xs font-semibold uppercase ${cx.textInk60}`}>{label}</Text>
+    <View className={`w-full min-w-0 sm:w-auto sm:min-w-[150px] sm:flex-1 ${cx.layout.card} ${cx.spacing.cardPad} ${className}`}>
+      <Text className={`${cx.typography.label} ${cx.textInk60}`}>{label}</Text>
       {loading ? (
         <View className="py-1"><CircularProgress size="small" /></View>
       ) : (
-        <Text className={`font-outfit text-2xl font-black ${cx.textInk}`}>{value}</Text>
+        <Text className={`${cx.typography.title} ${cx.textInk}`}>{value}</Text>
       )}
-      {hint ? <Text className={`font-outfit text-xs ${cx.textInk60}`}>{hint}</Text> : null}
+      {hint ? <Text className={`${cx.typography.caption} ${cx.textInk60}`}>{hint}</Text> : null}
     </View>
   );
 }

@@ -239,7 +239,7 @@ export default function AdminMenuItemsScreen() {
             ← Back to admin
           </Text>
         </Link>
-        <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Menu items management</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Menu items management</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Edit table fields directly. Changes sync in real time across open screens and devices.</Text>
       </View>
 

@@ -115,7 +115,7 @@ export default function SignInScreen() {
           </Text>
         </Link>
 
-        <Text className={`font-outfit text-3xl md:text-4xl font-black tracking-tight ${cx.textInk}`}>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>
           Sign in
         </Text>
         <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>

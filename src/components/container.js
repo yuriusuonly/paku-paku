@@ -22,7 +22,7 @@ import { cx } from "../shared/constants/theme.js";
  */
 export function ScreenContainer({ children, className = "", scrollable = false, contentContainerStyle }) {
   const content = (
-    <View className="mx-auto w-full max-w-5xl flex-1 px-5 py-8 md:px-8 md:py-12">
+    <View className={`${cx.layout.content} ${cx.spacing.padX} ${cx.spacing.padY}`}>
       {children}
     </View>
   );

@@ -91,7 +91,7 @@ export default function CartScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`font-outfit text-3xl font-black tracking-tight ${cx.textInk}`}>Cart & checkout</Text>
+      <Text className={`${cx.typography.heading} ${cx.textInk}`}>Cart & checkout</Text>
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
         Add items, place a buy transaction, and present the QR code at the counter.
       </Text>

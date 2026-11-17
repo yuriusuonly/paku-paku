@@ -31,7 +31,7 @@ export function Button({
   className = ""
 }) {
   const isDisabled = disabled || loading;
-  const base = "flex-row items-center justify-center rounded-full px-5 py-3";
+  const base = `flex-row items-center justify-center min-h-[44px] px-4 py-3 sm:px-5 ${cx.radius.pill}`;
   const variants = {
     primary: cx.bgPrimary,
     secondary: cx.bgInk,
@@ -54,7 +54,7 @@ export function Button({
         <ActivityIndicator color={variant === "ghost" ? colors.ink : colors.white} />
       ) : null}
       <Text
-        className={`font-outfit text-sm md:text-base font-semibold ${textVariants[variant]} ${loading ? "ml-2" : ""}`}
+        className={`${cx.typography.body} font-semibold ${textVariants[variant]} ${loading ? "ml-2" : ""}`}
       >
         {label}
       </Text>

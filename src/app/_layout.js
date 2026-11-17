@@ -7,7 +7,7 @@ import config from "../shared/constants/config.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
 import { useAuthStore } from "../stores/auth-store.js";
-import { cx } from "../shared/constants/theme.js";
+import { colors, cx } from "../shared/constants/theme.js";
 
 import "../shared/stylesheets/global.css";
 
@@ -42,7 +42,7 @@ export default function Layout() {
 
   if (!loaded) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View className={`flex-1 items-center justify-center ${cx.bgApp}`}>
         <CircularProgress size="large" />
       </View>
     );
@@ -66,7 +66,7 @@ export default function Layout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: "#fff" }
+              contentStyle: { backgroundColor: colors.white }
             }}
           />
         </View>

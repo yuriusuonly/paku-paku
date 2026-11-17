@@ -1,5 +1,6 @@
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
+import { cx } from "../shared/constants/theme.js";
 
 /**
  * Fallback route (`src/app/+not-found.js`) rendered when no route matches.
@@ -13,15 +14,15 @@ import { Text, View } from "react-native";
  */
 export default function NotFound() {
   return (
-    <View className="flex-1 items-center justify-center bg-white p-6">
-      <Text className="font-outfit text-6xl font-black tracking-tight text-[#161823]">
+    <View className={`flex-1 items-center justify-center ${cx.bgApp} ${cx.spacing.cardPad}`}>
+      <Text className={`text-center ${cx.typography.display} ${cx.textInk}`}>
         404
       </Text>
-      <Text className="font-outfit mt-3 text-base text-[#161823]/70">
+      <Text className={`mt-3 text-center ${cx.typography.body} ${cx.textInk70}`}>
         This page does not exist.
       </Text>
       <Link href="/" className="mt-6">
-        <Text className="font-outfit text-base font-semibold text-[#FE2C55]">
+        <Text className={`text-center ${cx.typography.body} font-semibold ${cx.textPrimary}`}>
           ← Back home
         </Text>
       </Link>
