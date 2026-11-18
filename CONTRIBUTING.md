@@ -138,7 +138,7 @@ flowchart LR
 
 - **`src/app/`**: Expo Router pages and `+api.js` route handlers (HTTP/controller layer). Keep API handlers thin: compose interceptors, validate/parse via request modules, call repositories, and return route-matched responses.
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
-- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `audit.js`, `items.js`, `admin.js`, `orders.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
+- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `audit.js`, `items.js`, `admin.js`, `orders.js`, `staff.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
 - **`src/interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `src/shared/network/middleware.js` (pipeline and request context).
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `item.repository.js`, `profile.repository.js`).

@@ -27,6 +27,7 @@ export function Header() {
   };
 
   const isAdminPage = typeof pathname === "string" && pathname.startsWith("/admin");
+  const isStaffPage = typeof pathname === "string" && pathname.startsWith("/staff");
   const isAdmin = status === "authenticated" && user?.role === "admin";
 
   return (
@@ -58,6 +59,13 @@ export function Header() {
               <Link href="/admin" asChild>
                 <Pressable accessibilityRole="link" className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
                   <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Admin</Text>
+                </Pressable>
+              </Link>
+            ) : null}
+            {!isStaffPage ? (
+              <Link href="/staff" asChild>
+                <Pressable accessibilityRole="link" className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
+                  <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Counter</Text>
                 </Pressable>
               </Link>
             ) : null}

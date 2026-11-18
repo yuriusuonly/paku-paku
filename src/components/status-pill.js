@@ -14,6 +14,7 @@ const variants = {
   success: { container: cx.bgPrimarySoft, text: cx.textPrimary },
   neutral: { container: cx.bgSurfaceMuted, text: cx.textInk70 },
   danger: { container: cx.bgPrimarySoft, text: cx.textError },
+  warning: { container: "bg-amber-100", text: "text-amber-800" },
   info: { container: cx.bgSurfaceSoft, text: cx.textInk80 }
 };
 

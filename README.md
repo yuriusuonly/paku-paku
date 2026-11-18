@@ -214,7 +214,11 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 
 ## Routes & endpoints
 
-Only staff sign in. Customers use the storefront without an account.
+The app has three areas:
+
+- **Customer storefront:** `/`, `/menu`, and `/cart`; no account required. Checkout creates a counter QR with order details.
+- **Staff counter:** `/staff`; authenticated staff scan/enter the QR payload, verify the order, and complete it as Paid/Refunded/Voided.
+- **Admin audit:** `/admin`; protected dashboard plus items, orders, profiles, and audit logs.
 
 | Route | Source | Purpose |
 | --- | --- | --- |
@@ -222,6 +226,8 @@ Only staff sign in. Customers use the storefront without an account.
 | `/menu` | `src/app/menu.js` → `src/screens/menu/menu.screen.js` | Public menu with add-to-cart controls. |
 | `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Administrator sign-in. |
+| `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/orders`. |
+| `/staff/orders` | `src/app/(staff)/staff/orders.js` → `src/screens/staff/orders/verify.screen.js` | Counter QR verification and order completion (protected). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |
 | `/admin/orders` | `src/app/(admin)/admin/orders.js` → `src/screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
@@ -240,6 +246,8 @@ Only staff sign in. Customers use the storefront without an account.
 | `/api/admin/orders/[id]` | `src/app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
 | `/api/admin/audit-logs` | `src/app/api/admin/audit-logs/+api.js` | Admin audit trail listing (`GET`). |
+| `/api/staff/orders/verify` | `src/app/api/staff/orders/verify+api.js` | Staff order verification (`POST`). |
+| `/api/staff/orders/[id]` | `src/app/api/staff/orders/[id]+api.js` | Staff order completion (`PATCH`). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
 | `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
@@ -265,6 +273,11 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   │   ├── orders.js
 │   │   │   │   └── profiles.js
 │   │   │   └── _layout.js
+│   │   ├── (staff)/
+│   │   │   ├── staff/
+│   │   │   │   ├── index.js
+│   │   │   │   └── orders.js
+│   │   │   └── _layout.js
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   ├── audit-logs/
@@ -276,6 +289,10 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   ├── items/
 │   │   │   │   ├── +api.js
 │   │   │   │   └── [id]+api.js
+│   │   │   ├── staff/
+│   │   │   │   └── orders/
+│   │   │   │       ├── [id]+api.js
+│   │   │   │       └── verify+api.js
 │   │   │   ├── checkout+api.js
 │   │   │   ├── health+api.js
 │   │   │   ├── session+api.js
@@ -320,6 +337,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── orders/
 │   │   │   ├── constants.js
 │   │   │   ├── items.js
+│   │   │   ├── qr.js
 │   │   │   ├── schema.js
 │   │   │   ├── status.js
 │   │   │   └── totals.js
@@ -344,6 +362,10 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   └── index.js
 │   │   ├── signout/
 │   │   │   └── index.js
+│   │   ├── staff/
+│   │   │   └── orders/
+│   │   │       ├── [id].js
+│   │   │       └── verify.js
 │   │   └── health.js
 │   ├── interceptors/
 │   │   ├── authentication.interceptor.js
@@ -382,6 +404,9 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   └── menu.screen.js
 │   │   ├── signin/
 │   │   │   └── signin.screen.js
+│   │   ├── staff/
+│   │   │   └── orders/
+│   │   │       └── verify.screen.js
 │   │   └── root.js
 │   ├── services/
 │   │   ├── admin.js
@@ -390,7 +415,8 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── checkout.js
 │   │   ├── items.js
 │   │   ├── orders.js
-│   │   └── realtime.js
+│   │   ├── realtime.js
+│   │   └── staff.js
 │   ├── shared/
 │   │   ├── cipher/
 │   │   │   ├── decode.js
@@ -447,7 +473,8 @@ Only staff sign in. Customers use the storefront without an account.
 │       ├── items.store.js
 │       ├── notification.store.js
 │       ├── orders.store.js
-│       └── profiles.store.js
+│       ├── profiles.store.js
+│       └── staff-orders.store.js
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261117000000_extensions.sql
@@ -473,6 +500,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   └── summary.test.js
 │   │   ├── orders/
 │   │   │   ├── items.test.js
+│   │   │   ├── qr.test.js
 │   │   │   ├── rules.test.js
 │   │   │   └── totals.test.js
 │   │   └── schemas.test.js
@@ -488,7 +516,8 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── checkout.test.js
 │   │   ├── http.test.js
 │   │   ├── items.test.js
-│   │   └── orders.test.js
+│   │   ├── orders.test.js
+│   │   └── staff.test.js
 │   └── shared/
 │       ├── errors/
 │       │   ├── message.test.js

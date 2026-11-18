@@ -8,6 +8,7 @@ import { useAuthStore } from "../../stores/auth.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useOrdersStore } from "../../stores/orders.store.js";
 import { useAuditLogsStore } from "../../stores/audit-logs.store.js";
+import { useProfilesStore } from "../../stores/profiles.store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -38,6 +39,11 @@ export default function AdminScreen() {
   const fetchAuditLogs = useAuditLogsStore((s) => s.fetchLogs);
   const subscribeAuditLogs = useAuditLogsStore((s) => s.subscribe);
 
+  const profiles = useProfilesStore((s) => s.profiles);
+  const profilesLoading = useProfilesStore((s) => s.loading);
+  const fetchProfiles = useProfilesStore((s) => s.fetchProfiles);
+  const subscribeProfiles = useProfilesStore((s) => s.subscribe);
+
   const token = session?.access_token;
 
   useEffect(() => {
@@ -45,14 +51,17 @@ export default function AdminScreen() {
     void fetchItems().catch(() => {});
     void fetchAdminOrders(token).catch(() => {});
     void fetchAuditLogs(token).catch(() => {});
+    void fetchProfiles(token).catch(() => {});
     subscribeItems();
     subscribeAdminOrders(token);
     subscribeAuditLogs(token);
+    subscribeProfiles(token);
     return () => {
       void unsubscribeOrders();
       void useAuditLogsStore.getState().unsubscribe();
+      void useProfilesStore.getState().unsubscribe();
     };
-  }, [token, fetchItems, fetchAdminOrders, fetchAuditLogs, subscribeItems, subscribeAdminOrders, subscribeAuditLogs, unsubscribeOrders]);
+  }, [token, fetchItems, fetchAdminOrders, fetchAuditLogs, fetchProfiles, subscribeItems, subscribeAdminOrders, subscribeAuditLogs, subscribeProfiles, unsubscribeOrders]);
 
   const itemsStats = useMemo(() => {
     const total = items.length;
@@ -60,6 +69,12 @@ export default function AdminScreen() {
     const unavailable = total - available;
     return { total, available, unavailable };
   }, [items]);
+
+  const profilesStats = useMemo(() => ({
+    total: profiles.length,
+    active: profiles.filter((p) => p.is_active !== false).length,
+    admins: profiles.filter((p) => p.role === "admin").length
+  }), [profiles]);
 
   const ordersStats = useMemo(() => {
     const paid = orders.filter((t) => t.status === "Paid");
@@ -85,6 +100,17 @@ export default function AdminScreen() {
         { label: "Total items", value: itemsStats.total, loading: itemsCountLoading },
         { label: "Available", value: itemsStats.available, loading: itemsCountLoading },
         { label: "Unavailable", value: itemsStats.unavailable, loading: itemsCountLoading }
+      ]
+    },
+    {
+      key: "profiles",
+      title: "Profiles",
+      href: "/admin/profiles",
+      linkLabel: "Open profiles audit →",
+      stats: [
+        { label: "Total", value: profilesStats.total, loading: profilesLoading && profiles.length === 0 },
+        { label: "Active", value: profilesStats.active, loading: profilesLoading && profiles.length === 0 },
+        { label: "Admins", value: profilesStats.admins, loading: profilesLoading && profiles.length === 0 }
       ]
     },
     {
@@ -118,7 +144,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across items, orders, and audit logs.
+          Live operational overview across items, orders, profiles, and audit logs.
         </Text>
       </View>
 

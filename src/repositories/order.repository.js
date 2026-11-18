@@ -6,6 +6,7 @@ import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
 import { normalizeOrderItems } from "../domain/orders/items.js";
 import { calculateOrderSubtotal, buildQrPayload } from "../domain/orders/totals.js";
+import { parseQrPayload } from "../domain/orders/qr.js";
 
 /**
  * Unified buy/sell order data access.
@@ -78,6 +79,47 @@ export async function getOrderById(client, id) {
   }
   const [order] = await attachItems(database, [data]);
   return { order };
+}
+
+/**
+ * Finds an order by ID, order number, or counter QR payload.
+ *
+ * @param {import("../database/instance.js").DatabaseClient} client - Database client.
+ * @param {string} reference - QR payload or order reference.
+ * @returns {Promise<{order: object}>} Order payload.
+ */
+export async function getOrderByReference(client, reference) {
+  if (typeof reference !== "string" || !reference.trim()) {
+    throw badRequest("invalid_order_reference", "Scan or enter an order reference.");
+  }
+
+  const database = resolveClient(client);
+  const raw = reference.trim();
+  const parsed = parseQrPayload(raw);
+  const candidates = [];
+
+  if (parsed.id) candidates.push({ column: "id", value: parsed.id });
+  if (parsed.orderNumber) candidates.push({ column: "order_number", value: parsed.orderNumber });
+  if (!raw.startsWith("ORD:")) {
+    candidates.push({ column: "order_number", value: raw });
+    if (/^[0-9a-f-]{36}$/i.test(raw)) candidates.push({ column: "id", value: raw });
+  }
+
+  for (const candidate of candidates) {
+    if (!candidate.value) continue;
+    const { data, error } = await database
+      .from("orders")
+      .select(ORDER_SELECT)
+      .eq(candidate.column, candidate.value)
+      .maybeSingle();
+
+    if (!error && data) {
+      const [order] = await attachItems(database, [data]);
+      return { order };
+    }
+  }
+
+  throw notFound("order_not_found", "Order not found.");
 }
 
 /**
