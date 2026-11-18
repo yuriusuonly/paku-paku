@@ -4,17 +4,17 @@ import { notFound } from "../shared/errors/not-found.js";
 import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
 import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
-import { normalizeTransactionItems } from "../domain/transactions/items.js";
-import { calculateTransactionSubtotal, buildQrPayload } from "../domain/transactions/totals.js";
-import { isCompleted, resolvePaymentStatus } from "../domain/transactions/status.js";
+import { normalizeOrderItems } from "../domain/orders/items.js";
+import { calculateOrderSubtotal, buildQrPayload } from "../domain/orders/totals.js";
+import { isCompleted, resolvePaymentStatus } from "../domain/orders/status.js";
 
 /**
- * Unified buy/sell transaction data access.
+ * Unified buy/sell order data access.
  * Backed by `orders` and `order_items` tables.
- * @module repositories/transaction.repository
+ * @module repositories/order.repository
  */
 
-const TRANSACTION_SELECT =
+const ORDER_SELECT =
   "id, order_number, kind, customer_id, status, payment_status, payment_method, subtotal_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
 const ITEM_SELECT =
   "id, order_id, menu_item_id, item_name, quantity, unit_price_cents, line_total_cents, created_at";
@@ -28,70 +28,70 @@ function resolveClient(client) {
   }
 }
 
-async function attachItems(database, transactions) {
-  if (!transactions.length) return [];
-  const ids = transactions.map((t) => t.id);
+async function attachItems(database, orders) {
+  if (!orders.length) return [];
+  const ids = orders.map((t) => t.id);
   const { data, error } = await database
     .from("order_items")
     .select(ITEM_SELECT)
     .in("order_id", ids)
     .order("created_at", { ascending: true });
-  if (error) throw databaseUpstream("transactions_unavailable", "Could not load transaction items.", error);
+  if (error) throw databaseUpstream("orders_unavailable", "Could not load order items.", error);
   const grouped = new Map();
   for (const item of data || []) {
     const list = grouped.get(item.order_id) || [];
     list.push(item);
     grouped.set(item.order_id, list);
   }
-  return transactions.map((t) => ({ ...t, items: grouped.get(t.id) || [] }));
+  return orders.map((t) => ({ ...t, items: grouped.get(t.id) || [] }));
 }
 
 /**
- * Lists transactions visible to the current client (RLS-scoped).
+ * Lists orders visible to the current client (RLS-scoped).
  *
  * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.
- * @returns {Promise<{transactions: object[]}>} Transactions payload.
+ * @returns {Promise<{orders: object[]}>} Orders payload.
  */
-export async function listTransactions(client) {
+export async function listOrders(client) {
   const database = resolveClient(client);
   const { data, error } = await database
     .from("orders")
-    .select(TRANSACTION_SELECT)
+    .select(ORDER_SELECT)
     .order("created_at", { ascending: false });
-  if (error) throw databaseUpstream("transactions_unavailable", "Could not load transactions.", error);
-  return { transactions: await attachItems(database, data || []) };
+  if (error) throw databaseUpstream("orders_unavailable", "Could not load orders.", error);
+  return { orders: await attachItems(database, data || []) };
 }
 
 /**
- * Gets a transaction by id.
+ * Gets a order by id.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
- * @param {string} id - Transaction id.
- * @returns {Promise<{transaction: object}>} Transaction payload.
+ * @param {string} id - Order id.
+ * @returns {Promise<{order: object}>} Order payload.
  */
-export async function getTransactionById(client, id) {
-  if (!id) throw badRequest("invalid_transaction", "Transaction id is required.");
+export async function getOrderById(client, id) {
+  if (!id) throw badRequest("invalid_order", "Order id is required.");
   const database = resolveClient(client);
-  const { data, error } = await database.from("orders").select(TRANSACTION_SELECT).eq("id", id).single();
+  const { data, error } = await database.from("orders").select(ORDER_SELECT).eq("id", id).single();
   if (error || !data) {
-    if (error?.code === "PGRST116" || !data) throw notFound("transaction_not_found", "Transaction not found.");
-    throw databaseUpstream("transactions_unavailable", "Could not load the transaction.", error);
+    if (error?.code === "PGRST116" || !data) throw notFound("order_not_found", "Order not found.");
+    throw databaseUpstream("orders_unavailable", "Could not load the order.", error);
   }
-  const [transaction] = await attachItems(database, [data]);
-  return { transaction };
+  const [order] = await attachItems(database, [data]);
+  return { order };
 }
 
 /**
- * Creates a public kiosk checkout transaction and counter QR payload.
+ * Creates a public kiosk checkout order and counter QR payload.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
  * @param {{payment_method?: string, items: object[]}} input - Checkout payload.
- * @returns {Promise<{transaction: object}>} Created transaction.
+ * @returns {Promise<{order: object}>} Created order.
  */
-export async function createCheckoutTransaction(client, input) {
+export async function createCheckoutOrder(client, input) {
   const database = resolveClient(client);
-  const items = normalizeTransactionItems(input.items);
-  const subtotal = calculateTransactionSubtotal(items);
+  const items = normalizeOrderItems(input.items);
+  const subtotal = calculateOrderSubtotal(items);
   const paymentMethod = input.payment_method || "cash";
   const id = randomUUID();
   const orderNumber = `ORD-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
@@ -124,32 +124,32 @@ export async function createCheckoutTransaction(client, input) {
   };
 
   const { error } = await database.from("orders").insert(payload);
-  if (error) throw databaseUpstream("transaction_create_failed", "Could not place the order.", error);
+  if (error) throw databaseUpstream("order_create_failed", "Could not place the order.", error);
 
   const itemRows = items.map((item) => ({ ...item, order_id: id }));
   const { error: itemsError } = await database.from("order_items").insert(itemRows);
   if (itemsError) {
     await database.from("orders").delete().eq("id", id);
-    throw databaseUpstream("transaction_create_failed", "Could not save the order items.", itemsError);
+    throw databaseUpstream("order_create_failed", "Could not save the order items.", itemsError);
   }
 
   const responseItems = itemRows.map((item, index) => ({ ...item, id: item.id || `line-${index + 1}` }));
-  return { transaction: { ...payload, items: responseItems } };
+  return { order: { ...payload, items: responseItems } };
 }
 
 /**
- * Creates a sell/admin transaction.
+ * Creates a sell/admin order.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
- * @param {object} input - Transaction payload including items.
+ * @param {object} input - Order payload including items.
  * @param {{kind?: string}} [options] - Creation options.
- * @returns {Promise<{transaction: object}>} Created transaction.
+ * @returns {Promise<{order: object}>} Created order.
  */
-export async function createTransaction(client, input, options = {}) {
+export async function createOrder(client, input, options = {}) {
   const database = resolveClient(client);
   const kind = options.kind === "buy" ? "buy" : "sell";
-  const items = normalizeTransactionItems(input.items);
-  const subtotal = calculateTransactionSubtotal(items);
+  const items = normalizeOrderItems(input.items);
+  const subtotal = calculateOrderSubtotal(items);
   const status = input.status || "completed";
   const paymentStatus = resolvePaymentStatus(input.payment_status, isCompleted(status) ? "paid" : "unpaid");
 
@@ -168,32 +168,32 @@ export async function createTransaction(client, input, options = {}) {
     customer_phone: input.customer_phone || null
   };
 
-  const { data: row, error } = await database.from("orders").insert(payload).select(TRANSACTION_SELECT).single();
-  if (error || !row) throw databaseUpstream("transaction_create_failed", "Could not create the transaction.", error);
+  const { data: row, error } = await database.from("orders").insert(payload).select(ORDER_SELECT).single();
+  if (error || !row) throw databaseUpstream("order_create_failed", "Could not create the order.", error);
 
   const itemRows = items.map((item) => ({ ...item, order_id: row.id }));
   const { error: itemsError } = await database.from("order_items").insert(itemRows);
   if (itemsError) {
     await database.from("orders").delete().eq("id", row.id);
-    throw databaseUpstream("transaction_create_failed", "Could not create the transaction items.", itemsError);
+    throw databaseUpstream("order_create_failed", "Could not create the order items.", itemsError);
   }
 
   const qrPayload = buildQrPayload({ orderNumber: row.order_number, id: row.id, totalCents: row.total_cents });
   await database.from("orders").update({ qr_payload: qrPayload, updated_at: new Date().toISOString() }).eq("id", row.id);
 
-  return getTransactionById(database, row.id);
+  return getOrderById(database, row.id);
 }
 
 /**
- * Updates a transaction and optionally replaces its items.
+ * Updates a order and optionally replaces its items.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
- * @param {string} id - Transaction id.
+ * @param {string} id - Order id.
  * @param {object} input - Fields to update.
- * @returns {Promise<{transaction: object}>} Updated transaction.
+ * @returns {Promise<{order: object}>} Updated order.
  */
-export async function updateTransaction(client, id, input) {
-  if (!id) throw badRequest("invalid_transaction", "Transaction id is required.");
+export async function updateOrder(client, id, input) {
+  if (!id) throw badRequest("invalid_order", "Order id is required.");
   const database = resolveClient(client);
   const { items, ...fields } = input || {};
 
@@ -202,43 +202,43 @@ export async function updateTransaction(client, id, input) {
     if (Object.prototype.hasOwnProperty.call(fields, key)) payload[key] = fields[key] ?? null;
   }
   if (Object.keys(payload).length === 1 && !Array.isArray(items)) {
-    throw badRequest("invalid_transaction", "No transaction fields to update.");
+    throw badRequest("invalid_order", "No order fields to update.");
   }
 
-  const { data, error } = await database.from("orders").update(payload).eq("id", id).select(TRANSACTION_SELECT).single();
+  const { data, error } = await database.from("orders").update(payload).eq("id", id).select(ORDER_SELECT).single();
   if (error || !data) {
-    if (error?.code === "PGRST116" || !data) throw notFound("transaction_not_found", "Transaction not found.");
-    throw databaseUpstream("transaction_update_failed", "Could not update the transaction.", error);
+    if (error?.code === "PGRST116" || !data) throw notFound("order_not_found", "Order not found.");
+    throw databaseUpstream("order_update_failed", "Could not update the order.", error);
   }
 
   if (Array.isArray(items)) {
-    const normalized = normalizeTransactionItems(items);
+    const normalized = normalizeOrderItems(items);
     const { error: deleteError } = await database.from("order_items").delete().eq("order_id", id);
-    if (deleteError) throw databaseUpstream("transaction_update_failed", "Could not update transaction items.", deleteError);
+    if (deleteError) throw databaseUpstream("order_update_failed", "Could not update order items.", deleteError);
     const rows = normalized.map((item) => ({ ...item, order_id: id }));
     const { error: insertError } = await database.from("order_items").insert(rows);
-    if (insertError) throw databaseUpstream("transaction_update_failed", "Could not update transaction items.", insertError);
-    const subtotal = calculateTransactionSubtotal(normalized);
+    if (insertError) throw databaseUpstream("order_update_failed", "Could not update order items.", insertError);
+    const subtotal = calculateOrderSubtotal(normalized);
     await database.from("orders").update({ subtotal_cents: subtotal, total_cents: subtotal, updated_at: new Date().toISOString() }).eq("id", id);
   }
 
-  return getTransactionById(database, id);
+  return getOrderById(database, id);
 }
 
 /**
- * Deletes a transaction.
+ * Deletes a order.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
- * @param {string} id - Transaction id.
+ * @param {string} id - Order id.
  * @returns {Promise<{id: string}>} Deleted id.
  */
-export async function deleteTransaction(client, id) {
-  if (!id) throw badRequest("invalid_transaction", "Transaction id is required.");
+export async function deleteOrder(client, id) {
+  if (!id) throw badRequest("invalid_order", "Order id is required.");
   const database = resolveClient(client);
   const { data, error } = await database.from("orders").delete().eq("id", id).select("id").single();
   if (error || !data) {
-    if (error?.code === "PGRST116" || !data) throw notFound("transaction_not_found", "Transaction not found.");
-    throw databaseUpstream("transaction_delete_failed", "Could not delete the transaction.", error);
+    if (error?.code === "PGRST116" || !data) throw notFound("order_not_found", "Order not found.");
+    throw databaseUpstream("order_delete_failed", "Could not delete the order.", error);
   }
   return { id: data.id };
 }

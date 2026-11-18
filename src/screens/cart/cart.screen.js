@@ -6,7 +6,7 @@ import { ScreenContainer } from "../../components/container.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
 import { placeOrder } from "../../services/checkout.js";
-import { PAYMENT_METHODS } from "../../domain/transactions/constants.js";
+import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
 import { cx } from "../../shared/constants/theme.js";
 import { CartItemsSection } from "./cart-items.component.js";
 import { CartPlacedSection } from "./cart-placed.component.js";
@@ -31,7 +31,7 @@ export default function CartScreen() {
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
   const [error, setError] = useState("");
   const [placing, setPlacing] = useState(false);
-  const [placedTransaction, setPlacedTransaction] = useState(null);
+  const [placedOrder, setPlacedOrder] = useState(null);
 
   useEffect(() => {
     hydrateCart();
@@ -60,7 +60,7 @@ export default function CartScreen() {
         }))
       });
       clearCart();
-      if (data?.transaction) setPlacedTransaction(data.transaction);
+      if (data?.order) setPlacedOrder(data.order);
       showSuccess("Order placed. Present the QR code at the counter.");
       return data;
     } catch (e) {
@@ -82,10 +82,10 @@ export default function CartScreen() {
 
       <Alert variant="error" message={error} />
 
-      {placedTransaction ? (
+      {placedOrder ? (
         <CartPlacedSection
-          transaction={placedTransaction}
-          onNewTransaction={() => setPlacedTransaction(null)}
+          order={placedOrder}
+          onNewOrder={() => setPlacedOrder(null)}
         />
       ) : (
         <CartItemsSection

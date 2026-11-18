@@ -10,24 +10,24 @@ import { cx } from "../../shared/constants/theme.js";
  */
 
 /**
- * @param {{transaction: object, onNewTransaction: () => void}} props
+ * @param {{order: object, onNewOrder: () => void}} props
  * @returns {JSX.Element}
  */
-export function CartPlacedSection({ transaction, onNewTransaction }) {
+export function CartPlacedSection({ order, onNewOrder }) {
   return (
     <View className="mt-6 gap-4">
       <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
         <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Order placed</Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-          {transaction.order_number} · {formatCurrencyCents(transaction.total_cents)}
+          {order.order_number} · {formatCurrencyCents(order.total_cents)}
         </Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-          Payment: {String(transaction.payment_method || "cash").toUpperCase()}
+          Payment: {String(order.payment_method || "cash").toUpperCase()}
         </Text>
 
-        {Array.isArray(transaction.items) && transaction.items.length ? (
+        {Array.isArray(order.items) && order.items.length ? (
           <View className="mt-2 gap-1">
-            {transaction.items.map((item, index) => (
+            {order.items.map((item, index) => (
               <Text key={`${item.item_name}-${index}`} className={`font-outfit text-xs ${cx.textInk70}`}>
                 • {item.item_name} × {item.quantity}
               </Text>
@@ -35,14 +35,14 @@ export function CartPlacedSection({ transaction, onNewTransaction }) {
           </View>
         ) : null}
 
-        {transaction.qr_payload ? (
+        {order.qr_payload ? (
           <View className="mt-2">
-            <QrCode value={transaction.qr_payload} label="Order QR for counter" />
+            <QrCode value={order.qr_payload} label="Order QR for counter" />
           </View>
         ) : null}
 
         <View className="flex-row flex-wrap gap-3 pt-2">
-          <Button label="New order" variant="ghost" onPress={onNewTransaction} />
+          <Button label="New order" variant="ghost" onPress={onNewOrder} />
         </View>
       </View>
     </View>

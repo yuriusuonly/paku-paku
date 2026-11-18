@@ -1,4 +1,4 @@
--- Transaction line items table, access rules, and realtime publication.
+-- Order line items table, access rules, and realtime publication.
 create table public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders (id) on delete cascade,
@@ -10,7 +10,7 @@ create table public.order_items (
   created_at timestamptz not null default now()
 );
 
-comment on table public.order_items is 'Line items for unified transactions.';
+comment on table public.order_items is 'Line items for unified orders.';
 create index order_items_order_id_idx on public.order_items (order_id);
 
 alter table public.order_items enable row level security;
@@ -20,8 +20,8 @@ revoke all on table public.order_items from anon, authenticated;
 grant select, insert, update, delete on table public.order_items to authenticated;
 grant insert on table public.order_items to anon;
 
-drop policy if exists "Users can read own transaction items" on public.order_items;
-create policy "Users can read own transaction items"
+drop policy if exists "Users can read own order items" on public.order_items;
+create policy "Users can read own order items"
   on public.order_items
   for select
   to authenticated
@@ -33,8 +33,8 @@ create policy "Users can read own transaction items"
     )
   );
 
-drop policy if exists "Users can create own transaction items" on public.order_items;
-create policy "Users can create own transaction items"
+drop policy if exists "Users can create own order items" on public.order_items;
+create policy "Users can create own order items"
   on public.order_items
   for insert
   to authenticated
@@ -46,16 +46,16 @@ create policy "Users can create own transaction items"
     )
   );
 
-drop policy if exists "Admins can update transaction items" on public.order_items;
-create policy "Admins can update transaction items"
+drop policy if exists "Admins can update order items" on public.order_items;
+create policy "Admins can update order items"
   on public.order_items
   for update
   to authenticated
   using (public.current_user_is_admin())
   with check (public.current_user_is_admin());
 
-drop policy if exists "Admins can delete transaction items" on public.order_items;
-create policy "Admins can delete transaction items"
+drop policy if exists "Admins can delete order items" on public.order_items;
+create policy "Admins can delete order items"
   on public.order_items
   for delete
   to authenticated

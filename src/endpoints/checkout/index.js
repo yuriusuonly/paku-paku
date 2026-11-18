@@ -4,8 +4,8 @@ import { methodInterceptor } from "../../interceptors/method.interceptor.js";
 import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
-import { createCheckoutTransaction } from "../../repositories/transaction.repository.js";
-import { checkoutSchema } from "../../domain/transactions/schema.js";
+import { createCheckoutOrder } from "../../repositories/order.repository.js";
+import { checkoutSchema } from "../../domain/orders/schema.js";
 import { parseWithSchema, requireObjectBody } from "../../shared/validation/request.js";
 
 /**
@@ -24,7 +24,7 @@ export const POST = withMiddleware(logInterceptor, errorInterceptor, methodInter
       message: "Invalid order."
     });
     return jsonResponse(
-      await createCheckoutTransaction(undefined, input),
+      await createCheckoutOrder(undefined, input),
       { status: 201 }
     );
   }

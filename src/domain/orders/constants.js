@@ -1,19 +1,19 @@
 /**
- * Transaction domain constants.
- * @module domain/transactions/constants
+ * Order domain constants.
+ * @module domain/orders/constants
  */
 
 /**
- * Supported transaction directions.
+ * Supported order directions.
  * @type {string[]}
  */
-export const TRANSACTION_KINDS = ["buy", "sell"];
+export const ORDER_KINDS = ["buy", "sell"];
 
 /**
- * Supported transaction lifecycle states.
+ * Supported order lifecycle states.
  * @type {string[]}
  */
-export const TRANSACTION_STATUSES = [
+export const ORDER_STATUSES = [
   "pending",
   "confirmed",
   "preparing",

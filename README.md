@@ -13,7 +13,7 @@ Common Meanings & Uses:
 
 A web-only Expo Router application for a kiosk storefront: customers pick orders
 from the menu, choose a payment method, and receive a counter QR code. Staff sign
-in to manage menu items and audit transactions. Backed by Supabase and packaged
+in to manage menu items and audit orders. Backed by Supabase and packaged
 for local development, Docker, and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
@@ -224,19 +224,19 @@ Only staff sign in. Customers use the storefront without an account.
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Administrator sign-in. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/menu-items` | `src/app/admin/menu-items.js` → `src/screens/admin/menu-items/menu-items.screen.js` | Admin menu management (protected). |
-| `/admin/transactions` | `src/app/admin/transactions.js` → `src/screens/admin/transactions/transactions.screen.js` | Admin transaction audit (protected). |
+| `/admin/orders` | `src/app/admin/orders.js` → `src/screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
 | `/admin/profiles` | `src/app/admin/profiles.js` → `src/screens/admin/profiles/profiles.screen.js` | Read-only profile audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/menu-items` | `src/app/api/menu-items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
 | `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
-| `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns transaction + counter QR. |
+| `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns order + counter QR. |
 | `/api/signin` | `src/app/api/signin+api.js` | Administrator sign-in. |
 | `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
 | `/api/signout` | `src/app/api/signout+api.js` | Revokes the current session. |
-| `/api/admin/transactions` | `src/app/api/admin/transactions/+api.js` | Admin transactions listing and create (`GET`/`POST`). |
-| `/api/admin/transactions/[id]` | `src/app/api/admin/transactions/[id]+api.js` | Admin transaction read/update/delete (`GET`/`PATCH`/`DELETE`). |
+| `/api/admin/orders` | `src/app/api/admin/orders/+api.js` | Admin orders listing and create (`GET`/`POST`). |
+| `/api/admin/orders/[id]` | `src/app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
@@ -259,10 +259,10 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   ├── index.js
 │   │   │   ├── menu-items.js
 │   │   │   ├── profiles.js
-│   │   │   └── transactions.js
+│   │   │   └── orders.js
 │   │   ├── api/
 │   │   │   ├── admin/
-│   │   │   │   ├── transactions/
+│   │   │   │   ├── orders/
 │   │   │   │   │   ├── +api.js
 │   │   │   │   │   └── [id]+api.js
 │   │   │   │   └── profiles+api.js
@@ -309,7 +309,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── menu-items/
 │   │   │   └── schema.js
 │   │   ├── profiles/
-│   │   └── transactions/
+│   │   └── orders/
 │   │       ├── constants.js
 │   │       ├── items.js
 │   │       ├── schema.js
@@ -317,7 +317,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │       └── totals.js
 │   ├── endpoints/
 │   │   ├── admin/
-│   │   │   ├── transactions/
+│   │   │   ├── orders/
 │   │   │   │   ├── [id].js
 │   │   │   │   └── index.js
 │   │   │   └── profiles.js
@@ -345,7 +345,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── auth.repository.js
 │   │   ├── menu.repository.js
 │   │   ├── profile.repository.js
-│   │   └── transaction.repository.js
+│   │   └── order.repository.js
 │   ├── screens/
 │   │   ├── admin/
 │   │   │   ├── menu-items/
@@ -355,10 +355,10 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   ├── profiles/
 │   │   │   │   ├── profiles-table.component.js
 │   │   │   │   └── profiles.screen.js
-│   │   │   ├── transactions/
-│   │   │   │   ├── transactions-form.component.js
-│   │   │   │   ├── transactions-table.component.js
-│   │   │   │   └── transactions.screen.js
+│   │   │   ├── orders/
+│   │   │   │   ├── orders-form.component.js
+│   │   │   │   ├── orders-table.component.js
+│   │   │   │   └── orders.screen.js
 │   │   │   └── admin.screen.js
 │   │   ├── cart/
 │   │   │   ├── cart-items.component.js
@@ -375,7 +375,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── checkout.js
 │   │   ├── menu.js
 │   │   ├── realtime.js
-│   │   └── transactions.js
+│   │   └── orders.js
 │   ├── shared/
 │   │   ├── cipher/
 │   │   │   ├── decode.js
@@ -431,7 +431,7 @@ Only staff sign in. Customers use the storefront without an account.
 │       ├── menu.store.js
 │       ├── notification.store.js
 │       ├── profiles.store.js
-│       └── transactions.store.js
+│       └── orders.store.js
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261117000000_extensions.sql
@@ -452,7 +452,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   ├── architecture/
 │   │   └── layers.test.js
 │   ├── domain/
-│   │   ├── transactions/
+│   │   ├── orders/
 │   │   │   ├── items.test.js
 │   │   │   ├── rules.test.js
 │   │   │   └── totals.test.js
@@ -468,7 +468,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── checkout.test.js
 │   │   ├── http.test.js
 │   │   ├── menu.test.js
-│   │   └── transactions.test.js
+│   │   └── orders.test.js
 │   └── shared/
 │       ├── errors/
 │       │   ├── message.test.js

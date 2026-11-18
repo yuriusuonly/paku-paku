@@ -5,15 +5,15 @@ import { DataTable } from "../../../components/table.js";
 import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import {
-  TRANSACTION_KINDS,
+  ORDER_KINDS,
   PAYMENT_STATUSES,
-  TRANSACTION_STATUSES
-} from "../../../domain/transactions/constants.js";
+  ORDER_STATUSES
+} from "../../../domain/orders/constants.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Admin transactions table section with inline editing.
- * @module screens/admin/transactions/transactions-table.component
+ * Admin orders table section with inline editing.
+ * @module screens/admin/orders/orders-table.component
  */
 
 const columns = [
@@ -37,15 +37,15 @@ const editableKeys = new Set(["payment_method", "customer_name", "customer_email
  * @param {object} props
  * @returns {JSX.Element}
  */
-export function TransactionsTableSection({ transactions, loading, syncing, onSaveField }) {
+export function OrdersTableSection({ orders, loading, syncing, onSaveField }) {
   return (
     <DataTable
       columns={columns}
-      rows={transactions}
-      loading={loading && transactions.length === 0}
+      rows={orders}
+      loading={loading && orders.length === 0}
       syncing={syncing}
-      loadingMessage="Loading transactions..."
-      emptyMessage="No transactions yet."
+      loadingMessage="Loading orders..."
+      emptyMessage="No orders yet."
       renderCell={(tx, column) => {
         const key = column.key;
 
@@ -53,8 +53,8 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
           return (
             <InlineSelect
               value={tx.kind || "buy"}
-              options={TRANSACTION_KINDS}
-              accessibilityLabel="Transaction kind"
+              options={ORDER_KINDS}
+              accessibilityLabel="Order kind"
               onChange={(value) => onSaveField(tx, key, value)}
             />
           );
@@ -64,8 +64,8 @@ export function TransactionsTableSection({ transactions, loading, syncing, onSav
           return (
             <InlineSelect
               value={tx.status || "pending"}
-              options={TRANSACTION_STATUSES}
-              accessibilityLabel="Transaction status"
+              options={ORDER_STATUSES}
+              accessibilityLabel="Order status"
               onChange={(value) => onSaveField(tx, key, value)}
             />
           );

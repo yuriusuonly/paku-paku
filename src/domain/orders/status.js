@@ -1,10 +1,10 @@
 /**
- * Transaction status rules.
- * @module domain/transactions/status
+ * Order status rules.
+ * @module domain/orders/status
  */
 
 /**
- * Whether a transaction status is cancelled.
+ * Whether a order status is cancelled.
  * @param {unknown} status
  * @returns {boolean}
  */
@@ -13,7 +13,7 @@ export function isCancelled(status) {
 }
 
 /**
- * Whether a transaction status is completed.
+ * Whether a order status is completed.
  * @param {unknown} status
  * @returns {boolean}
  */

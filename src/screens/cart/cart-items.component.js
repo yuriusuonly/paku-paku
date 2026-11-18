@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
-import { PAYMENT_METHODS } from "../../domain/transactions/constants.js";
+import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**

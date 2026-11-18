@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { menuItemCreateSchema } from "../../src/domain/menu-items/schema.js";
-import { transactionCreateSchema } from "../../src/domain/transactions/schema.js";
+import { orderCreateSchema } from "../../src/domain/orders/schema.js";
 
 /**
  * Tests for shared domain schemas.
@@ -32,9 +32,9 @@ describe("menuItemCreateSchema", () => {
   });
 });
 
-describe("transactionCreateSchema", () => {
+describe("orderCreateSchema", () => {
   test("normalizes items and calculates line totals", () => {
-    const result = transactionCreateSchema.safeParse({
+    const result = orderCreateSchema.safeParse({
       items: [{ item_name: "Ramen", quantity: "2", unit_price_cents: "500" }]
     });
     expect(result.success).toBe(true);
@@ -47,8 +47,8 @@ describe("transactionCreateSchema", () => {
   });
 
   test("rejects empty item lists and invalid statuses", () => {
-    expect(transactionCreateSchema.safeParse({ items: [] }).success).toBe(false);
-    expect(transactionCreateSchema.safeParse({
+    expect(orderCreateSchema.safeParse({ items: [] }).success).toBe(false);
+    expect(orderCreateSchema.safeParse({
       status: "unknown",
       items: [{ item_name: "A", quantity: 1, unit_price_cents: 0 }]
     }).success).toBe(false);

@@ -6,25 +6,25 @@ import { withMiddleware } from "../../../shared/network/middleware.js";
 import { readJsonBody } from "../../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../../shared/network/response.js";
 import { HTTP_STATUS } from "../../../shared/constants/http.js";
-import { createTransaction, listTransactions } from "../../../repositories/transaction.repository.js";
+import { createOrder, listOrders } from "../../../repositories/order.repository.js";
 import { requireObjectBody } from "../../../shared/validation/request.js";
 
 /**
- * Admin transactions collection endpoint handlers.
- * @module endpoints/admin/transactions/index
+ * Admin orders collection endpoint handlers.
+ * @module endpoints/admin/orders/index
  */
 
 export const GET = withMiddleware(logInterceptor, errorInterceptor, methodInterceptor("GET"), authorizationInterceptor)(
-  async (context) => jsonResponse(await listTransactions(context.locals.auth.database))
+  async (context) => jsonResponse(await listOrders(context.locals.auth.database))
 );
 
 export const POST = withMiddleware(logInterceptor, errorInterceptor, methodInterceptor("POST"), authorizationInterceptor)(
   async (context) => {
     const body = requireObjectBody(
       await readJsonBody(context.request),
-      "Expected a JSON object with transaction fields."
+      "Expected a JSON object with order fields."
     );
-    return jsonResponse(await createTransaction(context.locals.auth.database, body), { status: HTTP_STATUS.CREATED });
+    return jsonResponse(await createOrder(context.locals.auth.database, body), { status: HTTP_STATUS.CREATED });
   }
 );
 

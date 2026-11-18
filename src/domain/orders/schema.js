@@ -2,13 +2,13 @@ import { z } from "zod";
 import {
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
-  TRANSACTION_KINDS,
-  TRANSACTION_STATUSES
+  ORDER_KINDS,
+  ORDER_STATUSES
 } from "./constants.js";
 
 /**
- * Transaction domain schemas shared by server validation and admin forms.
- * @module domain/transactions/schema
+ * Order domain schemas shared by server validation and admin forms.
+ * @module domain/orders/schema
  */
 
 const nullableString = z.preprocess(
@@ -17,10 +17,10 @@ const nullableString = z.preprocess(
 );
 
 /**
- * Transaction line item schema.
+ * Order line item schema.
  * @type {import("zod").ZodType}
  */
-export const transactionItemSchema = z.object({
+export const orderItemSchema = z.object({
   item_name: z.string().trim().min(1),
   quantity: z.coerce.number().int().positive(),
   unit_price_cents: z.coerce.number().int().min(0),
@@ -31,19 +31,19 @@ export const transactionItemSchema = z.object({
 }));
 
 /**
- * Admin transaction create schema.
+ * Admin order create schema.
  * @type {import("zod").ZodType}
  */
-export const transactionCreateSchema = z.object({
-  kind: z.enum(TRANSACTION_KINDS).default("sell"),
-  status: z.enum(TRANSACTION_STATUSES).default("completed"),
+export const orderCreateSchema = z.object({
+  kind: z.enum(ORDER_KINDS).default("sell"),
+  status: z.enum(ORDER_STATUSES).default("completed"),
   payment_status: z.enum(PAYMENT_STATUSES).default("paid"),
   payment_method: nullableString.optional().default(null),
   customer_name: nullableString.optional().default(null),
   customer_email: nullableString.optional().default(null),
   customer_phone: nullableString.optional().default(null),
   notes: nullableString.optional().default(null),
-  items: z.array(transactionItemSchema).min(1)
+  items: z.array(orderItemSchema).min(1)
 });
 
 /**
@@ -52,5 +52,5 @@ export const transactionCreateSchema = z.object({
  */
 export const checkoutSchema = z.object({
   payment_method: z.enum(PAYMENT_METHODS).default("cash"),
-  items: z.array(transactionItemSchema).min(1)
+  items: z.array(orderItemSchema).min(1)
 });

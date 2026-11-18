@@ -13,7 +13,7 @@
  * @property {string} signout
  * @property {string} checkout
  * @property {string} adminProfiles
- * @property {string} adminTransactions
+ * @property {string} adminOrders
  */
 
 /**
@@ -67,7 +67,7 @@ export const api = {
     signout: `${apiBasePath}/signout`,
     checkout: `${apiBasePath}/checkout`,
     adminProfiles: `${apiBasePath}/admin/profiles`,
-    adminTransactions: `${apiBasePath}/admin/transactions`
+    adminOrders: `${apiBasePath}/admin/orders`
   }
 };
 

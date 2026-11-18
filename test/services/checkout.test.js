@@ -24,12 +24,12 @@ describe("services/checkout", () => {
       expect(options.method).toBe("POST");
       expect(options.headers.Authorization).toBeUndefined();
       expect(JSON.parse(options.body)).toEqual(input);
-      return jsonResponse({ transaction: { id: "t1", qr_payload: "TXN:1|PAY:gcash" } }, 201);
+      return jsonResponse({ order: { id: "t1", qr_payload: "ORD:1|PAY:gcash" } }, 201);
     });
 
     const { placeOrder } = await import("../../src/services/checkout.js");
     await expect(placeOrder(input)).resolves.toEqual({
-      transaction: { id: "t1", qr_payload: "TXN:1|PAY:gcash" }
+      order: { id: "t1", qr_payload: "ORD:1|PAY:gcash" }
     });
   });
 

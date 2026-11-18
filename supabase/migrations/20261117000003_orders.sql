@@ -1,4 +1,4 @@
--- Unified buy/sell transactions table, access rules, and realtime publication.
+-- Unified buy/sell orders table, access rules, and realtime publication.
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number text not null unique default ('ORD-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))),
@@ -20,8 +20,8 @@ create table public.orders (
   updated_at timestamptz not null default now()
 );
 
-comment on table public.orders is 'Unified buy/sell transactions and operational records.';
-comment on column public.orders.kind is 'Transaction kind: buy (customer checkout) or sell (admin-recorded).';
+comment on table public.orders is 'Unified buy/sell orders and operational records.';
+comment on column public.orders.kind is 'Order kind: buy (customer checkout) or sell (admin-recorded).';
 comment on column public.orders.qr_payload is 'QR code payload for counter verification.';
 
 create index orders_customer_id_idx on public.orders (customer_id);
@@ -35,30 +35,30 @@ revoke all on table public.orders from anon, authenticated;
 grant select, insert, update, delete on table public.orders to authenticated;
 grant select, insert on table public.orders to anon;
 
-drop policy if exists "Users can read own transactions" on public.orders;
-create policy "Users can read own transactions"
+drop policy if exists "Users can read own orders" on public.orders;
+create policy "Users can read own orders"
   on public.orders
   for select
   to authenticated
   using (customer_id = auth.uid() or public.current_user_is_admin());
 
-drop policy if exists "Users can create own transactions" on public.orders;
-create policy "Users can create own transactions"
+drop policy if exists "Users can create own orders" on public.orders;
+create policy "Users can create own orders"
   on public.orders
   for insert
   to authenticated
   with check (customer_id = auth.uid() or public.current_user_is_admin());
 
-drop policy if exists "Users can update own pending transactions" on public.orders;
-create policy "Users can update own pending transactions"
+drop policy if exists "Users can update own pending orders" on public.orders;
+create policy "Users can update own pending orders"
   on public.orders
   for update
   to authenticated
   using ((customer_id = auth.uid() and status = 'pending') or public.current_user_is_admin())
   with check (customer_id = auth.uid() or public.current_user_is_admin());
 
-drop policy if exists "Admins can delete transactions" on public.orders;
-create policy "Admins can delete transactions"
+drop policy if exists "Admins can delete orders" on public.orders;
+create policy "Admins can delete orders"
   on public.orders
   for delete
   to authenticated

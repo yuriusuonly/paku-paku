@@ -7,7 +7,7 @@ import { ScreenContainer } from "../../components/container.js";
 import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { useMenuStore } from "../../stores/menu.store.js";
-import { useTransactionsStore } from "../../stores/transactions.store.js";
+import { useOrdersStore } from "../../stores/orders.store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -31,11 +31,11 @@ export default function AdminScreen() {
   const fetchMenuItems = useMenuStore((s) => s.fetchItems);
   const subscribeMenu = useMenuStore((s) => s.subscribe);
 
-  const transactions = useTransactionsStore((s) => s.adminTransactions);
-  const transactionsLoading = useTransactionsStore((s) => s.loading);
-  const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
-  const subscribeAdminTransactions = useTransactionsStore((s) => s.subscribeAdmin);
-  const unsubscribeTransactions = useTransactionsStore((s) => s.unsubscribe);
+  const orders = useOrdersStore((s) => s.adminOrders);
+  const ordersLoading = useOrdersStore((s) => s.loading);
+  const fetchAdminOrders = useOrdersStore((s) => s.fetchAdminOrders);
+  const subscribeAdminOrders = useOrdersStore((s) => s.subscribeAdmin);
+  const unsubscribeOrders = useOrdersStore((s) => s.unsubscribe);
 
   const isAdmin = status === "authenticated" && authUser?.role === "admin";
   const token = session?.access_token;
@@ -48,13 +48,13 @@ export default function AdminScreen() {
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
     void fetchMenuItems().catch(() => {});
-    void fetchAdminTransactions(token).catch(() => {});
+    void fetchAdminOrders(token).catch(() => {});
     subscribeMenu();
-    subscribeAdminTransactions(token);
+    subscribeAdminOrders(token);
     return () => {
-      void unsubscribeTransactions();
+      void unsubscribeOrders();
     };
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchAdminTransactions, subscribeMenu, subscribeAdminTransactions, unsubscribeTransactions]);
+  }, [hydrated, isAdmin, token, fetchMenuItems, fetchAdminOrders, subscribeMenu, subscribeAdminOrders, unsubscribeOrders]);
 
   const menuStats = useMemo(() => {
     const total = menuItems.length;
@@ -63,16 +63,16 @@ export default function AdminScreen() {
     return { total, available, unavailable };
   }, [menuItems]);
 
-  const transactionsStats = useMemo(() => {
-    const completed = transactions.filter((t) => t.status === "completed");
+  const ordersStats = useMemo(() => {
+    const completed = orders.filter((t) => t.status === "completed");
     return {
-      total: transactions.length,
-      buy: transactions.filter((t) => t.kind === "buy").length,
-      sell: transactions.filter((t) => t.kind === "sell").length,
+      total: orders.length,
+      buy: orders.filter((t) => t.kind === "buy").length,
+      sell: orders.filter((t) => t.kind === "sell").length,
       completed: completed.length,
       amountCents: completed.reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
     };
-  }, [transactions]);
+  }, [orders]);
 
   if (!hydrated || !isAdmin) {
     return (
@@ -83,7 +83,7 @@ export default function AdminScreen() {
   }
 
   const menuCountLoading = menuLoading && menuItems.length === 0;
-  const transactionsCountLoading = transactionsLoading && transactions.length === 0;
+  const ordersCountLoading = ordersLoading && orders.length === 0;
 
   const cards = [
     {
@@ -98,15 +98,15 @@ export default function AdminScreen() {
       ]
     },
     {
-      key: "transactions",
-      title: "Transactions",
-      href: "/admin/transactions",
-      linkLabel: "Open transactions →",
+      key: "orders",
+      title: "Orders",
+      href: "/admin/orders",
+      linkLabel: "Open orders →",
       stats: [
-        { label: "Total", value: transactionsStats.total, loading: transactionsCountLoading },
-        { label: "Buy", value: transactionsStats.buy, loading: transactionsCountLoading },
-        { label: "Sell", value: transactionsStats.sell, loading: transactionsCountLoading },
-        { label: "Completed amount", value: formatCurrencyCents(transactionsStats.amountCents), loading: transactionsCountLoading }
+        { label: "Total", value: ordersStats.total, loading: ordersCountLoading },
+        { label: "Buy", value: ordersStats.buy, loading: ordersCountLoading },
+        { label: "Sell", value: ordersStats.sell, loading: ordersCountLoading },
+        { label: "Completed amount", value: formatCurrencyCents(ordersStats.amountCents), loading: ordersCountLoading }
       ]
     },
   ];
@@ -119,7 +119,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu and transactions.
+          Live operational overview across menu and orders.
         </Text>
       </View>
 

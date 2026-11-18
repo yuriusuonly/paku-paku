@@ -3,27 +3,27 @@ import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
 import { FormActions } from "../../../components/form-actions.js";
 import { InlineSelect } from "../../../components/inline-select.js";
-import { TRANSACTION_KINDS, PAYMENT_STATUSES, TRANSACTION_STATUSES } from "../../../domain/transactions/constants.js";
+import { ORDER_KINDS, PAYMENT_STATUSES, ORDER_STATUSES } from "../../../domain/orders/constants.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Admin create-transaction form section.
- * @module screens/admin/transactions/transactions-form.component
+ * Admin create-order form section.
+ * @module screens/admin/orders/orders-form.component
  */
 
-export function TransactionsFormSection({ form, setForm, lines, updateLine, addLine, removeLine, syncing, onCreate, expanded, onToggleExpanded }) {
+export function OrdersFormSection({ form, setForm, lines, updateLine, addLine, removeLine, syncing, onCreate, expanded, onToggleExpanded }) {
   return (
-    <AccordionSection title="Create transaction" expanded={expanded} onToggle={onToggleExpanded} className="mb-6">
+    <AccordionSection title="Create order" expanded={expanded} onToggle={onToggleExpanded} className="mb-6">
       <View className="gap-3">
         <View className="flex-row flex-wrap gap-2">
-          {TRANSACTION_KINDS.map((v) => (
+          {ORDER_KINDS.map((v) => (
             <Button key={v} label={v} variant={form.kind === v ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, kind: v }))} />
           ))}
         </View>
         <View className="gap-2">
           <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Status</Text>
-          <InlineSelect value={form.status} options={TRANSACTION_STATUSES} accessibilityLabel="Transaction status" onChange={(value) => setForm((f) => ({ ...f, status: value }))} />
+          <InlineSelect value={form.status} options={ORDER_STATUSES} accessibilityLabel="Order status" onChange={(value) => setForm((f) => ({ ...f, status: value }))} />
         </View>
         <View className="gap-2">
           <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Payment status</Text>
@@ -50,7 +50,7 @@ export function TransactionsFormSection({ form, setForm, lines, updateLine, addL
         <View className="flex-row flex-wrap gap-3">
           <Button label="Add item" variant="ghost" onPress={addLine} disabled={syncing} />
         </View>
-        <FormActions onSave={onCreate} saveLabel="Create transaction" saving={syncing} />
+        <FormActions onSave={onCreate} saveLabel="Create order" saving={syncing} />
       </View>
     </AccordionSection>
   );

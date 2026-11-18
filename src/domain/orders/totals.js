@@ -1,6 +1,6 @@
 /**
- * Transaction total and QR payload rules.
- * @module domain/transactions/totals
+ * Order total and QR payload rules.
+ * @module domain/orders/totals
  */
 
 /**
@@ -9,18 +9,18 @@
  * @param {Array<{line_total_cents?: number}>} items
  * @returns {number}
  */
-export function calculateTransactionSubtotal(items) {
+export function calculateOrderSubtotal(items) {
   return (items || []).reduce((sum, item) => sum + Number(item.line_total_cents || 0), 0);
 }
 
 /**
  * Builds the counter-facing QR payload with payment method and order summary.
  *
- * @param {{orderNumber?: string, id?: string, totalCents?: number, paymentMethod?: string|null, items?: Array<{item_name?: string, quantity?: number}>}} transaction
+ * @param {{orderNumber?: string, id?: string, totalCents?: number, paymentMethod?: string|null, items?: Array<{item_name?: string, quantity?: number}>}} order
  * @returns {string}
  */
 export function buildQrPayload({ orderNumber, id, totalCents, paymentMethod, items }) {
-  const base = `TXN:${orderNumber}|ID:${id}|TOTAL:${totalCents}`;
+  const base = `ORD:${orderNumber}|ID:${id}|TOTAL:${totalCents}`;
   if (!paymentMethod && !Array.isArray(items)) return base;
   const payment = `PAY:${paymentMethod || "cash"}`;
   const summary = Array.isArray(items) && items.length

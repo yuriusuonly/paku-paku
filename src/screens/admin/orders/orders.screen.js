@@ -9,23 +9,23 @@ import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
-import { useTransactionsStore } from "../../../stores/transactions.store.js";
+import { useOrdersStore } from "../../../stores/orders.store.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
-import { transactionCreateSchema } from "../../../domain/transactions/schema.js";
-import { TransactionsFormSection } from "./transactions-form.component.js";
-import { TransactionsTableSection } from "./transactions-table.component.js";
+import { orderCreateSchema } from "../../../domain/orders/schema.js";
+import { OrdersFormSection } from "./orders-form.component.js";
+import { OrdersTableSection } from "./orders-table.component.js";
 
 /**
- * Admin unified transactions management screen.
- * @module screens/admin/transactions/transactions.screen
+ * Admin unified orders management screen.
+ * @module screens/admin/orders/orders.screen
  */
 
 function emptyLine() {
   return { item_name: "", quantity: "1", unit_price_cents: "0", menu_item_id: "" };
 }
 
-export default function AdminTransactionsScreen() {
+export default function AdminOrdersScreen() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
@@ -34,15 +34,15 @@ export default function AdminTransactionsScreen() {
   const token = session?.access_token;
   const isAdmin = status === "authenticated" && user?.role === "admin";
 
-  const transactions = useTransactionsStore((s) => s.adminTransactions);
-  const loading = useTransactionsStore((s) => s.loading);
-  const syncing = useTransactionsStore((s) => s.syncing);
-  const error = useTransactionsStore((s) => s.error);
-  const fetchAdminTransactions = useTransactionsStore((s) => s.fetchAdminTransactions);
-  const subscribeAdmin = useTransactionsStore((s) => s.subscribeAdmin);
-  const unsubscribe = useTransactionsStore((s) => s.unsubscribe);
-  const createAdminTransaction = useTransactionsStore((s) => s.createAdminTransaction);
-  const updateAdminTransaction = useTransactionsStore((s) => s.updateAdminTransaction);
+  const orders = useOrdersStore((s) => s.adminOrders);
+  const loading = useOrdersStore((s) => s.loading);
+  const syncing = useOrdersStore((s) => s.syncing);
+  const error = useOrdersStore((s) => s.error);
+  const fetchAdminOrders = useOrdersStore((s) => s.fetchAdminOrders);
+  const subscribeAdmin = useOrdersStore((s) => s.subscribeAdmin);
+  const unsubscribe = useOrdersStore((s) => s.unsubscribe);
+  const createAdminOrder = useOrdersStore((s) => s.createAdminOrder);
+  const updateAdminOrder = useOrdersStore((s) => s.updateAdminOrder);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
@@ -66,18 +66,18 @@ export default function AdminTransactionsScreen() {
 
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
-    void fetchAdminTransactions(token).catch(() => {});
+    void fetchAdminOrders(token).catch(() => {});
     subscribeAdmin(token);
     return () => { void unsubscribe(); };
-  }, [hydrated, isAdmin, token, fetchAdminTransactions, subscribeAdmin, unsubscribe]);
+  }, [hydrated, isAdmin, token, fetchAdminOrders, subscribeAdmin, unsubscribe]);
 
   const stats = useMemo(() => ({
-    total: transactions.length,
-    buy: transactions.filter((t) => t.kind === "buy").length,
-    sell: transactions.filter((t) => t.kind === "sell").length,
-    completed: transactions.filter((t) => t.status === "completed").length,
-    amountCents: transactions.filter((t) => t.status === "completed").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
-  }), [transactions]);
+    total: orders.length,
+    buy: orders.filter((t) => t.kind === "buy").length,
+    sell: orders.filter((t) => t.kind === "sell").length,
+    completed: orders.filter((t) => t.status === "completed").length,
+    amountCents: orders.filter((t) => t.status === "completed").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
+  }), [orders]);
 
   if (!hydrated || !isAdmin) return <ScreenContainer><CircularProgress message="Checking administrator access..." /></ScreenContainer>;
 
@@ -91,9 +91,9 @@ export default function AdminTransactionsScreen() {
     const current = tx[field] == null ? null : String(tx[field]);
     if ((normalized || null) === (current || null)) return;
     try {
-      await updateAdminTransaction(token, tx.id, { [field]: normalized || null });
+      await updateAdminOrder(token, tx.id, { [field]: normalized || null });
     } catch (e) {
-      showError(e?.message || "Could not update transaction.");
+      showError(e?.message || "Could not update order.");
       throw e;
     }
   };
@@ -101,7 +101,7 @@ export default function AdminTransactionsScreen() {
   const createRecord = async () => {
     setLocalError("");
     try {
-      const parsed = transactionCreateSchema.safeParse({
+      const parsed = orderCreateSchema.safeParse({
         kind: form.kind,
         status: form.status,
         payment_status: form.payment_status,
@@ -128,15 +128,15 @@ export default function AdminTransactionsScreen() {
           unit_price_cents: "unit price must be a non-negative whole number in cents."
         };
         const detail = field === "items" ? "at least one item is required." : (messages[field] || "is invalid.");
-        throw new Error(itemIndex != null ? `Item ${itemIndex + 1}: ${detail}` : `Transaction ${detail}`);
+        throw new Error(itemIndex != null ? `Item ${itemIndex + 1}: ${detail}` : `Order ${detail}`);
       }
 
-      await createAdminTransaction(token, parsed.data);
+      await createAdminOrder(token, parsed.data);
       setForm({ kind: "sell", status: "completed", payment_status: "paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
       setLines([emptyLine()]);
-      showSuccess("Transaction created.");
+      showSuccess("Order created.");
     } catch (e) {
-      const msg = e?.message || "Could not create transaction.";
+      const msg = e?.message || "Could not create order.";
       setLocalError(msg);
       showError(msg);
     }
@@ -147,8 +147,8 @@ export default function AdminTransactionsScreen() {
       <Header />
       <View className="mb-6">
         <Link href="/admin" asChild><Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>← Back to admin</Text></Link>
-        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Transactions</Text>
-        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage all buy/sell transactions in one place.</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Orders</Text>
+        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage all buy/sell orders in one place.</Text>
       </View>
       <Alert variant="error" message={localError || error} />
 
@@ -162,7 +162,7 @@ export default function AdminTransactionsScreen() {
         ]}
       />
 
-      <TransactionsFormSection
+      <OrdersFormSection
         form={form}
         setForm={setForm}
         lines={lines}
@@ -176,12 +176,12 @@ export default function AdminTransactionsScreen() {
       />
 
       <SectionHeader
-        title="Transactions"
-        syncing={syncing && transactions.length > 0}
-        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{transactions.length} total</Text>}
+        title="Orders"
+        syncing={syncing && orders.length > 0}
+        right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{orders.length} total</Text>}
       />
 
-      <TransactionsTableSection transactions={transactions} loading={loading} syncing={syncing} onSaveField={saveField} />
+      <OrdersTableSection orders={orders} loading={loading} syncing={syncing} onSaveField={saveField} />
     </ScreenContainer>
   );
 }

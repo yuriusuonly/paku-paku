@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { isCancelled, isCompleted, resolvePaymentStatus } from "../../../src/domain/transactions/status.js";
+import { isCancelled, isCompleted, resolvePaymentStatus } from "../../../src/domain/orders/status.js";
 
 /**
- * Tests for pure transaction status rules.
- * @module test/domain/transactions/rules
+ * Tests for pure order status rules.
+ * @module test/domain/orders/rules
  */
 
-describe("transaction status rules", () => {
+describe("order status rules", () => {
   test("detects cancelled and completed statuses", () => {
     expect(isCancelled("cancelled")).toBe(true);
     expect(isCancelled("completed")).toBe(false);

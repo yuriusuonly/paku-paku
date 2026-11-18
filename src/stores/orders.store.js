@@ -2,21 +2,21 @@ import { create } from "zustand";
 import { sortByCreatedDesc } from "../shared/utils/lists.js";
 import { getErrorMessage } from "../shared/errors/message.js";
 import {
-  createAdminTransaction,
-  deleteAdminTransaction,
-  getAdminTransactions,
-  updateAdminTransaction
-} from "../services/transactions.js";
+  createAdminOrder,
+  deleteAdminOrder,
+  getAdminOrders,
+  updateAdminOrder
+} from "../services/orders.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
 /**
- * Admin transaction store. Customer orders are placed through the public checkout.
- * @module stores/transactions.store
+ * Admin order store. Customer orders are placed through the public checkout.
+ * @module stores/orders.store
  */
 
-export const useTransactionsStore = create((set, get) => ({
-  adminTransactions: [],
+export const useOrdersStore = create((set, get) => ({
+  adminOrders: [],
   loading: false,
   syncing: false,
   error: null,
@@ -25,26 +25,26 @@ export const useTransactionsStore = create((set, get) => ({
 
   clearError: () => set({ error: null }),
 
-  fetchAdminTransactions: async (token, { background = false } = {}) => {
-    if (!token) return set({ adminTransactions: [], loading: false });
-    const has = get().adminTransactions.length > 0;
+  fetchAdminOrders: async (token, { background = false } = {}) => {
+    if (!token) return set({ adminOrders: [], loading: false });
+    const has = get().adminOrders.length > 0;
     const isRefresh = background || has;
     if (isRefresh) set({ syncing: true, error: null }); else set({ loading: true, error: null });
     try {
-      const data = await getAdminTransactions(token);
-      set({ adminTransactions: sortByCreatedDesc(data.transactions || []), loading: false, syncing: false });
+      const data = await getAdminOrders(token);
+      set({ adminOrders: sortByCreatedDesc(data.orders || []), loading: false, syncing: false });
     } catch (e) {
-      set({ loading: false, syncing: false, error: getErrorMessage(e, "Could not load transactions.") });
+      set({ loading: false, syncing: false, error: getErrorMessage(e, "Could not load orders.") });
       throw e;
     }
   },
 
   scheduleRealtimeRefetch: () => {
-    const { refetchTimer, fetchAdminTransactions } = get();
+    const { refetchTimer, fetchAdminOrders } = get();
     if (refetchTimer) clearTimeout(refetchTimer);
     const timer = setTimeout(() => {
       const { adminToken } = get();
-      if (adminToken) void fetchAdminTransactions(adminToken, { background: true }).catch(() => {});
+      if (adminToken) void fetchAdminOrders(adminToken, { background: true }).catch(() => {});
       set({ refetchTimer: null });
     }, 250);
     set({ refetchTimer: timer });
@@ -63,7 +63,7 @@ export const useTransactionsStore = create((set, get) => ({
       const items = subscribeToTableChanges({ channelName: "public:order_items", table: "order_items", token, onPayload });
       set({ channels: [orders, items] });
     } catch (error) {
-      notifyBackgroundError(getErrorMessage(error, "Could not connect to live transaction updates."));
+      notifyBackgroundError(getErrorMessage(error, "Could not connect to live order updates."));
     }
   },
 
@@ -76,37 +76,37 @@ export const useTransactionsStore = create((set, get) => ({
     set({ channels: [], refetchTimer: null, adminToken: null });
   },
 
-  createAdminTransaction: async (token, input) => {
+  createAdminOrder: async (token, input) => {
     set({ syncing: true, error: null });
     try {
-      const data = await createAdminTransaction(token, input);
-      if (data?.transaction) set((s) => ({ adminTransactions: sortByCreatedDesc([data.transaction, ...s.adminTransactions]) }));
-      return data?.transaction;
+      const data = await createAdminOrder(token, input);
+      if (data?.order) set((s) => ({ adminOrders: sortByCreatedDesc([data.order, ...s.adminOrders]) }));
+      return data?.order;
     } catch (e) {
-      set({ error: getErrorMessage(e, "Could not create the transaction.") });
+      set({ error: getErrorMessage(e, "Could not create the order.") });
       throw e;
     } finally { set({ syncing: false }); }
   },
 
-  updateAdminTransaction: async (token, id, input) => {
+  updateAdminOrder: async (token, id, input) => {
     set({ syncing: true, error: null });
     try {
-      const data = await updateAdminTransaction(token, id, input);
-      if (data?.transaction) set((s) => ({ adminTransactions: s.adminTransactions.map((t) => (t.id === id ? data.transaction : t)) }));
-      return data?.transaction;
+      const data = await updateAdminOrder(token, id, input);
+      if (data?.order) set((s) => ({ adminOrders: s.adminOrders.map((t) => (t.id === id ? data.order : t)) }));
+      return data?.order;
     } catch (e) {
-      set({ error: getErrorMessage(e, "Could not update the transaction.") });
+      set({ error: getErrorMessage(e, "Could not update the order.") });
       throw e;
     } finally { set({ syncing: false }); }
   },
 
-  removeAdminTransaction: async (token, id) => {
+  removeAdminOrder: async (token, id) => {
     set({ syncing: true, error: null });
     try {
-      await deleteAdminTransaction(token, id);
-      set((s) => ({ adminTransactions: s.adminTransactions.filter((t) => t.id !== id) }));
+      await deleteAdminOrder(token, id);
+      set((s) => ({ adminOrders: s.adminOrders.filter((t) => t.id !== id) }));
     } catch (e) {
-      set({ error: getErrorMessage(e, "Could not delete the transaction.") });
+      set({ error: getErrorMessage(e, "Could not delete the order.") });
       throw e;
     } finally { set({ syncing: false }); }
   }

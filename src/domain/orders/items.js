@@ -1,20 +1,20 @@
 import { badRequest } from "../../shared/errors/bad-request.js";
 
 /**
- * Transaction item normalization rules.
- * @module domain/transactions/items
+ * Order item normalization rules.
+ * @module domain/orders/items
  */
 
 /**
- * Normalizes transaction line items for persistence.
+ * Normalizes order line items for persistence.
  *
  * @param {unknown} items - Raw line items.
  * @returns {Array<{menu_item_id: string|null, item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized items.
  */
-export function normalizeTransactionItems(items) {
+export function normalizeOrderItems(items) {
   const list = Array.isArray(items) ? items : [];
   if (list.length === 0) {
-    throw badRequest("invalid_transaction", "Transaction must include at least one item.");
+    throw badRequest("invalid_order", "Order must include at least one item.");
   }
 
   return list.map((item, index) => {
@@ -24,13 +24,13 @@ export function normalizeTransactionItems(items) {
     const unitPrice = Number(entry.unit_price_cents ?? 0);
 
     if (!itemName) {
-      throw badRequest("invalid_transaction", `Item ${index + 1}: name is required.`);
+      throw badRequest("invalid_order", `Item ${index + 1}: name is required.`);
     }
     if (!Number.isInteger(quantity) || quantity <= 0) {
-      throw badRequest("invalid_transaction", `Item ${index + 1}: quantity must be a positive integer.`);
+      throw badRequest("invalid_order", `Item ${index + 1}: quantity must be a positive integer.`);
     }
     if (!Number.isInteger(unitPrice) || unitPrice < 0) {
-      throw badRequest("invalid_transaction", `Item ${index + 1}: unit price must be a non-negative integer.`);
+      throw badRequest("invalid_order", `Item ${index + 1}: unit price must be a non-negative integer.`);
     }
 
     return {
