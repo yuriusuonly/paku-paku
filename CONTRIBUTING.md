@@ -138,7 +138,7 @@ flowchart LR
 
 - **`src/app/`**: Expo Router pages and `+api.js` route handlers (HTTP/controller layer). Keep API handlers thin: compose interceptors, validate/parse via request modules, call repositories, and return route-matched responses.
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
-- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `items.js`, `admin.js`, `orders.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
+- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `audit.js`, `items.js`, `admin.js`, `orders.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
 - **`src/interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `src/shared/network/middleware.js` (pipeline and request context).
 - **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `item.repository.js`, `profile.repository.js`).
@@ -162,6 +162,7 @@ flowchart LR
 - Build screens from reusable primitives in `src/components/`. Use `DataTable` for audit tables, `SectionHeader` for consistent section titles/syncing state, `StatGrid`/`StatCard` for metrics, `StatusPill` for statuses, and `FormActions` for form buttons. Interactive components must expose `disabled`/`loading` consistently and include accessibility roles/labels.
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `src/shared/constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `src/shared/stylesheets/global.css`.
 - Support wearable (`<640px`), phone (`sm:`), and tablet (`md:`+) viewports by following the responsive rules in `DESIGN.md`.
+- Audit events are written by database triggers on profiles, items, orders, and order items. Only admins can read `audit_logs` through `/api/admin/audit-logs`; do not add client-side write paths.
 - Use Zustand stores under `src/stores/` for shared client state. Customers are anonymous kiosk visitors; only staff authenticate, and admin screens enforce the `admin` role.
 - Keep the storefront (`/`, `/menu`, `/cart`, `/api/checkout`) public. Do not add customer sign-up, account, or recovery flows back into the MVP. 
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.

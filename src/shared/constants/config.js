@@ -14,6 +14,7 @@
  * @property {string} checkout
  * @property {string} adminProfiles
  * @property {string} adminOrders
+ * @property {string} adminAuditLogs
  */
 
 /**
@@ -67,7 +68,8 @@ export const api = {
     signout: `${apiBasePath}/signout`,
     checkout: `${apiBasePath}/checkout`,
     adminProfiles: `${apiBasePath}/admin/profiles`,
-    adminOrders: `${apiBasePath}/admin/orders`
+    adminOrders: `${apiBasePath}/admin/orders`,
+    adminAuditLogs: `${apiBasePath}/admin/audit-logs`
   }
 };
 

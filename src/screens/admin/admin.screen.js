@@ -1,13 +1,13 @@
 import { useEffect, useMemo } from "react";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { Header } from "../../components/header.js";
-import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useOrdersStore } from "../../stores/orders.store.js";
+import { useAuditLogsStore } from "../../stores/audit-logs.store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -20,11 +20,7 @@ import { cx } from "../../shared/constants/theme.js";
  * @returns {JSX.Element} Admin dashboard.
  */
 export default function AdminScreen() {
-  const router = useRouter();
-  const authUser = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
-  const status = useAuthStore((s) => s.status);
-  const hydrated = useAuthStore((s) => s.hydrated);
 
   const items = useItemsStore((s) => s.items);
   const itemsLoading = useItemsStore((s) => s.loading);
@@ -37,24 +33,26 @@ export default function AdminScreen() {
   const subscribeAdminOrders = useOrdersStore((s) => s.subscribeAdmin);
   const unsubscribeOrders = useOrdersStore((s) => s.unsubscribe);
 
-  const isAdmin = status === "authenticated" && authUser?.role === "admin";
+  const auditLogs = useAuditLogsStore((s) => s.logs);
+  const auditLoading = useAuditLogsStore((s) => s.loading);
+  const fetchAuditLogs = useAuditLogsStore((s) => s.fetchLogs);
+  const subscribeAuditLogs = useAuditLogsStore((s) => s.subscribe);
+
   const token = session?.access_token;
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!isAdmin) router.replace("/signin");
-  }, [hydrated, isAdmin, status, router]);
-
-  useEffect(() => {
-    if (!hydrated || !isAdmin || !token) return;
+    if (!token) return;
     void fetchItems().catch(() => {});
     void fetchAdminOrders(token).catch(() => {});
+    void fetchAuditLogs(token).catch(() => {});
     subscribeItems();
     subscribeAdminOrders(token);
+    subscribeAuditLogs(token);
     return () => {
       void unsubscribeOrders();
+      void useAuditLogsStore.getState().unsubscribe();
     };
-  }, [hydrated, isAdmin, token, fetchItems, fetchAdminOrders, subscribeItems, subscribeAdminOrders, unsubscribeOrders]);
+  }, [token, fetchItems, fetchAdminOrders, fetchAuditLogs, subscribeItems, subscribeAdminOrders, subscribeAuditLogs, unsubscribeOrders]);
 
   const itemsStats = useMemo(() => {
     const total = items.length;
@@ -74,14 +72,6 @@ export default function AdminScreen() {
     };
   }, [orders]);
 
-  if (!hydrated || !isAdmin) {
-    return (
-      <ScreenContainer>
-        <CircularProgress message="Checking administrator access..." />
-      </ScreenContainer>
-    );
-  }
-
   const itemsCountLoading = itemsLoading && items.length === 0;
   const ordersCountLoading = ordersLoading && orders.length === 0;
 
@@ -95,6 +85,15 @@ export default function AdminScreen() {
         { label: "Total items", value: itemsStats.total, loading: itemsCountLoading },
         { label: "Available", value: itemsStats.available, loading: itemsCountLoading },
         { label: "Unavailable", value: itemsStats.unavailable, loading: itemsCountLoading }
+      ]
+    },
+    {
+      key: "audit",
+      title: "Audit logs",
+      href: "/admin/audit-logs",
+      linkLabel: "Open audit logs →",
+      stats: [
+        { label: "Events", value: auditLogs.length, loading: auditLoading && auditLogs.length === 0 }
       ]
     },
     {
@@ -119,7 +118,7 @@ export default function AdminScreen() {
           Administration dashboard
         </Text>
         <Text className={`font-outfit mt-2 text-sm sm:mt-3 sm:text-base ${cx.textInk70}`}>
-          Live operational overview across menu and orders.
+          Live operational overview across items, orders, and audit logs.
         </Text>
       </View>
 

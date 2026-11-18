@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 // Button import removed (no bulk actions)
 import { Header } from "../../../components/header.js";
-import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
@@ -27,11 +26,7 @@ const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", 
  * @returns {JSX.Element} Admin menu management screen.
  */
 export default function AdminItemsScreen() {
-  const router = useRouter();
-  const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
-  const status = useAuthStore((s) => s.status);
-  const hydrated = useAuthStore((s) => s.hydrated);
 
   const items = useItemsStore((s) => s.items);
   const loading = useItemsStore((s) => s.loading);
@@ -52,20 +47,14 @@ export default function AdminItemsScreen() {
   const [fieldErrors, setFieldErrors] = useState({ name: false, description: false, price_cents: false, sort_order: false });
   const [formExpanded, setFormExpanded] = useState(false);
 
-  const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!isAdmin) router.replace(status === "authenticated" ? "/menu" : "/signin");
-  }, [hydrated, isAdmin, status, router]);
-
-  useEffect(() => {
-    if (!hydrated || !isAdmin || !token) return;
+    if (!token) return;
     void fetchItems().catch(() => {});
     subscribe();
     return () => { void unsubscribe(); };
-  }, [hydrated, isAdmin, token, fetchItems, subscribe, unsubscribe]);
+  }, [token, fetchItems, subscribe, unsubscribe]);
 
   const sorted = useMemo(() => items, [items]);
   const stats = useMemo(() => ({
@@ -221,14 +210,6 @@ export default function AdminItemsScreen() {
   };
 
   // Per-row audit actions are handled inline in the table.
-
-  if (!hydrated || !isAdmin) {
-    return (
-      <ScreenContainer>
-        <CircularProgress message="Checking administrator access..." />
-      </ScreenContainer>
-    );
-  }
 
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>

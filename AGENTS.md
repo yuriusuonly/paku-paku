@@ -14,6 +14,7 @@
 
 ## Architecture & conventions
 - **No absolute paths** in source/config/docs (except `node_modules/`). Do not create `public/`; static icons stay in `png/` (sources in `svg/`).
+- Protected admin UI routes use the `src/app/(admin)/` route group with a `_layout.js` auth guard (URLs remain `/admin/*`).
 - Routing: Expo Router under `src/app/` (`api/**/+api.js`, `+not-found.js`, `+html.js`, special `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`). Screens in `src/screens/` mirror route paths (`*.screen.js` layout modules, e.g. `root.js`, `signin/signin.screen.js`, `admin/profiles/profiles.screen.js`); reusable UI in `src/components/`.
 - Layers (keep consistent): `src/app/api/*` are thin wrappers exporting HTTP methods → `src/endpoints/*` compose middleware/request/validation/repos/response (mirror API paths) → `src/interceptors/*` (`log`, `error`, `authentication`, `authorization`, `method`, `body`) → `src/repositories/*` → `src/database/instance.js`. Client side: `src/services/*` → `src/stores/*`. Shared: `src/shared/{constants,network,cipher,errors,stylesheets}`. No barrel `index.js` in `interceptors/` or `endpoints/`.
 - DB config/clients: `src/shared/constants/config.js` is the single source of truth (API endpoints incl. `checkout`, DB target/URLs). `src/database/instance.js` exports `getDatabaseClient()`, `getDatabaseServerConfig()`, `createDatabaseClient({ accessToken })` (not `getSupabase*`).

@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
-import { CircularProgress } from "../../../components/circular-progress.js";
 import { Header } from "../../../components/header.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
-import { useAuthStore } from "../../../stores/auth.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
+import { useAuthStore } from "../../../stores/auth.store.js";
 import { useOrdersStore } from "../../../stores/orders.store.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
@@ -26,13 +25,8 @@ function emptyLine() {
 }
 
 export default function AdminOrdersScreen() {
-  const router = useRouter();
-  const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
-  const hydrated = useAuthStore((s) => s.hydrated);
-  const status = useAuthStore((s) => s.status);
   const token = session?.access_token;
-  const isAdmin = status === "authenticated" && user?.role === "admin";
 
   const orders = useOrdersStore((s) => s.adminOrders);
   const loading = useOrdersStore((s) => s.loading);
@@ -59,16 +53,11 @@ export default function AdminOrdersScreen() {
   const [formExpanded, setFormExpanded] = useState(false);
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!isAdmin) router.replace(status === "authenticated" ? "/menu" : "/signin");
-  }, [hydrated, isAdmin, status, router]);
-
-  useEffect(() => {
-    if (!hydrated || !isAdmin || !token) return;
+    if (!token) return;
     void fetchAdminOrders(token).catch(() => {});
     subscribeAdmin(token);
     return () => { void unsubscribe(); };
-  }, [hydrated, isAdmin, token, fetchAdminOrders, subscribeAdmin, unsubscribe]);
+  }, [token, fetchAdminOrders, subscribeAdmin, unsubscribe]);
 
   const stats = useMemo(() => ({
     total: orders.length,
@@ -77,8 +66,6 @@ export default function AdminOrdersScreen() {
     paid: orders.filter((t) => t.status === "Paid").length,
     amountCents: orders.filter((t) => t.status === "Paid").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
   }), [orders]);
-
-  if (!hydrated || !isAdmin) return <ScreenContainer><CircularProgress message="Checking administrator access..." /></ScreenContainer>;
 
   const updateLine = (index, patch) => setLines((cur) => cur.map((l, i) => (i === index ? { ...l, ...patch } : l)));
   const addLine = () => setLines((cur) => [...cur, emptyLine()]);

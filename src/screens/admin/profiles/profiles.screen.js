@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Header } from "../../../components/header.js";
-import { CircularProgress } from "../../../components/circular-progress.js";
 import { ScreenContainer } from "../../../components/container.js";
 import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
@@ -22,11 +21,8 @@ import { ProfilesTableSection } from "./profiles-table.component.js";
  * @returns {JSX.Element} Admin profiles screen.
  */
 export default function AdminProfilesScreen() {
-  const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
-  const status = useAuthStore((s) => s.status);
-  const hydrated = useAuthStore((s) => s.hydrated);
 
   const profiles = useProfilesStore((s) => s.profiles);
   const loading = useProfilesStore((s) => s.loading);
@@ -42,22 +38,16 @@ export default function AdminProfilesScreen() {
   const [updatingId, setUpdatingId] = useState(null);
   const [localError, setLocalError] = useState("");
 
-  const isAdmin = status === "authenticated" && user?.role === "admin";
   const token = session?.access_token;
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!isAdmin) router.replace("/signin");
-  }, [hydrated, isAdmin, router]);
-
-  useEffect(() => {
-    if (!hydrated || !isAdmin || !token) return;
+    if (!token) return;
     void fetchProfiles(token).catch(() => {});
     subscribe(token);
     return () => {
       void unsubscribe();
     };
-  }, [hydrated, isAdmin, token, fetchProfiles, subscribe, unsubscribe]);
+  }, [token, fetchProfiles, subscribe, unsubscribe]);
 
   const stats = {
     total: profiles.length,
@@ -65,14 +55,6 @@ export default function AdminProfilesScreen() {
     inactive: profiles.filter((p) => p.is_active === false).length,
     admins: profiles.filter((p) => p.role === "admin").length
   };
-
-  if (!hydrated || !isAdmin) {
-    return (
-      <ScreenContainer>
-        <CircularProgress message="Checking administrator access..." />
-      </ScreenContainer>
-    );
-  }
 
   const toggleActive = async (profile) => {
     if (!token) return;

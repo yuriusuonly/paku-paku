@@ -1,4 +1,4 @@
-import AdminOrdersScreen from "../../screens/admin/orders/orders.screen.js";
+import AdminOrdersScreen from "../../../screens/admin/orders/orders.screen.js";
 
 /**
  * Route module.
