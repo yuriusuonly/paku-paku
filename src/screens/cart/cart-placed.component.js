@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { QrCode } from "../../components/qr-code.js";
+import { StatusPill } from "../../components/status-pill.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -14,15 +15,21 @@ import { cx } from "../../shared/constants/theme.js";
  * @returns {JSX.Element}
  */
 export function CartPlacedSection({ order, onNewOrder }) {
+  const paymentMethod = String(order.payment_method || "cash").toUpperCase();
+
   return (
     <View className="mt-6 gap-4">
       <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
-        <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Order placed</Text>
+        <View className="flex-row flex-wrap items-center justify-between gap-2">
+          <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Order placed</Text>
+          <StatusPill label={paymentMethod} variant="info" />
+        </View>
+
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-          {order.order_number} · {formatCurrencyCents(order.total_cents)}
+          Reference: <Text className={`font-semibold ${cx.textInk}`}>{order.order_number}</Text>
         </Text>
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
-          Payment: {String(order.payment_method || "cash").toUpperCase()}
+          Total: <Text className={`font-semibold ${cx.textInk}`}>{formatCurrencyCents(order.total_cents)}</Text>
         </Text>
 
         {Array.isArray(order.items) && order.items.length ? (
@@ -36,8 +43,13 @@ export function CartPlacedSection({ order, onNewOrder }) {
         ) : null}
 
         {order.qr_payload ? (
-          <View className="mt-2">
-            <QrCode value={order.qr_payload} label="Order QR for counter" />
+          <View className={`mt-4 items-center ${cx.radius.md} ${cx.bgSurfaceSoft} p-4`}>
+            <QrCode
+              value={order.qr_payload}
+              label="Show at the counter"
+              caption={order.order_number}
+              size={180}
+            />
           </View>
         ) : null}
 
