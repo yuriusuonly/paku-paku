@@ -320,6 +320,7 @@ The app has three areas:
 │   │   ├── inline-editable-cell.js
 │   │   ├── inline-select.js
 │   │   ├── qr-code.js
+│   │   ├── qr-scanner.js
 │   │   ├── section-header.js
 │   │   ├── snackbar.js
 │   │   ├── stat-card.js

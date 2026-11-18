@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Text, View } from "react-native";
 import { Alert } from "../../../components/alert.js";
 import { Button } from "../../../components/button.js";
@@ -8,6 +8,7 @@ import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
 import { StatusPill } from "../../../components/status-pill.js";
 import { TextField } from "../../../components/text-field.js";
+import { QrScanner } from "../../../components/qr-scanner.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useStaffOrdersStore } from "../../../stores/staff-orders.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
@@ -39,15 +40,22 @@ export default function StaffVerifyScreen() {
 
   const [reference, setReference] = useState("");
 
-  const onVerify = async () => {
-    if (!token || !reference.trim()) return;
+  const runVerify = async (value) => {
+    if (!token || !value.trim()) return;
     try {
-      const result = await verify(token, reference.trim());
+      const result = await verify(token, value.trim());
       if (result) showSuccess("Order verified.");
     } catch (e) {
       showError(e?.message || "Could not verify that order.");
     }
   };
+
+  const onVerify = () => runVerify(reference);
+
+  const onScan = useCallback((value) => {
+    setReference(value);
+    void runVerify(value);
+  }, [token, verify, showSuccess, showError]);
 
   const onStatus = async (status) => {
     if (!token || !order?.id) return;
@@ -80,6 +88,8 @@ export default function StaffVerifyScreen() {
           autoCapitalize="characters"
           error={Boolean(error)}
         />
+        <QrScanner onDetect={onScan} />
+
         <View className="flex-row flex-wrap gap-3">
           <Button label="Verify order" onPress={onVerify} loading={loading} disabled={!reference.trim()} />
           <Button label="Clear" variant="ghost" onPress={() => { setReference(""); clear(); }} disabled={loading} />
