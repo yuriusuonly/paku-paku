@@ -6,7 +6,6 @@ import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import {
   ORDER_KINDS,
-  PAYMENT_STATUSES,
   ORDER_STATUSES
 } from "../../../domain/orders/constants.js";
 import { cx } from "../../../shared/constants/theme.js";
@@ -20,7 +19,6 @@ const columns = [
   { key: "id", label: "ID", width: 260 },
   { key: "kind", label: "Kind", width: 120 },
   { key: "status", label: "Status", width: 160 },
-  { key: "payment_status", label: "Payment status", width: 160 },
   { key: "payment_method", label: "Payment method", width: 160 },
   { key: "total", label: "Total", width: 110 },
   { key: "customer_name", label: "Customer name", width: 180 },
@@ -63,20 +61,9 @@ export function OrdersTableSection({ orders, loading, syncing, onSaveField }) {
         if (key === "status") {
           return (
             <InlineSelect
-              value={tx.status || "pending"}
+              value={tx.status || "Pending"}
               options={ORDER_STATUSES}
               accessibilityLabel="Order status"
-              onChange={(value) => onSaveField(tx, key, value)}
-            />
-          );
-        }
-
-        if (key === "payment_status") {
-          return (
-            <InlineSelect
-              value={tx.payment_status || "unpaid"}
-              options={PAYMENT_STATUSES}
-              accessibilityLabel="Payment status"
               onChange={(value) => onSaveField(tx, key, value)}
             />
           );

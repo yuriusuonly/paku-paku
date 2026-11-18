@@ -10,23 +10,10 @@
 export const ORDER_KINDS = ["buy", "sell"];
 
 /**
- * Supported order lifecycle states.
+ * Supported order statuses.
  * @type {string[]}
  */
-export const ORDER_STATUSES = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "ready",
-  "completed",
-  "cancelled"
-];
-
-/**
- * Supported payment states.
- * @type {string[]}
- */
-export const PAYMENT_STATUSES = ["unpaid", "paid", "partial", "refunded"];
+export const ORDER_STATUSES = ["Pending", "Paid", "Refunded", "Voided"];
 
 /**
  * Payment methods offered at kiosk checkout.

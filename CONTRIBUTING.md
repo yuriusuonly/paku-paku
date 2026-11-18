@@ -90,7 +90,7 @@ Imports only point downward:
 
 ## Routing & API conventions (Expo Router)
 - File-based routes live in `src/app/`.
-- API/special web routes use `+api` suffix naming, e.g. `api/health+api.js` → `/api/health`, `api/menu-items/+api.js` → `/api/menu-items`, `api/menu-items/[id]+api.js` → `/api/menu-items/:id`, `robots.txt+api.js`, `manifest.json+api.js`, `service-worker.js+api.js`. Handlers receive web `Request` and return `Response`.
+- API/special web routes use `+api` suffix naming, e.g. `api/health+api.js` → `/api/health`, `api/items/+api.js` → `/api/items`, `api/items/[id]+api.js` → `/api/items/:id`, `robots.txt+api.js`, `manifest.json+api.js`, `service-worker.js+api.js`. Handlers receive web `Request` and return `Response`.
 - Root layout is `src/app/_layout.js`; custom document shell is `src/app/+html.js`.
 
 ### Adding a page/route
@@ -98,8 +98,8 @@ Imports only point downward:
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`src/shared/network/middleware.js`, `src/interceptors/*`), parse requests with `readJsonBody`, validate/normalize with **Zod** schemas via `src/shared/validation/*` helpers, call repositories (`src/repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `src/endpoints/menu-items/index.js`, `src/endpoints/menu-items/[id].js`).
-2. Create a thin Expo Router `+api` wrapper under `src/app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/menu-items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/menu-items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/menu-items/[id]+api.js`.
+1. Create an endpoint composition module in `src/endpoints/` (mirroring the `src/app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`src/shared/network/middleware.js`, `src/interceptors/*`), parse requests with `readJsonBody`, validate/normalize with **Zod** schemas via `src/shared/validation/*` helpers, call repositories (`src/repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `src/endpoints/items/index.js`, `src/endpoints/items/[id].js`).
+2. Create a thin Expo Router `+api` wrapper under `src/app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `src/app/api/items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `src/app/api/items/[id]+api.js`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
 
@@ -138,10 +138,10 @@ flowchart LR
 
 - **`src/app/`**: Expo Router pages and `+api.js` route handlers (HTTP/controller layer). Keep API handlers thin: compose interceptors, validate/parse via request modules, call repositories, and return route-matched responses.
 - **`src/screens/`**: UI screens; make API calls through services and render/update from stores.
-- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `menu.js`, `admin.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
+- **`src/services/`**: client-to-API contracts used by the UI (`auth.js`, `items.js`, `admin.js`, `orders.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
 - **`src/interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `src/shared/network/middleware.js` (pipeline and request context).
-- **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `menu.repository.js`, `profile.repository.js`).
+- **`src/repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `item.repository.js`, `profile.repository.js`).
 
 - **`src/stores/`**: client state and DTO-style values/fields in Zustand (`auth.store.js`, `app.store.js`), updated from service/screen flows.
 - **`src/shared/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
@@ -158,7 +158,7 @@ flowchart LR
 ```
 
 ## Styling, state & config
-- Use Zod for all request validation. Put reusable schemas/helpers in `src/shared/validation/` and domain-specific schemas next to their endpoints (e.g. `src/endpoints/menu-items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
+- Use Zod for all request validation. Put reusable schemas/helpers in `src/shared/validation/` and domain-specific schemas next to their endpoints (e.g. `src/endpoints/items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
 - Build screens from reusable primitives in `src/components/`. Use `DataTable` for audit tables, `SectionHeader` for consistent section titles/syncing state, `StatGrid`/`StatCard` for metrics, `StatusPill` for statuses, and `FormActions` for form buttons. Interactive components must expose `disabled`/`loading` consistently and include accessibility roles/labels.
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `src/shared/constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `src/shared/stylesheets/global.css`.
 - Support wearable (`<640px`), phone (`sm:`), and tablet (`md:`+) viewports by following the responsive rules in `DESIGN.md`.
@@ -178,7 +178,7 @@ flowchart LR
 - Run tests: `npm test` for Bun unit/integration/mock tests. `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
 - Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` / `npm run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
-- With the local Supabase stack running, `GET /api/menu-items` should list seeded menu items, `POST /api/signin` with `{"email":"root@paku-paku.official","password":"admin"}` should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
+- With the local Supabase stack running, `GET /api/items` should list seeded items, `POST /api/signin` with `{"email":"admin@paku-paku.official","password":"admin"}` (or staff `staff@paku-paku.official` / `staff`) should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
 
 ## Documentation maintenance
 - Keep `README.md` and `CONTRIBUTING.md` in sync with relevant changes (behavior, config, conventions, workflows).

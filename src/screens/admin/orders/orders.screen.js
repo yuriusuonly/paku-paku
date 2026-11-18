@@ -22,7 +22,7 @@ import { OrdersTableSection } from "./orders-table.component.js";
  */
 
 function emptyLine() {
-  return { item_name: "", quantity: "1", unit_price_cents: "0", menu_item_id: "" };
+  return { item_name: "", quantity: "1", unit_price_cents: "0" };
 }
 
 export default function AdminOrdersScreen() {
@@ -48,8 +48,7 @@ export default function AdminOrdersScreen() {
 
   const [form, setForm] = useState({
     kind: "sell",
-    status: "completed",
-    payment_status: "paid",
+    status: "Paid",
     payment_method: "cash",
     customer_name: "",
     customer_phone: "",
@@ -75,8 +74,8 @@ export default function AdminOrdersScreen() {
     total: orders.length,
     buy: orders.filter((t) => t.kind === "buy").length,
     sell: orders.filter((t) => t.kind === "sell").length,
-    completed: orders.filter((t) => t.status === "completed").length,
-    amountCents: orders.filter((t) => t.status === "completed").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
+    paid: orders.filter((t) => t.status === "Paid").length,
+    amountCents: orders.filter((t) => t.status === "Paid").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
   }), [orders]);
 
   if (!hydrated || !isAdmin) return <ScreenContainer><CircularProgress message="Checking administrator access..." /></ScreenContainer>;
@@ -104,7 +103,6 @@ export default function AdminOrdersScreen() {
       const parsed = orderCreateSchema.safeParse({
         kind: form.kind,
         status: form.status,
-        payment_status: form.payment_status,
         payment_method: form.payment_method,
         customer_name: form.customer_name,
         customer_phone: form.customer_phone,
@@ -112,8 +110,7 @@ export default function AdminOrdersScreen() {
         items: lines.map((line) => ({
           item_name: line.item_name,
           quantity: line.quantity,
-          unit_price_cents: line.unit_price_cents,
-          menu_item_id: line.menu_item_id
+          unit_price_cents: line.unit_price_cents
         }))
       });
 
@@ -132,7 +129,7 @@ export default function AdminOrdersScreen() {
       }
 
       await createAdminOrder(token, parsed.data);
-      setForm({ kind: "sell", status: "completed", payment_status: "paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
+      setForm({ kind: "sell", status: "Paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
       setLines([emptyLine()]);
       showSuccess("Order created.");
     } catch (e) {
@@ -157,8 +154,8 @@ export default function AdminOrdersScreen() {
           { label: "Total", value: stats.total },
           { label: "Buy", value: stats.buy },
           { label: "Sell", value: stats.sell },
-          { label: "Completed", value: stats.completed },
-          { label: "Completed amount", value: formatCurrencyCents(stats.amountCents) }
+          { label: "Paid", value: stats.paid },
+          { label: "Paid amount", value: formatCurrencyCents(stats.amountCents) }
         ]}
       />
 

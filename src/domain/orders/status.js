@@ -4,30 +4,41 @@
  */
 
 /**
- * Whether a order status is cancelled.
- * @param {unknown} status
- * @returns {boolean}
- */
-export function isCancelled(status) {
-  return status === "cancelled";
-}
-
-/**
- * Whether a order status is completed.
- * @param {unknown} status
- * @returns {boolean}
- */
-export function isCompleted(status) {
-  return status === "completed";
-}
-
-/**
- * Resolves a payment status with a safe fallback.
+ * Whether an order is still pending counter confirmation.
  *
- * @param {unknown} value - Requested payment status.
- * @param {string} fallback - Fallback status.
- * @returns {string}
+ * @param {unknown} status
+ * @returns {boolean}
  */
-export function resolvePaymentStatus(value, fallback) {
-  return typeof value === "string" && value ? value : fallback;
+export function isPending(status) {
+  return status === "Pending";
+}
+
+/**
+ * Whether an order has been paid.
+ *
+ * @param {unknown} status
+ * @returns {boolean}
+ */
+export function isPaid(status) {
+  return status === "Paid";
+}
+
+/**
+ * Whether an order is voided.
+ *
+ * @param {unknown} status
+ * @returns {boolean}
+ */
+export function isVoided(status) {
+  return status === "Voided";
+}
+
+/**
+ * Whether an order was refunded.
+ *
+ * @param {unknown} status
+ * @returns {boolean}
+ */
+export function isRefunded(status) {
+  return status === "Refunded";
 }

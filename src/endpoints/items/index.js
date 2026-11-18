@@ -6,31 +6,31 @@ import { withMiddleware } from "../../shared/network/middleware.js";
 import { readJsonBody } from "../../shared/network/request.js";
 import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
 import { HTTP_STATUS } from "../../shared/constants/http.js";
-import { createMenuItem, listMenuItems } from "../../repositories/menu.repository.js";
-import { normalizeMenuItemInput } from "./validation.js";
+import { createItem, listItems } from "../../repositories/item.repository.js";
+import { normalizeItemInput } from "./validation.js";
 import { requireObjectBody } from "../../shared/validation/request.js";
 
 /**
- * Composed menu items collection endpoint handlers.
- * @module endpoints/menu-items/index
+ * Composed items collection endpoint handlers.
+ * @module endpoints/items/index
  */
 
-async function parseCreateMenuItemRequest(request) {
+async function parseCreateItemRequest(request) {
   const body = requireObjectBody(
     await readJsonBody(request),
-    "Expected a JSON object with menu item fields."
+    "Expected a JSON object with item fields."
   );
-  return normalizeMenuItemInput(body);
+  return normalizeItemInput(body);
 }
 
-const menuItemsResponse = (data) => jsonResponse(data);
-const menuItemCreatedResponse = (data) => jsonResponse(data, { status: HTTP_STATUS.CREATED });
+const itemsResponse = (data) => jsonResponse(data);
+const itemCreatedResponse = (data) => jsonResponse(data, { status: HTTP_STATUS.CREATED });
 
 export const GET = withMiddleware(
   logInterceptor,
   errorInterceptor,
   methodInterceptor("GET")
-)(async () => menuItemsResponse(await listMenuItems()));
+)(async () => itemsResponse(await listItems()));
 
 export const POST = withMiddleware(
   logInterceptor,
@@ -38,8 +38,8 @@ export const POST = withMiddleware(
   methodInterceptor("POST"),
   authorizationInterceptor
 )(async (context) => {
-  const input = await parseCreateMenuItemRequest(context.request);
-  return menuItemCreatedResponse(await createMenuItem(context.locals.auth.database, input));
+  const input = await parseCreateItemRequest(context.request);
+  return itemCreatedResponse(await createItem(context.locals.auth.database, input));
 });
 
 export function PUT() {

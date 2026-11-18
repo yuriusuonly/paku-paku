@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   PAYMENT_METHODS,
-  PAYMENT_STATUSES,
   ORDER_KINDS,
   ORDER_STATUSES
 } from "./constants.js";
@@ -23,8 +22,7 @@ const nullableString = z.preprocess(
 export const orderItemSchema = z.object({
   item_name: z.string().trim().min(1),
   quantity: z.coerce.number().int().positive(),
-  unit_price_cents: z.coerce.number().int().min(0),
-  menu_item_id: nullableString.optional().default(null)
+  unit_price_cents: z.coerce.number().int().min(0)
 }).transform((item) => ({
   ...item,
   line_total_cents: item.quantity * item.unit_price_cents
@@ -36,8 +34,7 @@ export const orderItemSchema = z.object({
  */
 export const orderCreateSchema = z.object({
   kind: z.enum(ORDER_KINDS).default("sell"),
-  status: z.enum(ORDER_STATUSES).default("completed"),
-  payment_status: z.enum(PAYMENT_STATUSES).default("paid"),
+  status: z.enum(ORDER_STATUSES).default("Paid"),
   payment_method: nullableString.optional().default(null),
   customer_name: nullableString.optional().default(null),
   customer_email: nullableString.optional().default(null),

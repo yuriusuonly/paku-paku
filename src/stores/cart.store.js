@@ -26,7 +26,7 @@ function writeCart(items) {
 }
 
 function lineKey(item) {
-  return `${item.menu_item_id || item.item_name}`;
+  return `${item.item_id || item.item_name}`;
 }
 
 /**

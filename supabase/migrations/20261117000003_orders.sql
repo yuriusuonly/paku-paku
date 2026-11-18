@@ -4,8 +4,7 @@ create table public.orders (
   order_number text not null unique default ('ORD-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))),
   kind text not null default 'buy' check (kind in ('buy', 'sell')),
   customer_id uuid references public.profiles (id) on delete set null,
-  status text not null default 'pending' check (status in ('pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled')),
-  payment_status text not null default 'unpaid' check (payment_status in ('unpaid', 'paid', 'refunded', 'partial')),
+  status text not null default 'Pending' check (status in ('Pending', 'Paid', 'Refunded', 'Voided')),
   payment_method text,
   subtotal_cents integer not null default 0 check (subtotal_cents >= 0),
   total_cents integer not null default 0 check (total_cents >= 0),
@@ -54,7 +53,7 @@ create policy "Users can update own pending orders"
   on public.orders
   for update
   to authenticated
-  using ((customer_id = auth.uid() and status = 'pending') or public.current_user_is_admin())
+  using ((customer_id = auth.uid() and status = 'Pending') or public.current_user_is_admin())
   with check (customer_id = auth.uid() or public.current_user_is_admin());
 
 drop policy if exists "Admins can delete orders" on public.orders;
@@ -69,14 +68,14 @@ create policy "Kiosk visitors can read pending orders"
   on public.orders
   for select
   to anon
-  using (kind = 'buy' and customer_id is null and status = 'pending');
+  using (kind = 'buy' and customer_id is null and status = 'Pending');
 
 drop policy if exists "Kiosk visitors can place orders" on public.orders;
 create policy "Kiosk visitors can place orders"
   on public.orders
   for insert
   to anon
-  with check (kind = 'buy' and customer_id is null and status = 'pending');
+  with check (kind = 'buy' and customer_id is null and status = 'Pending');
 
 do $$
 begin

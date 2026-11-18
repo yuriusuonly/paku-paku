@@ -7,7 +7,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { useCartStore } from "../../stores/cart.store.js";
-import { useMenuStore } from "../../stores/menu.store.js";
+import { useItemsStore } from "../../stores/items.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
 import { cx } from "../../shared/constants/theme.js";
 
@@ -22,13 +22,13 @@ import { cx } from "../../shared/constants/theme.js";
  * @returns {JSX.Element} Menu screen.
  */
 export default function MenuScreen() {
-  const items = useMenuStore((state) => state.items);
-  const loading = useMenuStore((state) => state.loading);
-  const syncing = useMenuStore((state) => state.syncing);
-  const error = useMenuStore((state) => state.error);
-  const fetchItems = useMenuStore((state) => state.fetchItems);
-  const subscribe = useMenuStore((state) => state.subscribe);
-  const unsubscribe = useMenuStore((state) => state.unsubscribe);
+  const items = useItemsStore((state) => state.items);
+  const loading = useItemsStore((state) => state.loading);
+  const syncing = useItemsStore((state) => state.syncing);
+  const error = useItemsStore((state) => state.error);
+  const fetchItems = useItemsStore((state) => state.fetchItems);
+  const subscribe = useItemsStore((state) => state.subscribe);
+  const unsubscribe = useItemsStore((state) => state.unsubscribe);
 
   const hydrateCart = useCartStore((state) => state.hydrate);
   const addToCart = useCartStore((state) => state.addItem);
@@ -78,11 +78,11 @@ export default function MenuScreen() {
       {error ? <Alert variant="error" message={error} /> : null}
 
       {showInitialMenuLoading ? (
-        <CircularProgress message="Loading menu items..." />
+        <CircularProgress message="Loading items..." />
       ) : null}
 
       {!loading && !error && visibleItems.length === 0 ? (
-        <EmptyState message="No menu items are available right now." />
+        <EmptyState message="No items are available right now." />
       ) : null}
 
       {menuSections.length > 0 ? (
@@ -95,7 +95,7 @@ export default function MenuScreen() {
               <View className="-mx-2 flex-row flex-wrap">
                 {section.items.map((item) => {
                   const cartItem = cartItems.find(
-                    (entry) => (entry.menu_item_id || entry.item_name) === item.id
+                    (entry) => (entry.item_id || entry.item_name) === item.id
                   );
                   const quantity = Number(cartItem?.quantity || 0);
 
@@ -143,7 +143,7 @@ export default function MenuScreen() {
                                   onPress={() => {
                                     if (quantity === 0) {
                                       addToCart({
-                                        menu_item_id: item.id,
+                                        item_id: item.id,
                                         item_name: item.name,
                                         unit_price_cents: Number(item.price_cents || 0),
                                         quantity: 1

@@ -42,12 +42,12 @@ describe("services/orders (admin)", () => {
     globalThis.fetch = mock(async (path, options) => {
       expect(path).toBe("/api/admin/orders/t1");
       expect(options.method).toBe("PATCH");
-      expect(JSON.parse(options.body)).toEqual({ status: "completed" });
-      return jsonResponse({ order: { id: "t1", status: "completed" } });
+      expect(JSON.parse(options.body)).toEqual({ status: "Paid" });
+      return jsonResponse({ order: { id: "t1", status: "Paid" } });
     });
     const { updateAdminOrder } = await import("../../src/services/orders.js");
-    await expect(updateAdminOrder("admin", "t1", { status: "completed" })).resolves.toEqual({
-      order: { id: "t1", status: "completed" }
+    await expect(updateAdminOrder("admin", "t1", { status: "Paid" })).resolves.toEqual({
+      order: { id: "t1", status: "Paid" }
     });
   });
 

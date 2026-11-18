@@ -9,7 +9,7 @@ import { badRequest } from "../../shared/errors/bad-request.js";
  * Normalizes order line items for persistence.
  *
  * @param {unknown} items - Raw line items.
- * @returns {Array<{menu_item_id: string|null, item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized items.
+ * @returns {Array<{item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized snapshot items.
  */
 export function normalizeOrderItems(items) {
   const list = Array.isArray(items) ? items : [];
@@ -34,7 +34,6 @@ export function normalizeOrderItems(items) {
     }
 
     return {
-      menu_item_id: entry.menu_item_id || null,
       item_name: itemName,
       quantity,
       unit_price_cents: unitPrice,

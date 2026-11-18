@@ -9,16 +9,16 @@ import { ScreenContainer } from "../../../components/container.js";
 import { SectionHeader } from "../../../components/section-header.js";
 import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
-import { useMenuStore } from "../../../stores/menu.store.js";
+import { useItemsStore } from "../../../stores/items.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
 import { cx } from "../../../shared/constants/theme.js";
-import { menuItemCreateSchema } from "../../../domain/menu-items/schema.js";
-import { MenuItemFormSection } from "./menu-item-form.component.js";
-import { MenuItemsTableSection } from "./menu-items-table.component.js";
+import { itemCreateSchema } from "../../../domain/items/schema.js";
+import { ItemFormSection } from "./item-form.component.js";
+import { ItemsTableSection } from "./items-table.component.js";
 
 /**
- * Admin menu items management screen.
- * @module screens/admin/menu-items/menu-items.screen
+ * Admin items management screen.
+ * @module screens/admin/items/items.screen
  */
 
 const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", is_available: true, is_best_seller: false };
@@ -26,22 +26,22 @@ const emptyForm = { name: "", description: "", price_cents: "", sort_order: "", 
 /**
  * @returns {JSX.Element} Admin menu management screen.
  */
-export default function AdminMenuItemsScreen() {
+export default function AdminItemsScreen() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const session = useAuthStore((s) => s.session);
   const status = useAuthStore((s) => s.status);
   const hydrated = useAuthStore((s) => s.hydrated);
 
-  const items = useMenuStore((s) => s.items);
-  const loading = useMenuStore((s) => s.loading);
-  const syncing = useMenuStore((s) => s.syncing);
-  const error = useMenuStore((s) => s.error);
-  const fetchItems = useMenuStore((s) => s.fetchItems);
-  const subscribe = useMenuStore((s) => s.subscribe);
-  const unsubscribe = useMenuStore((s) => s.unsubscribe);
-  const createItem = useMenuStore((s) => s.createItem);
-  const updateItem = useMenuStore((s) => s.updateItem);
+  const items = useItemsStore((s) => s.items);
+  const loading = useItemsStore((s) => s.loading);
+  const syncing = useItemsStore((s) => s.syncing);
+  const error = useItemsStore((s) => s.error);
+  const fetchItems = useItemsStore((s) => s.fetchItems);
+  const subscribe = useItemsStore((s) => s.subscribe);
+  const unsubscribe = useItemsStore((s) => s.unsubscribe);
+  const createItem = useItemsStore((s) => s.createItem);
+  const updateItem = useItemsStore((s) => s.updateItem);
   const showSuccess = useNotificationStore((s) => s.showSuccess);
   const showError = useNotificationStore((s) => s.showError);
 
@@ -85,7 +85,7 @@ export default function AdminMenuItemsScreen() {
     if (!token) return;
     setLocalError("");
     const sortOrderRaw = form.sort_order.trim();
-    const parsed = menuItemCreateSchema.safeParse({
+    const parsed = itemCreateSchema.safeParse({
       name: form.name.trim(),
       description: form.description.trim(),
       price_cents: form.price_cents.trim(),
@@ -104,11 +104,11 @@ export default function AdminMenuItemsScreen() {
       });
       const firstField = String(parsed.error.issues[0]?.path[0] || "");
       const messages = {
-        name: "Menu item name is required.",
+        name: "Item name is required.",
         price_cents: "Price must be a non-negative whole number in cents.",
         sort_order: "Sort order must be a whole number."
       };
-      setLocalError(messages[firstField] || "Please provide valid menu item fields.");
+      setLocalError(messages[firstField] || "Please provide valid item fields.");
       return;
     }
 
@@ -117,11 +117,11 @@ export default function AdminMenuItemsScreen() {
     setSaving(true);
     try {
       await createItem(token, payload);
-      showSuccess("Menu item created.");
+      showSuccess("Item created.");
       setForm(emptyForm);
       setFieldErrors({ name: false, description: false, price_cents: false, sort_order: false });
     } catch (e) {
-      const message = e?.message || "Could not save the menu item. Please try again.";
+      const message = e?.message || "Could not save the item. Please try again.";
       setLocalError(message);
       setFieldErrors({ name: true, price_cents: true, sort_order: false, description: false });
       showError(message);
@@ -137,7 +137,7 @@ export default function AdminMenuItemsScreen() {
     if (field === "name") {
       const name = String(draftValue ?? "").trim();
       if (!name) {
-        const msg = "Menu item name is required.";
+        const msg = "Item name is required.";
         setLocalError(msg);
         showError(msg);
         throw new Error(msg);
@@ -175,9 +175,9 @@ export default function AdminMenuItemsScreen() {
     setSavingCell(cellKey);
     try {
       await updateItem(token, item.id, payload);
-      showSuccess("Menu item updated.");
+      showSuccess("Item updated.");
     } catch (e) {
-      const message = e?.message || "Could not update the menu item. Please try again.";
+      const message = e?.message || "Could not update the item. Please try again.";
       setLocalError(message);
       showError(message);
       throw e;
@@ -193,9 +193,9 @@ export default function AdminMenuItemsScreen() {
     setSavingCell(cellKey);
     try {
       await updateItem(token, item.id, { is_available: !item.is_available });
-      showSuccess(item.is_available ? "Menu item made unavailable." : "Menu item made available.");
+      showSuccess(item.is_available ? "Item made unavailable." : "Item made available.");
     } catch (e) {
-      const message = e?.message || "Could not update the menu item. Please try again.";
+      const message = e?.message || "Could not update the item. Please try again.";
       setLocalError(message);
       showError(message);
     } finally {
@@ -212,7 +212,7 @@ export default function AdminMenuItemsScreen() {
       await updateItem(token, item.id, { is_best_seller: !item.is_best_seller });
       showSuccess(item.is_best_seller ? "Removed best seller label." : "Marked as best seller.");
     } catch (e) {
-      const message = e?.message || "Could not update the menu item. Please try again.";
+      const message = e?.message || "Could not update the item. Please try again.";
       setLocalError(message);
       showError(message);
     } finally {
@@ -239,7 +239,7 @@ export default function AdminMenuItemsScreen() {
             ← Back to admin
           </Text>
         </Link>
-        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Menu items management</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Items management</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Edit table fields directly. Changes sync in real time across open screens and devices.</Text>
       </View>
 
@@ -254,7 +254,7 @@ export default function AdminMenuItemsScreen() {
         ]}
       />
 
-      <MenuItemFormSection
+      <ItemFormSection
         form={form}
         setForm={setForm}
         fieldErrors={fieldErrors}
@@ -267,13 +267,13 @@ export default function AdminMenuItemsScreen() {
       />
 
       <SectionHeader
-        title="Menu items"
+        title="Items"
         syncing={syncing && sorted.length > 0}
         right={<Text className={`font-outfit text-sm ${cx.textInk50}`}>{sorted.length} total</Text>}
         className="mt-6"
       />
 
-      <MenuItemsTableSection
+      <ItemsTableSection
         items={items}
         sorted={sorted}
         loading={loading}

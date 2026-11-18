@@ -12,11 +12,9 @@ describe("normalizeOrderItems", () => {
       {
         item_name: "  Ramen  ",
         quantity: "2",
-        unit_price_cents: "500",
-        menu_item_id: "m1"
+        unit_price_cents: "500"
       }
     ])).toEqual([{
-      menu_item_id: "m1",
       item_name: "Ramen",
       quantity: 2,
       unit_price_cents: 500,

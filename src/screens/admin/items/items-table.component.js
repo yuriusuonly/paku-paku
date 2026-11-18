@@ -6,8 +6,8 @@ import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Menu items table section.
- * @module screens/admin/menu-items/menu-items-table.component
+ * Items table section.
+ * @module screens/admin/items/items-table.component
  */
 
 const columns = [
@@ -28,7 +28,7 @@ const editableKeys = new Set(["name", "description", "price_cents", "sort_order"
  * @param {object} props
  * @returns {JSX.Element}
  */
-export function MenuItemsTableSection({
+export function ItemsTableSection({
   items,
   sorted,
   loading,
@@ -46,8 +46,8 @@ export function MenuItemsTableSection({
       loading={loading && items.length === 0}
       syncing={syncing}
       error={error}
-      loadingMessage="Loading menu items..."
-      emptyMessage="No menu items yet. Create one above to get started."
+      loadingMessage="Loading items..."
+      emptyMessage="No items yet. Create one above to get started."
       renderCell={(item, column) => {
         const rawValue = item[column.key];
         const key = column.key;

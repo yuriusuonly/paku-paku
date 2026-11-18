@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeMenuItemInput } from "../../src/endpoints/menu-items/validation.js";
+import { normalizeItemInput } from "../../src/endpoints/items/validation.js";
 
 /**
- * Tests for menu item request validation.
- * @module test/endpoints/menu-items-validation
+ * Tests for item request validation.
+ * @module test/endpoints/items-validation
  */
 
-describe("normalizeMenuItemInput", () => {
+describe("normalizeItemInput", () => {
   test("normalizes create input with defaults", () => {
-    expect(normalizeMenuItemInput({
+    expect(normalizeItemInput({
       name: "  Ramen  ",
       description: "",
       price_cents: "1200",
@@ -23,7 +23,7 @@ describe("normalizeMenuItemInput", () => {
   });
 
   test("keeps explicit sort order and best seller flag on create", () => {
-    expect(normalizeMenuItemInput({
+    expect(normalizeItemInput({
       name: "Tea",
       price_cents: 500,
       is_available: true,
@@ -40,13 +40,13 @@ describe("normalizeMenuItemInput", () => {
   });
 
   test("ignores empty sort order on partial updates and rejects empty updates", () => {
-    expect(() => normalizeMenuItemInput({ sort_order: "" }, { partial: true })).toThrow();
+    expect(() => normalizeItemInput({ sort_order: "" }, { partial: true })).toThrow();
   });
 
   test("rejects invalid values and empty partial updates", () => {
-    expect(() => normalizeMenuItemInput({ name: "  " })).toThrow();
-    expect(() => normalizeMenuItemInput({ name: "Ramen", price_cents: -1 })).toThrow();
-    expect(() => normalizeMenuItemInput({ is_best_seller: "yes" }, { partial: true })).toThrow();
-    expect(() => normalizeMenuItemInput({}, { partial: true })).toThrow();
+    expect(() => normalizeItemInput({ name: "  " })).toThrow();
+    expect(() => normalizeItemInput({ name: "Ramen", price_cents: -1 })).toThrow();
+    expect(() => normalizeItemInput({ is_best_seller: "yes" }, { partial: true })).toThrow();
+    expect(() => normalizeItemInput({}, { partial: true })).toThrow();
   });
 });

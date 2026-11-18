@@ -2,20 +2,20 @@ import { create } from "zustand";
 import { isSameRecord, upsertById } from "../shared/utils/records.js";
 import { sortByOrder } from "../shared/utils/lists.js";
 import { getErrorMessage } from "../shared/errors/message.js";
-import { createMenuItem, deleteMenuItem, getMenuItems, updateMenuItem } from "../services/menu.js";
+import { createItem, deleteItem, getItems, updateItem } from "../services/items.js";
 import { removeRealtimeChannel, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
 /**
- * Menu items store with API-backed mutations and realtime database sync.
- * @module stores/menu.store
+ * Items store with API-backed mutations and realtime database sync.
+ * @module stores/items.store
  */
 
 
 /**
- * Zustand store hook for menu items state and bidirectional sync actions.
+ * Zustand store hook for items state and bidirectional sync actions.
  */
-export const useMenuStore = create((set, get) => ({
+export const useItemsStore = create((set, get) => ({
   items: [],
   loading: false,
   syncing: false,
@@ -27,7 +27,7 @@ export const useMenuStore = create((set, get) => ({
   clearError: () => set({ error: null }),
 
   /**
-   * Loads menu items from the API into the store.
+   * Loads items from the API into the store.
    *
    * @param {{background?: boolean}} [options] - Load options.
    * @returns {Promise<void>}
@@ -42,7 +42,7 @@ export const useMenuStore = create((set, get) => ({
     });
 
     try {
-      const data = await getMenuItems();
+      const data = await getItems();
       set({ items: sortByOrder(data.items || []), loading: false, syncing: false, error: null });
     } catch (error) {
       const message = getErrorMessage(error, "Could not load the menu. Please try again.");
@@ -55,7 +55,7 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Subscribes to realtime menu item changes for DB -> store sync.
+   * Subscribes to realtime item changes for DB -> store sync.
    *
    * @returns {void}
    */
@@ -67,8 +67,8 @@ export const useMenuStore = create((set, get) => ({
 
     try {
       const channel = subscribeToTableChanges({
-        channelName: "public:menu_items",
-        table: "menu_items",
+        channelName: "public:items",
+        table: "items",
         onPayload: (payload) => {
           let changed = false;
           if (payload.eventType === "DELETE") {
@@ -113,7 +113,7 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Unsubscribes from realtime menu item changes.
+   * Unsubscribes from realtime item changes.
    *
    * @returns {Promise<void>}
    */
@@ -133,22 +133,22 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Creates a menu item (persists to DB; store syncs via response/realtime).
+   * Creates a item (persists to DB; store syncs via response/realtime).
    *
    * @param {string} token - Access token.
-   * @param {object} input - Menu item fields.
+   * @param {object} input - Item fields.
    * @returns {Promise<object>} Created item.
    */
   createItem: async (token, input) => {
     set({ syncing: true, error: null });
     try {
-      const data = await createMenuItem(token, input);
+      const data = await createItem(token, input);
       if (data?.item) {
         set((s) => ({ items: upsertById(s.items, data.item, { sort: sortByOrder }) }));
       }
       return data?.item;
     } catch (error) {
-      const message = getErrorMessage(error, "Could not create the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not create the item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -157,23 +157,23 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Updates a menu item (persists to DB; store syncs via response/realtime).
+   * Updates a item (persists to DB; store syncs via response/realtime).
    *
    * @param {string} token - Access token.
-   * @param {string} id - Menu item id.
+   * @param {string} id - Item id.
    * @param {object} input - Fields to update.
    * @returns {Promise<object>} Updated item.
    */
   updateItem: async (token, id, input) => {
     set({ syncing: true, error: null });
     try {
-      const data = await updateMenuItem(token, id, input);
+      const data = await updateItem(token, id, input);
       if (data?.item) {
         set((s) => ({ items: upsertById(s.items, data.item, { sort: sortByOrder }) }));
       }
       return data?.item;
     } catch (error) {
-      const message = getErrorMessage(error, "Could not update the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not update the item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -185,7 +185,7 @@ export const useMenuStore = create((set, get) => ({
    * Saves an item by creating or updating based on presence of id.
    *
    * @param {string} token - Access token.
-   * @param {object} input - Menu item fields, optionally including id.
+   * @param {object} input - Item fields, optionally including id.
    * @returns {Promise<object>} Saved item.
    */
   saveItem: async (token, input) => {
@@ -197,19 +197,19 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Deletes a menu item (persists to DB; store syncs via response/realtime).
+   * Deletes a item (persists to DB; store syncs via response/realtime).
    *
    * @param {string} token - Access token.
-   * @param {string} id - Menu item id.
+   * @param {string} id - Item id.
    * @returns {Promise<void>}
    */
   removeItem: async (token, id) => {
     set({ syncing: true, error: null });
     try {
-      await deleteMenuItem(token, id);
+      await deleteItem(token, id);
       set((s) => ({ items: s.items.filter((item) => item.id !== id) }));
     } catch (error) {
-      const message = getErrorMessage(error, "Could not delete the menu item. Please try again.");
+      const message = getErrorMessage(error, "Could not delete the item. Please try again.");
       set({ error: message });
       throw error;
     } finally {
@@ -218,7 +218,7 @@ export const useMenuStore = create((set, get) => ({
   },
 
   /**
-   * Replaces local menu items state directly.
+   * Replaces local items state directly.
    *
    * @param {object[] | ((items: object[]) => object[])} next - Items or updater.
    * @returns {void}

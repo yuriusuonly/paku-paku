@@ -2,7 +2,6 @@
 create table public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders (id) on delete cascade,
-  menu_item_id uuid references public.menu_items (id) on delete set null,
   item_name text not null,
   quantity integer not null check (quantity > 0),
   unit_price_cents integer not null check (unit_price_cents >= 0),
@@ -10,7 +9,10 @@ create table public.order_items (
   created_at timestamptz not null default now()
 );
 
-comment on table public.order_items is 'Line items for unified orders.';
+comment on table public.order_items is 'Immutable snapshot line items for unified orders.';
+comment on column public.order_items.item_name is 'Item name captured at order time.';
+comment on column public.order_items.unit_price_cents is 'Unit price captured at order time.';
+comment on column public.order_items.line_total_cents is 'Quantity x unit price captured at order time.';
 create index order_items_order_id_idx on public.order_items (order_id);
 
 alter table public.order_items enable row level security;
@@ -72,7 +74,7 @@ create policy "Kiosk visitors can add order items"
       where o.id = order_items.order_id
         and o.kind = 'buy'
         and o.customer_id is null
-        and o.status = 'pending'
+        and o.status = 'Pending'
     )
   );
 

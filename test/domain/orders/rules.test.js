@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isCancelled, isCompleted, resolvePaymentStatus } from "../../../src/domain/orders/status.js";
+import { isPaid, isPending, isRefunded, isVoided } from "../../../src/domain/orders/status.js";
 
 /**
  * Tests for pure order status rules.
@@ -7,16 +7,12 @@ import { isCancelled, isCompleted, resolvePaymentStatus } from "../../../src/dom
  */
 
 describe("order status rules", () => {
-  test("detects cancelled and completed statuses", () => {
-    expect(isCancelled("cancelled")).toBe(true);
-    expect(isCancelled("completed")).toBe(false);
-    expect(isCompleted("completed")).toBe(true);
-    expect(isCompleted("pending")).toBe(false);
-  });
-
-  test("resolves payment status with fallback", () => {
-    expect(resolvePaymentStatus("paid", "unpaid")).toBe("paid");
-    expect(resolvePaymentStatus("", "unpaid")).toBe("unpaid");
-    expect(resolvePaymentStatus(null, "paid")).toBe("paid");
+  test("detects supported statuses", () => {
+    expect(isPending("Pending")).toBe(true);
+    expect(isPaid("Paid")).toBe(true);
+    expect(isRefunded("Refunded")).toBe(true);
+    expect(isVoided("Voided")).toBe(true);
+    expect(isPaid("Pending")).toBe(false);
+    expect(isPending("Paid")).toBe(false);
   });
 });

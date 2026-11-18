@@ -6,7 +6,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { StatGrid } from "../../components/stat-grid.js";
 import { useAuthStore } from "../../stores/auth.store.js";
-import { useMenuStore } from "../../stores/menu.store.js";
+import { useItemsStore } from "../../stores/items.store.js";
 import { useOrdersStore } from "../../stores/orders.store.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { cx } from "../../shared/constants/theme.js";
@@ -26,10 +26,10 @@ export default function AdminScreen() {
   const status = useAuthStore((s) => s.status);
   const hydrated = useAuthStore((s) => s.hydrated);
 
-  const menuItems = useMenuStore((s) => s.items);
-  const menuLoading = useMenuStore((s) => s.loading);
-  const fetchMenuItems = useMenuStore((s) => s.fetchItems);
-  const subscribeMenu = useMenuStore((s) => s.subscribe);
+  const items = useItemsStore((s) => s.items);
+  const itemsLoading = useItemsStore((s) => s.loading);
+  const fetchItems = useItemsStore((s) => s.fetchItems);
+  const subscribeItems = useItemsStore((s) => s.subscribe);
 
   const orders = useOrdersStore((s) => s.adminOrders);
   const ordersLoading = useOrdersStore((s) => s.loading);
@@ -47,30 +47,30 @@ export default function AdminScreen() {
 
   useEffect(() => {
     if (!hydrated || !isAdmin || !token) return;
-    void fetchMenuItems().catch(() => {});
+    void fetchItems().catch(() => {});
     void fetchAdminOrders(token).catch(() => {});
-    subscribeMenu();
+    subscribeItems();
     subscribeAdminOrders(token);
     return () => {
       void unsubscribeOrders();
     };
-  }, [hydrated, isAdmin, token, fetchMenuItems, fetchAdminOrders, subscribeMenu, subscribeAdminOrders, unsubscribeOrders]);
+  }, [hydrated, isAdmin, token, fetchItems, fetchAdminOrders, subscribeItems, subscribeAdminOrders, unsubscribeOrders]);
 
-  const menuStats = useMemo(() => {
-    const total = menuItems.length;
-    const available = menuItems.filter((item) => item.is_available).length;
+  const itemsStats = useMemo(() => {
+    const total = items.length;
+    const available = items.filter((item) => item.is_available).length;
     const unavailable = total - available;
     return { total, available, unavailable };
-  }, [menuItems]);
+  }, [items]);
 
   const ordersStats = useMemo(() => {
-    const completed = orders.filter((t) => t.status === "completed");
+    const paid = orders.filter((t) => t.status === "Paid");
     return {
       total: orders.length,
       buy: orders.filter((t) => t.kind === "buy").length,
       sell: orders.filter((t) => t.kind === "sell").length,
-      completed: completed.length,
-      amountCents: completed.reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
+      paid: paid.length,
+      amountCents: paid.reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
     };
   }, [orders]);
 
@@ -82,19 +82,19 @@ export default function AdminScreen() {
     );
   }
 
-  const menuCountLoading = menuLoading && menuItems.length === 0;
+  const itemsCountLoading = itemsLoading && items.length === 0;
   const ordersCountLoading = ordersLoading && orders.length === 0;
 
   const cards = [
     {
       key: "menu",
-      title: "Menu items",
-      href: "/admin/menu-items",
-      linkLabel: "Open menu items audit →",
+      title: "Items",
+      href: "/admin/items",
+      linkLabel: "Open items audit →",
       stats: [
-        { label: "Total items", value: menuStats.total, loading: menuCountLoading },
-        { label: "Available", value: menuStats.available, loading: menuCountLoading },
-        { label: "Unavailable", value: menuStats.unavailable, loading: menuCountLoading }
+        { label: "Total items", value: itemsStats.total, loading: itemsCountLoading },
+        { label: "Available", value: itemsStats.available, loading: itemsCountLoading },
+        { label: "Unavailable", value: itemsStats.unavailable, loading: itemsCountLoading }
       ]
     },
     {
@@ -106,7 +106,7 @@ export default function AdminScreen() {
         { label: "Total", value: ordersStats.total, loading: ordersCountLoading },
         { label: "Buy", value: ordersStats.buy, loading: ordersCountLoading },
         { label: "Sell", value: ordersStats.sell, loading: ordersCountLoading },
-        { label: "Completed amount", value: formatCurrencyCents(ordersStats.amountCents), loading: ordersCountLoading }
+        { label: "Paid amount", value: formatCurrencyCents(ordersStats.amountCents), loading: ordersCountLoading }
       ]
     },
   ];

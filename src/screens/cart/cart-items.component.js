@@ -26,7 +26,7 @@ export function CartItemsSection({
   onCheckout,
   onClearCart
 }) {
-  const keyOf = (item) => `${item.menu_item_id || item.item_name}`;
+  const keyOf = (item) => `${item.item_id || item.item_name}`;
 
   if (cartItems.length === 0) {
     return (

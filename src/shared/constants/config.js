@@ -7,7 +7,7 @@
 /**
  * @typedef {object} ApiEndpoints
  * @property {string} health
- * @property {string} menuItems
+ * @property {string} items
  * @property {string} signin
  * @property {string} session
  * @property {string} signout
@@ -61,7 +61,7 @@ export const api = {
   basePath: apiBasePath,
   endpoints: {
     health: `${apiBasePath}/health`,
-    menuItems: `${apiBasePath}/menu-items`,
+    items: `${apiBasePath}/items`,
     signin: `${apiBasePath}/signin`,
     session: `${apiBasePath}/session`,
     signout: `${apiBasePath}/signout`,

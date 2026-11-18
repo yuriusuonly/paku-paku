@@ -35,7 +35,7 @@ function toApiError(response, payload) {
 /**
  * Performs a JSON request against a same-origin API route.
  *
- * @param {string} path - API path such as `/api/menu-items`.
+ * @param {string} path - API path such as `/api/items`.
  * @param {object} [options] - Request options.
  * @param {string} [options.method="GET"] - HTTP method.
  * @param {unknown} [options.body] - JSON request body.

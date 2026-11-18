@@ -2,7 +2,7 @@
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null check (position('@' in email) > 1),
-  role text not null default 'customer' check (role in ('admin', 'customer')),
+  role text not null default 'admin' check (role = 'admin'),
   is_active boolean not null default true,
   full_name text,
   phone text,
@@ -12,18 +12,16 @@ create table public.profiles (
 
 comment on table public.profiles is 'App profiles linked to Supabase Auth users.';
 comment on column public.profiles.email is 'Case-insensitive email address used as the account identifier.';
-comment on column public.profiles.role is 'Authorization role: customer or admin.';
+comment on column public.profiles.role is 'Authorization role: admin (all seeded/active accounts are staff).';
 comment on column public.profiles.is_active is 'Soft-delete/audit flag; inactive profiles are disabled without removing records.';
 
 create unique index profiles_email_lower_key on public.profiles (lower(email));
-create unique index profiles_single_admin_idx on public.profiles ((role)) where role = 'admin';
 
 alter table public.profiles enable row level security;
 alter table public.profiles replica identity full;
 
 revoke all on table public.profiles from anon, authenticated;
 grant select on table public.profiles to authenticated;
-grant insert on table public.profiles to authenticated;
 grant update (email, full_name, phone, is_active, updated_at) on table public.profiles to authenticated;
 
 create or replace function public.current_user_is_admin()
@@ -52,24 +50,13 @@ create policy "Profiles are readable"
   to authenticated
   using (true);
 
-drop policy if exists "Profiles are creatable" on public.profiles;
-create policy "Profiles are creatable"
-  on public.profiles
-  for insert
-  to authenticated
-  with check (
-    role = 'customer'
-    and email is not null
-    and (id = auth.uid() or public.current_user_is_admin())
-  );
-
 drop policy if exists "Profiles are updatable" on public.profiles;
 create policy "Profiles are updatable"
   on public.profiles
   for update
   to authenticated
   using (id = auth.uid() or public.current_user_is_admin())
-  with check ((id = auth.uid() and role = 'customer') or public.current_user_is_admin());
+  with check (public.current_user_is_admin());
 
 do $$
 begin

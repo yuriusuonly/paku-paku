@@ -1,5 +1,5 @@
--- Seed menu items: hot cooked Japanese street food and iced cold teas.
-insert into public.menu_items (name, description, price_cents, is_available, is_best_seller, sort_order)
+-- Seed items: hot cooked Japanese street food and iced cold teas.
+insert into public.items (name, description, price_cents, is_available, is_best_seller, sort_order)
 values
   -- Iced/cold teas
   ('Iced Sencha Green Tea', 'Steamed Japanese green tea served over ice, light and refreshing.', 5500, true, true, 10),

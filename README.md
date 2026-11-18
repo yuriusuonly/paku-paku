@@ -13,7 +13,7 @@ Common Meanings & Uses:
 
 A web-only Expo Router application for a kiosk storefront: customers pick orders
 from the menu, choose a payment method, and receive a counter QR code. Staff sign
-in to manage menu items and audit orders. Backed by Supabase and packaged
+in to manage items and audit orders. Backed by Supabase and packaged
 for local development, Docker, and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
@@ -94,14 +94,14 @@ npm run expo:start        # app on http://localhost:3000
 npm run supabase:stop
 ```
 
-`supabase:reset` reapplies migrations and seeds the sample menu plus the
-administrator account (`email: root@paku-paku.official`, `password: admin`, role `admin`).
-Authentication is email/password; the seeded administrator uses the internal
-Supabase Auth email (`root@paku-paku.official`). The seed
-stores a static bcrypt hash so it does not depend on `pgcrypto`; rerunning the
-seed restores that local password. The local auth config keeps
-`minimum_password_length = 6`, so GoTrue may report the 4-character seed
-password as weak while still accepting it. |
+`supabase:reset` reapplies migrations and seeds the sample items plus two staff
+accounts: `admin@paku-paku.official` (password `admin`) and
+`staff@paku-paku.official` (password `staff`). Both use the `admin` role.
+Authentication is email/password; seeded staff use internal Supabase Auth emails.
+The seed stores static bcrypt hashes so it does not depend on `pgcrypto`;
+rerunning the seed restores the local passwords. The local auth config keeps
+`minimum_password_length = 6`, so GoTrue may report the short seed
+passwords as weak while still accepting them. |
 
 Local endpoints are addressed over localhost; keep them private:
 
@@ -127,7 +127,7 @@ Browser and server code use `getSupabase()`, `getSupabaseServerConfig()`, and `c
 import { getSupabase } from "../database/instance.js";
 
 const { data, error } = await getSupabase()
-  .from("menu_items")
+  .from("items")
   .select("*");
 ```
 
@@ -223,14 +223,14 @@ Only staff sign in. Customers use the storefront without an account.
 | `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Administrator sign-in. |
 | `/admin` | `src/app/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
-| `/admin/menu-items` | `src/app/admin/menu-items.js` → `src/screens/admin/menu-items/menu-items.screen.js` | Admin menu management (protected). |
+| `/admin/items` | `src/app/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |
 | `/admin/orders` | `src/app/admin/orders.js` → `src/screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
 | `/admin/profiles` | `src/app/admin/profiles.js` → `src/screens/admin/profiles/profiles.screen.js` | Read-only profile audit (protected). |
 | 404 fallback | `src/app/+not-found.js` | Not-found screen. |
 | document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
-| `/api/menu-items` | `src/app/api/menu-items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
-| `/api/menu-items/[id]` | `src/app/api/menu-items/[id]+api.js` | Admin menu item update/delete (`PATCH`/`DELETE`). |
+| `/api/items` | `src/app/api/items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
+| `/api/items/[id]` | `src/app/api/items/[id]+api.js` | Admin item update/delete (`PATCH`/`DELETE`). |
 | `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns order + counter QR. |
 | `/api/signin` | `src/app/api/signin+api.js` | Administrator sign-in. |
 | `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
@@ -257,16 +257,16 @@ Only staff sign in. Customers use the storefront without an account.
 │   ├── app/
 │   │   ├── admin/
 │   │   │   ├── index.js
-│   │   │   ├── menu-items.js
-│   │   │   ├── profiles.js
-│   │   │   └── orders.js
+│   │   │   ├── items.js
+│   │   │   ├── orders.js
+│   │   │   └── profiles.js
 │   │   ├── api/
 │   │   │   ├── admin/
 │   │   │   │   ├── orders/
 │   │   │   │   │   ├── +api.js
 │   │   │   │   │   └── [id]+api.js
 │   │   │   │   └── profiles+api.js
-│   │   │   ├── menu-items/
+│   │   │   ├── items/
 │   │   │   │   ├── +api.js
 │   │   │   │   └── [id]+api.js
 │   │   │   ├── checkout+api.js
@@ -306,15 +306,15 @@ Only staff sign in. Customers use the storefront without an account.
 │   ├── database/
 │   │   └── instance.js
 │   ├── domain/
-│   │   ├── menu-items/
+│   │   ├── items/
 │   │   │   └── schema.js
-│   │   ├── profiles/
-│   │   └── orders/
-│   │       ├── constants.js
-│   │       ├── items.js
-│   │       ├── schema.js
-│   │       ├── status.js
-│   │       └── totals.js
+│   │   ├── orders/
+│   │   │   ├── constants.js
+│   │   │   ├── items.js
+│   │   │   ├── schema.js
+│   │   │   ├── status.js
+│   │   │   └── totals.js
+│   │   └── profiles/
 │   ├── endpoints/
 │   │   ├── admin/
 │   │   │   ├── orders/
@@ -323,7 +323,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   └── profiles.js
 │   │   ├── checkout/
 │   │   │   └── index.js
-│   │   ├── menu-items/
+│   │   ├── items/
 │   │   │   ├── [id].js
 │   │   │   ├── index.js
 │   │   │   └── validation.js
@@ -343,22 +343,22 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   └── method.interceptor.js
 │   ├── repositories/
 │   │   ├── auth.repository.js
-│   │   ├── menu.repository.js
-│   │   ├── profile.repository.js
-│   │   └── order.repository.js
+│   │   ├── item.repository.js
+│   │   ├── order.repository.js
+│   │   └── profile.repository.js
 │   ├── screens/
 │   │   ├── admin/
-│   │   │   ├── menu-items/
-│   │   │   │   ├── menu-item-form.component.js
-│   │   │   │   ├── menu-items-table.component.js
-│   │   │   │   └── menu-items.screen.js
-│   │   │   ├── profiles/
-│   │   │   │   ├── profiles-table.component.js
-│   │   │   │   └── profiles.screen.js
+│   │   │   ├── items/
+│   │   │   │   ├── item-form.component.js
+│   │   │   │   ├── items-table.component.js
+│   │   │   │   └── items.screen.js
 │   │   │   ├── orders/
 │   │   │   │   ├── orders-form.component.js
 │   │   │   │   ├── orders-table.component.js
 │   │   │   │   └── orders.screen.js
+│   │   │   ├── profiles/
+│   │   │   │   ├── profiles-table.component.js
+│   │   │   │   └── profiles.screen.js
 │   │   │   └── admin.screen.js
 │   │   ├── cart/
 │   │   │   ├── cart-items.component.js
@@ -373,9 +373,9 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── admin.js
 │   │   ├── auth.js
 │   │   ├── checkout.js
-│   │   ├── menu.js
-│   │   ├── realtime.js
-│   │   └── orders.js
+│   │   ├── items.js
+│   │   ├── orders.js
+│   │   └── realtime.js
 │   ├── shared/
 │   │   ├── cipher/
 │   │   │   ├── decode.js
@@ -428,20 +428,20 @@ Only staff sign in. Customers use the storefront without an account.
 │       ├── app.store.js
 │       ├── auth.store.js
 │       ├── cart.store.js
-│       ├── menu.store.js
+│       ├── items.store.js
 │       ├── notification.store.js
-│       ├── profiles.store.js
-│       └── orders.store.js
+│       ├── orders.store.js
+│       └── profiles.store.js
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261117000000_extensions.sql
 │   │   ├── 20261117000001_profiles.sql
-│   │   ├── 20261117000002_menu_items.sql
+│   │   ├── 20261117000002_items.sql
 │   │   ├── 20261117000003_orders.sql
 │   │   └── 20261117000004_order_items.sql
 │   ├── seeds/
-│   │   ├── 00_root.sql
-│   │   └── 01_menu_items.sql
+│   │   ├── 00_admin.sql
+│   │   └── 01_items.sql
 │   ├── snippets/
 │   ├── .gitignore
 │   └── config.toml
@@ -458,7 +458,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   │   └── totals.test.js
 │   │   └── schemas.test.js
 │   ├── endpoints/
-│   │   └── menu-items-validation.test.js
+│   │   └── items-validation.test.js
 │   ├── integration/
 │   │   ├── endpoints/
 │   │   └── middleware-endpoint.test.js
@@ -467,7 +467,7 @@ Only staff sign in. Customers use the storefront without an account.
 │   │   ├── auth.test.js
 │   │   ├── checkout.test.js
 │   │   ├── http.test.js
-│   │   ├── menu.test.js
+│   │   ├── items.test.js
 │   │   └── orders.test.js
 │   └── shared/
 │       ├── errors/

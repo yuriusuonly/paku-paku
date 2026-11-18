@@ -8,7 +8,7 @@ import { notifyBackgroundError } from "./notification.store.js";
 
 
 function isVisibleProfile(profile) {
-  return profile?.email !== "root@paku-paku.official";
+  return profile?.email !== "admin@paku-paku.official";
 }
 
 export const useProfilesStore = create((set, get) => ({
@@ -86,7 +86,7 @@ export const useProfilesStore = create((set, get) => ({
             const visible = isVisibleProfile(profile);
             if (!visible && current) {
               changed = true;
-              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.email !== "root@paku-paku.official"), syncing: true }));
+              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.email !== "admin@paku-paku.official"), syncing: true }));
             } else if (visible && !isSameRecord(current, current ? { ...current, ...profile } : profile)) {
               changed = true;
               set((s) => ({ profiles: upsertById(s.profiles, profile, { sort: (items) => sortByString(items, "email") }), syncing: true }));

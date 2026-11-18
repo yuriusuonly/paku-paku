@@ -2,8 +2,8 @@ import { z } from "zod";
 import { hasOwn } from "../../shared/validation/request.js";
 
 /**
- * Menu item domain schemas shared by server validation and admin forms.
- * @module domain/menu-items/schema
+ * Item domain schemas shared by server validation and admin forms.
+ * @module domain/items/schema
  */
 
 const nullableString = z.preprocess(
@@ -15,10 +15,10 @@ const integer = z.coerce.number().int();
 const nonNegativeInteger = integer.pipe(z.number().min(0));
 
 /**
- * Menu item create schema.
+ * Item create schema.
  * @type {import("zod").ZodType}
  */
-export const menuItemCreateSchema = z.object({
+export const itemCreateSchema = z.object({
   name: z.string().trim().min(1),
   description: nullableString.optional().default(null),
   price_cents: nonNegativeInteger,
@@ -28,10 +28,10 @@ export const menuItemCreateSchema = z.object({
 });
 
 /**
- * Menu item partial update schema.
+ * Item partial update schema.
  * @type {import("zod").ZodType}
  */
-export const menuItemPartialSchema = z.preprocess((value) => {
+export const itemPartialSchema = z.preprocess((value) => {
   const body = { ...value };
   if (hasOwn(body, "sort_order") && (body.sort_order === "" || body.sort_order == null)) {
     delete body.sort_order;

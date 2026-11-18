@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { menuItemCreateSchema } from "../../src/domain/menu-items/schema.js";
+import { itemCreateSchema } from "../../src/domain/items/schema.js";
 import { orderCreateSchema } from "../../src/domain/orders/schema.js";
 
 /**
@@ -7,9 +7,9 @@ import { orderCreateSchema } from "../../src/domain/orders/schema.js";
  * @module test/domain/schemas
  */
 
-describe("menuItemCreateSchema", () => {
+describe("itemCreateSchema", () => {
   test("applies create defaults", () => {
-    const result = menuItemCreateSchema.safeParse({
+    const result = itemCreateSchema.safeParse({
       name: " Ramen ",
       price_cents: "500",
       is_available: true
@@ -27,8 +27,8 @@ describe("menuItemCreateSchema", () => {
   });
 
   test("rejects invalid names and prices", () => {
-    expect(menuItemCreateSchema.safeParse({ name: "", price_cents: 1, is_available: true }).success).toBe(false);
-    expect(menuItemCreateSchema.safeParse({ name: "A", price_cents: -1, is_available: true }).success).toBe(false);
+    expect(itemCreateSchema.safeParse({ name: "", price_cents: 1, is_available: true }).success).toBe(false);
+    expect(itemCreateSchema.safeParse({ name: "A", price_cents: -1, is_available: true }).success).toBe(false);
   });
 });
 
@@ -40,8 +40,7 @@ describe("orderCreateSchema", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.kind).toBe("sell");
-      expect(result.data.status).toBe("completed");
-      expect(result.data.payment_status).toBe("paid");
+      expect(result.data.status).toBe("Paid");
       expect(result.data.items[0].line_total_cents).toBe(1000);
     }
   });

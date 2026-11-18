@@ -5,11 +5,11 @@ import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
 
 /**
- * Menu data access (API to database contracts).
- * @module repositories/menu.repository
+ * Item data access (API to database contracts).
+ * @module repositories/item.repository
  */
 
-const MENU_ITEM_SELECT = "id, name, description, price_cents, is_available, is_best_seller, sort_order, created_at, updated_at";
+const ITEM_SELECT = "id, name, description, price_cents, is_available, is_best_seller, sort_order, created_at, updated_at";
 
 /**
  * @param {import("../database/instance.js").DatabaseClient} [client] - Database client.
@@ -28,117 +28,117 @@ function resolveClient(client) {
 }
 
 /**
- * Lists menu items ordered for display.
+ * Lists items ordered for display.
  *
  * @param {import("../database/instance.js").DatabaseClient} [client] - Authenticated database client.
- * @returns {Promise<{items: object[]}>} Menu payload.
- * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When menu data cannot be loaded.
+ * @returns {Promise<{items: object[]}>} Items payload.
+ * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When item data cannot be loaded.
  */
-export async function listMenuItems(client) {
+export async function listItems(client) {
   const database = resolveClient(client);
   const { data, error } = await database
-    .from("menu_items")
-    .select(MENU_ITEM_SELECT)
+    .from("items")
+    .select(ITEM_SELECT)
     .order("sort_order", { ascending: true });
 
   if (error) {
-    throw databaseUpstream("menu_unavailable", "Could not load the menu.", error);
+    throw databaseUpstream("items_unavailable", "Could not load items.", error);
   }
 
   return { items: data || [] };
 }
 
 /**
- * Creates a menu item.
+ * Creates an item.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
- * @param {object} input - Menu item fields.
+ * @param {object} input - Item fields.
  * @returns {Promise<{item: object}>} Created item.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When creation fails.
  */
-export async function createMenuItem(client, input) {
+export async function createItem(client, input) {
   const database = resolveClient(client);
   const payload = { ...input };
 
   if (payload.sort_order == null) {
     const { data: lastItem, error: sortError } = await database
-      .from("menu_items")
+      .from("items")
       .select("sort_order")
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
 
     if (sortError) {
-      throw databaseUpstream("menu_item_create_failed", "Could not determine the next sort order.", sortError);
+      throw databaseUpstream("item_create_failed", "Could not determine the next sort order.", sortError);
     }
 
     payload.sort_order = Number.isInteger(lastItem?.sort_order) ? lastItem.sort_order + 1 : 0;
   }
 
   const { data, error } = await database
-    .from("menu_items")
+    .from("items")
     .insert(payload)
-    .select(MENU_ITEM_SELECT)
+    .select(ITEM_SELECT)
     .single();
 
   if (error) {
-    throw databaseUpstream("menu_item_create_failed", "Could not create the menu item.", error);
+    throw databaseUpstream("item_create_failed", "Could not create the item.", error);
   }
 
   return { item: data };
 }
 
 /**
- * Updates a menu item by id.
+ * Updates a item by id.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
- * @param {string} id - Menu item id.
+ * @param {string} id - Item id.
  * @param {object} input - Fields to update.
  * @returns {Promise<{item: object}>} Updated item.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When update fails.
  */
-export async function updateMenuItem(client, id, input) {
+export async function updateItem(client, id, input) {
   if (!id) {
-    throw badRequest("invalid_menu_item", "Menu item id is required.");
+    throw badRequest("invalid_item", "Item id is required.");
   }
   if (!input || Object.keys(input).length === 0) {
-    throw badRequest("invalid_menu_item", "No menu item fields to update.");
+    throw badRequest("invalid_item", "No item fields to update.");
   }
 
   const database = resolveClient(client);
   const { data, error } = await database
-    .from("menu_items")
+    .from("items")
     .update({ ...input, updated_at: new Date().toISOString() })
     .eq("id", id)
-    .select(MENU_ITEM_SELECT)
+    .select(ITEM_SELECT)
     .single();
 
   if (error) {
     if (error.code === "PGRST116") {
-      throw notFound("menu_item_not_found", "Menu item not found.");
+      throw notFound("item_not_found", "Item not found.");
     }
-    throw databaseUpstream("menu_item_update_failed", "Could not update the menu item.", error);
+    throw databaseUpstream("item_update_failed", "Could not update the item.", error);
   }
 
   return { item: data };
 }
 
 /**
- * Deletes a menu item by id.
+ * Deletes a item by id.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Authenticated/admin database client.
- * @param {string} id - Menu item id.
+ * @param {string} id - Item id.
  * @returns {Promise<{id: string}>} Deleted id.
  * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} When deletion fails.
  */
-export async function deleteMenuItem(client, id) {
+export async function deleteItem(client, id) {
   if (!id) {
-    throw badRequest("invalid_menu_item", "Menu item id is required.");
+    throw badRequest("invalid_item", "Item id is required.");
   }
 
   const database = resolveClient(client);
   const { data, error } = await database
-    .from("menu_items")
+    .from("items")
     .delete()
     .eq("id", id)
     .select("id")
@@ -146,9 +146,9 @@ export async function deleteMenuItem(client, id) {
 
   if (error) {
     if (error.code === "PGRST116") {
-      throw notFound("menu_item_not_found", "Menu item not found.");
+      throw notFound("item_not_found", "Item not found.");
     }
-    throw databaseUpstream("menu_item_delete_failed", "Could not delete the menu item.", error);
+    throw databaseUpstream("item_delete_failed", "Could not delete the item.", error);
   }
 
   return { id: data.id };

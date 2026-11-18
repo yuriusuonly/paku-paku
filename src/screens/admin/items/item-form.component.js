@@ -5,15 +5,15 @@ import { FormActions } from "../../../components/form-actions.js";
 import { TextField } from "../../../components/text-field.js";
 
 /**
- * New menu item form section.
- * @module screens/admin/menu-items/menu-item-form.component
+ * New item form section.
+ * @module screens/admin/items/item-form.component
  */
 
 /**
  * @param {object} props
  * @returns {JSX.Element}
  */
-export function MenuItemFormSection({ form, setForm, fieldErrors, setFieldErrors, saving, onSave, onReset, expanded, onToggleExpanded }) {
+export function ItemFormSection({ form, setForm, fieldErrors, setFieldErrors, saving, onSave, onReset, expanded, onToggleExpanded }) {
   return (
     <AccordionSection title="New item" expanded={expanded} onToggle={onToggleExpanded} className="mt-4">
       <View className="gap-3">

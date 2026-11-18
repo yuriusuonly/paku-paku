@@ -74,7 +74,7 @@ export async function listProfiles(database) {
   const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
-    .neq("email", "root@paku-paku.official")
+    .neq("email", "admin@paku-paku.official")
     .order("email", { ascending: true });
 
   if (error) {
@@ -84,28 +84,6 @@ export async function listProfiles(database) {
   return {
     profiles: data.map(toPublicProfile)
   };
-}
-
-/**
- * Creates a customer profile for an existing auth user (admin only).
- *
- * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
- * @param {{id: string, email: string, role?: string, is_active?: boolean}} input - Profile fields.
- * @returns {Promise<{profile: object}>} Created profile payload.
- * @throws {Error & {status?: number, code?: string, expose?: boolean, isAppError?: boolean}} On failure.
- */
-export async function createProfile(database, { id, email, role = "customer", is_active = true }) {
-  const { data, error } = await database
-    .from("profiles")
-    .insert({ id, email, role, is_active })
-    .select(PROFILE_COLUMNS)
-    .single();
-
-  if (error || !data) {
-    throw databaseUpstream("profile_create_failed", "Could not create the profile.", error);
-  }
-
-  return { profile: toPublicProfile(data) };
 }
 
 /**
@@ -145,7 +123,7 @@ export async function updateProfile(database, id, input) {
 }
 
 /**
- * Updates the authenticated customer's own profile fields.
+ * Updates a profile's own contact fields.
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Request-scoped database client.
  * @param {string} id - Profile/user id (must match auth uid by RLS).
