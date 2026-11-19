@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { Text, View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
 import { Alert } from "../../../components/alert.js";
@@ -46,7 +46,6 @@ function emptyForm() {
  * @returns {JSX.Element} Staff order taking screen.
  */
 export default function StaffOrderTakingScreen() {
-  const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const token = session?.access_token;
 
@@ -164,7 +163,7 @@ export default function StaffOrderTakingScreen() {
     try {
       if (matchedOrder) {
         await setStatus(token, matchedOrder.id, form.status);
-        showSuccess(`Order ${matchedOrder.order_number} marked ${form.status.toLowerCase()}.`);
+        showSuccess(`Order ${matchedOrder.order_number} verified.`);
       } else {
         const parsed = orderCreateSchema.safeParse({
           status: form.status,
@@ -197,7 +196,6 @@ export default function StaffOrderTakingScreen() {
       }
 
       resetForm();
-      router.replace("/staff/records");
     } catch (e) {
       const message = e?.message || (matchedOrder ? "Could not verify that order." : "Could not create the order.");
       setLocalError(message);
