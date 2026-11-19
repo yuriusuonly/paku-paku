@@ -1,12 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Alert } from "../../components/alert.js";
+import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
+import { OptionChip } from "../../components/option-chip.js";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { getMenuSections } from "../../domain/menu/sections.js";
+import { buildComboCartItem } from "../../domain/menu/combo.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
@@ -38,6 +41,9 @@ export default function MenuScreen() {
   const cartCount = cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
   const showSuccess = useNotificationStore((state) => state.showSuccess);
 
+  const [comboFoodId, setComboFoodId] = useState(null);
+  const [comboDrinkId, setComboDrinkId] = useState(null);
+
   useEffect(() => {
     hydrateCart();
   }, [hydrateCart]);
@@ -52,7 +58,18 @@ export default function MenuScreen() {
 
   const visibleItems = items.filter((item) => item?.is_available !== false);
   const menuSections = getMenuSections(items);
+  const foodItems = menuSections.find((section) => section.key === "food")?.items || [];
+  const drinkItems = menuSections.find((section) => section.key === "beverage")?.items || [];
+  const comboFood = foodItems.find((item) => item.id === comboFoodId) || foodItems[0] || null;
+  const comboDrink = drinkItems.find((item) => item.id === comboDrinkId) || drinkItems[0] || null;
+  const comboItem = buildComboCartItem(comboFood, comboDrink);
   const showInitialMenuLoading = loading && visibleItems.length === 0;
+
+  const addCombo = () => {
+    if (!comboItem) return;
+    addToCart(comboItem);
+    showSuccess(`${comboItem.item_name} added to cart.`);
+  };
 
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
@@ -79,6 +96,54 @@ export default function MenuScreen() {
 
       {!loading && !error && visibleItems.length === 0 ? (
         <EmptyState message="No items are available right now." />
+      ) : null}
+
+      {foodItems.length > 0 && drinkItems.length > 0 ? (
+        <View className={`mt-4 ${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
+          <View>
+            <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Build a combo</Text>
+            <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
+              Choose one main dish and add any side drink.
+            </Text>
+          </View>
+
+          <View className="mt-2">
+            <Text className={`${cx.typography.label} ${cx.textInk60}`}>1. Main dish</Text>
+            <View className="mt-2 flex-row flex-wrap gap-2">
+              {foodItems.map((item) => (
+                <OptionChip
+                  key={item.id}
+                  label={item.name}
+                  caption={formatCurrencyCents(item.price_cents)}
+                  selected={comboFood?.id === item.id}
+                  onPress={() => setComboFoodId(item.id)}
+                />
+              ))}
+            </View>
+          </View>
+
+          <View className="mt-2">
+            <Text className={`${cx.typography.label} ${cx.textInk60}`}>2. Side drink add-on</Text>
+            <View className="mt-2 flex-row flex-wrap gap-2">
+              {drinkItems.map((item) => (
+                <OptionChip
+                  key={item.id}
+                  label={item.name}
+                  caption={formatCurrencyCents(item.price_cents)}
+                  selected={comboDrink?.id === item.id}
+                  onPress={() => setComboDrinkId(item.id)}
+                />
+              ))}
+            </View>
+          </View>
+
+          <View className="mt-3 flex-row flex-wrap items-center justify-between gap-3">
+            <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+              {comboItem ? formatCurrencyCents(comboItem.unit_price_cents) : "-"}
+            </Text>
+            <Button label="Add combo to cart" onPress={addCombo} disabled={!comboItem} />
+          </View>
+        </View>
       ) : null}
 
       {menuSections.length > 0 ? (

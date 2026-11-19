@@ -216,7 +216,7 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 
 The app has three areas:
 
-- **Customer storefront:** `/`, `/menu`, and `/cart`; no account required. Checkout creates a counter QR with order details.
+- **Customer storefront:** `/`, `/menu`, and `/cart`; no account required. Customers can buy items individually or build a combo from one main dish plus any side drink. Checkout creates a counter QR with order details.
 - **Staff counter:** `/staff`; authenticated staff scan/enter the QR payload, verify the order, and complete it as Paid/Refunded/Voided.
 - **Admin audit:** `/admin`; protected dashboard plus items, orders, profiles, and audit logs.
 
@@ -319,6 +319,7 @@ The app has three areas:
 │   │   ├── header.js
 │   │   ├── inline-editable-cell.js
 │   │   ├── inline-select.js
+│   │   ├── option-chip.js
 │   │   ├── qr-code.js
 │   │   ├── qr-scanner.js
 │   │   ├── section-header.js
@@ -336,6 +337,7 @@ The app has three areas:
 │   │   ├── items/
 │   │   │   └── schema.js
 │   │   ├── menu/
+│   │   │   ├── combo.js
 │   │   │   └── sections.js
 │   │   ├── orders/
 │   │   │   ├── constants.js
@@ -502,6 +504,7 @@ The app has three areas:
 │   │   ├── audit/
 │   │   │   └── summary.test.js
 │   │   ├── menu/
+│   │   │   ├── combo.test.js
 │   │   │   └── sections.test.js
 │   │   ├── orders/
 │   │   │   ├── items.test.js
