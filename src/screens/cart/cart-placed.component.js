@@ -28,6 +28,11 @@ export function CartPlacedSection({ order, onNewOrder }) {
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
           Reference: <Text className={`font-semibold ${cx.textInk}`}>{order.order_number}</Text>
         </Text>
+        {Number(order.discount_cents || 0) > 0 ? (
+          <Text className={`font-outfit text-sm ${cx.textPrimary}`}>
+            Meal discount: -{formatCurrencyCents(order.discount_cents)}
+          </Text>
+        ) : null}
         <Text className={`font-outfit text-sm ${cx.textInk70}`}>
           Total: <Text className={`font-semibold ${cx.textInk}`}>{formatCurrencyCents(order.total_cents)}</Text>
         </Text>

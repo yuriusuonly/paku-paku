@@ -7,6 +7,7 @@ create table public.orders (
   status text not null default 'Pending' check (status in ('Pending', 'Paid', 'Refunded', 'Voided')),
   payment_method text,
   subtotal_cents integer not null default 0 check (subtotal_cents >= 0),
+  discount_cents integer not null default 0 check (discount_cents >= 0),
   total_cents integer not null default 0 check (total_cents >= 0),
   currency text not null default 'PHP',
   notes text,
@@ -21,6 +22,7 @@ create table public.orders (
 
 comment on table public.orders is 'Unified buy/sell orders and operational records.';
 comment on column public.orders.kind is 'Order kind: buy (customer checkout) or sell (admin-recorded).';
+comment on column public.orders.discount_cents is 'Automatic meal-pair discount applied at checkout.';
 comment on column public.orders.qr_payload is 'QR code payload for counter verification.';
 
 create index orders_customer_id_idx on public.orders (customer_id);

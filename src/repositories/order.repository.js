@@ -5,7 +5,8 @@ import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js"
 import { databaseUpstream } from "../shared/errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
 import { normalizeOrderItems } from "../domain/orders/items.js";
-import { calculateOrderSubtotal, buildQrPayload } from "../domain/orders/totals.js";
+import { buildQrPayload } from "../domain/orders/totals.js";
+import { calculateOrderTotals } from "../domain/orders/pricing.js";
 import { parseQrPayload } from "../domain/orders/qr.js";
 
 /**
@@ -15,9 +16,9 @@ import { parseQrPayload } from "../domain/orders/qr.js";
  */
 
 const ORDER_SELECT =
-  "id, order_number, kind, customer_id, status, payment_method, subtotal_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
+  "id, order_number, kind, customer_id, status, payment_method, subtotal_cents, discount_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
 const ITEM_SELECT =
-  "id, order_id, item_name, quantity, unit_price_cents, line_total_cents, created_at";
+  "id, order_id, item_name, category, quantity, unit_price_cents, line_total_cents, created_at";
 
 function resolveClient(client) {
   if (client) return client;
@@ -132,7 +133,7 @@ export async function getOrderByReference(client, reference) {
 export async function createCheckoutOrder(client, input) {
   const database = resolveClient(client);
   const items = normalizeOrderItems(input.items);
-  const subtotal = calculateOrderSubtotal(items);
+  const totals = calculateOrderTotals(items);
   const paymentMethod = input.payment_method || "cash";
   const id = randomUUID();
   const orderNumber = `ORD-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
@@ -141,7 +142,7 @@ export async function createCheckoutOrder(client, input) {
   const qrPayload = buildQrPayload({
     orderNumber,
     id,
-    totalCents: subtotal,
+    totalCents: totals.totalCents,
     paymentMethod,
     items
   });
@@ -153,8 +154,9 @@ export async function createCheckoutOrder(client, input) {
     customer_id: null,
     status: "Pending",
     payment_method: paymentMethod,
-    subtotal_cents: subtotal,
-    total_cents: subtotal,
+    subtotal_cents: totals.subtotalCents,
+    discount_cents: totals.discountCents,
+    total_cents: totals.totalCents,
     currency: input.currency || "PHP",
     notes: input.notes || null,
     qr_payload: qrPayload,
@@ -189,7 +191,7 @@ export async function createOrder(client, input, options = {}) {
   const database = resolveClient(client);
   const kind = options.kind === "buy" ? "buy" : "sell";
   const items = normalizeOrderItems(input.items);
-  const subtotal = calculateOrderSubtotal(items);
+  const totals = calculateOrderTotals(items);
   const status = input.status || "Paid";
 
   const payload = {
@@ -197,8 +199,9 @@ export async function createOrder(client, input, options = {}) {
     customer_id: input.customer_id || null,
     status,
     payment_method: input.payment_method || null,
-    subtotal_cents: subtotal,
-    total_cents: subtotal,
+    subtotal_cents: totals.subtotalCents,
+    discount_cents: totals.discountCents,
+    total_cents: totals.totalCents,
     currency: input.currency || "PHP",
     notes: input.notes || null,
     customer_name: input.customer_name || null,
@@ -256,8 +259,13 @@ export async function updateOrder(client, id, input) {
     const rows = normalized.map((item) => ({ ...item, order_id: id }));
     const { error: insertError } = await database.from("order_items").insert(rows);
     if (insertError) throw databaseUpstream("order_update_failed", "Could not update order items.", insertError);
-    const subtotal = calculateOrderSubtotal(normalized);
-    await database.from("orders").update({ subtotal_cents: subtotal, total_cents: subtotal, updated_at: new Date().toISOString() }).eq("id", id);
+    const totals = calculateOrderTotals(normalized);
+    await database.from("orders").update({
+      subtotal_cents: totals.subtotalCents,
+      discount_cents: totals.discountCents,
+      total_cents: totals.totalCents,
+      updated_at: new Date().toISOString()
+    }).eq("id", id);
   }
 
   return getOrderById(database, id);

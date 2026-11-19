@@ -17,6 +17,8 @@ import { cx } from "../../shared/constants/theme.js";
  */
 export function CartItemsSection({
   cartItems,
+  subtotalCents,
+  discountCents,
   totalCents,
   syncing,
   paymentMethod,
@@ -92,7 +94,24 @@ export function CartItemsSection({
           ))}
         </View>
 
-        <Text className={`mt-4 ${cx.typography.title} ${cx.textInk}`}>Total: {formatCurrencyCents(totalCents)}</Text>
+        <View className="mt-4 gap-1">
+          <Text className={`font-outfit text-sm ${cx.textInk70}`}>
+            Subtotal: {formatCurrencyCents(subtotalCents)}
+          </Text>
+          {discountCents > 0 ? (
+            <Text className={`font-outfit text-sm font-semibold ${cx.textPrimary}`}>
+              Discount: -{formatCurrencyCents(discountCents)}
+            </Text>
+          ) : null}
+          <Text className={`${cx.typography.title} ${cx.textInk}`}>
+            Total: {formatCurrencyCents(totalCents)}
+          </Text>
+        </View>
+        {discountCents > 0 ? (
+          <Text className={`font-outfit text-xs ${cx.textInk60}`}>
+            Meal discount applied because your order has a main dish and a drink.
+          </Text>
+        ) : null}
         <View className="flex-row flex-wrap gap-3 pt-1">
           <Button label="Place order" onPress={onCheckout} loading={syncing} />
           <Button label="Clear cart" variant="ghost" onPress={onClearCart} disabled={syncing} />

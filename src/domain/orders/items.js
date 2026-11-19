@@ -9,7 +9,7 @@ import { badRequest } from "../../shared/errors/bad-request.js";
  * Normalizes order line items for persistence.
  *
  * @param {unknown} items - Raw line items.
- * @returns {Array<{item_name: string, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized snapshot items.
+ * @returns {Array<{item_name: string, category: string|null, quantity: number, unit_price_cents: number, line_total_cents: number}>} Normalized snapshot items.
  */
 export function normalizeOrderItems(items) {
   const list = Array.isArray(items) ? items : [];
@@ -33,8 +33,11 @@ export function normalizeOrderItems(items) {
       throw badRequest("invalid_order", `Item ${index + 1}: unit price must be a non-negative integer.`);
     }
 
+    const category = entry.category === "food" || entry.category === "beverage" ? entry.category : null;
+
     return {
       item_name: itemName,
+      category,
       quantity,
       unit_price_cents: unitPrice,
       line_total_cents: quantity * unitPrice

@@ -16,6 +16,7 @@ describe("normalizeOrderItems", () => {
       }
     ])).toEqual([{
       item_name: "Ramen",
+      category: null,
       quantity: 2,
       unit_price_cents: 500,
       line_total_cents: 1000

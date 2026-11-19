@@ -9,7 +9,7 @@ import { getMenuSections } from "../../../src/domain/menu/sections.js";
 describe("getMenuSections", () => {
   const items = [
     { id: "1", name: "Green tea", sort_order: 20, is_available: true },
-    { id: "3", name: "Teriyaki", sort_order: 220, is_available: true },
+    { id: "2", name: "Chicken Teriyaki", sort_order: 220, is_available: true },
     { id: "4", name: "Red tea", sort_order: 10, is_available: true },
     { id: "5", name: "Hidden", sort_order: 210, is_available: false }
   ];
@@ -17,7 +17,7 @@ describe("getMenuSections", () => {
   test("groups items into food and beverage sections", () => {
     const sections = getMenuSections(items);
     expect(sections.map((section) => section.key)).toEqual(["food", "beverage"]);
-    expect(sections[0].items.map((item) => item.name)).toEqual(["Teriyaki"]);
+    expect(sections[0].items.map((item) => item.name)).toEqual(["Chicken Teriyaki"]);
     expect(sections[1].items.map((item) => item.name)).toEqual(["Red tea", "Green tea"]);
   });
 

@@ -5,13 +5,11 @@
 
 /**
  * Sort-order ranges used to classify menu items.
- * Drinks < 100, combos 100-199, main dishes >= 200.
- * @type {{drinkMax: number, comboMin: number, comboMax: number, foodMin: number}}
+ * Drinks < 100, main dishes >= 200.
+ * @type {{drinkMax: number, foodMin: number}}
  */
 export const MENU_SORT_RANGES = Object.freeze({
   drinkMax: 100,
-  comboMin: 100,
-  comboMax: 200,
   foodMin: 200
 });
 
@@ -28,14 +26,9 @@ export function getMenuSections(items) {
   const sortOrder = (item) => Number(item?.sort_order ?? 0);
 
   const beverageItems = visible.filter((item) => sortOrder(item) < MENU_SORT_RANGES.drinkMax);
-  const comboItems = visible.filter((item) => {
-    const order = sortOrder(item);
-    return order >= MENU_SORT_RANGES.comboMin && order < MENU_SORT_RANGES.comboMax;
-  });
   const foodItems = visible.filter((item) => sortOrder(item) >= MENU_SORT_RANGES.foodMin);
 
   return [
-    { key: "combo", title: "Combo meals", items: comboItems },
     { key: "food", title: "Main dishes", items: foodItems },
     { key: "beverage", title: "Side drinks", items: beverageItems }
   ].filter((section) => section.items.length > 0);

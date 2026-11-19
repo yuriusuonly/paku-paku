@@ -16,6 +16,12 @@ export const ORDER_KINDS = ["buy", "sell"];
 export const ORDER_STATUSES = ["Pending", "Paid", "Refunded", "Voided"];
 
 /**
+ * Menu categories used for automatic meal pricing.
+ * @type {string[]}
+ */
+export const ORDER_ITEM_CATEGORIES = ["food", "beverage"];
+
+/**
  * Payment methods offered at kiosk checkout.
  * @type {string[]}
  */

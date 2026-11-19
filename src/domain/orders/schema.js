@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   PAYMENT_METHODS,
+  ORDER_ITEM_CATEGORIES,
   ORDER_KINDS,
   ORDER_STATUSES
 } from "./constants.js";
@@ -22,7 +23,8 @@ const nullableString = z.preprocess(
 export const orderItemSchema = z.object({
   item_name: z.string().trim().min(1),
   quantity: z.coerce.number().int().positive(),
-  unit_price_cents: z.coerce.number().int().min(0)
+  unit_price_cents: z.coerce.number().int().min(0),
+  category: z.enum(ORDER_ITEM_CATEGORIES).nullable().optional().default(null)
 }).transform((item) => ({
   ...item,
   line_total_cents: item.quantity * item.unit_price_cents

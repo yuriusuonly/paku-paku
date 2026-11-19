@@ -3,6 +3,7 @@ create table public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders (id) on delete cascade,
   item_name text not null,
+  category text check (category in ('food', 'beverage')),
   quantity integer not null check (quantity > 0),
   unit_price_cents integer not null check (unit_price_cents >= 0),
   line_total_cents integer not null check (line_total_cents >= 0),
@@ -10,6 +11,7 @@ create table public.order_items (
 );
 
 comment on table public.order_items is 'Immutable snapshot line items for unified orders.';
+comment on column public.order_items.category is 'Snapshot category used for meal-pair pricing.';
 comment on column public.order_items.item_name is 'Item name captured at order time.';
 comment on column public.order_items.unit_price_cents is 'Unit price captured at order time.';
 comment on column public.order_items.line_total_cents is 'Quantity x unit price captured at order time.';

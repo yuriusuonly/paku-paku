@@ -7,6 +7,7 @@ import { useCartStore } from "../../stores/cart.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
 import { placeOrder } from "../../services/checkout.js";
 import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
+import { calculateOrderTotals } from "../../domain/orders/pricing.js";
 import { cx } from "../../shared/constants/theme.js";
 import { CartItemsSection } from "./cart-items.component.js";
 import { CartPlacedSection } from "./cart-placed.component.js";
@@ -37,10 +38,7 @@ export default function CartScreen() {
     hydrateCart();
   }, [hydrateCart]);
 
-  const totalCents = useMemo(
-    () => cartItems.reduce((sum, item) => sum + Number(item.unit_price_cents || 0) * Number(item.quantity || 0), 0),
-    [cartItems]
-  );
+  const totals = useMemo(() => calculateOrderTotals(cartItems), [cartItems]);
 
   const checkout = async () => {
     setError("");
@@ -54,6 +52,7 @@ export default function CartScreen() {
         payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           item_name: item.item_name,
+          category: item.category || null,
           quantity: Number(item.quantity || 1),
           unit_price_cents: Number(item.unit_price_cents || 0)
         }))
@@ -89,7 +88,9 @@ export default function CartScreen() {
       ) : (
         <CartItemsSection
           cartItems={cartItems}
-          totalCents={totalCents}
+          subtotalCents={totals.subtotalCents}
+          discountCents={totals.discountCents}
+          totalCents={totals.totalCents}
           syncing={placing}
           paymentMethod={paymentMethod}
           onPaymentMethodChange={setPaymentMethod}
