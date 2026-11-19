@@ -491,7 +491,8 @@ The app has three areas:
 │   │   └── 20261117000005_audit_logs.sql
 │   ├── seeds/
 │   │   ├── 00_admin.sql
-│   │   └── 01_items.sql
+│   │   ├── 01_staff.sql
+│   │   └── 02_items.sql
 │   ├── snippets/
 │   ├── .gitignore
 │   └── config.toml
