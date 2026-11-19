@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Text, View } from "react-native";
 import { Button } from "../../../components/button.js";
 import { FormActions } from "../../../components/form-actions.js";
@@ -9,6 +10,7 @@ import { ORDER_STATUSES, PAYMENT_METHODS } from "../../../domain/orders/constant
 import { MENU_SORT_RANGES } from "../../../domain/menu/sections.js";
 import { calculateOrderTotals } from "../../../domain/orders/pricing.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
+import { pickQrImage } from "../../../shared/utils/qr-upload.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -56,8 +58,23 @@ export function ManualOrderForm({
   onClear,
   saveLabel
 }) {
+  const [uploadError, setUploadError] = useState("");
   const itemNames = items.map((item) => item.name);
   const totals = calculateOrderTotals(lines);
+
+  const onUpload = async () => {
+    setUploadError("");
+    try {
+      const value = await pickQrImage();
+      if (!value) {
+        setUploadError("No QR code found in that image.");
+        return;
+      }
+      onScan(value);
+    } catch {
+      setUploadError("Could not read that image.");
+    }
+  };
 
   return (
     <View className="gap-3">
@@ -76,13 +93,17 @@ export function ManualOrderForm({
           autoCapitalize="characters"
         />
         <QrScanner onDetect={onScan} />
-        <Button
-          label="Fill from order"
-          variant="secondary"
-          onPress={onLookup}
-          loading={saving}
-          disabled={!reference.trim() || saving}
-        />
+        <View className="flex-row flex-wrap gap-3">
+          <Button
+            label="Fill from order"
+            variant="secondary"
+            onPress={onLookup}
+            loading={saving}
+            disabled={!reference.trim() || saving}
+          />
+          <Button label="Upload QR image" variant="ghost" onPress={onUpload} disabled={saving} />
+        </View>
+        {uploadError ? <Text className={`font-outfit text-xs ${cx.textError}`}>{uploadError}</Text> : null}
         {matchedOrder ? (
           <View className="flex-row flex-wrap items-center gap-2">
             <StatusPill label={matchedOrder.status} variant="info" />

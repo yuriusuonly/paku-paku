@@ -11,15 +11,15 @@ import { cx } from "../shared/constants/theme.js";
  */
 
 /**
- * @param {{value?: string | null, label?: string, caption?: string | null, size?: number, showValue?: boolean}} props
+ * @param {{value?: string | null, label?: string, caption?: string | null, size?: number, showValue?: boolean, containerRef?: React.RefObject<any>}} props
  * @returns {JSX.Element | null}
  */
-export function QrCode({ value, label = "QR code", caption, size = 128, showValue = false }) {
+export function QrCode({ value, label = "QR code", caption, size = 128, showValue = false, containerRef }) {
   if (!value) return null;
   return (
     <View className="items-center gap-2">
       <Text className={`${cx.typography.label} text-center ${cx.textInk60}`}>{label}</Text>
-      <View className={`${cx.radius.md} border ${cx.borderSubtle} ${cx.bgWhite} p-3`}>
+      <View ref={containerRef} className={`${cx.radius.md} border ${cx.borderSubtle} ${cx.bgWhite} p-3`}>
         <QRCode
           value={String(value)}
           size={size}

@@ -233,10 +233,10 @@ three seeded roles:
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront landing with a link to the menu. |
 | `/menu` | `src/app/(customer)/menu.js` → `src/screens/menu/menu.screen.js` | Customer menu with add-to-cart controls. |
 | `/cart` | `src/app/(customer)/cart.js` → `src/screens/cart/cart.screen.js` | Customer cart: payment selection and order placement. |
-| `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after successful placement. |
+| `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after placement; save the QR as a PNG image. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
 | `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order`. |
-| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup (camera scanning via jsQR, manual entry fallback); redirects to `/staff/records` on success (staff role only). |
+| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup (camera scanning or QR image upload via jsQR, manual entry fallback); redirects to `/staff/records` on success (staff role only). |
 | `/staff/records` | `src/app/(staff)/staff/records.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |
@@ -489,6 +489,8 @@ three seeded roles:
 │   │   │   └── global.css
 │   │   ├── utils/
 │   │   │   ├── lists.js
+│   │   │   ├── qr-image.js
+│   │   │   ├── qr-upload.js
 │   │   │   └── records.js
 │   │   └── validation/
 │   │       ├── email.js
