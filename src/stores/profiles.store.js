@@ -6,10 +6,11 @@ import { getProfiles, updateProfile as updateProfileApi } from "../services/admi
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";
 
-
-function isVisibleProfile(profile) {
-  return profile?.email !== "admin@paku-paku.official";
-}
+/**
+ * Profiles store for the admin dashboard and profiles audit page.
+ * Every profile is included, including all seeded accounts.
+ * @module stores/profiles.store
+ */
 
 export const useProfilesStore = create((set, get) => ({
   profiles: [],
@@ -32,7 +33,7 @@ export const useProfilesStore = create((set, get) => ({
     try {
       const data = await getProfiles(token);
       set({
-        profiles: sortByString((data.profiles || []).filter(isVisibleProfile), "email"),
+        profiles: sortByString(data.profiles || [], "email"),
         loading: false,
         syncing: false,
         error: null
@@ -83,11 +84,7 @@ export const useProfilesStore = create((set, get) => ({
           } else if (payload.new) {
             const profile = payload.new;
             const current = get().profiles.find((entry) => entry.id === profile.id);
-            const visible = isVisibleProfile(profile);
-            if (!visible && current) {
-              changed = true;
-              set((s) => ({ profiles: s.profiles.filter((p) => p.id !== profile.id && p.email !== "admin@paku-paku.official"), syncing: true }));
-            } else if (visible && !isSameRecord(current, current ? { ...current, ...profile } : profile)) {
+            if (!isSameRecord(current, current ? { ...current, ...profile } : profile)) {
               changed = true;
               set((s) => ({ profiles: upsertById(s.profiles, profile, { sort: (items) => sortByString(items, "email") }), syncing: true }));
             }
