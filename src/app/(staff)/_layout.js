@@ -2,6 +2,7 @@ import { Redirect, Slot } from "expo-router";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
+import { hasStaffAccess } from "../../domain/auth/roles.js";
 
 /**
  * Protected staff route group layout.
@@ -24,7 +25,7 @@ export default function StaffLayout() {
     );
   }
 
-  if (status !== "authenticated" || user?.role !== "admin") {
+  if (status !== "authenticated" || !hasStaffAccess(user?.role)) {
     return <Redirect href="/signin" />;
   }
 

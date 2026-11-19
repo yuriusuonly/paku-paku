@@ -8,10 +8,11 @@ import { ScreenContainer } from "../../components/container.js";
 import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { isValidEmail } from "../../shared/validation/email.js";
+import { getHomeRouteForRole } from "../../domain/auth/roles.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
- * Administrator sign-in screen.
+ * Shared sign-in screen.
  * @module screens/signin/signin.screen
  */
 
@@ -35,7 +36,7 @@ export default function SignInScreen() {
 
   useEffect(() => {
     if (hydrated && status === "authenticated" && user) {
-      router.replace("/admin");
+      router.replace(getHomeRouteForRole(user.role));
     }
   }, [hydrated, status, user, router]);
 
@@ -80,9 +81,9 @@ export default function SignInScreen() {
           <Text className={`font-outfit mb-8 text-sm font-semibold ${cx.textPrimary}`}>← Back to storefront</Text>
         </Link>
 
-        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Staff sign in</Text>
+        <Text className={`${cx.typography.heading} ${cx.textInk}`}>Sign in</Text>
         <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
-          Sign in with your administrator email and password.
+          Sign in with your email and password.
         </Text>
 
         <View className="mt-8 gap-4">
@@ -93,7 +94,7 @@ export default function SignInScreen() {
               setEmail(value);
               if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: false }));
             }}
-            placeholder="staff@example.com"
+            placeholder="example@email.com"
             autoCapitalize="none"
             autoComplete="email"
             error={fieldErrors.email || showStoreError}

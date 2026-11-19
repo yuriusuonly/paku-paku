@@ -225,7 +225,7 @@ The app has three areas:
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront landing with a link to the menu. |
 | `/menu` | `src/app/menu.js` → `src/screens/menu/menu.screen.js` | Public menu with add-to-cart controls. |
 | `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
-| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Administrator sign-in. |
+| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Shared sign-in; redirects by role. |
 | `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/orders`. |
 | `/staff/orders` | `src/app/(staff)/staff/orders.js` → `src/screens/staff/orders/verify.screen.js` | Counter QR verification and order completion (protected). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
@@ -239,7 +239,7 @@ The app has three areas:
 | `/api/items` | `src/app/api/items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
 | `/api/items/[id]` | `src/app/api/items/[id]+api.js` | Admin item update/delete (`PATCH`/`DELETE`). |
 | `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns order + counter QR. |
-| `/api/signin` | `src/app/api/signin+api.js` | Administrator sign-in. |
+| `/api/signin` | `src/app/api/signin+api.js` | Staff sign-in. |
 | `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
 | `/api/signout` | `src/app/api/signout+api.js` | Revokes the current session. |
 | `/api/admin/orders` | `src/app/api/admin/orders/+api.js` | Admin orders listing and create (`GET`/`POST`). |
@@ -334,6 +334,8 @@ The app has three areas:
 │   ├── domain/
 │   │   ├── audit/
 │   │   │   └── summary.js
+│   │   ├── auth/
+│   │   │   └── roles.js
 │   │   ├── items/
 │   │   │   └── schema.js
 │   │   ├── menu/
@@ -503,6 +505,8 @@ The app has three areas:
 │   ├── domain/
 │   │   ├── audit/
 │   │   │   └── summary.test.js
+│   │   ├── auth/
+│   │   │   └── roles.test.js
 │   │   ├── menu/
 │   │   │   ├── combo.test.js
 │   │   │   └── sections.test.js

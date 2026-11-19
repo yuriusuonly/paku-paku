@@ -4,6 +4,7 @@ import { useAuthStore } from "../stores/auth.store.js";
 import { useCartStore } from "../stores/cart.store.js";
 import config from "../shared/constants/config.js";
 import { cx } from "../shared/constants/theme.js";
+import { hasStaffAccess, isAdminRole } from "../domain/auth/roles.js";
 
 /**
  * Site header with storefront navigation and staff sign-in actions.
@@ -28,7 +29,8 @@ export function Header() {
 
   const isAdminPage = typeof pathname === "string" && pathname.startsWith("/admin");
   const isStaffPage = typeof pathname === "string" && pathname.startsWith("/staff");
-  const isAdmin = status === "authenticated" && user?.role === "admin";
+  const isStaff = status === "authenticated" && hasStaffAccess(user?.role);
+  const isAdmin = status === "authenticated" && isAdminRole(user?.role);
 
   return (
     <View className={`mb-6 flex-row flex-wrap items-center justify-between ${cx.spacing.md} sm:mb-8 md:mb-10`}>
@@ -53,9 +55,9 @@ export function Header() {
       </View>
 
       <View className={`flex-row flex-wrap items-center ${cx.spacing.md}`}>
-        {isAdmin ? (
+        {isStaff ? (
           <>
-            {!isAdminPage ? (
+            {isAdmin && !isAdminPage ? (
               <Link href="/admin" asChild>
                 <Pressable accessibilityRole="link" className={`rounded-full ${cx.bgSurfaceMuted} px-4 py-2`}>
                   <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Admin</Text>
@@ -80,7 +82,7 @@ export function Header() {
         ) : (
           <Link href="/signin" asChild>
             <Pressable accessibilityRole="link" className={`min-h-[44px] rounded-full ${cx.bgPrimary} px-4 py-2`}>
-              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>Staff sign in</Text>
+              <Text className={`font-outfit text-sm font-semibold ${cx.textWhite}`}>Sign in</Text>
             </Pressable>
           </Link>
         )}
