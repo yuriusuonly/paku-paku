@@ -143,7 +143,7 @@ max_tables = 10
 max_catalogs = 2
 
 # Analytics Buckets is available to Supabase Pro plan.
-# [storage.analytics.buckets.my-warehouse]
+# [storage.analytics.buckets.example]
 
 # Store vector embeddings in S3 for large and durable datasets
 [storage.vector]

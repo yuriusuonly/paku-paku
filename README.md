@@ -37,7 +37,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | Key | Purpose |
 | --- | --- |
 | `EXPO_PUBLIC_TITLE` | App/site title (client-visible): Expo `name`, UI, document title, PWA manifest. |
-| `EXPO_PUBLIC_DESCRIPTION` | App/site description (client-visible): UI, HTML meta description, PWA manifest. |
+| `EXPO_PUBLIC_DESCRIPTION` | Kiosk storefront description (client-visible): landing page, HTML meta description, PWA manifest. |
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
 | `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `src/shared/constants/config.js`. |
 | `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `src/shared/constants/config.js`. |
@@ -58,6 +58,8 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GH_REPO` | HTTPS repository URL used by the `github:*` scripts. |
 | `GH_TOKEN` | GitHub token used by the `github:*` scripts. |
+
+Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` so hosted static builds pick up the new kiosk copy.
 
 Keep `.env` POSIX-compatible (`KEY=value` lines): it is sourced by the Expo
 scripts, loaded by Caddy's `--envfile`, and read by Node's `--env-file`.
