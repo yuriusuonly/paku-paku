@@ -10,14 +10,14 @@ const food = { category: "food", quantity: 1, unit_price_cents: 8000 };
 const drink = { category: "beverage", quantity: 1, unit_price_cents: 2500 };
 
 describe("order pricing", () => {
-  test("applies a ₱20 discount to a dish and drink pair", () => {
-    expect(MEAL_DISCOUNT_CENTS).toBe(2000);
+  test("applies a ₱10 discount to a dish and drink pair", () => {
+    expect(MEAL_DISCOUNT_CENTS).toBe(1000);
     expect(hasMealPair([food, drink])).toBe(true);
-    expect(getMealDiscountCents([food, drink])).toBe(2000);
+    expect(getMealDiscountCents([food, drink])).toBe(1000);
     expect(calculateOrderTotals([food, drink])).toEqual({
       subtotalCents: 10500,
-      discountCents: 2000,
-      totalCents: 8500
+      discountCents: 1000,
+      totalCents: 9500
     });
   });
 

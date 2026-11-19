@@ -7,7 +7,7 @@
  * Flat discount applied when an order has both a main dish and a drink.
  * @type {number}
  */
-export const MEAL_DISCOUNT_CENTS = 2000;
+export const MEAL_DISCOUNT_CENTS = 1000;
 
 /**
  * Calculates the undiscounted subtotal for line items.
