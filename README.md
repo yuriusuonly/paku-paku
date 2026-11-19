@@ -225,7 +225,7 @@ Only `/` and `/signin` are public pages. Everything else requires one of the
 three seeded roles:
 
 - **Customer:** `/menu`, `/cart`, and `/checkout` (order confirmation with the counter QR). Customers sign in with the shared guest profile; no signup. A main dish plus any side drink gets ₱10 off automatically.
-- **Staff:** `/staff/order` (manual walk-in orders and counter QR verification) and `/staff/records` (order logs with status updates). Staff cannot access `/admin/*`.
+- **Staff:** `/staff/order` (one form for manual entry or optional QR/order-number lookup that fills items, customer, notes, and prices; completing it redirects to logs) and `/staff/records` (order logs with status updates). Staff cannot access `/admin/*`.
 - **Admin:** dashboard analytics, audit logs, and edit screens for items, orders, and profiles, including the profiles audit page that lists every seeded account. Administrators cannot access `/staff/*`.
 
 | Route | Source | Purpose |
@@ -236,7 +236,7 @@ three seeded roles:
 | `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after successful placement. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
 | `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order`. |
-| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Manual order entry plus counter QR verification (staff role only). |
+| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup; redirects to `/staff/records` on success (staff role only). |
 | `/staff/records` | `src/app/(staff)/staff/records.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |

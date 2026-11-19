@@ -2,6 +2,8 @@ import { Text, View } from "react-native";
 import { Button } from "../../../components/button.js";
 import { FormActions } from "../../../components/form-actions.js";
 import { InlineSelect } from "../../../components/inline-select.js";
+import { QrScanner } from "../../../components/qr-scanner.js";
+import { StatusPill } from "../../../components/status-pill.js";
 import { TextField } from "../../../components/text-field.js";
 import { ORDER_STATUSES, PAYMENT_METHODS } from "../../../domain/orders/constants.js";
 import { MENU_SORT_RANGES } from "../../../domain/menu/sections.js";
@@ -10,13 +12,18 @@ import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
- * Manual staff order-taking form.
+ * Staff order-taking form with optional order reference lookup.
  * @module screens/staff/order-taking/manual-order.component
  */
 
 /**
  * @param {object} props
  * @param {object[]} props.items - Available menu items.
+ * @param {string} props.reference - QR payload or order number input.
+ * @param {(value: string) => void} props.onReferenceChange - Reference input handler.
+ * @param {() => void} props.onLookup - Fills the form from the reference.
+ * @param {(value: string) => void} props.onScan - QR scan handler.
+ * @param {object | null} props.matchedOrder - Order loaded from the reference.
  * @param {object} props.form - Order-level fields.
  * @param {(updater: (form: object) => object) => void} props.setForm - Form updater.
  * @param {object[]} props.lines - Selected menu lines.
@@ -25,12 +32,18 @@ import { cx } from "../../../shared/constants/theme.js";
  * @param {() => void} props.addLine - Adds a line.
  * @param {(index: number) => void} props.removeLine - Removes a line.
  * @param {boolean} props.saving - Whether the order is being saved.
- * @param {() => void} props.onCreate - Creates the order.
+ * @param {() => void} props.onSave - Verifies or creates the order.
  * @param {() => void} props.onClear - Resets the form.
+ * @param {string} props.saveLabel - Primary action label.
  * @returns {JSX.Element}
  */
 export function ManualOrderForm({
   items,
+  reference,
+  onReferenceChange,
+  onLookup,
+  onScan,
+  matchedOrder,
   form,
   setForm,
   lines,
@@ -39,14 +52,45 @@ export function ManualOrderForm({
   addLine,
   removeLine,
   saving,
-  onCreate,
-  onClear
+  onSave,
+  onClear,
+  saveLabel
 }) {
   const itemNames = items.map((item) => item.name);
   const totals = calculateOrderTotals(lines);
 
   return (
     <View className="gap-3">
+      <View className={`${cx.radius.md} border ${cx.borderSubtle} ${cx.bgSurfaceSoft} gap-3 p-4`}>
+        <View>
+          <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Order reference (optional)</Text>
+          <Text className={`font-outfit mt-1 text-xs ${cx.textInk70}`}>
+            Paste a QR payload or order number to fill items, customer, notes, and prices automatically.
+          </Text>
+        </View>
+        <TextField
+          label="QR payload or order number"
+          value={reference}
+          onChangeText={onReferenceChange}
+          placeholder="ORD-XXXXXXXXXX or pasted QR payload"
+          autoCapitalize="characters"
+        />
+        <QrScanner onDetect={onScan} />
+        <Button
+          label="Fill from order"
+          variant="secondary"
+          onPress={onLookup}
+          loading={saving}
+          disabled={!reference.trim() || saving}
+        />
+        {matchedOrder ? (
+          <View className="flex-row flex-wrap items-center gap-2">
+            <StatusPill label={matchedOrder.status} variant="info" />
+            <Text className={`font-outfit text-sm ${cx.textInk70}`}>{matchedOrder.order_number} loaded</Text>
+          </View>
+        ) : null}
+      </View>
+
       <Text className={`font-outfit text-sm ${cx.textInk70}`}>
         Select menu items, set quantities, and record the payment. Meal pairs receive the automatic discount.
       </Text>
@@ -136,7 +180,7 @@ export function ManualOrderForm({
         </View>
       </View>
 
-      <FormActions onSave={onCreate} onClear={onClear} saveLabel="Create order" clearLabel="Clear" saving={saving} />
+      <FormActions onSave={onSave} onClear={onClear} saveLabel={saveLabel} clearLabel="Clear" saving={saving} />
     </View>
   );
 }

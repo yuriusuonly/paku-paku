@@ -1,30 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useRouter } from "expo-router";
 import { Text, View } from "react-native";
 import { AccordionSection } from "../../../components/accordion.js";
 import { Alert } from "../../../components/alert.js";
-import { Button } from "../../../components/button.js";
 import { Header } from "../../../components/header.js";
 import { ScreenContainer } from "../../../components/container.js";
-import { QrScanner } from "../../../components/qr-scanner.js";
-import { SectionHeader } from "../../../components/section-header.js";
-import { StatGrid } from "../../../components/stat-grid.js";
-import { StatusPill } from "../../../components/status-pill.js";
-import { TextField } from "../../../components/text-field.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useItemsStore } from "../../../stores/items.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
 import { useStaffOrdersStore } from "../../../stores/staff-orders.store.js";
+import { PAYMENT_METHODS } from "../../../domain/orders/constants.js";
 import { MENU_SORT_RANGES } from "../../../domain/menu/sections.js";
 import { orderCreateSchema } from "../../../domain/orders/schema.js";
-import { isPaid, isPending, isRefunded, isVoided } from "../../../domain/orders/status.js";
-import { formatAuditTimestamp } from "../../../shared/format/date.js";
-import { formatCurrencyCents } from "../../../shared/format/currency.js";
 import { cx } from "../../../shared/constants/theme.js";
 import { ManualOrderForm } from "./manual-order.component.js";
 
 /**
- * Staff order taking screen: manual order entry and counter QR verification.
+ * Staff order taking screen: one form for manual entry and QR-based lookup.
  * @module screens/staff/order-taking/order-taking.screen
  */
 
@@ -54,6 +46,7 @@ function emptyForm() {
  * @returns {JSX.Element} Staff order taking screen.
  */
 export default function StaffOrderTakingScreen() {
+  const router = useRouter();
   const session = useAuthStore((s) => s.session);
   const token = session?.access_token;
 
@@ -63,7 +56,6 @@ export default function StaffOrderTakingScreen() {
   const createOrder = useStaffOrdersStore((s) => s.createOrder);
   const loading = useStaffOrdersStore((s) => s.loading);
   const error = useStaffOrdersStore((s) => s.error);
-  const order = useStaffOrdersStore((s) => s.order);
   const verify = useStaffOrdersStore((s) => s.verify);
   const setStatus = useStaffOrdersStore((s) => s.setStatus);
   const clear = useStaffOrdersStore((s) => s.clear);
@@ -73,14 +65,78 @@ export default function StaffOrderTakingScreen() {
 
   const [form, setForm] = useState(emptyForm);
   const [lines, setLines] = useState([]);
-  const [localError, setLocalError] = useState("");
-  const [manualExpanded, setManualExpanded] = useState(true);
-  const [verifyExpanded, setVerifyExpanded] = useState(false);
   const [reference, setReference] = useState("");
+  const [matchedOrder, setMatchedOrder] = useState(null);
+  const [localError, setLocalError] = useState("");
+  const [expanded, setExpanded] = useState(true);
+  const lookedUpRef = useRef("");
 
   useEffect(() => {
     void fetchItems().catch(() => {});
   }, [fetchItems]);
+
+  /**
+   * Looks up an order and fills the form from its snapshots.
+   *
+   * @param {string} value - QR payload or order number.
+   * @returns {Promise<void>}
+   */
+  const fillFromReference = useCallback(async (value) => {
+    const trimmed = String(value || "").trim();
+    if (!token || !trimmed) return;
+    setLocalError("");
+    lookedUpRef.current = trimmed;
+
+    try {
+      const found = await verify(token, trimmed);
+      if (!found) return;
+      const resolved = found.order_number || trimmed;
+      lookedUpRef.current = resolved;
+      setMatchedOrder(found);
+      setReference(resolved);
+      setLines((found.items || []).map((item) => ({
+        item_id: item.item_id || null,
+        item_name: item.item_name,
+        category: item.category || null,
+        quantity: String(item.quantity ?? 1),
+        unit_price_cents: String(item.unit_price_cents ?? 0)
+      })));
+      setForm({
+        status: "Paid",
+        payment_method: PAYMENT_METHODS.includes(found.payment_method) ? found.payment_method : "cash",
+        customer_name: found.customer_name || "",
+        notes: found.notes || ""
+      });
+      showSuccess(`Order ${found.order_number} loaded.`);
+    } catch (e) {
+      setMatchedOrder(null);
+      const message = e?.message || "Could not find that order.";
+      setLocalError(message);
+      showError(message);
+    }
+  }, [token, verify, showSuccess, showError]);
+
+  useEffect(() => {
+    const value = reference.trim();
+    if (!value || lookedUpRef.current === value) return;
+    if (!/^(ORD:|ORD-[A-Z0-9]{10}$)/i.test(value)) return;
+    void fillFromReference(value);
+  }, [reference, fillFromReference]);
+
+  const onScan = useCallback((value) => {
+    setReference(value);
+    void fillFromReference(value);
+  }, [fillFromReference]);
+
+  const resetForm = () => {
+    lookedUpRef.current = "";
+    setForm(emptyForm());
+    setLines([]);
+    setReference("");
+    setMatchedOrder(null);
+    setLocalError("");
+    clear();
+  };
 
   const onSelectItem = (index, name) => {
     const item = items.find((entry) => entry.name === name);
@@ -101,76 +157,51 @@ export default function StaffOrderTakingScreen() {
     setLines((current) => current.filter((_, i) => i !== index));
   };
 
-  const resetForm = () => {
-    setForm(emptyForm());
-    setLines([]);
-  };
-
-  const onCreate = async () => {
+  const onSave = async () => {
     if (!token) return;
     setLocalError("");
+
     try {
-      const parsed = orderCreateSchema.safeParse({
-        status: form.status,
-        payment_method: form.payment_method,
-        customer_name: form.customer_name,
-        notes: form.notes,
-        items: lines.map((line) => ({
-          item_name: line.item_name,
-          category: line.category,
-          quantity: line.quantity,
-          unit_price_cents: line.unit_price_cents
-        }))
-      });
+      if (matchedOrder) {
+        await setStatus(token, matchedOrder.id, form.status);
+        showSuccess(`Order ${matchedOrder.order_number} marked ${form.status.toLowerCase()}.`);
+      } else {
+        const parsed = orderCreateSchema.safeParse({
+          status: form.status,
+          payment_method: form.payment_method,
+          customer_name: form.customer_name,
+          notes: form.notes,
+          items: lines.map((line) => ({
+            item_name: line.item_name,
+            category: line.category,
+            quantity: line.quantity,
+            unit_price_cents: line.unit_price_cents
+          }))
+        });
 
-      if (!parsed.success) {
-        const issue = parsed.error.issues[0];
-        const field = String(issue?.path?.[issue.path.length - 1] || "");
-        const messages = {
-          item_name: "a menu item is required.",
-          quantity: "quantity must be a positive whole number.",
-          unit_price_cents: "unit price is invalid."
-        };
-        const detail = field === "items" ? "select at least one item." : (messages[field] || "order details are invalid.");
-        throw new Error(`Order: ${detail}`);
-      }
+        if (!parsed.success) {
+          const issue = parsed.error.issues[0];
+          const field = String(issue?.path?.[issue.path.length - 1] || "");
+          const messages = {
+            item_name: "a menu item is required.",
+            quantity: "quantity must be a positive whole number.",
+            unit_price_cents: "unit price is invalid."
+          };
+          const detail = field === "items" ? "select at least one item." : (messages[field] || "order details are invalid.");
+          throw new Error(`Order: ${detail}`);
+        }
 
-      const created = await createOrder(token, parsed.data);
-      if (created) {
+        const created = await createOrder(token, parsed.data);
+        if (!created) return;
         showSuccess(`Order ${created.order_number} created.`);
-        resetForm();
       }
+
+      resetForm();
+      router.replace("/staff/records");
     } catch (e) {
-      const message = e?.message || "Could not create the order.";
+      const message = e?.message || (matchedOrder ? "Could not verify that order." : "Could not create the order.");
       setLocalError(message);
       showError(message);
-    }
-  };
-
-  const runVerify = async (value) => {
-    if (!token || !value.trim()) return;
-    try {
-      const result = await verify(token, value.trim());
-      if (result) showSuccess("Order verified.");
-    } catch (e) {
-      showError(e?.message || "Could not verify that order.");
-    }
-  };
-
-  const onVerify = () => runVerify(reference);
-
-  const onScan = useCallback((value) => {
-    setReference(value);
-    void runVerify(value);
-  }, [token, verify, showSuccess, showError]);
-
-  const onStatus = async (status) => {
-    if (!token || !order?.id) return;
-    try {
-      await setStatus(token, order.id, status);
-      showSuccess(`Order marked ${status.toLowerCase()}.`);
-    } catch (e) {
-      showError(e?.message || "Could not update the order.");
     }
   };
 
@@ -184,7 +215,7 @@ export default function StaffOrderTakingScreen() {
         </Link>
         <Text className={`${cx.typography.heading} ${cx.textInk}`}>Order taking</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-          Enter walk-in orders manually or verify a customer QR code at the counter.
+          Enter walk-in orders manually, or scan/enter an order reference to fill the form automatically.
         </Text>
       </View>
 
@@ -192,12 +223,17 @@ export default function StaffOrderTakingScreen() {
 
       <AccordionSection
         title="Take an order"
-        expanded={manualExpanded}
-        onToggle={() => setManualExpanded((value) => !value)}
+        expanded={expanded}
+        onToggle={() => setExpanded((value) => !value)}
         className="mb-6"
       >
         <ManualOrderForm
           items={items}
+          reference={reference}
+          onReferenceChange={setReference}
+          onLookup={() => void fillFromReference(reference)}
+          onScan={onScan}
+          matchedOrder={matchedOrder}
           form={form}
           setForm={setForm}
           lines={lines}
@@ -206,63 +242,10 @@ export default function StaffOrderTakingScreen() {
           addLine={addLine}
           removeLine={removeLine}
           saving={loading}
-          onCreate={onCreate}
+          onSave={onSave}
           onClear={resetForm}
+          saveLabel={matchedOrder ? "Verify order" : "Create order"}
         />
-      </AccordionSection>
-
-      <AccordionSection
-        title="Verify an order (QR)"
-        expanded={verifyExpanded}
-        onToggle={() => setVerifyExpanded((value) => !value)}
-      >
-        <View className="gap-3">
-          <TextField
-            label="QR payload or order number"
-            value={reference}
-            onChangeText={setReference}
-            placeholder="ORD-XXXXXXXXXX or pasted QR payload"
-            autoCapitalize="characters"
-          />
-          <QrScanner onDetect={onScan} />
-          <View className="flex-row flex-wrap gap-3">
-            <Button label="Verify order" onPress={onVerify} loading={loading} disabled={!reference.trim()} />
-            <Button label="Clear" variant="ghost" onPress={() => { setReference(""); clear(); }} disabled={loading} />
-          </View>
-
-          {order ? (
-            <View className="mt-2 gap-4">
-              <SectionHeader
-                title="Verified order"
-                right={<StatusPill label={order.status} variant={isPaid(order.status) ? "success" : isPending(order.status) ? "info" : isRefunded(order.status) ? "warning" : "danger"} />}
-              />
-              <StatGrid
-                stats={[
-                  { label: "Reference", value: order.order_number },
-                  { label: "Payment", value: String(order.payment_method || "cash").toUpperCase() },
-                  { label: "Total", value: formatCurrencyCents(order.total_cents) },
-                  { label: "Placed", value: formatAuditTimestamp(order.placed_at || order.created_at) }
-                ]}
-              />
-              <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.sm}`}>
-                <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Items</Text>
-                {Array.isArray(order.items) && order.items.length ? order.items.map((item, index) => (
-                  <View key={item.id || index} className="flex-row items-center justify-between gap-3">
-                    <Text className={`font-outfit text-sm ${cx.textInk}`}>{item.item_name} × {item.quantity}</Text>
-                    <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>{formatCurrencyCents(item.line_total_cents)}</Text>
-                  </View>
-                )) : (
-                  <Text className={`font-outfit text-sm ${cx.textInk70}`}>No line items recorded.</Text>
-                )}
-              </View>
-              <View className="flex-row flex-wrap gap-3">
-                <Button label="Mark Paid" onPress={() => onStatus("Paid")} loading={loading} disabled={isPaid(order.status)} />
-                <Button label="Refund" variant="secondary" onPress={() => onStatus("Refunded")} loading={loading} disabled={isRefunded(order.status)} />
-                <Button label="Void" variant="ghost" onPress={() => onStatus("Voided")} loading={loading} disabled={isVoided(order.status)} />
-              </View>
-            </View>
-          ) : null}
-        </View>
       </AccordionSection>
     </ScreenContainer>
   );
