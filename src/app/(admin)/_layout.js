@@ -2,6 +2,7 @@ import { Redirect, Slot } from "expo-router";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
+import { isAdminRole } from "../../domain/auth/roles.js";
 
 /**
  * Protected administrator route group layout.
@@ -27,7 +28,7 @@ export default function AdminLayout() {
     );
   }
 
-  if (status !== "authenticated" || user?.role !== "admin") {
+  if (status !== "authenticated" || !isAdminRole(user?.role)) {
     return <Redirect href="/signin" />;
   }
 

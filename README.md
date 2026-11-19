@@ -13,8 +13,9 @@ Common Meanings & Uses:
 
 A web-only Expo Router application for a kiosk storefront: customers pick orders
 from the menu, choose a payment method, and receive a counter QR code. Staff sign
-in to manage items and audit orders. Backed by Supabase and packaged
-for local development, Docker, and Expo Hosting.
+in to take orders and review order logs; administrators manage analytics, audit
+logs, and edits. Backed by Supabase and packaged for local development, Docker,
+and Expo Hosting.
 
 - **Stack:** Expo SDK 58 + Expo Router (web-only, static output, API routes),
   React 19, React Native Web, NativeWind v4, Tailwind CSS v3, Zustand, Zod for
@@ -97,9 +98,10 @@ npm run supabase:stop
 ```
 
 `supabase:reset` reapplies migrations and seeds the sample items plus two staff
-accounts: `admin@paku-paku.official` (password `admin`) and
-`staff@paku-paku.official` (password `staff`). Both use the `admin` role.
-Authentication is email/password; seeded staff use internal Supabase Auth emails.
+accounts: `admin@paku-paku.official` (password `admin`, `admin` role) and
+`staff@paku-paku.official` (password `staff`, `staff` role). Administrators can
+access `/admin/*` only; staff can access `/staff/*` only. Authentication is
+email/password; seeded accounts use internal Supabase Auth emails.
 The seed stores static bcrypt hashes so it does not depend on `pgcrypto`;
 rerunning the seed restores the local passwords. The local auth config keeps
 `minimum_password_length = 6`, so GoTrue may report the short seed
@@ -219,8 +221,8 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 The app has three areas:
 
 - **Customer storefront:** `/`, `/menu`, and `/cart`; no account required. Customers can buy items individually or get ₱10 off automatically when a main dish and any side drink are in the same order. Checkout creates a counter QR with order details.
-- **Staff counter:** `/staff`; authenticated staff scan/enter the QR payload, verify the order, and complete it as Paid/Refunded/Voided.
-- **Admin audit:** `/admin`; protected dashboard plus items, orders, profiles, and audit logs.
+- **Staff:** `/staff/order-taking` (manual walk-in orders and counter QR verification) and `/staff/logs` (order logs with status updates). Staff cannot access `/admin/*`.
+- **Admin:** `/admin`; dashboard analytics, audit logs, and edit screens for items, orders, and profiles. Administrators cannot access `/staff/*`.
 
 | Route | Source | Purpose |
 | --- | --- | --- |
@@ -228,8 +230,9 @@ The app has three areas:
 | `/menu` | `src/app/menu.js` → `src/screens/menu/menu.screen.js` | Public menu with add-to-cart controls. |
 | `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Shared sign-in; redirects by role. |
-| `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/orders`. |
-| `/staff/orders` | `src/app/(staff)/staff/orders.js` → `src/screens/staff/orders/verify.screen.js` | Counter QR verification and order completion (protected). |
+| `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order-taking`. |
+| `/staff/order-taking` | `src/app/(staff)/staff/order-taking.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Manual order entry plus counter QR verification (staff role only). |
+| `/staff/logs` | `src/app/(staff)/staff/logs.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |
 | `/admin/orders` | `src/app/(admin)/admin/orders.js` → `src/screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
@@ -248,8 +251,9 @@ The app has three areas:
 | `/api/admin/orders/[id]` | `src/app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
 | `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
 | `/api/admin/audit-logs` | `src/app/api/admin/audit-logs/+api.js` | Admin audit trail listing (`GET`). |
+| `/api/staff/orders` | `src/app/api/staff/orders/+api.js` | Staff order logs and manual order taking (`GET`/`POST`). |
 | `/api/staff/orders/verify` | `src/app/api/staff/orders/verify+api.js` | Staff order verification (`POST`). |
-| `/api/staff/orders/[id]` | `src/app/api/staff/orders/[id]+api.js` | Staff order completion (`PATCH`). |
+| `/api/staff/orders/[id]` | `src/app/api/staff/orders/[id]+api.js` | Staff order status update (`PATCH`). |
 | `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
 | `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
 | `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
@@ -413,8 +417,11 @@ The app has three areas:
 │   │   ├── signin/
 │   │   │   └── signin.screen.js
 │   │   ├── staff/
-│   │   │   └── orders/
-│   │   │       └── verify.screen.js
+│   │   │   ├── logs/
+│   │   │   │   └── logs.screen.js
+│   │   │   └── order-taking/
+│   │   │       ├── manual-order.component.js
+│   │   │       └── order-taking.screen.js
 │   │   └── root.js
 │   ├── services/
 │   │   ├── admin.js

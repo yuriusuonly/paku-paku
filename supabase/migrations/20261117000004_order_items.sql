@@ -33,7 +33,7 @@ create policy "Users can read own order items"
     exists (
       select 1 from public.orders o
       where o.id = order_items.order_id
-        and (o.customer_id = auth.uid() or public.current_user_is_admin())
+        and (o.customer_id = auth.uid() or public.current_user_is_admin() or public.current_user_is_staff())
     )
   );
 
@@ -46,7 +46,7 @@ create policy "Users can create own order items"
     exists (
       select 1 from public.orders o
       where o.id = order_items.order_id
-        and (o.customer_id = auth.uid() or public.current_user_is_admin())
+        and (o.customer_id = auth.uid() or public.current_user_is_admin() or public.current_user_is_staff())
     )
   );
 

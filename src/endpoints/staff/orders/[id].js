@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { authorizationInterceptor } from "../../../interceptors/authorization.interceptor.js";
+import { staffAuthorizationInterceptor } from "../../../interceptors/staff-authorization.interceptor.js";
 import { errorInterceptor } from "../../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method.interceptor.js";
@@ -23,7 +23,7 @@ export const PATCH = withMiddleware(
   logInterceptor,
   errorInterceptor,
   methodInterceptor("PATCH"),
-  authorizationInterceptor
+  staffAuthorizationInterceptor
 )(async (context) => {
   const body = requireObjectBody(
     await readJsonBody(context.request),

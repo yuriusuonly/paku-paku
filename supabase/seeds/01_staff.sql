@@ -1,4 +1,5 @@
--- Seeded staff member.
+-- Seeded staff member with the `staff` role (order taking and order logs only).
+-- Password is `staff` (static bcrypt hash). No administrator access.
 insert into auth.users (
   instance_id,
   id,
@@ -76,7 +77,7 @@ set
   updated_at = excluded.updated_at;
 
 insert into public.profiles (id, email, role)
-values ('00000000-0000-0000-0000-000000000001', 'staff@paku-paku.official', 'admin')
+values ('00000000-0000-0000-0000-000000000001', 'staff@paku-paku.official', 'staff')
 on conflict (id) do update
 set
   email = excluded.email,

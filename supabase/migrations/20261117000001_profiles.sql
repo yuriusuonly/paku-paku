@@ -2,7 +2,7 @@
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null check (position('@' in email) > 1),
-  role text not null default 'admin' check (role = 'admin'),
+  role text not null default 'staff' check (role in ('admin', 'staff')),
   is_active boolean not null default true,
   full_name text,
   phone text,
@@ -12,7 +12,7 @@ create table public.profiles (
 
 comment on table public.profiles is 'App profiles linked to Supabase Auth users.';
 comment on column public.profiles.email is 'Case-insensitive email address used as the account identifier.';
-comment on column public.profiles.role is 'Authorization role: admin (all seeded/active accounts are staff).';
+comment on column public.profiles.role is 'Authorization role: admin (full access) or staff (order taking and logs).';
 comment on column public.profiles.is_active is 'Soft-delete/audit flag; inactive profiles are disabled without removing records.';
 
 create unique index profiles_email_lower_key on public.profiles (lower(email));
@@ -42,6 +42,25 @@ $$;
 comment on function public.current_user_is_admin() is 'True when the current JWT belongs to an admin profile.';
 revoke all on function public.current_user_is_admin() from public, anon;
 grant execute on function public.current_user_is_admin() to authenticated;
+
+create or replace function public.current_user_is_staff()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'staff'
+  );
+$$;
+
+comment on function public.current_user_is_staff() is 'True when the current JWT belongs to a staff profile.';
+revoke all on function public.current_user_is_staff() from public, anon;
+grant execute on function public.current_user_is_staff() to authenticated;
 
 drop policy if exists "Profiles are readable" on public.profiles;
 create policy "Profiles are readable"

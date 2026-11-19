@@ -2,10 +2,13 @@ import { Redirect, Slot } from "expo-router";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
-import { hasStaffAccess } from "../../domain/auth/roles.js";
+import { isStaffRole } from "../../domain/auth/roles.js";
 
 /**
  * Protected staff route group layout.
+ *
+ * Only profiles with the `staff` role may enter; administrator accounts use
+ * the separate `(admin)` route group.
  * @module app/(staff)/_layout
  */
 
@@ -25,7 +28,7 @@ export default function StaffLayout() {
     );
   }
 
-  if (status !== "authenticated" || !hasStaffAccess(user?.role)) {
+  if (status !== "authenticated" || !isStaffRole(user?.role)) {
     return <Redirect href="/signin" />;
   }
 

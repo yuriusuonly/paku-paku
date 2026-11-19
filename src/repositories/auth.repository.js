@@ -9,6 +9,7 @@ import {
   getDatabaseServerConfig
 } from "../database/instance.js";
 import { findProfileByUserId, toPublicProfile } from "./profile.repository.js";
+import { hasStaffAccess, isStaffRole } from "../domain/auth/roles.js";
 
 /**
  * Administrator authentication data access and orchestration.
@@ -42,8 +43,8 @@ export async function signIn({ email, password }) {
   const authenticated = createDatabaseClient({ accessToken: data.session.access_token });
   const profile = await findProfileByUserId(authenticated, data.user.id);
 
-  if (profile.role !== "admin") {
-    throw forbidden("forbidden", "Administrator access required.");
+  if (!hasStaffAccess(profile.role)) {
+    throw forbidden("forbidden", "Staff access required.");
   }
 
   return {
@@ -111,6 +112,22 @@ export async function authenticateAdmin(request) {
 
   if (auth.profile.role !== "admin") {
     throw forbidden("forbidden", "Administrator access required.");
+  }
+
+  return auth;
+}
+
+/**
+ * Requires an authenticated staff profile.
+ *
+ * @param {Request} request - Incoming request.
+ * @returns {Promise<{token: string, database: object, user: object, profile: object}>} Staff auth context.
+ */
+export async function authenticateStaff(request) {
+  const auth = await authenticate(request);
+
+  if (!isStaffRole(auth.profile.role)) {
+    throw forbidden("forbidden", "Staff access required.");
   }
 
   return auth;

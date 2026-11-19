@@ -163,7 +163,7 @@ flowchart LR
 - Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `src/shared/constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `src/shared/stylesheets/global.css`.
 - Support wearable (`<640px`), phone (`sm:`), and tablet (`md:`+) viewports by following the responsive rules in `DESIGN.md`.
 - Audit events are written by database triggers on profiles, items, orders, and order items. Only admins can read `audit_logs` through `/api/admin/audit-logs`; do not add client-side write paths.
-- Use Zustand stores under `src/stores/` for shared client state. Customers are anonymous kiosk visitors; only staff authenticate, and admin screens enforce the `admin` role.
+- Use Zustand stores under `src/stores/` for shared client state. Customers are anonymous kiosk visitors; only staff authenticate. The `(staff)` group enforces the `staff` role (order taking and logs), and the `(admin)` group enforces the `admin` role (analytics, audit logs, and edit screens).
 - Keep the storefront (`/`, `/menu`, `/cart`, `/api/checkout`) public. Do not add customer sign-up, account, or recovery flows back into the MVP. 
 - Tailwind content scans `src/**/*.{js,jsx,ts,tsx}`; dark mode is `class`-based.
 - Client-visible config comes from `EXPO_PUBLIC_*` vars (see `src/shared/constants/config.js`, `app.config.js`). `src/shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.

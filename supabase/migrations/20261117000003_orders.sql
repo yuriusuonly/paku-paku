@@ -21,7 +21,7 @@ create table public.orders (
 );
 
 comment on table public.orders is 'Unified buy/sell orders and operational records.';
-comment on column public.orders.kind is 'Order kind: buy (customer checkout) or sell (admin-recorded).';
+comment on column public.orders.kind is 'Order kind: buy (customer checkout) or sell (staff/admin-recorded).';
 comment on column public.orders.discount_cents is 'Automatic meal-pair discount applied at checkout.';
 comment on column public.orders.qr_payload is 'QR code payload for counter verification.';
 
@@ -41,22 +41,22 @@ create policy "Users can read own orders"
   on public.orders
   for select
   to authenticated
-  using (customer_id = auth.uid() or public.current_user_is_admin());
+  using (customer_id = auth.uid() or public.current_user_is_admin() or public.current_user_is_staff());
 
 drop policy if exists "Users can create own orders" on public.orders;
 create policy "Users can create own orders"
   on public.orders
   for insert
   to authenticated
-  with check (customer_id = auth.uid() or public.current_user_is_admin());
+  with check (customer_id = auth.uid() or public.current_user_is_admin() or public.current_user_is_staff());
 
 drop policy if exists "Users can update own pending orders" on public.orders;
 create policy "Users can update own pending orders"
   on public.orders
   for update
   to authenticated
-  using ((customer_id = auth.uid() and status = 'Pending') or public.current_user_is_admin())
-  with check (customer_id = auth.uid() or public.current_user_is_admin());
+  using ((customer_id = auth.uid() and status = 'Pending') or public.current_user_is_admin() or public.current_user_is_staff())
+  with check (customer_id = auth.uid() or public.current_user_is_admin() or public.current_user_is_staff());
 
 drop policy if exists "Admins can delete orders" on public.orders;
 create policy "Admins can delete orders"

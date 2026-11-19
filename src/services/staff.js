@@ -7,6 +7,27 @@ import { apiRequest } from "../shared/network/transport.js";
  */
 
 /**
+ * Lists orders for staff order logs.
+ *
+ * @param {string} token - Staff access token.
+ * @returns {Promise<{orders: object[]}>} Orders payload.
+ */
+export function getStaffOrders(token) {
+  return apiRequest(api.endpoints.staffOrders, { token });
+}
+
+/**
+ * Creates a manual staff order.
+ *
+ * @param {string} token - Staff access token.
+ * @param {object} input - Order payload.
+ * @returns {Promise<{order: object}>} Created order payload.
+ */
+export function createStaffOrder(token, input) {
+  return apiRequest(api.endpoints.staffOrders, { method: "POST", token, body: input });
+}
+
+/**
  * Verifies a scanned order reference.
  *
  * @param {string} token - Staff access token.
