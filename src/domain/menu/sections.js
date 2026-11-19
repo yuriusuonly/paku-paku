@@ -22,7 +22,9 @@ export const MENU_SORT_RANGES = Object.freeze({
  * @returns {Array<{key: string, title: string, items: object[]}>} Non-empty menu sections.
  */
 export function getMenuSections(items) {
-  const visible = (items || []).filter((item) => item?.is_available !== false);
+  const visible = (items || [])
+    .filter((item) => item?.is_available !== false)
+    .sort((a, b) => Number(a?.sort_order ?? 0) - Number(b?.sort_order ?? 0));
   const sortOrder = (item) => Number(item?.sort_order ?? 0);
 
   const beverageItems = visible.filter((item) => sortOrder(item) < MENU_SORT_RANGES.drinkMax);

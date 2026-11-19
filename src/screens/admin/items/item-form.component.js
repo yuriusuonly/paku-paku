@@ -24,7 +24,7 @@ export function ItemFormSection({ form, setForm, fieldErrors, setFieldErrors, sa
             setForm((f) => ({ ...f, name: v }));
             if (fieldErrors.name) setFieldErrors((current) => ({ ...current, name: false }));
           }}
-          placeholder="Karaage"
+          placeholder="Teriyaki"
           error={fieldErrors.name}
         />
         <TextField
