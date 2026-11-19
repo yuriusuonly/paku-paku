@@ -165,7 +165,7 @@ npm run expo:serve  # serves build/ on $URL_PORT
 npm test  # unit + integration/mock tests (bun)
 ```
 
-- `npm test` runs Bun tests under `test/` (unit, integration, and service/mock coverage).
+- `npm test` runs Bun tests under `test/unit/` and `test/integration/` only (unit and integration/mock coverage).
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
@@ -525,56 +525,54 @@ three seeded roles:
 │   ├── logo-maskable.svg
 │   └── logo.svg
 ├── test/
-│   ├── architecture/
-│   │   └── layers.test.js
-│   ├── domain/
-│   │   ├── audit/
-│   │   │   └── summary.test.js
-│   │   ├── auth/
-│   │   │   └── roles.test.js
-│   │   ├── menu/
-│   │   │   └── sections.test.js
-│   │   ├── orders/
-│   │   │   ├── items.test.js
-│   │   │   ├── pricing.test.js
-│   │   │   ├── qr.test.js
-│   │   │   ├── rules.test.js
-│   │   │   └── totals.test.js
-│   │   └── schemas.test.js
-│   ├── endpoints/
-│   │   └── items-validation.test.js
 │   ├── integration/
-│   │   ├── endpoints/
 │   │   └── middleware-endpoint.test.js
-│   ├── services/
-│   │   ├── admin.test.js
-│   │   ├── audit.test.js
-│   │   ├── auth.test.js
-│   │   ├── checkout.test.js
-│   │   ├── http.test.js
-│   │   ├── items.test.js
-│   │   ├── orders.test.js
-│   │   └── staff.test.js
-│   └── shared/
-│       ├── errors/
-│       │   ├── message.test.js
-│       │   └── normalize.test.js
-│       ├── format/
-│       │   ├── currency.test.js
-│       │   ├── date.test.js
-│       │   └── email.test.js
-│       ├── network/
-│       │   ├── middleware.test.js
-│       │   ├── request.test.js
-│       │   ├── response.test.js
-│       │   └── transport.test.js
-│       ├── utils/
-│       │   ├── lists.test.js
-│       │   └── records.test.js
-│       └── validation/
-│           ├── email.test.js
-│           ├── password.test.js
-│           └── request.test.js
+│   └── unit/
+│       ├── domain/
+│       │   ├── audit/
+│       │   │   └── summary.test.js
+│       │   ├── auth/
+│       │   │   └── roles.test.js
+│       │   ├── menu/
+│       │   │   └── sections.test.js
+│       │   ├── orders/
+│       │   │   ├── items.test.js
+│       │   │   ├── pricing.test.js
+│       │   │   ├── qr.test.js
+│       │   │   ├── rules.test.js
+│       │   │   └── totals.test.js
+│       │   └── schemas.test.js
+│       ├── endpoints/
+│       │   └── items-validation.test.js
+│       ├── services/
+│       │   ├── admin.test.js
+│       │   ├── audit.test.js
+│       │   ├── auth.test.js
+│       │   ├── checkout.test.js
+│       │   ├── http.test.js
+│       │   ├── items.test.js
+│       │   ├── orders.test.js
+│       │   └── staff.test.js
+│       └── shared/
+│           ├── errors/
+│           │   ├── message.test.js
+│           │   └── normalize.test.js
+│           ├── format/
+│           │   ├── currency.test.js
+│           │   ├── date.test.js
+│           │   └── email.test.js
+│           ├── network/
+│           │   ├── middleware.test.js
+│           │   ├── request.test.js
+│           │   ├── response.test.js
+│           │   └── transport.test.js
+│           ├── utils/
+│           │   ├── lists.test.js
+│           │   └── records.test.js
+│           └── validation/
+│               ├── email.test.js
+│               ├── password.test.js
+│               └── request.test.js
 ├── ttf/
 │   └── Outfit-VariableFont_wght.ttf
 ├── .dockerignore

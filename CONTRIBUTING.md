@@ -86,7 +86,7 @@ Imports only point downward:
 - `endpoints/*` compose request validation, interceptors, repositories, and responses.
 - `screens/*` must not import Supabase or server-only modules.
 - `services/*` are client-to-API contracts; the realtime service may use the shared database client.
-- These rules are enforced by `test/architecture/layers.test.js`.
+- Follow these boundaries when adding new modules; tests live only under `test/unit/` and `test/integration/`.
 
 ## Routing & API conventions (Expo Router)
 - File-based routes live in `src/app/`.
