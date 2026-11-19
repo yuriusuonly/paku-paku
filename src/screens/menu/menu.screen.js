@@ -9,7 +9,12 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
 import { getMenuSections } from "../../domain/menu/sections.js";
-import { buildComboCartItem } from "../../domain/menu/combo.js";
+import {
+  buildComboCartItem,
+  COMBO_DISCOUNT_CENTS,
+  getComboOriginalPriceCents,
+  getComboSavingsCents
+} from "../../domain/menu/combo.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
@@ -63,6 +68,8 @@ export default function MenuScreen() {
   const comboFood = foodItems.find((item) => item.id === comboFoodId) || foodItems[0] || null;
   const comboDrink = drinkItems.find((item) => item.id === comboDrinkId) || drinkItems[0] || null;
   const comboItem = buildComboCartItem(comboFood, comboDrink);
+  const comboOriginalCents = getComboOriginalPriceCents(comboFood, comboDrink);
+  const comboSavingsCents = getComboSavingsCents(comboFood, comboDrink);
   const showInitialMenuLoading = loading && visibleItems.length === 0;
 
   const addCombo = () => {
@@ -101,9 +108,9 @@ export default function MenuScreen() {
       {foodItems.length > 0 && drinkItems.length > 0 ? (
         <View className={`mt-4 ${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${cx.spacing.md}`}>
           <View>
-            <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Build a combo</Text>
+            <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>Combo meal</Text>
             <Text className={`font-outfit mt-1 text-sm ${cx.textInk70}`}>
-              Choose one main dish and add any side drink.
+              Choose one main dish and add any side drink. Combo meals save {formatCurrencyCents(COMBO_DISCOUNT_CENTS)}.
             </Text>
           </View>
 
@@ -138,10 +145,22 @@ export default function MenuScreen() {
           </View>
 
           <View className="mt-3 flex-row flex-wrap items-center justify-between gap-3">
-            <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
-              {comboItem ? formatCurrencyCents(comboItem.unit_price_cents) : "-"}
-            </Text>
-            <Button label="Add combo to cart" onPress={addCombo} disabled={!comboItem} />
+            <View>
+              {comboItem && comboSavingsCents > 0 ? (
+                <Text className={`font-outfit text-xs ${cx.textInk50} line-through`}>
+                  {formatCurrencyCents(comboOriginalCents)}
+                </Text>
+              ) : null}
+              <Text className={`font-outfit text-lg font-bold ${cx.textPrimary}`}>
+                {comboItem ? formatCurrencyCents(comboItem.unit_price_cents) : "-"}
+              </Text>
+              {comboItem && comboSavingsCents > 0 ? (
+                <Text className={`font-outfit text-xs font-semibold ${cx.textPrimary}`}>
+                  Save {formatCurrencyCents(comboSavingsCents)}
+                </Text>
+              ) : null}
+            </View>
+            <Button label="Add combo meal to cart" onPress={addCombo} disabled={!comboItem} />
           </View>
         </View>
       ) : null}

@@ -1,7 +1,13 @@
 /**
- * Build-your-own food combo rules.
+ * Combo meal rules.
  * @module domain/menu/combo
  */
+
+/**
+ * Flat combo discount in cents (₱20.00).
+ * @type {number}
+ */
+export const COMBO_DISCOUNT_CENTS = 2000;
 
 /**
  * Builds a stable cart key for a food + drink combo selection.
@@ -28,14 +34,38 @@ export function getComboName(food, drink) {
 }
 
 /**
- * Calculates the combined price for a combo.
+ * Calculates the undiscounted combo price.
  *
  * @param {{price_cents?: number}} food - Selected main dish.
  * @param {{price_cents?: number}} drink - Selected side drink.
- * @returns {number} Total price in cents.
+ * @returns {number} Original price in cents.
+ */
+export function getComboOriginalPriceCents(food, drink) {
+  return Number(food?.price_cents || 0) + Number(drink?.price_cents || 0);
+}
+
+/**
+ * Calculates the combo savings, capped at the original price.
+ *
+ * @param {{price_cents?: number}} food - Selected main dish.
+ * @param {{price_cents?: number}} drink - Selected side drink.
+ * @returns {number} Savings in cents.
+ */
+export function getComboSavingsCents(food, drink) {
+  const original = getComboOriginalPriceCents(food, drink);
+  if (!original) return 0;
+  return Math.min(COMBO_DISCOUNT_CENTS, original);
+}
+
+/**
+ * Calculates the discounted combo price.
+ *
+ * @param {{price_cents?: number}} food - Selected main dish.
+ * @param {{price_cents?: number}} drink - Selected side drink.
+ * @returns {number} Discounted price in cents.
  */
 export function getComboPriceCents(food, drink) {
-  return Number(food?.price_cents || 0) + Number(drink?.price_cents || 0);
+  return Math.max(0, getComboOriginalPriceCents(food, drink) - getComboSavingsCents(food, drink));
 }
 
 /**

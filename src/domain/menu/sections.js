@@ -33,7 +33,7 @@ export function getMenuSections(items) {
   const foodItems = visible.filter((item) => sortOrder(item) >= MENU_SORT_RANGES.foodMin);
 
   return [
-    { key: "combo", title: "Food & drink combos", items: comboItems },
+    { key: "combo", title: "Combo meals", items: comboItems },
     { key: "food", title: "Main dishes", items: foodItems },
     { key: "beverage", title: "Side drinks", items: beverageItems }
   ].filter((section) => section.items.length > 0);
