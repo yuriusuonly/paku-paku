@@ -179,7 +179,7 @@ export default function StaffOrderTakingScreen() {
       <Header />
 
       <View className="mb-6">
-        <Link href="/staff/logs" asChild>
+        <Link href="/staff/records" asChild>
           <Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>View order logs →</Text>
         </Link>
         <Text className={`${cx.typography.heading} ${cx.textInk}`}>Order taking</Text>

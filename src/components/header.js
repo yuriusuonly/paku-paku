@@ -71,8 +71,8 @@ export function Header() {
           </>
         ) : isStaff ? (
           <>
-            {navLink("/staff/order-taking", "Order taking")}
-            {navLink("/staff/logs", "Order logs")}
+            {navLink("/staff/order", "Order taking")}
+            {navLink("/staff/records", "Order logs")}
             {signOutButton}
           </>
         ) : isCustomer ? (
