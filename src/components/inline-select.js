@@ -85,7 +85,7 @@ export function InlineSelect({ value, options, onChange, disabled = false, acces
           <View
             style={{ position: "absolute", left: position.left, top: position.top, width: MENU_WIDTH }}
             onStartShouldSetResponder={() => true}
-            className={`border ${cx.borderSubtle} ${cx.bgSurface} p-1 ${cx.radius.md} shadow-lg`}
+            className={`border ${cx.borderSubtle} ${cx.bgWhite} p-1 ${cx.radius.md} shadow-lg`}
           >
             {options.map((option) => (
               <Pressable
