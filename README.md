@@ -236,7 +236,7 @@ three seeded roles:
 | `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after successful placement. |
 | `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
 | `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order`. |
-| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup; redirects to `/staff/records` on success (staff role only). |
+| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup (camera scanning via jsQR, manual entry fallback); redirects to `/staff/records` on success (staff role only). |
 | `/staff/records` | `src/app/(staff)/staff/records.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
 | `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
 | `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |

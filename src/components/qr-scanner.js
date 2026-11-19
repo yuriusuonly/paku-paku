@@ -1,13 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
+import jsQR from "jsqr";
 import { Button } from "./button.js";
 import { cx } from "../shared/constants/theme.js";
 
 /**
- * Browser QR scanner using the native BarcodeDetector API when available.
- * Falls back to manual payload entry when camera scanning is unsupported.
+ * Browser camera QR scanner.
+ *
+ * Decodes camera frames with jsQR so scanning works in every browser with
+ * getUserMedia, not only those exposing the native BarcodeDetector API.
+ * Manual payload entry remains available as a fallback.
  * @module components/qr-scanner
  */
+
+/**
+ * Maximum width used for decode frames; camera previews stay full resolution.
+ *
+ * @type {number}
+ */
+const MAX_DECODE_WIDTH = 480;
 
 /**
  * @param {{onDetect: (value: string) => void}} props
@@ -16,9 +27,9 @@ import { cx } from "../shared/constants/theme.js";
 export function QrScanner({ onDetect }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const frameRef = useRef(null);
-  const detectorRef = useRef(null);
   const activeRef = useRef(false);
 
   const [supported, setSupported] = useState(false);
@@ -27,8 +38,8 @@ export function QrScanner({ onDetect }) {
 
   useEffect(() => {
     setSupported(
-      typeof window !== "undefined" &&
-      typeof window.BarcodeDetector === "function" &&
+      typeof navigator !== "undefined" &&
+      typeof document !== "undefined" &&
       Boolean(navigator.mediaDevices?.getUserMedia)
     );
   }, []);
@@ -47,6 +58,7 @@ export function QrScanner({ onDetect }) {
       videoRef.current.parentNode.removeChild(videoRef.current);
     }
     videoRef.current = null;
+    canvasRef.current = null;
     setScanning(false);
   }, []);
 
@@ -72,26 +84,43 @@ export function QrScanner({ onDetect }) {
       containerRef.current.appendChild(video);
       await video.play();
 
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) throw new Error("Canvas decoding is unavailable.");
+
       streamRef.current = stream;
       videoRef.current = video;
-      detectorRef.current = new window.BarcodeDetector({ formats: ["qr_code"] });
+      canvasRef.current = canvas;
       activeRef.current = true;
       setScanning(true);
 
-      const detect = async () => {
-        if (!activeRef.current || !detectorRef.current || !videoRef.current) return;
-        try {
-          const codes = await detectorRef.current.detect(videoRef.current);
-          if (codes.length && codes[0].rawValue) {
-            onDetect(String(codes[0].rawValue));
-            stop();
-            return;
+      const detect = () => {
+        if (!activeRef.current || !videoRef.current || !canvasRef.current) return;
+        const currentVideo = videoRef.current;
+        if (currentVideo.readyState >= 2 && currentVideo.videoWidth && currentVideo.videoHeight) {
+          const scale = Math.min(1, MAX_DECODE_WIDTH / currentVideo.videoWidth);
+          const width = Math.max(1, Math.floor(currentVideo.videoWidth * scale));
+          const height = Math.max(1, Math.floor(currentVideo.videoHeight * scale));
+          canvas.width = width;
+          canvas.height = height;
+          try {
+            context.drawImage(currentVideo, 0, 0, width, height);
+            const imageData = context.getImageData(0, 0, width, height);
+            const code = jsQR(imageData.data, width, height, {
+              inversionAttempts: "dontInvert"
+            });
+            if (code?.data) {
+              onDetect(String(code.data));
+              stop();
+              return;
+            }
+          } catch {
+            // Ignore transient frame errors while the camera adjusts.
           }
-        } catch {
-          // Ignore transient decode errors while the camera adjusts.
         }
         frameRef.current = requestAnimationFrame(detect);
       };
+
       frameRef.current = requestAnimationFrame(detect);
     } catch {
       setError("Camera access is unavailable. Paste the QR payload below instead.");
@@ -102,7 +131,7 @@ export function QrScanner({ onDetect }) {
   if (!supported) {
     return (
       <Text className={`font-outfit text-xs ${cx.textInk60}`}>
-        Camera scanning is not supported in this browser. Paste the QR payload below.
+        Camera scanning is not available here. Paste the QR payload below.
       </Text>
     );
   }
