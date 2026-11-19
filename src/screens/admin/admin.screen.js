@@ -80,8 +80,6 @@ export default function AdminScreen() {
     const paid = orders.filter((t) => t.status === "Paid");
     return {
       total: orders.length,
-      buy: orders.filter((t) => t.kind === "buy").length,
-      sell: orders.filter((t) => t.kind === "sell").length,
       paid: paid.length,
       amountCents: paid.reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
     };
@@ -129,8 +127,7 @@ export default function AdminScreen() {
       linkLabel: "Open orders →",
       stats: [
         { label: "Total", value: ordersStats.total, loading: ordersCountLoading },
-        { label: "Buy", value: ordersStats.buy, loading: ordersCountLoading },
-        { label: "Sell", value: ordersStats.sell, loading: ordersCountLoading },
+        { label: "Paid", value: ordersStats.paid, loading: ordersCountLoading },
         { label: "Paid amount", value: formatCurrencyCents(ordersStats.amountCents), loading: ordersCountLoading }
       ]
     },

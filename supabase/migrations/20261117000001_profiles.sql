@@ -2,7 +2,7 @@
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null check (position('@' in email) > 1),
-  role text not null default 'staff' check (role in ('admin', 'staff')),
+  role text not null default 'customer' check (role in ('admin', 'staff', 'customer')),
   is_active boolean not null default true,
   full_name text,
   phone text,
@@ -12,10 +12,13 @@ create table public.profiles (
 
 comment on table public.profiles is 'App profiles linked to Supabase Auth users.';
 comment on column public.profiles.email is 'Case-insensitive email address used as the account identifier.';
-comment on column public.profiles.role is 'Authorization role: admin (full access) or staff (order taking and logs).';
+comment on column public.profiles.role is 'Authorization role: admin (full access), staff (order taking and logs), or customer (shared public guest).';
 comment on column public.profiles.is_active is 'Soft-delete/audit flag; inactive profiles are disabled without removing records.';
 
 create unique index profiles_email_lower_key on public.profiles (lower(email));
+
+-- The public storefront uses a single shared customer profile; no signup exists.
+create unique index profiles_single_customer_key on public.profiles ((role)) where role = 'customer';
 
 alter table public.profiles enable row level security;
 alter table public.profiles replica identity full;

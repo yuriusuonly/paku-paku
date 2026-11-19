@@ -52,8 +52,9 @@ export default function AdminProfilesScreen() {
   const stats = {
     total: profiles.length,
     active: profiles.filter((p) => p.is_active !== false).length,
-    inactive: profiles.filter((p) => p.is_active === false).length,
-    admins: profiles.filter((p) => p.role === "admin").length
+    admins: profiles.filter((p) => p.role === "admin").length,
+    staff: profiles.filter((p) => p.role === "staff").length,
+    customers: profiles.filter((p) => p.role === "customer").length
   };
 
   const toggleActive = async (profile) => {
@@ -87,7 +88,7 @@ export default function AdminProfilesScreen() {
         </Link>
         <Text className={`${cx.typography.heading} ${cx.textInk}`}>Profiles audit</Text>
         <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-          Audit staff profile fields and manage active status in real time.
+          Audit every profile, including seeded admin, staff, and guest accounts. Manage active status in real time.
         </Text>
       </View>
 
@@ -97,8 +98,9 @@ export default function AdminProfilesScreen() {
         stats={[
           { label: "Total", value: stats.total },
           { label: "Active", value: stats.active },
-          { label: "Inactive", value: stats.inactive },
-          { label: "Admins", value: stats.admins }
+          { label: "Admins", value: stats.admins },
+          { label: "Staff", value: stats.staff },
+          { label: "Guests", value: stats.customers }
         ]}
       />
 

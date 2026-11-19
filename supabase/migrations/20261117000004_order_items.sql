@@ -10,7 +10,7 @@ create table public.order_items (
   created_at timestamptz not null default now()
 );
 
-comment on table public.order_items is 'Immutable snapshot line items for unified orders.';
+comment on table public.order_items is 'Immutable snapshot line items for customer orders.';
 comment on column public.order_items.category is 'Snapshot category used for meal-pair pricing.';
 comment on column public.order_items.item_name is 'Item name captured at order time.';
 comment on column public.order_items.unit_price_cents is 'Unit price captured at order time.';
@@ -22,7 +22,6 @@ alter table public.order_items replica identity full;
 
 revoke all on table public.order_items from anon, authenticated;
 grant select, insert, update, delete on table public.order_items to authenticated;
-grant insert on table public.order_items to anon;
 
 drop policy if exists "Users can read own order items" on public.order_items;
 create policy "Users can read own order items"
@@ -64,21 +63,6 @@ create policy "Admins can delete order items"
   for delete
   to authenticated
   using (public.current_user_is_admin());
-
-drop policy if exists "Kiosk visitors can add order items" on public.order_items;
-create policy "Kiosk visitors can add order items"
-  on public.order_items
-  for insert
-  to anon
-  with check (
-    exists (
-      select 1 from public.orders o
-      where o.id = order_items.order_id
-        and o.kind = 'buy'
-        and o.customer_id is null
-        and o.status = 'Pending'
-    )
-  );
 
 do $$
 begin

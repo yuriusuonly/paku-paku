@@ -1,3 +1,4 @@
+import { customerAuthorizationInterceptor } from "../../interceptors/customer-authorization.interceptor.js";
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../interceptors/method.interceptor.js";
@@ -9,11 +10,16 @@ import { checkoutSchema } from "../../domain/orders/schema.js";
 import { parseWithSchema, requireObjectBody } from "../../shared/validation/request.js";
 
 /**
- * Public kiosk checkout endpoint.
+ * Customer kiosk checkout endpoint.
  * @module endpoints/checkout/index
  */
 
-export const POST = withMiddleware(logInterceptor, errorInterceptor, methodInterceptor("POST"))(
+export const POST = withMiddleware(
+  logInterceptor,
+  errorInterceptor,
+  methodInterceptor("POST"),
+  customerAuthorizationInterceptor
+)(
   async (context) => {
     const body = requireObjectBody(
       await readJsonBody(context.request),
@@ -24,7 +30,10 @@ export const POST = withMiddleware(logInterceptor, errorInterceptor, methodInter
       message: "Invalid order."
     });
     return jsonResponse(
-      await createCheckoutOrder(undefined, input),
+      await createCheckoutOrder(context.locals.auth.database, {
+        ...input,
+        customer_id: context.locals.auth.profile.id
+      }),
       { status: 201 }
     );
   }

@@ -41,7 +41,6 @@ export default function AdminOrdersScreen() {
   const showError = useNotificationStore((s) => s.showError);
 
   const [form, setForm] = useState({
-    kind: "sell",
     status: "Paid",
     payment_method: "cash",
     customer_name: "",
@@ -61,8 +60,6 @@ export default function AdminOrdersScreen() {
 
   const stats = useMemo(() => ({
     total: orders.length,
-    buy: orders.filter((t) => t.kind === "buy").length,
-    sell: orders.filter((t) => t.kind === "sell").length,
     paid: orders.filter((t) => t.status === "Paid").length,
     amountCents: orders.filter((t) => t.status === "Paid").reduce((sum, t) => sum + Number(t.total_cents || 0), 0)
   }), [orders]);
@@ -88,7 +85,6 @@ export default function AdminOrdersScreen() {
     setLocalError("");
     try {
       const parsed = orderCreateSchema.safeParse({
-        kind: form.kind,
         status: form.status,
         payment_method: form.payment_method,
         customer_name: form.customer_name,
@@ -116,7 +112,7 @@ export default function AdminOrdersScreen() {
       }
 
       await createAdminOrder(token, parsed.data);
-      setForm({ kind: "sell", status: "Paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
+      setForm({ status: "Paid", payment_method: "cash", customer_name: "", customer_phone: "", notes: "" });
       setLines([emptyLine()]);
       showSuccess("Order created.");
     } catch (e) {
@@ -132,15 +128,13 @@ export default function AdminOrdersScreen() {
       <View className="mb-6">
         <Link href="/admin" asChild><Text className={`font-outfit mb-4 self-start text-sm font-semibold ${cx.textPrimary}`}>← Back to admin</Text></Link>
         <Text className={`${cx.typography.heading} ${cx.textInk}`}>Orders</Text>
-        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage all buy/sell orders in one place.</Text>
+        <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>Manage all customer orders in one place.</Text>
       </View>
       <Alert variant="error" message={localError || error} />
 
       <StatGrid
         stats={[
           { label: "Total", value: stats.total },
-          { label: "Buy", value: stats.buy },
-          { label: "Sell", value: stats.sell },
           { label: "Paid", value: stats.paid },
           { label: "Paid amount", value: formatCurrencyCents(stats.amountCents) }
         ]}

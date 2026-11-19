@@ -4,12 +4,6 @@
  */
 
 /**
- * Supported order directions.
- * @type {string[]}
- */
-export const ORDER_KINDS = ["buy", "sell"];
-
-/**
  * Supported order statuses.
  * @type {string[]}
  */

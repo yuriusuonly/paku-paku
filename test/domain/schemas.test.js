@@ -39,7 +39,6 @@ describe("orderCreateSchema", () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.kind).toBe("sell");
       expect(result.data.status).toBe("Paid");
       expect(result.data.items[0].line_total_cents).toBe(1000);
     }

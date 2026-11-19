@@ -9,7 +9,7 @@ import {
   getDatabaseServerConfig
 } from "../database/instance.js";
 import { findProfileByUserId, toPublicProfile } from "./profile.repository.js";
-import { hasStaffAccess, isStaffRole } from "../domain/auth/roles.js";
+import { hasAppAccess, isCustomerRole, isStaffRole } from "../domain/auth/roles.js";
 
 /**
  * Administrator authentication data access and orchestration.
@@ -18,7 +18,8 @@ import { hasStaffAccess, isStaffRole } from "../domain/auth/roles.js";
  */
 
 /**
- * Signs in an administrator and returns session tokens with profile.
+ * Signs in an app profile (admin, staff, or the shared customer) and returns
+ * session tokens with profile.
  *
  * @param {{email: string, password: string}} credentials - Validated credentials.
  * @returns {Promise<{user: object, session: object}>} Session payload.
@@ -43,8 +44,8 @@ export async function signIn({ email, password }) {
   const authenticated = createDatabaseClient({ accessToken: data.session.access_token });
   const profile = await findProfileByUserId(authenticated, data.user.id);
 
-  if (!hasStaffAccess(profile.role)) {
-    throw forbidden("forbidden", "Staff access required.");
+  if (!hasAppAccess(profile.role)) {
+    throw forbidden("forbidden", "Account access required.");
   }
 
   return {
@@ -128,6 +129,22 @@ export async function authenticateStaff(request) {
 
   if (!isStaffRole(auth.profile.role)) {
     throw forbidden("forbidden", "Staff access required.");
+  }
+
+  return auth;
+}
+
+/**
+ * Requires an authenticated customer profile.
+ *
+ * @param {Request} request - Incoming request.
+ * @returns {Promise<{token: string, database: object, user: object, profile: object}>} Customer auth context.
+ */
+export async function authenticateCustomer(request) {
+  const auth = await authenticate(request);
+
+  if (!isCustomerRole(auth.profile.role)) {
+    throw forbidden("forbidden", "Customer access required.");
   }
 
   return auth;

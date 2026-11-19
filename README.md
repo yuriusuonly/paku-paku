@@ -42,6 +42,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
 | `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `src/shared/constants/config.js`. |
 | `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `src/shared/constants/config.js`. |
+| `EXPO_PUBLIC_GUEST_EMAIL` / `EXPO_PUBLIC_GUEST_PASSWORD` | Shared public customer credentials used by "Continue as guest" on `/signin`; no signup exists. |
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
@@ -60,7 +61,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `GH_REPO` | HTTPS repository URL used by the `github:*` scripts. |
 | `GH_TOKEN` | GitHub token used by the `github:*` scripts. |
 
-Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` so hosted static builds pick up the new kiosk copy.
+Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
 
 Keep `.env` POSIX-compatible (`KEY=value` lines): it is sourced by the Expo
 scripts, loaded by Caddy's `--envfile`, and read by Node's `--env-file`.
@@ -97,11 +98,13 @@ npm run expo:start        # app on http://localhost:3000
 npm run supabase:stop
 ```
 
-`supabase:reset` reapplies migrations and seeds the sample items plus two staff
-accounts: `admin@paku-paku.official` (password `admin`, `admin` role) and
-`staff@paku-paku.official` (password `staff`, `staff` role). Administrators can
-access `/admin/*` only; staff can access `/staff/*` only. Authentication is
-email/password; seeded accounts use internal Supabase Auth emails.
+`supabase:reset` reapplies migrations and seeds the sample items plus three
+accounts: `admin@paku-paku.official` (password `admin`, `admin` role),
+`staff@paku-paku.official` (password `staff`, `staff` role), and the single
+shared `guest@paku-paku.official` (password `guest`, `customer` role). There is
+no signup; storefront visitors use "Continue as guest". Administrators can
+access `/admin/*` only, staff `/staff/*` only, and customers `/menu`, `/cart`,
+and `/checkout` only. Seeded accounts use internal Supabase Auth emails.
 The seed stores static bcrypt hashes so it does not depend on `pgcrypto`;
 rerunning the seed restores the local passwords. The local auth config keeps
 `minimum_password_length = 6`, so GoTrue may report the short seed
@@ -218,18 +221,20 @@ set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
 
 ## Routes & endpoints
 
-The app has three areas:
+Only `/` and `/signin` are public pages. Everything else requires one of the
+three seeded roles:
 
-- **Customer storefront:** `/`, `/menu`, and `/cart`; no account required. Customers can buy items individually or get ₱10 off automatically when a main dish and any side drink are in the same order. Checkout creates a counter QR with order details.
+- **Customer:** `/menu`, `/cart`, and `/checkout` (order confirmation with the counter QR). Customers sign in with the shared guest profile; no signup. A main dish plus any side drink gets ₱10 off automatically.
 - **Staff:** `/staff/order-taking` (manual walk-in orders and counter QR verification) and `/staff/logs` (order logs with status updates). Staff cannot access `/admin/*`.
-- **Admin:** `/admin`; dashboard analytics, audit logs, and edit screens for items, orders, and profiles. Administrators cannot access `/staff/*`.
+- **Admin:** dashboard analytics, audit logs, and edit screens for items, orders, and profiles, including the profiles audit page that lists every seeded account. Administrators cannot access `/staff/*`.
 
 | Route | Source | Purpose |
 | --- | --- | --- |
 | `/` | `src/app/index.js` → `src/screens/root.js` | Storefront landing with a link to the menu. |
-| `/menu` | `src/app/menu.js` → `src/screens/menu/menu.screen.js` | Public menu with add-to-cart controls. |
-| `/cart` | `src/app/cart.js` → `src/screens/cart/cart.screen.js` | Public checkout: payment method selection, order placement, counter QR. |
-| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Shared sign-in; redirects by role. |
+| `/menu` | `src/app/(customer)/menu.js` → `src/screens/menu/menu.screen.js` | Customer menu with add-to-cart controls. |
+| `/cart` | `src/app/(customer)/cart.js` → `src/screens/cart/cart.screen.js` | Customer cart: payment selection and order placement. |
+| `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after successful placement. |
+| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
 | `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order-taking`. |
 | `/staff/order-taking` | `src/app/(staff)/staff/order-taking.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Manual order entry plus counter QR verification (staff role only). |
 | `/staff/logs` | `src/app/(staff)/staff/logs.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
@@ -243,8 +248,8 @@ The app has three areas:
 | `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
 | `/api/items` | `src/app/api/items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
 | `/api/items/[id]` | `src/app/api/items/[id]+api.js` | Admin item update/delete (`PATCH`/`DELETE`). |
-| `/api/checkout` | `src/app/api/checkout+api.js` | Public kiosk checkout (`POST`), returns order + counter QR. |
-| `/api/signin` | `src/app/api/signin+api.js` | Staff sign-in. |
+| `/api/checkout` | `src/app/api/checkout+api.js` | Customer checkout (`POST`), returns order + counter QR; requires guest token. |
+| `/api/signin` | `src/app/api/signin+api.js` | Sign-in for guest, staff, and admin profiles. |
 | `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
 | `/api/signout` | `src/app/api/signout+api.js` | Revokes the current session. |
 | `/api/admin/orders` | `src/app/api/admin/orders/+api.js` | Admin orders listing and create (`GET`/`POST`). |
@@ -279,10 +284,16 @@ The app has three areas:
 │   │   │   │   ├── orders.js
 │   │   │   │   └── profiles.js
 │   │   │   └── _layout.js
+│   │   ├── (customer)/
+│   │   │   ├── cart.js
+│   │   │   ├── checkout.js
+│   │   │   ├── menu.js
+│   │   │   └── _layout.js
 │   │   ├── (staff)/
 │   │   │   ├── staff/
 │   │   │   │   ├── index.js
-│   │   │   │   └── orders.js
+│   │   │   │   ├── logs.js
+│   │   │   │   └── order-taking.js
 │   │   │   └── _layout.js
 │   │   ├── api/
 │   │   │   ├── admin/
@@ -307,10 +318,8 @@ The app has three areas:
 │   │   ├── +html.js
 │   │   ├── +not-found.js
 │   │   ├── _layout.js
-│   │   ├── cart.js
 │   │   ├── index.js
 │   │   ├── manifest.json+api.js
-│   │   ├── menu.js
 │   │   ├── robots.txt+api.js
 │   │   ├── service-worker.js+api.js
 │   │   └── signin.js
@@ -377,15 +386,18 @@ The app has three areas:
 │   │   ├── staff/
 │   │   │   └── orders/
 │   │   │       ├── [id].js
+│   │   │       ├── index.js
 │   │   │       └── verify.js
 │   │   └── health.js
 │   ├── interceptors/
 │   │   ├── authentication.interceptor.js
 │   │   ├── authorization.interceptor.js
 │   │   ├── body.interceptor.js
+│   │   ├── customer-authorization.interceptor.js
 │   │   ├── error.interceptor.js
 │   │   ├── log.interceptor.js
-│   │   └── method.interceptor.js
+│   │   ├── method.interceptor.js
+│   │   └── staff-authorization.interceptor.js
 │   ├── repositories/
 │   │   ├── audit.repository.js
 │   │   ├── auth.repository.js
@@ -410,8 +422,10 @@ The app has three areas:
 │   │   │   └── admin.screen.js
 │   │   ├── cart/
 │   │   │   ├── cart-items.component.js
-│   │   │   ├── cart-placed.component.js
 │   │   │   └── cart.screen.js
+│   │   ├── checkout/
+│   │   │   ├── checkout-order.component.js
+│   │   │   └── checkout.screen.js
 │   │   ├── menu/
 │   │   │   └── menu.screen.js
 │   │   ├── signin/
@@ -485,6 +499,7 @@ The app has three areas:
 │       ├── audit-logs.store.js
 │       ├── auth.store.js
 │       ├── cart.store.js
+│       ├── checkout.store.js
 │       ├── items.store.js
 │       ├── notification.store.js
 │       ├── orders.store.js
@@ -501,7 +516,8 @@ The app has three areas:
 │   ├── seeds/
 │   │   ├── 00_admin.sql
 │   │   ├── 01_staff.sql
-│   │   └── 02_items.sql
+│   │   ├── 02_guest.sql
+│   │   └── 03_items.sql
 │   ├── snippets/
 │   ├── .gitignore
 │   └── config.toml

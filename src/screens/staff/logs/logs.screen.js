@@ -22,7 +22,6 @@ import { cx } from "../../../shared/constants/theme.js";
 
 const columns = [
   { key: "order_number", label: "Reference", width: 180 },
-  { key: "kind", label: "Kind", width: 100 },
   { key: "status", label: "Status", width: 150 },
   { key: "payment_method", label: "Payment", width: 140 },
   { key: "total", label: "Total", width: 110 },

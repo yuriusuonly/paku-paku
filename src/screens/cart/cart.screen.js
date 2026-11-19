@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "expo-router";
 import { Text } from "react-native";
 import { Alert } from "../../components/alert.js";
 import { Header } from "../../components/header.js";
 import { ScreenContainer } from "../../components/container.js";
+import { useAuthStore } from "../../stores/auth.store.js";
 import { useCartStore } from "../../stores/cart.store.js";
+import { useCheckoutStore } from "../../stores/checkout.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
 import { placeOrder } from "../../services/checkout.js";
 import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
 import { calculateOrderTotals } from "../../domain/orders/pricing.js";
 import { cx } from "../../shared/constants/theme.js";
 import { CartItemsSection } from "./cart-items.component.js";
-import { CartPlacedSection } from "./cart-placed.component.js";
 
 /**
- * Public kiosk cart and checkout screen.
+ * Customer cart screen; successful placement continues to `/checkout`.
  * @module screens/cart/cart.screen
  */
 
@@ -21,18 +23,20 @@ import { CartPlacedSection } from "./cart-placed.component.js";
  * @returns {JSX.Element} Cart screen.
  */
 export default function CartScreen() {
+  const router = useRouter();
+  const token = useAuthStore((s) => s.session?.access_token);
+
   const cartItems = useCartStore((s) => s.items);
   const hydrateCart = useCartStore((s) => s.hydrate);
   const setQuantity = useCartStore((s) => s.setQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clear);
-  const showSuccess = useNotificationStore((s) => s.showSuccess);
+  const setOrder = useCheckoutStore((s) => s.setOrder);
   const showError = useNotificationStore((s) => s.showError);
 
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
   const [error, setError] = useState("");
   const [placing, setPlacing] = useState(false);
-  const [placedOrder, setPlacedOrder] = useState(null);
 
   useEffect(() => {
     hydrateCart();
@@ -56,11 +60,10 @@ export default function CartScreen() {
           quantity: Number(item.quantity || 1),
           unit_price_cents: Number(item.unit_price_cents || 0)
         }))
-      });
+      }, token);
+      setOrder(data?.order || null);
       clearCart();
-      if (data?.order) setPlacedOrder(data.order);
-      showSuccess("Order placed. Present the QR code at the counter.");
-      return data;
+      router.replace("/checkout");
     } catch (e) {
       const message = e?.message || "Could not place the order.";
       setError(message);
@@ -73,33 +76,26 @@ export default function CartScreen() {
   return (
     <ScreenContainer scrollable contentContainerStyle={{ paddingBottom: 32 }}>
       <Header />
-      <Text className={`${cx.typography.heading} ${cx.textInk}`}>Cart & checkout</Text>
+      <Text className={`${cx.typography.heading} ${cx.textInk}`}>Cart</Text>
       <Text className={`font-outfit mt-2 text-base ${cx.textInk70}`}>
-        Choose how you want to pay, place your order, and present the QR code at the counter.
+        Choose how you want to pay and place your order. You will get a QR code to show at the counter.
       </Text>
 
       <Alert variant="error" message={error} />
 
-      {placedOrder ? (
-        <CartPlacedSection
-          order={placedOrder}
-          onNewOrder={() => setPlacedOrder(null)}
-        />
-      ) : (
-        <CartItemsSection
-          cartItems={cartItems}
-          subtotalCents={totals.subtotalCents}
-          discountCents={totals.discountCents}
-          totalCents={totals.totalCents}
-          syncing={placing}
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={setPaymentMethod}
-          onSetQuantity={setQuantity}
-          onRemoveItem={removeItem}
-          onCheckout={checkout}
-          onClearCart={clearCart}
-        />
-      )}
+      <CartItemsSection
+        cartItems={cartItems}
+        subtotalCents={totals.subtotalCents}
+        discountCents={totals.discountCents}
+        totalCents={totals.totalCents}
+        syncing={placing}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
+        onSetQuantity={setQuantity}
+        onRemoveItem={removeItem}
+        onCheckout={checkout}
+        onClearCart={clearCart}
+      />
     </ScreenContainer>
   );
 }

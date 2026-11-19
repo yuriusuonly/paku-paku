@@ -3,7 +3,7 @@ import { AccordionSection } from "../../../components/accordion.js";
 import { Button } from "../../../components/button.js";
 import { FormActions } from "../../../components/form-actions.js";
 import { InlineSelect } from "../../../components/inline-select.js";
-import { ORDER_KINDS, ORDER_STATUSES } from "../../../domain/orders/constants.js";
+import { ORDER_STATUSES } from "../../../domain/orders/constants.js";
 import { TextField } from "../../../components/text-field.js";
 import { cx } from "../../../shared/constants/theme.js";
 
@@ -16,11 +16,6 @@ export function OrdersFormSection({ form, setForm, lines, updateLine, addLine, r
   return (
     <AccordionSection title="Create order" expanded={expanded} onToggle={onToggleExpanded} className="mb-6">
       <View className="gap-3">
-        <View className="flex-row flex-wrap gap-2">
-          {ORDER_KINDS.map((v) => (
-            <Button key={v} label={v} variant={form.kind === v ? "secondary" : "ghost"} onPress={() => setForm((f) => ({ ...f, kind: v }))} />
-          ))}
-        </View>
         <View className="gap-2">
           <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Status</Text>
           <InlineSelect value={form.status} options={ORDER_STATUSES} accessibilityLabel="Order status" onChange={(value) => setForm((f) => ({ ...f, status: value }))} />

@@ -50,6 +50,7 @@
  * @property {ApiConfig} api
  * @property {DatabaseConfig} database
  * @property {CurrencyConfig} currency
+ * @property {{email: string | undefined, password: string | undefined}} guest
  */
 
 const apiBasePath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "/api";
@@ -124,7 +125,11 @@ const config = {
   version: process.env.EXPO_PUBLIC_VERSION,
   api,
   database,
-  currency
+  currency,
+  guest: {
+    email: process.env.EXPO_PUBLIC_GUEST_EMAIL,
+    password: process.env.EXPO_PUBLIC_GUEST_PASSWORD
+  }
 };
 
 export default config;

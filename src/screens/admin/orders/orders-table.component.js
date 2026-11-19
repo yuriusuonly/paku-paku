@@ -4,10 +4,7 @@ import { InlineSelect } from "../../../components/inline-select.js";
 import { DataTable } from "../../../components/table.js";
 import { formatAuditTimestamp } from "../../../shared/format/date.js";
 import { formatCurrencyCents } from "../../../shared/format/currency.js";
-import {
-  ORDER_KINDS,
-  ORDER_STATUSES
-} from "../../../domain/orders/constants.js";
+import { ORDER_STATUSES } from "../../../domain/orders/constants.js";
 import { cx } from "../../../shared/constants/theme.js";
 
 /**
@@ -17,7 +14,6 @@ import { cx } from "../../../shared/constants/theme.js";
 
 const columns = [
   { key: "id", label: "ID", width: 260 },
-  { key: "kind", label: "Kind", width: 120 },
   { key: "status", label: "Status", width: 160 },
   { key: "payment_method", label: "Payment method", width: 160 },
   { key: "total", label: "Total", width: 110 },
@@ -46,17 +42,6 @@ export function OrdersTableSection({ orders, loading, syncing, onSaveField }) {
       emptyMessage="No orders yet."
       renderCell={(tx, column) => {
         const key = column.key;
-
-        if (key === "kind") {
-          return (
-            <InlineSelect
-              value={tx.kind || "buy"}
-              options={ORDER_KINDS}
-              accessibilityLabel="Order kind"
-              onChange={(value) => onSaveField(tx, key, value)}
-            />
-          );
-        }
 
         if (key === "status") {
           return (

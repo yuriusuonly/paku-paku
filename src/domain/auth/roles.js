@@ -1,15 +1,16 @@
 /**
- * Staff role rules and route mapping.
+ * App role rules and route mapping.
  * @module domain/auth/roles
  */
 
 /**
- * Supported staff roles.
- * @type {{admin: string, staff: string}}
+ * Supported roles.
+ * @type {{admin: string, staff: string, customer: string}}
  */
 export const ROLES = Object.freeze({
   admin: "admin",
-  staff: "staff"
+  staff: "staff",
+  customer: "customer"
 });
 
 /**
@@ -29,6 +30,14 @@ export function isStaffRole(role) {
 }
 
 /**
+ * @param {unknown} role
+ * @returns {boolean}
+ */
+export function isCustomerRole(role) {
+  return role === ROLES.customer;
+}
+
+/**
  * Whether a role may access the staff counter area.
  *
  * @param {unknown} role
@@ -36,6 +45,16 @@ export function isStaffRole(role) {
  */
 export function hasStaffAccess(role) {
   return isAdminRole(role) || isStaffRole(role);
+}
+
+/**
+ * Whether a profile role may sign in.
+ *
+ * @param {unknown} role
+ * @returns {boolean}
+ */
+export function hasAppAccess(role) {
+  return isAdminRole(role) || isStaffRole(role) || isCustomerRole(role);
 }
 
 /**

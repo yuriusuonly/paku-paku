@@ -1,8 +1,7 @@
--- Unified buy/sell orders table, access rules, and realtime publication.
+-- Customer orders table, access rules, and realtime publication.
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number text not null unique default ('ORD-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))),
-  kind text not null default 'buy' check (kind in ('buy', 'sell')),
   customer_id uuid references public.profiles (id) on delete set null,
   status text not null default 'Pending' check (status in ('Pending', 'Paid', 'Refunded', 'Voided')),
   payment_method text,
@@ -20,8 +19,7 @@ create table public.orders (
   updated_at timestamptz not null default now()
 );
 
-comment on table public.orders is 'Unified buy/sell orders and operational records.';
-comment on column public.orders.kind is 'Order kind: buy (customer checkout) or sell (staff/admin-recorded).';
+comment on table public.orders is 'Customer orders and operational records.';
 comment on column public.orders.discount_cents is 'Automatic meal-pair discount applied at checkout.';
 comment on column public.orders.qr_payload is 'QR code payload for counter verification.';
 
@@ -34,7 +32,6 @@ alter table public.orders replica identity full;
 
 revoke all on table public.orders from anon, authenticated;
 grant select, insert, update, delete on table public.orders to authenticated;
-grant select, insert on table public.orders to anon;
 
 drop policy if exists "Users can read own orders" on public.orders;
 create policy "Users can read own orders"
@@ -64,20 +61,6 @@ create policy "Admins can delete orders"
   for delete
   to authenticated
   using (public.current_user_is_admin());
-
-drop policy if exists "Kiosk visitors can read pending orders" on public.orders;
-create policy "Kiosk visitors can read pending orders"
-  on public.orders
-  for select
-  to anon
-  using (kind = 'buy' and customer_id is null and status = 'Pending');
-
-drop policy if exists "Kiosk visitors can place orders" on public.orders;
-create policy "Kiosk visitors can place orders"
-  on public.orders
-  for insert
-  to anon
-  with check (kind = 'buy' and customer_id is null and status = 'Pending');
 
 do $$
 begin

@@ -10,13 +10,13 @@ import { calculateOrderTotals } from "../domain/orders/pricing.js";
 import { parseQrPayload } from "../domain/orders/qr.js";
 
 /**
- * Unified buy/sell order data access.
+ * Customer order data access.
  * Backed by `orders` and `order_items` tables.
  * @module repositories/order.repository
  */
 
 const ORDER_SELECT =
-  "id, order_number, kind, customer_id, status, payment_method, subtotal_cents, discount_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
+  "id, order_number, customer_id, status, payment_method, subtotal_cents, discount_cents, total_cents, currency, notes, customer_name, customer_email, customer_phone, qr_payload, placed_at, created_at, updated_at";
 const ITEM_SELECT =
   "id, order_id, item_name, category, quantity, unit_price_cents, line_total_cents, created_at";
 
@@ -150,8 +150,7 @@ export async function createCheckoutOrder(client, input) {
   const payload = {
     id,
     order_number: orderNumber,
-    kind: "buy",
-    customer_id: null,
+    customer_id: input.customer_id || null,
     status: "Pending",
     payment_method: paymentMethod,
     subtotal_cents: totals.subtotalCents,
@@ -180,22 +179,19 @@ export async function createCheckoutOrder(client, input) {
 }
 
 /**
- * Creates a sell/admin order.
+ * Creates a staff/admin order.
  *
  * @param {import("../database/instance.js").DatabaseClient} client - Database client.
  * @param {object} input - Order payload including items.
- * @param {{kind?: string}} [options] - Creation options.
  * @returns {Promise<{order: object}>} Created order.
  */
-export async function createOrder(client, input, options = {}) {
+export async function createOrder(client, input) {
   const database = resolveClient(client);
-  const kind = options.kind === "buy" ? "buy" : "sell";
   const items = normalizeOrderItems(input.items);
   const totals = calculateOrderTotals(items);
   const status = input.status || "Paid";
 
   const payload = {
-    kind,
     customer_id: input.customer_id || null,
     status,
     payment_method: input.payment_method || null,
@@ -239,7 +235,7 @@ export async function updateOrder(client, id, input) {
   const { items, ...fields } = input || {};
 
   const payload = { updated_at: new Date().toISOString() };
-  for (const key of ["status", "payment_method", "notes", "customer_name", "customer_email", "customer_phone", "kind"]) {
+  for (const key of ["status", "payment_method", "notes", "customer_name", "customer_email", "customer_phone"]) {
     if (Object.prototype.hasOwnProperty.call(fields, key)) payload[key] = fields[key] ?? null;
   }
   if (Object.keys(payload).length === 1 && !Array.isArray(items)) {

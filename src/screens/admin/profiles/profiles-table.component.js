@@ -58,10 +58,11 @@ export function ProfilesTableSection({
         }
 
         if (key === "role") {
+          const variants = { admin: "success", staff: "info", customer: "warning" };
           return (
             <StatusPill
               label={String(rawValue ?? "-")}
-              variant={rawValue === "admin" ? "success" : "neutral"}
+              variant={variants[rawValue] || "neutral"}
             />
           );
         }

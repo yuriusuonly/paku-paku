@@ -27,7 +27,7 @@ describe("services/orders (admin)", () => {
   });
 
   test("createAdminOrder posts payload", async () => {
-    const input = { kind: "sell", items: [] };
+    const input = { items: [] };
     globalThis.fetch = mock(async (path, options) => {
       expect(path).toBe("/api/admin/orders");
       expect(options.method).toBe("POST");

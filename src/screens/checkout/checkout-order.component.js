@@ -7,14 +7,14 @@ import { cx } from "../../shared/constants/theme.js";
 
 /**
  * Placed order confirmation with counter QR code.
- * @module screens/cart/cart-placed.component
+ * @module screens/checkout/checkout-order.component
  */
 
 /**
  * @param {{order: object, onNewOrder: () => void}} props
  * @returns {JSX.Element}
  */
-export function CartPlacedSection({ order, onNewOrder }) {
+export function CheckoutOrderSection({ order, onNewOrder }) {
   const paymentMethod = String(order.payment_method || "cash").toUpperCase();
 
   return (

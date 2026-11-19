@@ -9,6 +9,7 @@ import { TextField } from "../../components/text-field.js";
 import { useAuthStore } from "../../stores/auth.store.js";
 import { isValidEmail } from "../../shared/validation/email.js";
 import { getHomeRouteForRole } from "../../domain/auth/roles.js";
+import config from "../../shared/constants/config.js";
 import { cx } from "../../shared/constants/theme.js";
 
 /**
@@ -64,6 +65,25 @@ export default function SignInScreen() {
     }
   };
 
+  const onGuest = async () => {
+    clearError();
+    setLocalError("");
+
+    const email = String(config.guest?.email || "").trim().toLowerCase();
+    const password = config.guest?.password || "";
+    if (!email || !password) {
+      setLocalError("Guest access is not configured.");
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await signIn({ email, password });
+    setSubmitting(false);
+    if (!result.ok) {
+      setLocalError(result.error || "Unable to continue as guest.");
+    }
+  };
+
   if (!hydrated) {
     return (
       <ScreenContainer>
@@ -83,10 +103,27 @@ export default function SignInScreen() {
 
         <Text className={`${cx.typography.heading} ${cx.textInk}`}>Sign in</Text>
         <Text className={`font-outfit mt-3 text-base leading-relaxed ${cx.textInk70}`}>
-          Sign in with your email and password.
+          Continue as a guest to browse the menu, or sign in with a staff account.
         </Text>
 
-        <View className="mt-8 gap-4">
+        <View className="mt-8 gap-3">
+          <Button
+            label="Continue as guest"
+            onPress={onGuest}
+            loading={submitting || status === "loading"}
+          />
+          <Text className={`font-outfit text-center text-sm ${cx.textInk70}`}>
+            No account needed; everyone shares the same guest profile.
+          </Text>
+        </View>
+
+        <View className="my-6 flex-row items-center gap-3">
+          <View className={`h-px flex-1 ${cx.bgSurfaceMuted}`} />
+          <Text className={`font-outfit text-sm ${cx.textInk50}`}>or sign in with your account</Text>
+          <View className={`h-px flex-1 ${cx.bgSurfaceMuted}`} />
+        </View>
+
+        <View className="gap-4">
           <TextField
             label="Email"
             value={email}

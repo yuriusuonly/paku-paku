@@ -64,7 +64,7 @@ export async function findProfileByUserId(database, userId) {
 }
 
 /**
- * Lists all profiles ordered by email.
+ * Lists every profile ordered by email, including all seeded accounts.
  *
  * @param {import("../database/instance.js").DatabaseClient} database - Admin-scoped database client.
  * @returns {Promise<{profiles: object[]}>} Profiles payload.
@@ -74,7 +74,6 @@ export async function listProfiles(database) {
   const { data, error } = await database
     .from("profiles")
     .select(PROFILE_COLUMNS)
-    .neq("email", "admin@paku-paku.official")
     .order("email", { ascending: true });
 
   if (error) {

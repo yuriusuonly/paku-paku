@@ -2,7 +2,6 @@ import { z } from "zod";
 import {
   PAYMENT_METHODS,
   ORDER_ITEM_CATEGORIES,
-  ORDER_KINDS,
   ORDER_STATUSES
 } from "./constants.js";
 
@@ -35,7 +34,6 @@ export const orderItemSchema = z.object({
  * @type {import("zod").ZodType}
  */
 export const orderCreateSchema = z.object({
-  kind: z.enum(ORDER_KINDS).default("sell"),
   status: z.enum(ORDER_STATUSES).default("Paid"),
   payment_method: nullableString.optional().default(null),
   customer_name: nullableString.optional().default(null),
