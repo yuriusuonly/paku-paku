@@ -19,4 +19,4 @@ export const ORDER_ITEM_CATEGORIES = ["food", "beverage"];
  * Payment methods offered at kiosk checkout.
  * @type {string[]}
  */
-export const PAYMENT_METHODS = ["cash", "card", "gcash"];
+export const PAYMENT_METHODS = ["cash", "card"];

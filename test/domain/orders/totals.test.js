@@ -21,8 +21,8 @@ describe("order totals", () => {
       orderNumber: "ORD-1",
       id: "t1",
       totalCents: 999,
-      paymentMethod: "gcash",
+      paymentMethod: "card",
       items: [{ item_name: "Iced Tea", quantity: 2 }]
-    })).toBe("ORD:ORD-1|ID:t1|TOTAL:999|PAY:gcash|ITEMS:Iced Teax2");
+    })).toBe("ORD:ORD-1|ID:t1|TOTAL:999|PAY:card|ITEMS:Iced Teax2");
   });
 });

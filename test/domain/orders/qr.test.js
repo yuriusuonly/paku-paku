@@ -8,11 +8,11 @@ import { parseQrPayload } from "../../../src/domain/orders/qr.js";
 
 describe("parseQrPayload", () => {
   test("parses a full QR payload", () => {
-    expect(parseQrPayload("ORD:ORD-1|ID:t1|TOTAL:999|PAY:gcash|ITEMS:Iced Teax2,Ramenx1")).toEqual({
+    expect(parseQrPayload("ORD:ORD-1|ID:t1|TOTAL:999|PAY:card|ITEMS:Iced Teax2,Ramenx1")).toEqual({
       orderNumber: "ORD-1",
       id: "t1",
       totalCents: 999,
-      paymentMethod: "gcash",
+      paymentMethod: "card",
       items: [
         { item_name: "Iced Tea", quantity: 2 },
         { item_name: "Ramen", quantity: 1 }

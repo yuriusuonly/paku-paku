@@ -20,7 +20,7 @@ export function OrdersFormSection({ form, setForm, lines, updateLine, addLine, r
           <Text className={`font-outfit text-sm font-semibold ${cx.textInk}`}>Status</Text>
           <InlineSelect value={form.status} options={ORDER_STATUSES} accessibilityLabel="Order status" onChange={(value) => setForm((f) => ({ ...f, status: value }))} />
         </View>
-        <TextField label="Payment method" value={form.payment_method} onChangeText={(v) => setForm((f) => ({ ...f, payment_method: v }))} placeholder="cash, card, gcash..." />
+        <TextField label="Payment method" value={form.payment_method} onChangeText={(v) => setForm((f) => ({ ...f, payment_method: v }))} placeholder="cash, card..." />
         <TextField label="Customer name" value={form.customer_name} onChangeText={(v) => setForm((f) => ({ ...f, customer_name: v }))} placeholder="Optional" />
         <TextField label="Customer phone" value={form.customer_phone} onChangeText={(v) => setForm((f) => ({ ...f, customer_phone: v }))} placeholder="Optional" />
         <TextField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Optional notes" multiline numberOfLines={3} />
