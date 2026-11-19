@@ -335,6 +335,8 @@ The app has three areas:
 │   │   │   └── summary.js
 │   │   ├── items/
 │   │   │   └── schema.js
+│   │   ├── menu/
+│   │   │   └── sections.js
 │   │   ├── orders/
 │   │   │   ├── constants.js
 │   │   │   ├── items.js
@@ -499,6 +501,8 @@ The app has three areas:
 │   ├── domain/
 │   │   ├── audit/
 │   │   │   └── summary.test.js
+│   │   ├── menu/
+│   │   │   └── sections.test.js
 │   │   ├── orders/
 │   │   │   ├── items.test.js
 │   │   │   ├── qr.test.js

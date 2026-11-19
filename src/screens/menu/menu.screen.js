@@ -6,6 +6,7 @@ import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
 import { formatCurrencyCents } from "../../shared/format/currency.js";
+import { getMenuSections } from "../../domain/menu/sections.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
@@ -50,12 +51,7 @@ export default function MenuScreen() {
   }, [fetchItems, subscribe, unsubscribe]);
 
   const visibleItems = items.filter((item) => item?.is_available !== false);
-  const beverageItems = visibleItems.filter((item) => Number(item?.sort_order ?? 0) < 150);
-  const foodItems = visibleItems.filter((item) => Number(item?.sort_order ?? 0) >= 150);
-  const menuSections = [
-    { key: "food", title: "Food", items: foodItems },
-    { key: "beverage", title: "Beverage", items: beverageItems }
-  ].filter((section) => section.items.length > 0);
+  const menuSections = getMenuSections(items);
   const showInitialMenuLoading = loading && visibleItems.length === 0;
 
   return (
