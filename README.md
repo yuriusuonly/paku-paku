@@ -1,5 +1,7 @@
 # paku-paku
 
+[![Tests](https://img.shields.io/github/actions/workflow/status/yuriusuonly/paku-paku/ci.yaml?label=Tests&branch=main)](https://github.com/yuriusuonly/paku-paku/actions/workflows/ci.yaml)
+
 Paku paku (written in Japanese as ぱくぱく or パクパク) is a Japanese onomatopoeia that mimics the sound or action of a mouth repeatedly opening and closing.
 
 Common Meanings & Uses:
@@ -193,7 +195,7 @@ One-time setup:
    must contain the hosted Supabase values (`EXPO_PUBLIC_SUPABASE_URL`,
    `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` overrides the target to
    `hosted`, and production never uses the local URL.
-4. Push to `main`; `.github/workflows/deploy-expo.yml` runs `bun run eas:deploy` and `.github/workflows/deploy-supabase.yml` links and pushes migrations.
+4. Push to `main`; `.github/workflows/ci.yaml` runs `bun:test` and `playwright:test`, while `deploy-expo.yml` runs `bun run eas:deploy` and `deploy-supabase.yml` links and pushes migrations.
 
 `eas:deploy` requires hosted Supabase URL/anon key, exports the web build
 locally (or on the runner), and uploads the finished `build/` artifact with
@@ -271,6 +273,7 @@ three seeded roles:
 ./
 ├── .github/
 │   └── workflows/
+│       ├── ci.yaml
 │       ├── deploy-expo.yml
 │       └── deploy-supabase.yml
 ├── .agents/
