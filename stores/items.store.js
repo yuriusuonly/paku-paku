@@ -65,6 +65,8 @@ export const useItemsStore = create((set, get) => ({
       return;
     }
 
+    let failed = false;
+
     try {
       const channel = subscribeToTableChanges({
         channelName: "public:items",
@@ -94,9 +96,14 @@ export const useItemsStore = create((set, get) => ({
         },
         onStatus: (status) => {
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            if (failed) return;
+            failed = true;
             const message = "Live menu updates are temporarily unavailable.";
             set({ subscribed: false, error: message });
             notifyBackgroundError(message);
+            // Supabase retries failed sockets forever; remove the channel so a
+            // broken endpoint cannot flood the console with reconnect attempts.
+            void get().unsubscribe();
           }
           if (status === "SUBSCRIBED") {
             set({ subscribed: true, error: null });

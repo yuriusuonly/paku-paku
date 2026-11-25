@@ -27,6 +27,20 @@ describe("services/admin", () => {
     expect(await getProfiles("admin-token")).toEqual(payload);
   });
 
+  test("updateProfile patches a profile with the admin token", async () => {
+    const payload = { profile: { id: "p1", is_active: false } };
+    globalThis.fetch = mock(async (path, options) => {
+      expect(path).toBe("/api/admin/profiles");
+      expect(options.method).toBe("PATCH");
+      expect(options.headers.Authorization).toBe("Bearer admin-token");
+      expect(options.body).toBe(JSON.stringify({ id: "p1", is_active: false }));
+      return jsonResponse(payload, 200);
+    });
+
+    const { updateProfile } = await import("../../services/admin.js");
+    expect(await updateProfile("admin-token", { id: "p1", is_active: false })).toEqual(payload);
+  });
+
   test("propagates forbidden errors", async () => {
     globalThis.fetch = mock(async () =>
       jsonResponse({ error: { code: "forbidden", message: "Administrator access required." } }, 403)

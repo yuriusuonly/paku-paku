@@ -43,6 +43,19 @@ describe("upsertById", () => {
     expect(upsertById(items, { id: 1, name: "b" })).toEqual([{ id: 1, name: "b", price: 1 }]);
   });
 
+  test("sorts a list even when the incoming item is invalid", () => {
+    const items = [
+      { id: 2, name: "b" },
+      { id: 1, name: "a" }
+    ];
+    const sort = (records) => [...records].sort((a, b) => a.name.localeCompare(b.name));
+
+    expect(upsertById(items, null, { sort })).toEqual([
+      { id: 1, name: "a" },
+      { id: 2, name: "b" }
+    ]);
+  });
+
   test("applies optional sorting to updated lists", () => {
     const items = [{ id: 1, name: "b" }];
     const sort = (records) => [...records].sort((a, b) => a.name.localeCompare(b.name));

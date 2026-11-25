@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { z } from "zod";
 import {
   hasOwn,
+  parseWithSchema,
   readBoolean,
   readInteger,
   readNullableString,
@@ -14,6 +16,19 @@ import {
  * Tests for request validation helpers.
  * @module test/validation/request
  */
+
+describe("parseWithSchema", () => {
+  test("uses a typed default error when no options are supplied", () => {
+    try {
+      parseWithSchema(z.string(), 1);
+      throw new Error("expected error");
+    } catch (error) {
+      expect(error.isAppError).toBe(true);
+      expect(error.code).toBe("invalid_request");
+      expect(error.message.length).toBeGreaterThan(0);
+    }
+  });
+});
 
 describe("requireObjectBody", () => {
   test("returns valid object bodies", () => {

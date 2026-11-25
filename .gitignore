@@ -2,6 +2,7 @@ node_modules/
 build/
 .expo/
 test-results/
+coverage/
 playwright-report/
 .DS_Store
 *.log

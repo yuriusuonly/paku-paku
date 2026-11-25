@@ -94,6 +94,28 @@ describe("withMiddleware", () => {
     await expect(route(new Request("http://localhost/api/x"))).rejects.toThrow("next() called multiple times");
   });
 
+  test("maps unexpected errors to a generic 500 without leaking details", async () => {
+    const log = spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const route = withMiddleware(errorInterceptor)(async () => {
+        throw new Error("SECRET-INTERNAL-DETAIL");
+      });
+      const response = await route(new Request("http://localhost/api/x"));
+
+      expect(response.status).toBe(500);
+      await expect(response.json()).resolves.toEqual({
+        error: {
+          code: "internal_error",
+          message: "An unexpected error occurred."
+        }
+      });
+      expect(JSON.stringify(log.mock.calls)).not.toContain("SECRET-INTERNAL-DETAIL");
+    } finally {
+      log.mockRestore();
+    }
+  });
+
   test("returns 500-style error when no terminal handler is provided", async () => {
     const route = withMiddleware()(undefined);
     const response = await route(new Request("http://localhost/api/x"));

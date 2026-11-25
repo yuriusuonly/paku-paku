@@ -21,6 +21,17 @@ describe("generateId", () => {
     for (const value of values) expect(value).toMatch(UUID_V4);
   });
 
+  test("falls back to Math.random when Web Crypto is unavailable", () => {
+    const original = globalThis.crypto;
+    globalThis.crypto = {};
+
+    try {
+      expect(generateId()).toMatch(UUID_V4);
+    } finally {
+      globalThis.crypto = original;
+    }
+  });
+
   test("falls back to random bytes when randomUUID is unavailable", () => {
     const original = globalThis.crypto;
     globalThis.crypto = {
