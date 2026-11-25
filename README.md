@@ -562,6 +562,14 @@ three seeded roles:
 ├── test/
 │   ├── app/
 │   │   └── signin.e2e.js
+│   ├── cipher/
+│   │   ├── decode.test.js
+│   │   ├── decrypt.test.js
+│   │   ├── encode.test.js
+│   │   ├── encrypt.test.js
+│   │   ├── hash.test.js
+│   │   ├── id.test.js
+│   │   └── token.test.js
 │   ├── domain/
 │   │   ├── audit/
 │   │   │   └── summary.test.js

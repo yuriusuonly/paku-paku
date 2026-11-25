@@ -16,7 +16,7 @@ import { decodeBase64Url } from "./decode.js";
  * @param {number} [options.iterations=100000] - PBKDF2 iteration count.
  * @param {number} [options.length=32] - Derived key length in bytes.
  * @param {"SHA-256" | "SHA-384" | "SHA-512"} [options.hash="SHA-256"] - Underlying hash algorithm.
- * @returns {Promise<{hash: string, salt: string, iterations: number, hashAlgorithm: string}>} Derived hash and parameters.
+ * @returns {Promise<{hash: string, salt: string, iterations: number, length: number, hashAlgorithm: string}>} Derived hash and parameters.
  */
 export async function pbkdf2(password, options = {}) {
   const subtle = globalThis.crypto?.subtle;
@@ -63,6 +63,7 @@ export async function pbkdf2(password, options = {}) {
     hash: toBase64Url(derived),
     salt: options.salt ?? toBase64Url(saltBytes),
     iterations,
+    length,
     hashAlgorithm
   };
 }
