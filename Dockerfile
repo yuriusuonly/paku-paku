@@ -1,11 +1,11 @@
 # Syntax: docker/dockerfile:1
 
 # --- Build: install deps and export the static web app ---
-FROM node:22-alpine AS builder
+FROM oven/bun:1.4.5-alpine AS builder
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 COPY . .
 # Build-time client config: Expo inlines EXPO_PUBLIC_* values into the browser
 # bundle, and Docker's build context excludes .env. Pass the local Supabase
@@ -20,10 +20,10 @@ ENV EXPO_PUBLIC_SUPABASE_TARGET=${EXPO_PUBLIC_SUPABASE_TARGET} \
     EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY=${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY} \
     EXPO_PUBLIC_SUPABASE_URL=${EXPO_PUBLIC_SUPABASE_URL} \
     EXPO_PUBLIC_SUPABASE_ANON_KEY=${EXPO_PUBLIC_SUPABASE_ANON_KEY}
-RUN npm run expo:build
+RUN bun run expo:build
 
 # --- Runtime image, shared by the two `docker-compose.yml` services ---
-FROM node:22-alpine
+FROM oven/bun:1.4.5-alpine
 
 # Build args from .env (via docker-compose `build.args`); consumed at runtime by
 # the Caddyfile's `{$URL_PORT}`/`{$URL_PROXY_PORT}` placeholders.
@@ -41,9 +41,10 @@ COPY package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY Caddyfile ./
+COPY scripts ./scripts
+COPY system ./system
 
 # No CMD: both service commands are plain argv arrays in `docker-compose.yml` —
 # the image is only the built artifact ("build once, define commands at the
-# compose level"). `expo serve` needs `--port`, whose value compose interpolates
-# from .env (it ignores the `PORT` env var), which is why the commands must live
-# at the compose level rather than in this file.
+# compose level"). `expo serve` needs `--port`, which the launcher takes from
+# URL_PORT (injected as a container env var), so the commands live in compose.

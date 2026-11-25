@@ -1,37 +1,53 @@
 {
   "name": "paku-paku",
   "private": true,
+  "type": "module",
   "main": "expo-router/entry",
+  "engines": {
+    "bun": ">=1.4.5"
+  },
+  "os": [
+    "linux"
+  ],
   "scripts": {
-    "test": "bun test",
-    "expo:start": "set -a && . ./.env && set +a && expo start --clear --port $URL_PORT",
-    "expo:start:tunnel": "expo start --clear --tunnel",
-    "expo:build": "expo export --platform web --output-dir build && mkdir -p build/client/png && cp png/logo.png png/logo-maskable.png build/client/png/",
-    "expo:serve": "set -a && . ./.env && set +a && expo serve build --port $URL_PORT",
-    "opencode": "set -a && . ./.env && set +a && exec opencode",
-    "caddy": "caddy run --config Caddyfile --envfile .env",
-    "caddy:trust": "caddy trust",
-    "supabase:initialize": "npx --yes supabase init",
-    "supabase:start": "npx --yes supabase start",
-    "supabase:stop": "npx --yes supabase stop",
-    "supabase:status": "npx --yes supabase status",
-    "supabase:reset": "npx --yes supabase db reset",
-    "supabase:migration": "npx --yes supabase migration new",
-    "supabase:link": "set -a && . ./.env && set +a && npx --yes supabase link --project-ref \"$SUPABASE_PROJECT_REF\"",
-    "supabase:push": "set -a && . ./.env && set +a && npx --yes supabase db push --remote --include-seed --yes",
-    "supabase:reset:remote": "set -a && . ./.env && set +a && npx --yes supabase db query --remote --yes \"begin; drop schema public cascade; create schema public; grant usage on schema public to postgres, anon, authenticated, service_role; grant all on schema public to postgres, service_role; alter default privileges in schema public grant all on tables to postgres, service_role; alter default privileges in schema public grant all on functions to postgres, service_role; alter default privileges in schema public grant all on sequences to postgres, service_role; delete from supabase_migrations.schema_migrations; commit;\" && npm run supabase:push",
-    "docker:build": "set -a && . ./.env && set +a && docker compose --profile app build --no-cache",
-    "docker:up": "set -a && . ./.env && set +a && docker compose --profile app up -d",
-    "docker:down": "set -a && . ./.env && set +a && docker compose --profile app --profile build --profile test down --remove-orphans",
-    "docker:logs": "set -a && . ./.env && set +a && docker compose --profile app logs -f",
-    "docker": "npm run docker:build && npm run docker:up && npm run docker:logs",
-    "github:secrets": "set -a && . ./.env && set +a && gh secret set DOT_ENV --repo \"$GH_REPO\" < .env",
-    "github:remote": "set -a && . ./.env && set +a && git remote add origin \"$GH_REPO\"",
-    "github:deploy": "set -a && . ./.env && set +a && npm run github:secrets && git -c \"credential.helper=!gh auth git-credential\" push origin HEAD",
-    "github:workflow:supabase": "set -a && . ./.env && set +a && gh workflow run deploy-supabase.yml --repo \"$GH_REPO\" --ref main",
-    "github:workflow:expo": "set -a && . ./.env && set +a && gh workflow run deploy-expo.yml --repo \"$GH_REPO\" --ref main",
-    "eas:initialize": "set -a && . ./.env && set +a && npx --yes eas-cli init",
-    "eas:deploy": "set -a && . ./.env && set +a && export EXPO_PUBLIC_SUPABASE_TARGET=\"hosted\" && npm run expo:build && npx --yes eas-cli deploy --non-interactive --prod --environment production --export-dir build"
+    "bun": "bun ./scripts/bun.js",
+    "bun:test": "bun ./scripts/bun.js test",
+    "caddy": "bun ./scripts/caddy.js run --config Caddyfile",
+    "caddy:trust": "bun ./scripts/caddy.js trust",
+    "docker": "bun run docker:build && bun run docker:up && bun run docker:logs",
+    "docker:build": "bun ./scripts/docker.js compose --profile app build --no-cache",
+    "docker:down": "bun ./scripts/docker.js compose --profile app --profile build --profile test down --remove-orphans",
+    "docker:logs": "bun ./scripts/docker.js compose --profile app logs -f",
+    "docker:up": "bun ./scripts/docker.js compose --profile app up -d",
+    "eas:deploy": "bun run expo:build && bun ./scripts/eas.js deploy --non-interactive --prod --environment production --export-dir build",
+    "eas:initialize": "bun ./scripts/eas.js init",
+    "expo:build": "bun ./scripts/expo.js export --platform web --output-dir build",
+    "expo:serve": "bun ./scripts/expo.js serve build",
+    "expo:start": "bun ./scripts/expo.js start --clear",
+    "expo:start:tunnel": "bun ./scripts/expo.js start --clear --tunnel",
+    "gh": "bun ./scripts/gh.js",
+    "gh:secrets": "bun ./scripts/gh.js secret set DOT_ENV -f ./.env",
+    "git": "bun ./scripts/git.js",
+    "git:push": "bun ./scripts/git.js push origin HEAD",
+    "github:deploy": "bun run github:secrets && bun run git:push",
+    "github:remote": "bun ./scripts/git.js remote add origin",
+    "github:workflow:expo": "bun ./scripts/gh.js workflow run deploy-expo.yml --ref main",
+    "github:workflow:supabase": "bun ./scripts/gh.js workflow run deploy-supabase.yml --ref main",
+    "opencode": "bun ./scripts/opencode.js",
+    "skill": "bun ./scripts/skill.js",
+    "supabase:initialize": "bun ./scripts/supabase.js init",
+    "supabase:link": "bun ./scripts/supabase.js link",
+    "supabase:migration": "bun ./scripts/supabase.js migration new",
+    "supabase:push": "bun ./scripts/supabase.js db push --remote --include-seed --yes",
+    "supabase:reset": "bun ./scripts/supabase.js db reset",
+    "supabase:reset:remote": "bun ./scripts/supabase.js reset-remote",
+    "supabase:start": "bun ./scripts/supabase.js start",
+    "supabase:status": "bun ./scripts/supabase.js status",
+    "supabase:stop": "bun ./scripts/supabase.js stop",
+    "test": "bun ./scripts/bun.js test"
+  },
+  "allowScripts": {
+    "@opencode/cli": true
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -50,5 +66,12 @@
     "tailwindcss": "^3.4.17",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
-  }
+  },
+  "devDependencies": {
+    "@opencode/cli": "^2.4.1",
+    "skills": "^1.9.0"
+  },
+  "trustedDependencies": [
+    "@opencode/cli"
+  ]
 }

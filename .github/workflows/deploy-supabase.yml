@@ -26,17 +26,16 @@ jobs:
           DOT_ENV: ${{ secrets.DOT_ENV }}
         run: printf '%s' "$DOT_ENV" > .env
 
-      - name: Set up Node (22, matching the Docker image)
-        uses: actions/setup-node@v4
+      - name: Set up Bun (1.4.5, matching the Docker image)
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-          cache: npm
+          bun-version: 1.4.5
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
+
+      - name: Link the hosted project
+        run: bun run supabase:link
 
       - name: Push migrations and seed to hosted Supabase
-        run: |
-          set -a && . ./.env && set +a
-          npm run supabase:link
-          npm run supabase:push
+        run: bun run supabase:push

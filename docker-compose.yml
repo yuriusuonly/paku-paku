@@ -1,5 +1,5 @@
 # All-in-one Docker Compose for local run, build, and tests.
-# Requires `.env` (see `npm run docker:*` / `test:*:docker` scripts).
+# Requires `.env` (see `bun run docker:*` / `test` scripts).
 
 x-app-build: &app-build
   context: .
@@ -31,11 +31,12 @@ services:
     networks:
       - default
       - supabase
-    # `expo serve` ignores the `URL_PORT` env var, so compose interpolates the
-    # port from .env into this argv (no shell):
-    command: ["./node_modules/.bin/expo", "serve", "build", "--port", "${URL_PORT}"]
+    # The launcher reads URL_PORT from the container env and appends `--port`
+    # (expo serve ignores the env var itself), so no shell interpolation is
+    # needed in this argv.
+    command: ["bun", "./scripts/expo.js", "serve", "build"]
     healthcheck:
-      # wget busybox binary present in node:22-alpine; port interpolated from .env
+      # wget busybox binary present in the bun alpine image; port comes from env
       test: ["CMD", "wget", "-qO-", "http://localhost:${URL_PORT}/api/health"]
       interval: 10s
       timeout: 5s
@@ -61,7 +62,7 @@ services:
   # One-shot: build static web export into ./build on the host.
   build:
     profiles: ["build"]
-    image: node:22-alpine
+    image: oven/bun:1.4.5-alpine
     working_dir: /app
     volumes:
       - ./:/app
@@ -72,12 +73,12 @@ services:
       EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY}
       EXPO_PUBLIC_SUPABASE_URL: ${EXPO_PUBLIC_SUPABASE_URL}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${EXPO_PUBLIC_SUPABASE_ANON_KEY}
-    command: ["sh", "-lc", "npm ci && npm run expo:build"]
+    command: ["sh", "-lc", "bun install --frozen-lockfile && bun run expo:build"]
 
   # One-shot: unit and integration/mock tests (Bun).
   test-unit:
     profiles: ["test"]
-    image: oven/bun:1
+    image: oven/bun:1.4.5-alpine
     working_dir: /app
     volumes:
       - ./:/app
@@ -85,7 +86,7 @@ services:
     command: ["sh", "-lc", "bun install --frozen-lockfile && bun test"]
 
 networks:
-  # Created by `npm run supabase:start` as `supabase_network_<project_id>`.
+  # Created by `bun run supabase:start` as `supabase_network_<project_id>`.
   # Start the local Supabase stack before running the `app` profile.
   supabase:
     external: true

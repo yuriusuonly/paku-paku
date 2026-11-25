@@ -1,13 +1,13 @@
 # Contributing
 
 ## Prerequisites
-- Node.js/npm (Docker image uses Node 22)
+- Bun ≥1.4.5 is the only runtime (`bun install`, `bun run ...`, `bun run test`); Docker image and CI use Bun 1.4.5 too.
 - Docker + Compose for containerized runs and the local Supabase stack (PostgreSQL)
-- `eas-cli` is invoked on demand via `npx` by the `eas:*` scripts; `gh` (GitHub CLI) is used by the `github:*` scripts (authenticated via `GH_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands; the Supabase CLI is invoked on demand via `npx` by the `supabase:*` scripts (not installed as a dependency)
+- `eas-cli` and the Supabase CLI are invoked on demand via `bun x --bun` by the `eas:*` / `supabase:*` launchers; `gh` (GitHub CLI) is used by the `github:*` launchers (authenticated via `GITHUB_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands
 
 ## Setup
-1. `npm ci`
-2. Ensure `.env` exists and is **POSIX-compatible** (simple `KEY=value` lines): the Expo scripts source it, Caddy loads it with `--envfile`, and Node tooling can read it with `--env-file`.
+1. `bun install`
+2. Ensure `.env` exists and is **POSIX-compatible** (simple `KEY=value` lines): launchers parse it via `system/environment.js`, Compose interpolates it and Caddy receives it through the process environment.
 3. **`.env` is the single source of truth for project configuration.** Do not add fallback/default values elsewhere; all required configuration must be defined in `.env`.
 4. Keep both Supabase environments configured: local development (`EXPO_PUBLIC_SUPABASE_LOCAL_*`) and the hosted project used by Expo Hosting (`EXPO_PUBLIC_SUPABASE_*`).
 
@@ -15,10 +15,66 @@
 - The app is **web-only** (Expo Router, Metro, static web output with API routes). Do not assume native platforms are configured.
 - Edit source in `src/` and root config (`app.config.js`, `metro.config.js`, `tailwind.config.js`, etc.). Do not edit generated artifacts in `build/` or `node_modules/`.
 - Keep `src/screens/` mirroring `src/app/` route paths (page/API routes map to corresponding screen modules where applicable).
-- Dev server: `npm run expo:start`. Tunnel: `npm run expo:start:tunnel`.
-- Start the local Supabase stack before developing against data: `npm run supabase:start`; stop it with `npm run supabase:stop`. Use `npm run supabase:status` for local URLs/keys and `npm run supabase:reset` to re-apply migrations + seed.
-- Add convenience/repeatable project commands as scripts in `package.json`; do not create a `scripts/` directory for them. Treat `package.json` scripts as the single source of truth for how to run and configure the project.
-- Keep dependencies limited to what is actually imported/used. `devDependencies` holds workspace-local tooling that is not imported by the app; for example, `@supabase/supabase-js` is a runtime dependency, while the Supabase CLI is invoked via `npx`.
+- Dev server: `bun run expo:start`. Tunnel: `bun run expo:start:tunnel`. The launcher injects `--port` from `URL_PORT` because Expo ignores the port env var.
+- Start the local Supabase stack before developing against data: `bun run supabase:start`; stop it with `bun run supabase:stop`. Use `bun run supabase:status` for local URLs/keys and `bun run supabase:reset` to re-apply migrations + seed.
+- `package.json` scripts are the single source of truth for tool invocations, but they call thin launchers in `scripts/` — do not put `set -a && . ./.env` or long shell pipelines in `package.json`. Launchers load `.env`, preserve argv order with `rawArguments()`, chdir to the root and spawn tools through `system/process.js`. Tool-specific behavior (port injection, token remapping, hosted target, asset copying) belongs in the relevant launcher.
+- Keep dependencies limited to what is actually imported/used. `devDependencies` holds workspace-local tooling (`@opencode/cli`, `skills`); `@supabase/supabase-js` is a runtime dependency, while the Supabase and EAS CLIs are invoked on demand via `bun x --bun`.
+
+## File format (all files)
+| Rule | Value | Notes |
+| --- | --- | --- |
+| Indentation | 2 spaces | No tabs |
+| Trailing whitespace | Trimmed | No spaces or tabs at line ends |
+| Final newline | Inserted | Every text file ends with one newline |
+| Line endings | LF | No CRLF |
+
+Binary assets are exempt from the text-file rules.
+
+### JSON/TOML
+- Always expand `{}` and `[]`, including empty ones: opening and closing tokens go on their own lines. Put one value per line.
+- Keep `package.json` `scripts` alphabetically ordered so each base command sits with its `:` variants.
+
+```json
+{
+  "name": "Template",
+  "scripts": {
+  },
+  "items": [
+    "a",
+    "b"
+  ]
+}
+```
+
+### JavaScript
+Statement order: `import` statements, variable declarations, function declarations, `export {...}`, `export default`. Arrow functions assigned to `const` are declarations, so the function-declaration slot stays empty in `system/*` and `scripts/*`.
+
+| Rule | Convention |
+| --- | --- |
+| Object/array literals | Expand when they hold 2 or more values, one value per line |
+| Trailing commas | Trim them in JS files, including expanded literals, imports, exports and destructuring |
+| Import/export/destructuring | Expand when they name 2 or more bindings |
+| JSDoc | Always on public variables and functions, with `@param`/`@returns`; `@module` on app modules; never `@example` |
+| Functions | Arrow functions only in `system/*` and `scripts/*`; Expo config modules use `export default function` |
+| Language | Vanilla JavaScript (ESM); no TypeScript files or type annotations |
+| Built-ins | Wrap the corresponding Node built-in instead of reimplementing it; scripts import only from `system/*`, never `node:*` directly |
+
+Return values in `system/*` are literal data (objects, arrays, strings, numbers, booleans, arrow functions) — never `Date`, `URL`, or stream objects. A module with a real failure path defines a private `*Error` factory returning a plain `{ name, message, cause }` object.
+
+| Module | Failure behavior |
+| --- | --- |
+| `argument.js` | Throws `ArgumentError` for invalid input |
+| `console.js` | Delegates to `node:console`; throws `ConsoleError` with `cause` for a failed built-in call |
+| `date.js` | Returns `""` or a `valid: false` object for invalid input |
+| `environment.js` | `load()` throws `EnvironmentError` with `cause`, except with `{ optional: true }`, which returns `{}` for a missing file |
+| `io.js` | Throws `IoError` with `cause` |
+| `os.js` | Cannot fail |
+| `path.js` | Throws `PathError` for failed filesystem operations and missing paths in `details()` |
+| `process.js` | `exec` and `spawn` return an `error` field; invalid commands throw `ProcessError` |
+| `signal.js` | Cannot fail for valid signal names |
+| `uri.js` | `url()` returns `null` for invalid input |
+
+`console.js` exports `info`, `warn`, `error`, `debug`, `trace`; `debug(task, ...args)` times a sync/async task and prints only its elapsed duration, and object values use `util.inspect` at unlimited depth.
 
 ## Guides
 
@@ -32,12 +88,12 @@ Use **Mermaid** for diagrams/flowcharts in docs. Example: build & deploy pipelin
 
 ```mermaid
 flowchart TD
-  A["npm run expo:build (expo export --platform web)"] --> B["build/"]
+  A["bun run expo:build (expo export --platform web)"] --> B["build/"]
   B --> C{"Deploy target"}
-  C -->|"Local"| D["npm run expo:serve (:URL_PORT) behind Caddy"]
+  C -->|"Local"| D["bun run expo:serve (:URL_PORT) behind Caddy"]
   C -->|"Docker"| E["docker:build (Dockerfile)"]
   E --> F["Container runs expo serve + Caddy"]
-  C -->|"GitHub Actions"| G["npm run eas:deploy"]
+  C -->|"GitHub Actions"| G["bun run eas:deploy"]
   G --> H["Expo Hosting (artifact upload only)"]
 ```
 
@@ -105,13 +161,13 @@ Imports only point downward:
 
 ### Supabase (local vs hosted)
 
-- `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` only when `npm run eas:deploy` runs. Never remove or bypass that override in the deploy script.
+- `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` only when `bun run eas:deploy` runs. Never remove or bypass that override in the deploy script.
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `src/database/instance.js` — never hardcode URLs/keys or add a cross-environment fallback.
 - Use `getSupabase()` (or server helpers) from `src/database/instance.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
-- Schema changes are flattened by table: each migration under `supabase/migrations/` contains one table and its associated indexes, grants, RLS policies, helper functions, comments, and realtime publication. Do not reintroduce historical migration chains. After editing a table migration, run `npm run supabase:reset` and verify with `npm run expo:build` plus the relevant `/api/*` flows.
+- Schema changes are flattened by table: each migration under `supabase/migrations/` contains one table and its associated indexes, grants, RLS policies, helper functions, comments, and realtime publication. Do not reintroduce historical migration chains. After editing a table migration, run `bun run supabase:reset` and verify with `bun run expo:build` plus the relevant `/api/*` flows.
 - Every table exposed through the Data API needs RLS enabled and explicit policies; keep writes restricted unless a screen truly needs them.
-- Apply migrations to the hosted database with `npm run supabase:link` and `npm run supabase:push` using `SUPABASE_ACCESS_TOKEN` from `.env` for non-interactive CLI auth (or run `npx --yes supabase login` once locally as needed). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
+- Apply migrations to the hosted database with `bun run supabase:link` and `bun run supabase:push` using `SUPABASE_ACCESS_TOKEN` from `.env` for non-interactive CLI auth (or run `bun x --bun supabase login` once locally as needed). `supabase:link` and the `opencode.json` Supabase MCP server both read the project reference from `SUPABASE_PROJECT_REF` in `.env`; do not hardcode it.
 
 ### API architecture & auth
 
@@ -153,8 +209,8 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  D["npm run expo:start / expo:build (local target)"] --> L["Local Supabase<br/>EXPO_PUBLIC_SUPABASE_LOCAL_*<br/>127.0.0.1:54321"]
-  P["npm run eas:deploy (target overridden to hosted)"] --> H["Hosted Supabase<br/>EXPO_PUBLIC_SUPABASE_*"]
+  D["bun run expo:start / expo:build (local target)"] --> L["Local Supabase<br/>EXPO_PUBLIC_SUPABASE_LOCAL_*<br/>127.0.0.1:54321"]
+  P["bun run eas:deploy (target overridden to hosted)"] --> H["Hosted Supabase<br/>EXPO_PUBLIC_SUPABASE_*"]
 ```
 
 ## Styling, state & config
@@ -176,8 +232,9 @@ flowchart LR
 - Never include the `@example` tag in JSDoc.
 
 ## Verification
-- Run tests: `npm test` for Bun unit/integration/mock tests. `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
-- Manually verify changes with `npm run expo:build` (and `npm run expo:start`), and `npm run docker:build` / `npm run docker:up` if touching container/runtime/build config.
+- Run `bun run bun:test` before finishing any change to `system/*` or `scripts/*`; scripts are verified by running them. `bun run test` runs the same full suite (app tests plus `test/system/`).
+- `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
+- Manually verify changes with `bun run expo:build` (and `bun run expo:start`), and `bun run docker:build` / `bun run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
 - With the local Supabase stack running, `GET /api/items` should list seeded items, `POST /api/signin` with `{"email":"admin@paku-paku.official","password":"admin"}` (or staff `staff@paku-paku.official` / `staff`) should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
 
@@ -186,11 +243,6 @@ flowchart LR
 - Document structure in tree form and use **Mermaid** for diagrams.
 
 ## Commits & PRs
-- Commit messages use one of these tagged types:
-  - `(feature)` — newly added feature
-  - `(chore)` — documentation/configuration maintenance
-  - `(ui)` — UI/UX changes
-  - `(fix)` — bug and hot fixes
-  - `(refactor)` — optimizations and code quality
-- Format: a one-line short descriptive title after the tag, followed by a multi-line bulleted list of the individual changes.
+- Commit messages use `(new)` (new features), `(fix)` (bug/hot fixes), `(refactor)` (code/optimization changes), `(chore)` (config/documentation) or `(ui)` (UI/UX changes).
+- Format: `(prefix) <Short description>` where the description starts with an uppercase letter, e.g. `(new) Add env-aware Supabase launcher`.
 - Commit automatically as work completes, without waiting for an explicit commit request. **Never push automatically** — pushing is always a deliberate action; deploys run through the push-to-deploy workflow (see `README.md` → Deployment).

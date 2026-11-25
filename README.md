@@ -24,8 +24,8 @@ and Expo Hosting.
 - **Build:** `expo export --platform web` → `build/` (static export).
 - **Deploy:** push to `main` triggers GitHub Actions, which pushes hosted Supabase migrations, exports the web
   build on the runner, and uploads only the artifact to Expo Hosting (EAS).
-- **Runtime:** `expo serve` locally or in Docker behind Caddy (`/api/health`
-  healthcheck).
+- **Runtime:** Bun runs the toolchain, scripts, tests and containers; `expo serve`
+  runs locally or in Docker behind Caddy (`/api/health` healthcheck).
 - **Architecture:** layered modular monolith with thin routes, endpoint use-case
   composition, repositories, and a pure domain layer for business rules/schemas
   (see `CONTRIBUTING.md` → Architecture).
@@ -53,18 +53,19 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_SUPABASE_URL` | Hosted Supabase project URL; used only when the target is `hosted` (`eas:deploy`). |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (`eas:deploy`). |
 | `SUPABASE_LOCAL_SERVER_URL` | Local Supabase API URL used by Dockerized server routes (`http://api.supabase.internal:8000`, Kong on the Supabase Docker network). |
-| `SUPABASE_PROJECT_REF` | Hosted project reference; used by `npm run supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
+| `SUPABASE_PROJECT_REF` | Hosted project reference; used by `bun run supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
 | `SUPABASE_ACCESS_TOKEN` | Supabase personal access token for non-interactive CLI auth (linking/pushing hosted migrations, e.g. in CI); never bundled into the app. |
 | `EXPO_TOKEN` | Expo/EAS access token used by the `eas:*` scripts and `eas-cli`. |
-| `EAS_PROJECT_ID` | Expo Hosting project id printed by `npm run eas:initialize`. |
+| `EAS_PROJECT_ID` | Expo Hosting project id printed by `bun run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
-| `GH_REPO` | HTTPS repository URL used by the `github:*` scripts. |
-| `GH_TOKEN` | GitHub token used by the `github:*` scripts. |
+| `GITHUB_REPOSITORY` | HTTPS repository URL used by the `github:*` scripts. |
+| `GITHUB_TOKEN` | GitHub token used by the `github:*` scripts. |
 
 Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
 
-Keep `.env` POSIX-compatible (`KEY=value` lines): it is sourced by the Expo
-scripts, loaded by Caddy's `--envfile`, and read by Node's `--env-file`.
+Keep `.env` POSIX-compatible (`KEY=value` lines): every launcher parses it
+through `system/environment.js`, Compose interpolates it for ports/build args,
+and Caddy receives it via the process environment.
 `EXPO_PUBLIC_*` values are bundled into the client — never put secrets there.
 Supabase anon/publishable keys are meant for browser use; service-role keys
 must never appear in `.env` or in `EXPO_PUBLIC_*` values.
@@ -72,15 +73,15 @@ must never appear in `.env` or in `EXPO_PUBLIC_*` values.
 ## Local development
 
 ```bash
-npm ci
-npm run expo:start        # dev server on $URL_PORT (loads .env)
-npm run expo:start:tunnel # tunnel mode
+bun install
+bun run expo:start        # dev server on $URL_PORT (loads .env)
+bun run expo:start:tunnel # tunnel mode
 ```
 
 ## Supabase (local + hosted)
 
 Development and local static builds use a local Supabase stack (PostgreSQL in
-Docker) only. Only `npm run eas:deploy` sets
+Docker) only. Only `bun run eas:deploy` sets
 `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo Hosting build uses the hosted
 project. There is no cross-environment fallback:
 `src/database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
@@ -91,11 +92,11 @@ Prerequisite: a running Docker daemon your user can access (`docker ps`). If it
 is denied, add your user to the `docker` group and start a new session.
 
 ```bash
-npm run supabase:start    # PostgreSQL, Auth, REST, Studio, and friends
-npm run supabase:status   # local URLs and keys (copy the anon key if it differs)
-npm run supabase:reset    # re-apply migrations + seed
-npm run expo:start        # app on http://localhost:3000
-npm run supabase:stop
+bun run supabase:start    # PostgreSQL, Auth, REST, Studio, and friends
+bun run supabase:status   # local URLs and keys (copy the anon key if it differs)
+bun run supabase:reset    # re-apply migrations + seed
+bun run expo:start        # app on http://localhost:3000
+bun run supabase:stop
 ```
 
 `supabase:reset` reapplies migrations and seeds the sample items plus three
@@ -123,8 +124,8 @@ Do not expose these ports through Caddy, the public URL, or a tunnel.
 
 Migrations live in `supabase/migrations/`; local seed data lives in
 `supabase/seeds/`. Add a migration with
-`npm run supabase:migration -- <name>`, then verify it with
-`npm run supabase:reset`.
+`bun run supabase:migration -- <name>`, then verify it with
+`bun run supabase:reset`.
 
 Server API routes in `src/app/api/` select Supabase at runtime with
 `src/database/instance.js` (local stack vs hosted project, no fallback).
@@ -140,43 +141,43 @@ const { data, error } = await getSupabase()
 
 Hosted setup: create a Supabase project, copy its URL and anon key into
 `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and refresh the
-`DOT_ENV` secret (`npm run github:secrets`) so production builds bake in the
-hosted values. `npm run eas:deploy` refuses to run without those hosted values.
-Apply local migrations to the hosted database with `npx --yes supabase login`
-(once), `npm run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
-`npm run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI). |
+`DOT_ENV` secret (`bun run github:secrets`) so production builds bake in the
+hosted values. `bun run eas:deploy` refuses to run without those hosted values.
+Apply local migrations to the hosted database with `bun x --bun supabase login`
+(once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
+`bun run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI).
 
-OpenCode connects to the hosted Supabase MCP server declared in `opencode.json`.
-Its URL resolves `SUPABASE_PROJECT_REF` from `.env`, so the project reference is
-never duplicated in configuration. Launch OpenCode with `npm run opencode` (so
-`.env` is loaded) and authenticate via `/mcps` if the server reports that it
-needs authentication.
+OpenCode connects to the hosted Supabase and GitHub MCP servers declared in
+`opencode.json`; the GitHub one authenticates with `GITHUB_TOKEN`. Launch
+OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate via
+`/mcps` if a server reports that it needs authentication.
 
 ## Build & serve (static)
 
 ```bash
-npm run expo:build  # exports to build/ (web, Metro), then copies the PNG icons to build/client/png/
-npm run expo:serve  # serves build/ on $URL_PORT
+bun run expo:build  # exports to build/ (web, Metro), then copies the PNG icons to build/client/png/
+bun run expo:serve  # serves build/ on $URL_PORT
 ```
 
 ## Automated tests
 
 ```bash
-npm test  # unit + integration/mock tests (bun)
+bun run test      # all Bun tests: app tests + system/ unit tests
+bun run bun:test  # same suite, via the template launcher
 ```
 
-- `npm test` runs Bun tests under `test/unit/` and `test/integration/` only (unit and integration/mock coverage).
-- Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1`).
+- Tests live under `test/unit/`, `test/integration/` (app coverage) and `test/system/` (the `system/*` wrapper modules copied from the template).
+- Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1.4.5-alpine`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
 builds keep the local Supabase target, so start the local stack before opening
-`expo:serve`; only `npm run eas:deploy` switches the target to `hosted`.
+`expo:serve`; only `bun run eas:deploy` switches the target to `hosted`.
 
 ## Local HTTPS (Caddy)
 
 ```bash
-npm run caddy        # https://localhost:$URL_PROXY_PORT -> localhost:$URL_PORT
-npm run caddy:trust  # trust Caddy's local CA (needed for service workers)
+bun run caddy        # https://localhost:$URL_PROXY_PORT -> localhost:$URL_PORT
+bun run caddy:trust  # trust Caddy's local CA (needed for service workers)
 ```
 
 ## Deployment (Expo Hosting)
@@ -184,20 +185,20 @@ npm run caddy:trust  # trust Caddy's local CA (needed for service workers)
 One-time setup:
 
 1. Put an Expo/EAS access token in `EXPO_TOKEN` (expo.dev → Account settings → Access tokens).
-2. Run `npm run eas:initialize` and paste the printed project id into
+2. Run `bun run eas:initialize` and paste the printed project id into
    `EAS_PROJECT_ID` in `.env`.
-3. Create the GitHub repository, then run `npm run github:remote` and
-   `npm run github:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
+3. Create the GitHub repository, then run `bun run github:remote` and
+   `bun run github:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
    must contain the hosted Supabase values (`EXPO_PUBLIC_SUPABASE_URL`,
    `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` overrides the target to
    `hosted`, and production never uses the local URL.
-4. Push to `main`; `.github/workflows/deploy.yml` runs `npm run eas:deploy`.
+4. Push to `main`; `.github/workflows/deploy-expo.yml` runs `bun run eas:deploy` and `.github/workflows/deploy-supabase.yml` links and pushes migrations.
 
 `eas:deploy` requires hosted Supabase URL/anon key, exports the web build
 locally (or on the runner), and uploads the finished `build/` artifact with
 `eas deploy --non-interactive --prod --environment production`; EAS runs no
 builds. The `--environment production` flag makes EAS production environment
-variables available to server-side API routes. Use `npm run github:deploy` to
+variables available to server-side API routes. Use `bun run github:deploy` to
 refresh the `DOT_ENV` secret and push the current branch.
 
 ## Docker (all-in-one compose)
@@ -205,19 +206,19 @@ refresh the `DOT_ENV` secret and push the current branch.
 `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized build, local run, and test workflows.
 
 ```bash
-npm run docker:build  # build app image (profile: app)
-npm run docker:up     # start server + caddy (profile: app)
-npm run docker:logs   # follow app logs
-npm run docker:down   # stop/remove app/build/test services
+bun run docker:build  # build app image (profile: app)
+bun run docker:up     # start server + caddy (profile: app)
+bun run docker:logs   # follow app logs
+bun run docker:down   # stop/remove app/build/test services
 
 # one-shot containerized build/tests (via docker-compose.yml)
-set -a && . ./.env && set +a && docker compose --profile build run --rm build
-set -a && . ./.env && set +a && docker compose --profile test run --rm test-unit
+docker compose --profile build run --rm build
+docker compose --profile test run --rm test-unit
 ```
 
-- **Local run (`app`)**: `server` runs `expo serve` on `$URL_PORT` and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `npm run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
-- **Build (`build`)**: one-shot container exports the static web app into `./build`.
-- **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1`.
+- **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
+- **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
+- **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
 
 ## Routes & endpoints
 
@@ -271,6 +272,9 @@ three seeded roles:
 │   └── workflows/
 │       ├── deploy-expo.yml
 │       └── deploy-supabase.yml
+├── .agents/
+│   └── skills/
+│       └── <24 GitHub workflow skills>/
 ├── png/
 │   ├── logo-maskable.png
 │   └── logo.png
@@ -526,9 +530,33 @@ three seeded roles:
 ├── svg/
 │   ├── logo-maskable.svg
 │   └── logo.svg
+├── scripts/
+│   ├── bun.js
+│   ├── caddy.js
+│   ├── docker.js
+│   ├── eas.js
+│   ├── expo.js
+│   ├── gh.js
+│   ├── git.js
+│   ├── opencode.js
+│   ├── skill.js
+│   └── supabase.js
+├── system/
+│   ├── argument.js
+│   ├── console.js
+│   ├── date.js
+│   ├── environment.js
+│   ├── io.js
+│   ├── os.js
+│   ├── path.js
+│   ├── process.js
+│   ├── signal.js
+│   └── uri.js
 ├── test/
 │   ├── integration/
 │   │   └── middleware-endpoint.test.js
+│   ├── system/
+│   │   └── <10 *.test.js files>
 │   └── unit/
 │       ├── domain/
 │       │   ├── audit/
@@ -588,11 +616,13 @@ three seeded roles:
 ├── README.md
 ├── app.config.js
 ├── babel.config.js
+├── bunfig.toml
 ├── docker-compose.yml
 ├── eas.json
 ├── metro.config.js
 ├── opencode.json
-├── package-lock.json
+├── bun.lock
 ├── package.json
+├── skills-lock.json
 └── tailwind.config.js
 ```

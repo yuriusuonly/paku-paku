@@ -22,7 +22,7 @@ import maskableLogo from "../../png/logo-maskable.png";
  * Whether the manifest is being generated for the static production export.
  *
  * Development serves the source PNGs through Expo's `unstable_path` asset
- * middleware; production uses the copies that `npm run expo:build` places in
+ * middleware; production uses the copies that `bun run expo:build` places in
  * `build/client/png/`.
  *
  * @type {boolean}
