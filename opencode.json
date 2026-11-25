@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
-    "CONTRIBUTING.md"
+    "CONTRIBUTING.md",
+    "DESIGN.md"
   ],
   "mcp": {
     "servers": {
