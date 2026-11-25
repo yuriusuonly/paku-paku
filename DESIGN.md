@@ -1,4 +1,4 @@
-# Design system
+# Design
 
 This document is the source of truth for visual tokens and responsive behavior in Paku Paku. UI code must use the tokens exported from `constants/theme.js` instead of raw colors, hardcoded spacing patterns, or one-off typography.
 

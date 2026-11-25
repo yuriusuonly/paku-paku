@@ -1,4 +1,4 @@
-# AGENTS.md
+# Agents
 
 ## Stack & scope
 - Expo (SDK ~58) + Expo Router app targeting **web only** (`app.config.js`: `platforms: ["web"]`, `web.output: "static"`, `bundler: "metro"`, `apiRoutes: true`). UI/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand. Global CSS: `stylesheets/global.css` (wired in `metro.config.js`).
