@@ -1,3 +1,4 @@
+import { ArgumentError } from "../../errors/argument.js";
 import { expect, test } from "bun:test";
 import { argv } from "node:process";
 import {
@@ -40,6 +41,7 @@ test("parse throws ArgumentError for non-array input", () => {
 
   expect(thrown).not.toBe(null);
   expect(thrown.name).toBe("ArgumentError");
+  expect(thrown).toBeInstanceOf(ArgumentError);
 });
 
 test("parse maps declared booleans and strings", () => {

@@ -15,19 +15,7 @@ import {
   parse as pathParse,
   resolve as pathResolve
 } from "node:path";
-
-/**
- * Creates a PathError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const PathError = (message, cause) => ({
-  name: "PathError",
-  message,
-  cause
-});
+import { pathError } from "../errors/path.js";
 
 /**
  * Runs a filesystem operation, wrapping failures in PathError.
@@ -40,7 +28,7 @@ const perform = (message, fn) => {
   try {
     return fn();
   } catch (cause) {
-    throw PathError(message, cause);
+    throw pathError(message, cause);
   }
 };
 
@@ -179,7 +167,7 @@ const list = (path, options = {}) => perform(`Unable to list directory: ${path}`
  * @returns {object} Plain metadata.
  */
 const details = (path) => {
-  if (!existsSync(path)) throw PathError(`Path does not exist: ${path}`);
+  if (!existsSync(path)) throw pathError(`Path does not exist: ${path}`);
 
   const info = perform(`Unable to inspect path: ${path}`, () => inspect(path));
 

@@ -1,19 +1,7 @@
 import builtinConsole from "node:console";
 import { hrtime } from "node:process";
 import { inspect } from "node:util";
-
-/**
- * Creates a ConsoleError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const ConsoleError = (message, cause) => ({
-  name: "ConsoleError",
-  message,
-  cause
-});
+import { consoleError } from "../errors/console.js";
 
 /**
  * Builds a plain duration breakdown from a start timestamp.
@@ -82,7 +70,7 @@ const call = (method, values) => {
   try {
     builtinConsole[method](...values.map(render));
   } catch (cause) {
-    throw ConsoleError(`Unable to call console.${method}`, cause);
+    throw consoleError(`Unable to call console.${method}`, cause);
   }
 };
 

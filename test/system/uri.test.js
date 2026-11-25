@@ -1,3 +1,4 @@
+import { UriError } from "../../errors/uri.js";
 import { pathToFileURL } from "node:url";
 import { expect, test } from "bun:test";
 import {
@@ -63,6 +64,7 @@ test("encode and decode throw UriError for malformed input", () => {
     thrown = error;
   }
   expect(thrown.name).toBe("UriError");
+  expect(thrown).toBeInstanceOf(UriError);
   expect(thrown.cause).toBeTruthy();
 });
 
@@ -81,6 +83,7 @@ test("component decoding throws UriError for malformed input", () => {
     thrown = error;
   }
   expect(thrown.name).toBe("UriError");
+  expect(thrown).toBeInstanceOf(UriError);
   expect(thrown.cause).toBeTruthy();
 });
 
@@ -100,6 +103,7 @@ test("fileUrlToPath throws UriError for invalid input", () => {
     thrown = error;
   }
   expect(thrown.name).toBe("UriError");
+  expect(thrown).toBeInstanceOf(UriError);
   expect(thrown.cause).toBeTruthy();
 });
 

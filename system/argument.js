@@ -1,18 +1,6 @@
 import { argv } from "node:process";
 import { parseArgs } from "node:util";
-
-/**
- * Creates an ArgumentError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const ArgumentError = (message, cause) => ({
-  name: "ArgumentError",
-  message,
-  cause
-});
+import { argumentError } from "../errors/argument.js";
 
 /**
  * Parses CLI tokens with the built-in `util.parseArgs`.
@@ -22,7 +10,7 @@ const ArgumentError = (message, cause) => ({
  * @returns {object} Plain flag map with positionals under `_`.
  */
 const parse = (values = argv.slice(2), config = {}) => {
-  if (!Array.isArray(values)) throw ArgumentError("Expected an array of CLI tokens");
+  if (!Array.isArray(values)) throw argumentError("Expected an array of CLI tokens");
 
   const result = parseArgs({
     ...config,

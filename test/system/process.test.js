@@ -1,3 +1,4 @@
+import { ProcessError } from "../../errors/process.js";
 import { join } from "node:path";
 import {
   cwd,
@@ -29,6 +30,7 @@ test("exec throws ProcessError for a non-string command", () => {
   }
 
   expect(thrown.name).toBe("ProcessError");
+  expect(thrown).toBeInstanceOf(ProcessError);
 });
 
 test("exec returns stdout and a zero code", () => {
@@ -123,6 +125,7 @@ test("chdir changes the working directory and throws ProcessError when invalid",
       thrown = error;
     }
     expect(thrown.name).toBe("ProcessError");
+  expect(thrown).toBeInstanceOf(ProcessError);
   } finally {
     chdir(original);
   }

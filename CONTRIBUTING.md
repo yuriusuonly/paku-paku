@@ -1,7 +1,7 @@
 # Contributing
 
 ## Prerequisites
-- Bun ≥1.4.5 is the only runtime (`bun install`, `bun run ...`, `bun run test`); Docker image and CI use Bun 1.4.5 too.
+- Bun ≥1.4.5 is the only runtime (`bun install`, `bun run ...`, `bun run bun:test`); Docker image and CI use Bun 1.4.5 too.
 - Docker + Compose for containerized runs and the local Supabase stack (PostgreSQL)
 - `eas-cli` and the Supabase CLI are invoked on demand via `bun x --bun` by the `eas:*` / `supabase:*` launchers; `gh` (GitHub CLI) is used by the `github:*` launchers (authenticated via `GITHUB_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands
 
@@ -59,7 +59,7 @@ Statement order: `import` statements, variable declarations, function declaratio
 | Language | Vanilla JavaScript (ESM); no TypeScript files or type annotations |
 | Built-ins | Wrap the corresponding Node built-in instead of reimplementing it; scripts import only from `system/*`, never `node:*` directly |
 
-Return values in `system/*` are literal data (objects, arrays, strings, numbers, booleans, arrow functions) — never `Date`, `URL`, or stream objects. A module with a real failure path defines a private `*Error` factory returning a plain `{ name, message, cause }` object.
+Return values in `system/*` are literal data (objects, arrays, strings, numbers, booleans, arrow functions) — never `Date`, `URL`, or stream objects. A module with a real failure path imports its error factory from `errors/` and throws the centralized app error.
 
 | Module | Failure behavior |
 | --- | --- |
@@ -144,7 +144,7 @@ Here `utilities` means the root-level leaf directories `cipher/`, `constants/`, 
 - `endpoints/*` compose request validation, interceptors, repositories, and responses.
 - `screens/*` must not import Supabase or server-only modules.
 - `services/*` are client-to-API contracts; the realtime service may use the shared database client.
-- Follow these boundaries when adding new modules; tests live only under `test/unit/` and `test/integration/`.
+- Follow these boundaries when adding new modules; tests under `test/` mirror root module paths, and Playwright E2E specs use `*.e2e.js` under `test/app/`.
 
 ## Routing & API conventions (Expo Router)
 - File-based routes live in `app/`.
@@ -238,7 +238,7 @@ flowchart LR
 - Never include the `@example` tag in JSDoc.
 
 ## Verification
-- Run `bun run bun:test` before finishing any change to `system/*` or `scripts/*`; scripts are verified by running them. `bun run test` runs the same full suite (app tests plus `test/system/`).
+- Run `bun run bun:test` before finishing any change to `system/*` or `scripts/*`; scripts are verified by running them. `bun run playwright:test` runs the E2E specs; install browsers once with `bun run playwright -- install chromium`.
 - `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
 - Manually verify changes with `bun run expo:build` (and `bun run expo:start`), and `bun run docker:build` / `bun run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.

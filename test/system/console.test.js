@@ -1,3 +1,4 @@
+import { ConsoleError } from "../../errors/console.js";
 import builtinConsole from "node:console";
 import * as logger from "../../system/console.js";
 import { expect, test } from "bun:test";
@@ -178,5 +179,6 @@ test("a wrapper throws ConsoleError when the built-in fails", async () => {
   }
 
   expect(thrown.name).toBe("ConsoleError");
+  expect(thrown).toBeInstanceOf(ConsoleError);
   expect(thrown.cause.message).toBe("boom");
 });

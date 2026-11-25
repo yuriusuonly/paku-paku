@@ -1,3 +1,4 @@
+import { EnvironmentError } from "../../errors/environment.js";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -63,6 +64,7 @@ test("load throws EnvironmentError when the file is missing", async () => {
 
   expect(thrown).not.toBe(null);
   expect(thrown.name).toBe("EnvironmentError");
+  expect(thrown).toBeInstanceOf(EnvironmentError);
   expect(thrown.cause).toBeTruthy();
 });
 
@@ -92,4 +94,5 @@ test("required throws EnvironmentError for a missing variable", () => {
   }
 
   expect(thrown.name).toBe("EnvironmentError");
+  expect(thrown).toBeInstanceOf(EnvironmentError);
 });

@@ -1,3 +1,4 @@
+import { PathError } from "../../errors/path.js";
 import {
   mkdtempSync,
   rmSync
@@ -86,6 +87,7 @@ test("move throws PathError when the source is missing", () => {
   }
 
   expect(thrown.name).toBe("PathError");
+  expect(thrown).toBeInstanceOf(PathError);
   expect(thrown.cause).toBeTruthy();
 });
 

@@ -162,11 +162,12 @@ bun run expo:serve  # serves build/ on $URL_PORT
 ## Automated tests
 
 ```bash
-bun run test      # all Bun tests: app tests + system/ unit tests
-bun run bun:test  # same suite, via the template launcher
+bun run bun:test        # Bun tests under test/, mirroring root modules
+bun run playwright      # Playwright CLI (e.g. `bun run playwright -- install chromium`)
+bun run playwright:test # E2E specs in test/app/*.e2e.js
 ```
 
-- Tests live under `test/unit/`, `test/integration/` (app coverage) and `test/system/` (the `system/*` wrapper modules copied from the template).
+- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages.
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1.4.5-alpine`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
@@ -463,21 +464,28 @@ three seeded roles:
 │   ├── layout.js
 │   └── theme.js
 ├── errors/
+│   ├── argument.js
 │   ├── bad-gateway.js
 │   ├── bad-request.js
+│   ├── console.js
 │   ├── database-unconfigured.js
 │   ├── database-upstream.js
 │   ├── decrypt-error.js
 │   ├── encrypt-error.js
+│   ├── environment.js
 │   ├── forbidden.js
 │   ├── hash-error.js
 │   ├── internal.js
+│   ├── io.js
 │   ├── message.js
 │   ├── normalize.js
 │   ├── not-found.js
+│   ├── path.js
+│   ├── process.js
 │   ├── service-unavailable.js
 │   ├── too-many-requests.js
-│   └── unauthorized.js
+│   ├── unauthorized.js
+│   └── uri.js
 ├── format/
 │   ├── currency.js
 │   ├── date.js
@@ -537,6 +545,7 @@ three seeded roles:
 │   ├── gh.js
 │   ├── git.js
 │   ├── opencode.js
+│   ├── playwright.js
 │   ├── skill.js
 │   └── supabase.js
 ├── system/
@@ -551,56 +560,56 @@ three seeded roles:
 │   ├── signal.js
 │   └── uri.js
 ├── test/
-│   ├── integration/
-│   │   └── middleware-endpoint.test.js
+│   ├── app/
+│   │   └── signin.e2e.js
+│   ├── domain/
+│   │   ├── audit/
+│   │   │   └── summary.test.js
+│   │   ├── auth/
+│   │   │   └── roles.test.js
+│   │   ├── items/
+│   │   │   └── schema.test.js
+│   │   ├── menu/
+│   │   │   └── sections.test.js
+│   │   ├── orders/
+│   │   │   ├── items.test.js
+│   │   │   ├── pricing.test.js
+│   │   │   ├── qr.test.js
+│   │   │   ├── schema.test.js
+│   │   │   ├── status.test.js
+│   │   │   └── totals.test.js
+│   ├── endpoints/
+│   │   └── items/
+│   │       └── validation.test.js
+│   ├── errors/
+│   │   ├── message.test.js
+│   │   └── normalize.test.js
+│   ├── format/
+│   │   ├── currency.test.js
+│   │   ├── date.test.js
+│   │   └── email.test.js
+│   ├── helpers/
+│   │   ├── lists.test.js
+│   │   └── records.test.js
+│   ├── network/
+│   │   ├── middleware.test.js
+│   │   ├── request.test.js
+│   │   ├── response.test.js
+│   │   └── transport.test.js
+│   ├── services/
+│   │   ├── admin.test.js
+│   │   ├── audit.test.js
+│   │   ├── auth.test.js
+│   │   ├── checkout.test.js
+│   │   ├── items.test.js
+│   │   ├── orders.test.js
+│   │   └── staff.test.js
 │   ├── system/
 │   │   └── <10 *.test.js files>
-│   └── unit/
-│       ├── domain/
-│       │   ├── audit/
-│       │   │   └── summary.test.js
-│       │   ├── auth/
-│       │   │   └── roles.test.js
-│       │   ├── menu/
-│       │   │   └── sections.test.js
-│       │   ├── orders/
-│       │   │   ├── items.test.js
-│       │   │   ├── pricing.test.js
-│       │   │   ├── qr.test.js
-│       │   │   ├── rules.test.js
-│       │   │   └── totals.test.js
-│       │   └── schemas.test.js
-│       ├── endpoints/
-│       │   └── items-validation.test.js
-│       ├── services/
-│       │   ├── admin.test.js
-│       │   ├── audit.test.js
-│       │   ├── auth.test.js
-│       │   ├── checkout.test.js
-│       │   ├── http.test.js
-│       │   ├── items.test.js
-│       │   ├── orders.test.js
-│       │   └── staff.test.js
-│       └── shared/
-│           ├── errors/
-│           │   ├── message.test.js
-│           │   └── normalize.test.js
-│           ├── format/
-│           │   ├── currency.test.js
-│           │   ├── date.test.js
-│           │   └── email.test.js
-│           ├── network/
-│           │   ├── middleware.test.js
-│           │   ├── request.test.js
-│           │   ├── response.test.js
-│           │   └── transport.test.js
-│           ├── utils/
-│           │   ├── lists.test.js
-│           │   └── records.test.js
-│           └── validation/
-│               ├── email.test.js
-│               ├── password.test.js
-│               └── request.test.js
+│   └── validation/
+│       ├── email.test.js
+│       ├── password.test.js
+│       └── request.test.js
 ├── ttf/
 │   └── Outfit-VariableFont_wght.ttf
 ├── .dockerignore
@@ -619,6 +628,7 @@ three seeded roles:
 ├── eas.json
 ├── metro.config.js
 ├── opencode.json
+├── playwright.config.js
 ├── bun.lock
 ├── package.json
 ├── skills-lock.json

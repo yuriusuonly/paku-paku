@@ -11,6 +11,7 @@ import {
   stdin as processStdin,
   stdout as processStdout
 } from "node:process";
+import { processError } from "../errors/process.js";
 
 /**
  * Default stdio mapping that attaches a child to real numeric system file descriptors.
@@ -24,19 +25,6 @@ const systemStdio = [
 ];
 
 /**
- * Creates a ProcessError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const ProcessError = (message, cause) => ({
-  name: "ProcessError",
-  message,
-  cause
-});
-
-/**
  * Runs a command synchronously and returns its outcome instead of throwing.
  *
  * @param {string} command - Command string.
@@ -44,7 +32,7 @@ const ProcessError = (message, cause) => ({
  * @returns {object} Plain result with code, stdout, stderr, and error.
  */
 const exec = (command, options = {}) => {
-  if (typeof command !== "string") throw ProcessError("Command must be a string");
+  if (typeof command !== "string") throw processError("Command must be a string");
 
   const {
     cwd,
@@ -118,7 +106,7 @@ const chdir = (path) => {
   try {
     chdirProcess(path);
   } catch (cause) {
-    throw ProcessError(`Unable to change directory: ${path}`, cause);
+    throw processError(`Unable to change directory: ${path}`, cause);
   }
 };
 

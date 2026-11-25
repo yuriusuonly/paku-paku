@@ -5,19 +5,7 @@ import {
   env as processEnv
 } from "node:process";
 import { parseEnv } from "node:util";
-
-/**
- * Creates an EnvironmentError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const EnvironmentError = (message, cause) => ({
-  name: "EnvironmentError",
-  message,
-  cause
-});
+import { environmentError } from "../errors/environment.js";
 
 /**
  * Default `.env` path, resolved from the working directory at import time.
@@ -47,7 +35,7 @@ const load = async (path = DEFAULT_PATH, options = {}) => {
     return parse(await readFile(path, "utf8"));
   } catch (cause) {
     if (options.optional && cause?.code === "ENOENT") return {};
-    throw EnvironmentError(`Unable to load env file: ${path}`, cause);
+    throw environmentError(`Unable to load env file: ${path}`, cause);
   }
 };
 
@@ -68,7 +56,7 @@ const optional = (name, fallback) => processEnv[name] ?? fallback;
  */
 const required = (name) => {
   const value = processEnv[name];
-  if (value === undefined) throw EnvironmentError(`Missing environment variable: ${name}`);
+  if (value === undefined) throw environmentError(`Missing environment variable: ${name}`);
   return value;
 };
 

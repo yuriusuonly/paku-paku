@@ -3,19 +3,7 @@ import {
   readFileSync,
   writeFileSync
 } from "node:fs";
-
-/**
- * Creates an IoError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const IoError = (message, cause) => ({
-  name: "IoError",
-  message,
-  cause
-});
+import { ioError } from "../errors/io.js";
 
 /**
  * Runs a file operation, wrapping failures in IoError.
@@ -28,7 +16,7 @@ const perform = (message, fn) => {
   try {
     return fn();
   } catch (cause) {
-    throw IoError(message, cause);
+    throw ioError(message, cause);
   }
 };
 

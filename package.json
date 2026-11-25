@@ -34,6 +34,8 @@
     "github:workflow:expo": "bun ./scripts/gh.js workflow run deploy-expo.yml --ref main",
     "github:workflow:supabase": "bun ./scripts/gh.js workflow run deploy-supabase.yml --ref main",
     "opencode": "bun ./scripts/opencode.js",
+    "playwright": "bun ./scripts/playwright.js",
+    "playwright:test": "bun ./scripts/playwright.js test",
     "skill": "bun ./scripts/skill.js",
     "supabase:initialize": "bun ./scripts/supabase.js init",
     "supabase:link": "bun ./scripts/supabase.js link",
@@ -43,8 +45,7 @@
     "supabase:reset:remote": "bun ./scripts/supabase.js reset-remote",
     "supabase:start": "bun ./scripts/supabase.js start",
     "supabase:status": "bun ./scripts/supabase.js status",
-    "supabase:stop": "bun ./scripts/supabase.js stop",
-    "test": "bun ./scripts/bun.js test"
+    "supabase:stop": "bun ./scripts/supabase.js stop"
   },
   "allowScripts": {
     "@opencode/cli": true
@@ -69,6 +70,7 @@
   },
   "devDependencies": {
     "@opencode/cli": "^2.4.1",
+    "@playwright/test": "^1.65.1",
     "skills": "^1.9.0"
   },
   "trustedDependencies": [

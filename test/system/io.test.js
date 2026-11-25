@@ -1,3 +1,4 @@
+import { IoError } from "../../errors/io.js";
 import {
   mkdtempSync,
   rmSync
@@ -38,6 +39,7 @@ test("read throws IoError when the file is missing", () => {
   }
 
   expect(thrown.name).toBe("IoError");
+  expect(thrown).toBeInstanceOf(IoError);
   expect(thrown.cause).toBeTruthy();
 });
 

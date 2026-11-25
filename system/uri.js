@@ -2,19 +2,7 @@ import {
   fileURLToPath as nodeFileUrlToPath,
   pathToFileURL as nodePathToFileUrl
 } from "node:url";
-
-/**
- * Creates a UriError that can be thrown.
- *
- * @param {string} message - Error message.
- * @param {unknown} [cause] - Underlying failure.
- * @returns {object} Plain error value.
- */
-const UriError = (message, cause) => ({
-  name: "UriError",
-  message,
-  cause
-});
+import { uriError } from "../errors/uri.js";
 
 /**
  * Runs a URI operation, wrapping failures in UriError.
@@ -27,7 +15,7 @@ const perform = (message, fn) => {
   try {
     return fn();
   } catch (cause) {
-    throw UriError(message, cause);
+    throw uriError(message, cause);
   }
 };
 
