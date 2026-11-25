@@ -8,10 +8,10 @@
 
 ## Commands
 - `bun install` — install from `bun.lock`; `bun run bun:test` — run Bun tests under `test/`, mirroring root modules. `bun run playwright` / `bun run playwright:test` — invoke Playwright, including the `test/app/*.e2e.js` E2E specs; the config starts the dev server and Caddy and drives HTTPS through `$URL_PROXY_PORT`, with artifacts written outside the workspace.
-- `bun run expo` — pass-through to the Expo CLI. `bun run expo:start` / `expo:start:tunnel` — dev server (`URL_PORT` injected by the launcher). `bun run expo:build` — static export into `build/` and copies `png/logo*.png` to `build/client/png/`. `bun run expo:serve` — serve `build/` on `URL_PORT`.
+- `bun run expo` — pass-through to the Expo CLI. `bun run expo:start` / `expo:start:tunnel` — dev server (`URL_PORT` injected by the launcher). `bun run expo:build` — static export into `build/` and copies `png/logo*.png` to `build/client/png/`. `bun run expo:serve` — serve `build/` on `URL_PORT`. Hosted exports pass `--hosted` to the launcher (`bun ./scripts/expo.js export --platform web --output-dir build --hosted`), which forces `EXPO_PUBLIC_SUPABASE_TARGET=hosted` during the export.
 - `bun run supabase` — pass-through to the Supabase CLI. Supabase local: `bun run supabase:initialize|start|stop|status|reset|migration`; all invoke `bun x --bun supabase`. Hosted: `supabase:link` (injects `--project-ref` from `.env`) and `supabase:push`; `supabase:reset:remote` drops/reapplies hosted schema then pushes (destructive).
 - Docker/app: `bun run docker:build|up|down|logs`, `docker` (full cycle). `bun run caddy` / `caddy:trust`. `bun run opencode`, `bun run skill` (skills in `.agents/skills/`).
-- Deploy/ops: `bun run eas` — pass-through to the EAS CLI. `bun run eas:initialize`, `eas:deploy` (forces `EXPO_PUBLIC_SUPABASE_TARGET=hosted`), `gh:remote|secrets|deploy`, `gh:workflow:supabase|expo`.
+- Deploy/ops: `bun run eas` — pass-through to the EAS CLI. `bun run eas:initialize`, `eas:deploy` (builds with `--hosted` and forces `EXPO_PUBLIC_SUPABASE_TARGET=hosted` for the upload), `gh:remote|secrets|deploy`, `gh:workflow:supabase|expo`.
 - Every command loads `.env` through a `scripts/*` launcher; never `set -a && . ./.env` in `package.json`.
 
 ## Launcher & system conventions

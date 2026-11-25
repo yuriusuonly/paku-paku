@@ -45,7 +45,15 @@ if ((args[0] === "start" || args[0] === "serve") && environment.URL_PORT && !arg
   args.push("--port", environment.URL_PORT);
 }
 
-const outcome = await debug(() => spawn(execPath, [cli, ...args], {
+// Hosted production exports must inline the hosted Supabase client config.
+// EAS uploads only the artifact, so the target has to be set during export.
+const hosted = args.includes("--hosted");
+if (hosted && args[0] === "export") {
+  environment.EXPO_PUBLIC_SUPABASE_TARGET = "hosted";
+}
+const cliArgs = args.filter((argument) => argument !== "--hosted");
+
+const outcome = await debug(() => spawn(execPath, [cli, ...cliArgs], {
   cwd: root,
   env: environment
 }));

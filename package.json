@@ -20,7 +20,7 @@
     "docker:logs": "bun ./scripts/docker.js compose --profile app logs -f",
     "docker:up": "bun ./scripts/docker.js compose --profile app up -d",
     "eas": "bun ./scripts/eas.js",
-    "eas:deploy": "bun run expo:build && bun ./scripts/eas.js deploy --non-interactive --prod --environment production --export-dir build",
+    "eas:deploy": "bun ./scripts/expo.js export --platform web --output-dir build --hosted && bun ./scripts/eas.js deploy --non-interactive --prod --environment production --export-dir build",
     "eas:initialize": "bun ./scripts/eas.js init",
     "expo": "bun ./scripts/expo.js",
     "expo:build": "bun ./scripts/expo.js export --platform web --output-dir build",

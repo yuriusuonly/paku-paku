@@ -49,11 +49,11 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
 | `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path without a leading slash (e.g. `api`); `constants/config.js` adds the slash when composing endpoint URLs. |
-| `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
+| `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; the `--hosted` export flag (used by `eas:deploy`) and the deploy script override it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
-| `EXPO_PUBLIC_SUPABASE_URL` | Hosted Supabase project URL; used only when the target is `hosted` (`eas:deploy`). |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (`eas:deploy`). |
+| `EXPO_PUBLIC_SUPABASE_URL` | Hosted Supabase project URL; used only when the target is `hosted` (hosted export). |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Hosted Supabase anon key; used only when the target is `hosted` (hosted export). |
 | `SUPABASE_LOCAL_SERVER_URL` | Local Supabase API URL used by Dockerized server routes (`http://api.supabase.internal:8000`, Kong on the Supabase Docker network). |
 | `SUPABASE_PROJECT_REF` | Hosted project reference; used by `bun run supabase:link` and the OpenCode Supabase MCP server in `opencode.json`. |
 | `SUPABASE_ACCESS_TOKEN` | Supabase personal access token for non-interactive CLI auth (linking/pushing hosted migrations, e.g. in CI); never bundled into the app. |
@@ -83,9 +83,9 @@ bun run expo:start:tunnel # tunnel mode
 ## Supabase (local + hosted)
 
 Development and local static builds use a local Supabase stack (PostgreSQL in
-Docker) only. Only `bun run eas:deploy` sets
-`EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo Hosting build uses the hosted
-project. There is no cross-environment fallback:
+Docker) only. Only the hosted export (`bun run eas:deploy`, which passes `--hosted` to
+`scripts/expo.js`) sets `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo
+Hosting bundle uses the hosted project. There is no cross-environment fallback:
 `database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
 the target is exactly `hosted`, in which case it reads
 `EXPO_PUBLIC_SUPABASE_*`.
@@ -177,7 +177,7 @@ bun run playwright:test # E2E specs in test/app/*.e2e.js
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
 builds keep the local Supabase target, so start the local stack before opening
-`expo:serve`; only `bun run eas:deploy` switches the target to `hosted`.
+`expo:serve`; only a hosted export (`bun run eas:deploy`) switches the target to `hosted`.
 
 ## Local HTTPS (Caddy)
 
@@ -196,12 +196,12 @@ One-time setup:
 3. Create the GitHub repository, then run `bun run gh:remote` and
    `bun run gh:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
    must contain the hosted Supabase values (`EXPO_PUBLIC_SUPABASE_URL`,
-   `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` overrides the target to
+   `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` builds with `--hosted` and overrides the target to
    `hosted`, and production never uses the local URL.
 4. Push to `main`; `.github/workflows/ci.yaml` runs `bun:test` and `playwright:test`, while `deploy-expo.yml` runs `bun run eas:deploy` and `deploy-supabase.yml` links and pushes migrations.
 
 `eas:deploy` requires hosted Supabase URL/anon key, exports the web build
-locally (or on the runner), and uploads the finished `build/` artifact with
+with `--hosted` locally (or on the runner), and uploads the finished `build/` artifact with
 `eas deploy --non-interactive --prod --environment production`; EAS runs no
 builds. The `--environment production` flag makes EAS production environment
 variables available to server-side API routes. Use `bun run gh:deploy` to

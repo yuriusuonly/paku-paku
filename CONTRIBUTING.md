@@ -163,7 +163,7 @@ Here `utilities` means the root-level leaf directories `cipher/`, `constants/`, 
 
 ### Supabase (local vs hosted)
 
-- `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` only when `bun run eas:deploy` runs. Never remove or bypass that override in the deploy script.
+- `EXPO_PUBLIC_SUPABASE_TARGET` selects the environment at build time: `local` (default) for development and local builds, `hosted` for exports built with `--hosted` (as `bun run eas:deploy` does). The deploy script also overrides the target for the upload; never remove either override.
 - Development and local builds always use the local stack (`EXPO_PUBLIC_SUPABASE_LOCAL_*`); only the Expo Hosting deploy uses the hosted project (`EXPO_PUBLIC_SUPABASE_*`). Selection happens in `database/instance.js` — never hardcode URLs/keys or add a cross-environment fallback.
 - Use `getSupabase()` (or server helpers) from `database/instance.js` rather than calling `createClient()` in screens/routes.
 - Never put a service-role key in client code, `EXPO_PUBLIC_*`, or `.env`; only anon/publishable keys belong in the browser.
