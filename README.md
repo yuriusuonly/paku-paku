@@ -274,77 +274,76 @@ three seeded roles:
 
 ```text
 ./
-├── .agents/
+├── .agents/                        # installed skills → GitHub, Figma, Expo, Playwright
 │   └── skills/
-├── .expo/                  (generated)
-├── .figma/
-├── .github/
+├── .expo/                          # generated Expo cache
+├── .figma/                         # Figma design reference and screenshots
+├── .github/                        # CI tests + deploys → workflows/
 │   └── workflows/
-├── app/
-│   ├── (admin)/
-│   ├── (customer)/
-│   ├── (staff)/
-│   └── api/
-├── build/                  (generated)
-├── cipher/
-├── components/
-├── constants/
-├── database/
-├── domain/
-├── endpoints/
-├── errors/
-├── format/
-├── helpers/
-├── interceptors/
-├── network/
-├── node_modules/           (generated)
-├── png/
-├── repositories/
-├── screens/
-├── scripts/
-├── services/
-├── stores/
-├── stylesheets/
-├── supabase/
-│   ├── migrations/
-│   ├── seeds/
-│   └── config.toml
-├── svg/
-├── system/
-├── test/
-│   ├── app/
-│   ├── cipher/
-│   ├── domain/
-│   ├── endpoints/
-│   ├── errors/
-│   ├── format/
-│   ├── helpers/
-│   ├── network/
-│   ├── services/
-│   ├── system/
-│   └── validation/
-├── ttf/
-├── validation/
+├── app/                            # Expo Router pages → screens/ ; api/ → endpoints/
+│   ├── (admin)/                    # auth-guarded admin routes
+│   ├── (customer)/                 # guest-role customer routes
+│   ├── (staff)/                    # staff-role routes
+│   └── api/                        # thin HTTP wrappers → endpoints/
+├── build/                          # generated static export
+├── cipher/                         # leaf encoding/hashing/token utilities
+├── components/                     # ← screens/ ; theme tokens ← constants/
+├── constants/                      # leaf config → app/, database/, services/, screens/
+├── database/                       # ← repositories/ ; config ← constants/
+├── domain/                         # pure rules ← endpoints/, repositories/, screens/
+├── endpoints/                      # → interceptors/ → repositories/ → database/
+├── errors/                         # typed errors ← repositories/, endpoints/, services/
+├── format/                         # leaf currency/date/email helpers
+├── helpers/                        # leaf list/record/QR helpers
+├── interceptors/                   # between endpoints/ and repositories/
+├── network/                        # middleware ← endpoints/ ; transport ← services/
+├── node_modules/                   # generated Bun dependencies
+├── png/                            # static icons for the app/ shell
+├── repositories/                   # → database/ and domain/ ; ← endpoints/
+├── screens/                        # → components/, stores/, services/ ; ← app/
+├── scripts/                        # bun run launchers → system/ wrappers
+├── services/                       # → HTTP /api/* ; ← stores/
+├── stores/                         # Zustand state → services/ ; ← screens/
+├── stylesheets/                    # global.css ← metro.config.js
+├── supabase/                       # schema and seeds → database/
+│   ├── migrations/                 # one migration per table
+│   ├── seeds/                      # admin, staff, guest and menu items
+│   └── config.toml                 # local ports and auth config
+├── svg/                            # icon sources → png/
+├── system/                         # ← scripts/ ; wraps node:* built-ins
+├── test/                           # mirrors root modules ; app/*.e2e.js → playwright
+│   ├── app/                        # E2E flows against app/ routes
+│   ├── cipher/                     # cipher/ tests
+│   ├── domain/                     # domain/ tests
+│   ├── endpoints/                  # endpoints/ tests
+│   ├── format/                     # format/ tests
+│   ├── helpers/                    # helpers/ tests
+│   ├── network/                    # network/ tests
+│   ├── services/                   # services/ tests
+│   ├── system/                     # system/ tests
+│   └── validation/                 # validation/ tests
+├── ttf/                            # Outfit font ← constants/theme.js
+├── validation/                     # leaf Zod/request validators
 ├── .dockerignore
-├── .env                    (gitignored)
+├── .env                            # gitignored config source for every launcher
 ├── .gitignore
-├── AGENTS.md
-├── CONTRIBUTING.md
-├── Caddyfile
-├── DESIGN.md
-├── Dockerfile
+├── AGENTS.md                       # agent instructions
+├── CONTRIBUTING.md                 # conventions and guides
+├── Caddyfile                       # HTTPS proxy → $URL_PORT (dev server)
+├── DESIGN.md                       # visual tokens ← constants/theme.js
+├── Dockerfile                      # Bun 1.4.5 export/runtime image
 ├── LICENSE.txt
 ├── README.md
-├── app.config.js
+├── app.config.js                   # Expo config ← .env
 ├── babel.config.js
 ├── bun.lock
-├── bunfig.toml
+├── bunfig.toml                     # test root → test/
 ├── docker-compose.yml
 ├── eas.json
-├── metro.config.js
-├── opencode.json
-├── package.json
-├── playwright.config.js
+├── metro.config.js                 # bundles stylesheets/global.css
+├── opencode.json                   # instructions + MCP servers
+├── package.json                    # scripts → scripts/*
+├── playwright.config.js            # Caddy HTTPS + test/app/*.e2e.js
 ├── skills-lock.json
-└── tailwind.config.js
+└── tailwind.config.js              # scans root-level app directories
 ```
