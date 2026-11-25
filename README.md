@@ -581,9 +581,6 @@ three seeded roles:
 │   ├── endpoints/
 │   │   └── items/
 │   │       └── validation.test.js
-│   ├── errors/
-│   │   ├── message.test.js
-│   │   └── normalize.test.js
 │   ├── format/
 │   │   ├── currency.test.js
 │   │   ├── date.test.js
