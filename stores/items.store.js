@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { isSameRecord, upsertById } from "../shared/utils/records.js";
-import { sortByOrder } from "../shared/utils/lists.js";
-import { getErrorMessage } from "../shared/errors/message.js";
+import { isSameRecord, upsertById } from "../helpers/records.js";
+import { sortByOrder } from "../helpers/lists.js";
+import { getErrorMessage } from "../errors/message.js";
 import { createItem, deleteItem, getItems, updateItem } from "../services/items.js";
 import { removeRealtimeChannel, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";

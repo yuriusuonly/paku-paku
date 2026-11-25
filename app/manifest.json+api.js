@@ -1,4 +1,4 @@
-import config from "../shared/constants/config.js";
+import config from "../constants/config.js";
 import logo from "../png/logo.png";
 import maskableLogo from "../png/logo-maskable.png";
 

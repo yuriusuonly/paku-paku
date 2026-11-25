@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Text, TextInput } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Inline editable text cell for table fields.

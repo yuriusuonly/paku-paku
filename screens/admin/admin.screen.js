@@ -9,8 +9,8 @@ import { useItemsStore } from "../../stores/items.store.js";
 import { useOrdersStore } from "../../stores/orders.store.js";
 import { useAuditLogsStore } from "../../stores/audit-logs.store.js";
 import { useProfilesStore } from "../../stores/profiles.store.js";
-import { formatCurrencyCents } from "../../shared/format/currency.js";
-import { cx } from "../../shared/constants/theme.js";
+import { formatCurrencyCents } from "../../format/currency.js";
+import { cx } from "../../constants/theme.js";
 
 /**
  * Administrator dashboard with live counts and audit navigation.

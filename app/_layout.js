@@ -3,13 +3,13 @@ import Head from "expo-router/head";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { Text, View } from "react-native";
-import config from "../shared/constants/config.js";
+import config from "../constants/config.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
 import { useAuthStore } from "../stores/auth.store.js";
-import { colors, cx } from "../shared/constants/theme.js";
+import { colors, cx } from "../constants/theme.js";
 
-import "../shared/stylesheets/global.css";
+import "../stylesheets/global.css";
 
 /**
  * Root layout route (`app/_layout.js`): loads fonts, bootstraps session

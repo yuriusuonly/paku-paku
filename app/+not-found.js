@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { Text, View } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Fallback route (`app/+not-found.js`) rendered when no route matches.

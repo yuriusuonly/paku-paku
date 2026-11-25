@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { StatCard } from "./stat-card.js";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Responsive grid of statistic cards.

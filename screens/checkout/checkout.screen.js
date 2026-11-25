@@ -5,7 +5,7 @@ import { CircularProgress } from "../../components/circular-progress.js";
 import { Header } from "../../components/header.js";
 import { ScreenContainer } from "../../components/container.js";
 import { useCheckoutStore } from "../../stores/checkout.store.js";
-import { cx } from "../../shared/constants/theme.js";
+import { cx } from "../../constants/theme.js";
 import { CheckoutOrderSection } from "./checkout-order.component.js";
 
 /**

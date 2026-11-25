@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import QRCode from "react-qr-code";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * QR code display component.

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Inline dropdown select for table fields.

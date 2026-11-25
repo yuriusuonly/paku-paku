@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { sortByCreatedDesc } from "../shared/utils/lists.js";
-import { getErrorMessage } from "../shared/errors/message.js";
+import { sortByCreatedDesc } from "../helpers/lists.js";
+import { getErrorMessage } from "../errors/message.js";
 import { getAuditLogs } from "../services/audit.js";
 import { removeRealtimeChannel, setRealtimeAuth, subscribeToTableChanges } from "../services/realtime.js";
 import { notifyBackgroundError } from "./notification.store.js";

@@ -1,5 +1,5 @@
-import { badRequest } from "../shared/errors/bad-request.js";
-import { readJsonBody } from "../shared/network/request.js";
+import { badRequest } from "../errors/bad-request.js";
+import { readJsonBody } from "../network/request.js";
 
 /**
  * JSON body parsing interceptor.
@@ -7,7 +7,7 @@ import { readJsonBody } from "../shared/network/request.js";
  */
 
 /**
- * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
+ * @typedef {import("../network/middleware.js").ApiContext} ApiContext
  */
 
 /**

@@ -11,8 +11,8 @@ import { StatusPill } from "../../../components/status-pill.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useAuditLogsStore } from "../../../stores/audit-logs.store.js";
 import { getAuditActor, getAuditSummary } from "../../../domain/audit/summary.js";
-import { formatAuditTimestamp } from "../../../shared/format/date.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { formatAuditTimestamp } from "../../../format/date.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Admin audit log screen.

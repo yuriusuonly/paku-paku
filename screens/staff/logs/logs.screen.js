@@ -11,9 +11,9 @@ import { useAuthStore } from "../../../stores/auth.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
 import { useStaffOrdersStore } from "../../../stores/staff-orders.store.js";
 import { ORDER_STATUSES } from "../../../domain/orders/constants.js";
-import { formatAuditTimestamp } from "../../../shared/format/date.js";
-import { formatCurrencyCents } from "../../../shared/format/currency.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { formatAuditTimestamp } from "../../../format/date.js";
+import { formatCurrencyCents } from "../../../format/currency.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Staff order logs screen.

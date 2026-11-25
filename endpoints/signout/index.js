@@ -1,8 +1,8 @@
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../interceptors/method.interceptor.js";
-import { withMiddleware } from "../../shared/network/middleware.js";
-import { noContent } from "../../shared/network/response.js";
+import { withMiddleware } from "../../network/middleware.js";
+import { noContent } from "../../network/response.js";
 import { signOut } from "../../repositories/auth.repository.js";
 
 /**

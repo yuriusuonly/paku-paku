@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isValidPassword, requirePassword } from "../../../../shared/validation/password.js";
+import { isValidPassword, requirePassword } from "../../../../validation/password.js";
 
 /**
  * Tests for password validation.

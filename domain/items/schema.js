@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { hasOwn } from "../../shared/validation/request.js";
+import { hasOwn } from "../../validation/request.js";
 
 /**
  * Item domain schemas shared by server validation and admin forms.

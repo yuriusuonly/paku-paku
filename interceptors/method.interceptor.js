@@ -1,4 +1,4 @@
-import { methodNotAllowed } from "../shared/network/response.js";
+import { methodNotAllowed } from "../network/response.js";
 
 /**
  * HTTP method enforcement interceptor.
@@ -6,7 +6,7 @@ import { methodNotAllowed } from "../shared/network/response.js";
  */
 
 /**
- * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
+ * @typedef {import("../network/middleware.js").ApiContext} ApiContext
  */
 
 /**

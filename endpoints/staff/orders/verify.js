@@ -3,10 +3,10 @@ import { staffAuthorizationInterceptor } from "../../../interceptors/staff-autho
 import { errorInterceptor } from "../../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method.interceptor.js";
-import { withMiddleware } from "../../../shared/network/middleware.js";
-import { readJsonBody } from "../../../shared/network/request.js";
-import { jsonResponse, methodNotAllowed } from "../../../shared/network/response.js";
-import { parseWithSchema, requireObjectBody } from "../../../shared/validation/request.js";
+import { withMiddleware } from "../../../network/middleware.js";
+import { readJsonBody } from "../../../network/request.js";
+import { jsonResponse, methodNotAllowed } from "../../../network/response.js";
+import { parseWithSchema, requireObjectBody } from "../../../validation/request.js";
 import { getOrderByReference } from "../../../repositories/order.repository.js";
 
 /**

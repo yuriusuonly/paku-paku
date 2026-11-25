@@ -1,13 +1,13 @@
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../interceptors/method.interceptor.js";
-import { badRequest } from "../../shared/errors/bad-request.js";
-import { withMiddleware } from "../../shared/network/middleware.js";
-import { readJsonBody } from "../../shared/network/request.js";
-import { jsonResponse } from "../../shared/network/response.js";
+import { badRequest } from "../../errors/bad-request.js";
+import { withMiddleware } from "../../network/middleware.js";
+import { readJsonBody } from "../../network/request.js";
+import { jsonResponse } from "../../network/response.js";
 import { signIn } from "../../repositories/auth.repository.js";
-import { isValidEmail } from "../../shared/validation/email.js";
-import { hasOwn, requireObjectBody } from "../../shared/validation/request.js";
+import { isValidEmail } from "../../validation/email.js";
+import { hasOwn, requireObjectBody } from "../../validation/request.js";
 
 /**
  * Composed sign-in endpoint handlers.

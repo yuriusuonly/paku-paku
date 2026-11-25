@@ -2,10 +2,10 @@ import { authorizationInterceptor } from "../../interceptors/authorization.inter
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../interceptors/method.interceptor.js";
-import { badRequest } from "../../shared/errors/bad-request.js";
-import { withMiddleware } from "../../shared/network/middleware.js";
-import { readJsonBody } from "../../shared/network/request.js";
-import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
+import { badRequest } from "../../errors/bad-request.js";
+import { withMiddleware } from "../../network/middleware.js";
+import { readJsonBody } from "../../network/request.js";
+import { jsonResponse, methodNotAllowed } from "../../network/response.js";
 import { listProfiles, updateProfile } from "../../repositories/profile.repository.js";
 import {
   hasOwn,
@@ -13,7 +13,7 @@ import {
   readRouteId,
   requireObjectBody,
   requireUpdateFields
-} from "../../shared/validation/request.js";
+} from "../../validation/request.js";
 
 /**
  * Composed admin profiles endpoint handlers.

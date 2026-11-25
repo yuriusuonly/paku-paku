@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isSameRecord, upsertById } from "../../../../shared/utils/records.js";
+import { isSameRecord, upsertById } from "../../../../helpers/records.js";
 
 /**
  * Tests for record helpers.

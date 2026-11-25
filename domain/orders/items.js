@@ -1,4 +1,4 @@
-import { badRequest } from "../../shared/errors/bad-request.js";
+import { badRequest } from "../../errors/bad-request.js";
 
 /**
  * Order item normalization rules.

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeEmail } from "../../../../shared/format/email.js";
+import { normalizeEmail } from "../../../../format/email.js";
 
 /**
  * Tests for email formatting.

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Text, View } from "react-native";
 import jsQR from "jsqr";
 import { Button } from "./button.js";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Browser camera QR scanner.

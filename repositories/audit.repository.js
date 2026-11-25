@@ -1,5 +1,5 @@
-import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
-import { databaseUpstream } from "../shared/errors/database-upstream.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { databaseUpstream } from "../errors/database-upstream.js";
 import { createDatabaseClient } from "../database/instance.js";
 
 /**

@@ -1,5 +1,5 @@
-import { api } from "../shared/constants/config.js";
-import { apiRequest } from "../shared/network/transport.js";
+import { api } from "../constants/config.js";
+import { apiRequest } from "../network/transport.js";
 
 /**
  * Client-to-API kiosk checkout contract.

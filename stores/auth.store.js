@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getErrorMessage } from "../shared/errors/message.js";
+import { getErrorMessage } from "../errors/message.js";
 import { getSession, signIn as signInApi, signOut as signOutApi } from "../services/auth.js";
 import { notifyBackgroundError } from "./notification.store.js";
 

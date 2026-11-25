@@ -40,13 +40,13 @@ config.watcher = {
 
 /**
  * Default Metro config wrapped with NativeWind so Tailwind classes in
- * `shared/stylesheets/global.css` are processed by the bundler.
+ * `stylesheets/global.css` are processed by the bundler.
  *
  * @type {import("expo/metro-config").MetroConfig}
  */
 export default withNativeWind(
   config,
   {
-    input: "shared/stylesheets/global.css",
+    input: "stylesheets/global.css",
   }
 );

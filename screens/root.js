@@ -4,8 +4,8 @@ import logo from "../png/logo.png";
 import { Header } from "../components/header.js";
 import { Button } from "../components/button.js";
 import { ScreenContainer } from "../components/container.js";
-import config from "../shared/constants/config.js";
-import { cx } from "../shared/constants/theme.js";
+import config from "../constants/config.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Storefront landing screen.

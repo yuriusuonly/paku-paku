@@ -1,8 +1,8 @@
 import { Text } from "react-native";
 import { StatusPill } from "../../../components/status-pill.js";
 import { DataTable } from "../../../components/table.js";
-import { formatAuditTimestamp } from "../../../shared/format/date.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { formatAuditTimestamp } from "../../../format/date.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Admin profiles audit table section.

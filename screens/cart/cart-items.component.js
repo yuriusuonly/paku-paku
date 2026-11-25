@@ -2,9 +2,9 @@ import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { Button } from "../../components/button.js";
 import { EmptyState } from "../../components/empty-state.js";
-import { formatCurrencyCents } from "../../shared/format/currency.js";
+import { formatCurrencyCents } from "../../format/currency.js";
 import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
-import { cx } from "../../shared/constants/theme.js";
+import { cx } from "../../constants/theme.js";
 
 /**
  * Cart items, payment method selection, and checkout summary.

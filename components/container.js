@@ -1,5 +1,5 @@
 import { ScrollView, View } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Layout container components.

@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
-import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
-import { database as databaseConfig } from "../shared/constants/config.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { database as databaseConfig } from "../constants/config.js";
 
 /**
  * Database client instance and runtime selection.
- * Configuration is sourced from `shared/config.js`.
+ * Configuration is sourced from `constants/config.js`.
  * @module database/instance
  */
 

@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Simple accordion/collapsible section.

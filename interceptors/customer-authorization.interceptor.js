@@ -6,7 +6,7 @@ import { authenticateCustomer } from "../repositories/auth.repository.js";
  */
 
 /**
- * @typedef {import("../shared/network/middleware.js").ApiContext} ApiContext
+ * @typedef {import("../network/middleware.js").ApiContext} ApiContext
  */
 
 /**

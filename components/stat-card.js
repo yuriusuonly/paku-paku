@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { CircularProgress } from "./circular-progress.js";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Statistic card for dashboard and audit screens.

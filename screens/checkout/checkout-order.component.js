@@ -4,9 +4,9 @@ import { Button } from "../../components/button.js";
 import { QrCode } from "../../components/qr-code.js";
 import { StatusPill } from "../../components/status-pill.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
-import { formatCurrencyCents } from "../../shared/format/currency.js";
-import { saveQrPng } from "../../shared/utils/qr-image.js";
-import { cx } from "../../shared/constants/theme.js";
+import { formatCurrencyCents } from "../../format/currency.js";
+import { saveQrPng } from "../../helpers/qr-image.js";
+import { cx } from "../../constants/theme.js";
 
 /**
  * Placed order confirmation with counter QR code.

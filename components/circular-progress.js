@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
-import { colors, cx } from "../shared/constants/theme.js";
+import { colors, cx } from "../constants/theme.js";
 
 /**
  * Circular progress/loading indicator (single source of truth).

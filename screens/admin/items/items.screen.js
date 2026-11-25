@@ -10,7 +10,7 @@ import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useItemsStore } from "../../../stores/items.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { cx } from "../../../constants/theme.js";
 import { itemCreateSchema } from "../../../domain/items/schema.js";
 import { ItemFormSection } from "./item-form.component.js";
 import { ItemsTableSection } from "./items-table.component.js";

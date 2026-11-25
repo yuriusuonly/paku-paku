@@ -3,9 +3,9 @@ import { authorizationInterceptor } from "../../../interceptors/authorization.in
 import { errorInterceptor } from "../../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method.interceptor.js";
-import { withMiddleware } from "../../../shared/network/middleware.js";
-import { jsonResponse, methodNotAllowed } from "../../../shared/network/response.js";
-import { parseWithSchema } from "../../../shared/validation/request.js";
+import { withMiddleware } from "../../../network/middleware.js";
+import { jsonResponse, methodNotAllowed } from "../../../network/response.js";
+import { parseWithSchema } from "../../../validation/request.js";
 import { listAuditLogs } from "../../../repositories/audit.repository.js";
 
 /**

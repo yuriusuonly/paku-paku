@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Section header with optional syncing indicator.

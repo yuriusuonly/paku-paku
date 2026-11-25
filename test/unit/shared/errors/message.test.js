@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getErrorMessage } from "../../../../shared/errors/message.js";
+import { getErrorMessage } from "../../../../errors/message.js";
 
 /**
  * Tests for user-facing error messages.

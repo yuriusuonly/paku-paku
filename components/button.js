@@ -1,5 +1,5 @@
 import { ActivityIndicator, Pressable, Text } from "react-native";
-import { colors, cx } from "../shared/constants/theme.js";
+import { colors, cx } from "../constants/theme.js";
 
 /**
  * Button component.

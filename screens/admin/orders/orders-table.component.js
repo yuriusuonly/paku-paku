@@ -2,10 +2,10 @@ import { Text, View } from "react-native";
 import { InlineEditableCell } from "../../../components/inline-editable-cell.js";
 import { InlineSelect } from "../../../components/inline-select.js";
 import { DataTable } from "../../../components/table.js";
-import { formatAuditTimestamp } from "../../../shared/format/date.js";
-import { formatCurrencyCents } from "../../../shared/format/currency.js";
+import { formatAuditTimestamp } from "../../../format/date.js";
+import { formatCurrencyCents } from "../../../format/currency.js";
 import { ORDER_STATUSES } from "../../../domain/orders/constants.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Admin orders table section with inline editing.

@@ -9,9 +9,9 @@ import { TextField } from "../../../components/text-field.js";
 import { ORDER_STATUSES, PAYMENT_METHODS } from "../../../domain/orders/constants.js";
 import { MENU_SORT_RANGES } from "../../../domain/menu/sections.js";
 import { calculateOrderTotals } from "../../../domain/orders/pricing.js";
-import { formatCurrencyCents } from "../../../shared/format/currency.js";
-import { pickQrImage } from "../../../shared/utils/qr-upload.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { formatCurrencyCents } from "../../../format/currency.js";
+import { pickQrImage } from "../../../helpers/qr-upload.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Staff order-taking form with optional order reference lookup.

@@ -1,7 +1,7 @@
 import { ScrollView, Text, View } from "react-native";
 import { CircularProgress } from "./circular-progress.js";
 import { EmptyState } from "./empty-state.js";
-import { cx } from "../shared/constants/theme.js";
+import { cx } from "../constants/theme.js";
 
 /**
  * Reusable data table primitives.

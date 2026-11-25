@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeError } from "../../../../shared/errors/normalize.js";
+import { normalizeError } from "../../../../errors/normalize.js";
 
 /**
  * Tests for error normalization.

@@ -2,8 +2,8 @@ import { Link, usePathname, useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { useAuthStore } from "../stores/auth.store.js";
 import { useCartStore } from "../stores/cart.store.js";
-import config from "../shared/constants/config.js";
-import { cx } from "../shared/constants/theme.js";
+import config from "../constants/config.js";
+import { cx } from "../constants/theme.js";
 import { isAdminRole, isCustomerRole, isStaffRole } from "../domain/auth/roles.js";
 
 /**

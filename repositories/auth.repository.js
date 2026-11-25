@@ -1,9 +1,9 @@
-import { getBearerToken } from "../shared/network/request.js";
-import { forbidden } from "../shared/errors/forbidden.js";
-import { databaseUnconfigured } from "../shared/errors/database-unconfigured.js";
-import { databaseUpstream } from "../shared/errors/database-upstream.js";
-import { tooManyRequests } from "../shared/errors/too-many-requests.js";
-import { unauthorized } from "../shared/errors/unauthorized.js";
+import { getBearerToken } from "../network/request.js";
+import { forbidden } from "../errors/forbidden.js";
+import { databaseUnconfigured } from "../errors/database-unconfigured.js";
+import { databaseUpstream } from "../errors/database-upstream.js";
+import { tooManyRequests } from "../errors/too-many-requests.js";
+import { unauthorized } from "../errors/unauthorized.js";
 import {
   createDatabaseClient,
   getDatabaseServerConfig

@@ -2,13 +2,13 @@ import { authorizationInterceptor } from "../../interceptors/authorization.inter
 import { errorInterceptor } from "../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../interceptors/method.interceptor.js";
-import { withMiddleware } from "../../shared/network/middleware.js";
-import { readJsonBody } from "../../shared/network/request.js";
-import { jsonResponse, methodNotAllowed } from "../../shared/network/response.js";
-import { HTTP_STATUS } from "../../shared/constants/http.js";
+import { withMiddleware } from "../../network/middleware.js";
+import { readJsonBody } from "../../network/request.js";
+import { jsonResponse, methodNotAllowed } from "../../network/response.js";
+import { HTTP_STATUS } from "../../constants/http.js";
 import { createItem, listItems } from "../../repositories/item.repository.js";
 import { normalizeItemInput } from "./validation.js";
-import { requireObjectBody } from "../../shared/validation/request.js";
+import { requireObjectBody } from "../../validation/request.js";
 
 /**
  * Composed items collection endpoint handlers.

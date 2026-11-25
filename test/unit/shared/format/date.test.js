@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatAuditTimestamp } from "../../../../shared/format/date.js";
+import { formatAuditTimestamp } from "../../../../format/date.js";
 
 /**
  * Tests for audit timestamp formatting.

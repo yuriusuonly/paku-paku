@@ -12,7 +12,7 @@ import { useStaffOrdersStore } from "../../../stores/staff-orders.store.js";
 import { PAYMENT_METHODS } from "../../../domain/orders/constants.js";
 import { MENU_SORT_RANGES } from "../../../domain/menu/sections.js";
 import { orderCreateSchema } from "../../../domain/orders/schema.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { cx } from "../../../constants/theme.js";
 import { ManualOrderForm } from "./manual-order.component.js";
 
 /**

@@ -5,7 +5,7 @@ import { FormActions } from "../../../components/form-actions.js";
 import { InlineSelect } from "../../../components/inline-select.js";
 import { ORDER_STATUSES } from "../../../domain/orders/constants.js";
 import { TextField } from "../../../components/text-field.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { cx } from "../../../constants/theme.js";
 
 /**
  * Admin create-order form section.

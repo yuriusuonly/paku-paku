@@ -9,7 +9,7 @@ import { StatGrid } from "../../../components/stat-grid.js";
 import { useAuthStore } from "../../../stores/auth.store.js";
 import { useProfilesStore } from "../../../stores/profiles.store.js";
 import { useNotificationStore } from "../../../stores/notification.store.js";
-import { cx } from "../../../shared/constants/theme.js";
+import { cx } from "../../../constants/theme.js";
 import { ProfilesTableSection } from "./profiles-table.component.js";
 
 /**

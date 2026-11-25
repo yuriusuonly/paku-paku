@@ -5,12 +5,12 @@ import { EmptyState } from "../../components/empty-state.js";
 import { Header } from "../../components/header.js";
 import { CircularProgress } from "../../components/circular-progress.js";
 import { ScreenContainer } from "../../components/container.js";
-import { formatCurrencyCents } from "../../shared/format/currency.js";
+import { formatCurrencyCents } from "../../format/currency.js";
 import { getMenuSections } from "../../domain/menu/sections.js";
 import { useCartStore } from "../../stores/cart.store.js";
 import { useItemsStore } from "../../stores/items.store.js";
 import { useNotificationStore } from "../../stores/notification.store.js";
-import { cx } from "../../shared/constants/theme.js";
+import { cx } from "../../constants/theme.js";
 
 /**
  * Public kiosk menu screen.

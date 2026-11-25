@@ -14,7 +14,7 @@ import nativewindPreset from "nativewind/preset";
 export default {
   darkMode: "class",
   content: [
-    "{app,components,database,domain,endpoints,interceptors,repositories,screens,services,shared,stores}/**/*.{js,jsx,ts,tsx}"
+    "{app,cipher,components,constants,database,domain,endpoints,errors,format,helpers,interceptors,network,repositories,screens,services,stores,validation}/**/*.{js,jsx,ts,tsx}"
   ],
   presets: [
     nativewindPreset

@@ -1,4 +1,4 @@
-import { parseWithSchema, requireUpdateFields } from "../../shared/validation/request.js";
+import { parseWithSchema, requireUpdateFields } from "../../validation/request.js";
 import { itemCreateSchema, itemPartialSchema } from "../../domain/items/schema.js";
 
 /**

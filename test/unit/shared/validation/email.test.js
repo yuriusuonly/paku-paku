@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { emailSchema, isValidEmail, requireEmail } from "../../../../shared/validation/email.js";
+import { emailSchema, isValidEmail, requireEmail } from "../../../../validation/email.js";
 
 /**
  * Tests for email validation.

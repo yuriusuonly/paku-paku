@@ -2,13 +2,13 @@ import { errorInterceptor } from "../../../interceptors/error.interceptor.js";
 import { logInterceptor } from "../../../interceptors/log.interceptor.js";
 import { methodInterceptor } from "../../../interceptors/method.interceptor.js";
 import { staffAuthorizationInterceptor } from "../../../interceptors/staff-authorization.interceptor.js";
-import { withMiddleware } from "../../../shared/network/middleware.js";
-import { readJsonBody } from "../../../shared/network/request.js";
-import { jsonResponse, methodNotAllowed } from "../../../shared/network/response.js";
-import { HTTP_STATUS } from "../../../shared/constants/http.js";
+import { withMiddleware } from "../../../network/middleware.js";
+import { readJsonBody } from "../../../network/request.js";
+import { jsonResponse, methodNotAllowed } from "../../../network/response.js";
+import { HTTP_STATUS } from "../../../constants/http.js";
 import { createOrder, listOrders } from "../../../repositories/order.repository.js";
 import { orderCreateSchema } from "../../../domain/orders/schema.js";
-import { parseWithSchema, requireObjectBody } from "../../../shared/validation/request.js";
+import { parseWithSchema, requireObjectBody } from "../../../validation/request.js";
 
 /**
  * Staff order logs and manual order taking endpoints.

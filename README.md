@@ -40,13 +40,13 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_TITLE` | App/site title (client-visible): Expo `name`, UI, document title, PWA manifest. |
 | `EXPO_PUBLIC_DESCRIPTION` | Kiosk storefront description (client-visible): landing page, HTML meta description, PWA manifest. |
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
-| `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `shared/constants/config.js`. |
-| `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `shared/constants/config.js`. |
+| `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `constants/config.js`. |
+| `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `constants/config.js`. |
 | `EXPO_PUBLIC_GUEST_EMAIL` / `EXPO_PUBLIC_GUEST_PASSWORD` | Shared public customer credentials used by "Continue as guest" on `/signin`; no signup exists. |
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
-| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `shared/constants/config.js`. |
+| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `constants/config.js`. |
 | `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
@@ -449,56 +449,55 @@ three seeded roles:
 │   ├── orders.js
 │   ├── realtime.js
 │   └── staff.js
-├── shared/
-│   ├── cipher/
-│   │   ├── decode.js
-│   │   ├── decrypt.js
-│   │   ├── encode.js
-│   │   ├── encrypt.js
-│   │   ├── hash.js
-│   │   ├── id.js
-│   │   └── token.js
-│   ├── constants/
-│   │   ├── config.js
-│   │   ├── http.js
-│   │   ├── layout.js
-│   │   └── theme.js
-│   ├── errors/
-│   │   ├── bad-gateway.js
-│   │   ├── bad-request.js
-│   │   ├── database-unconfigured.js
-│   │   ├── database-upstream.js
-│   │   ├── decrypt-error.js
-│   │   ├── encrypt-error.js
-│   │   ├── forbidden.js
-│   │   ├── hash-error.js
-│   │   ├── internal.js
-│   │   ├── message.js
-│   │   ├── normalize.js
-│   │   ├── not-found.js
-│   │   ├── service-unavailable.js
-│   │   ├── too-many-requests.js
-│   │   └── unauthorized.js
-│   ├── format/
-│   │   ├── currency.js
-│   │   ├── date.js
-│   │   └── email.js
-│   ├── network/
-│   │   ├── middleware.js
-│   │   ├── request.js
-│   │   ├── response.js
-│   │   └── transport.js
-│   ├── stylesheets/
-│   │   └── global.css
-│   ├── utils/
-│   │   ├── lists.js
-│   │   ├── qr-image.js
-│   │   ├── qr-upload.js
-│   │   └── records.js
-│   └── validation/
-│       ├── email.js
-│       ├── password.js
-│       └── request.js
+├── cipher/
+│   ├── decode.js
+│   ├── decrypt.js
+│   ├── encode.js
+│   ├── encrypt.js
+│   ├── hash.js
+│   ├── id.js
+│   └── token.js
+├── constants/
+│   ├── config.js
+│   ├── http.js
+│   ├── layout.js
+│   └── theme.js
+├── errors/
+│   ├── bad-gateway.js
+│   ├── bad-request.js
+│   ├── database-unconfigured.js
+│   ├── database-upstream.js
+│   ├── decrypt-error.js
+│   ├── encrypt-error.js
+│   ├── forbidden.js
+│   ├── hash-error.js
+│   ├── internal.js
+│   ├── message.js
+│   ├── normalize.js
+│   ├── not-found.js
+│   ├── service-unavailable.js
+│   ├── too-many-requests.js
+│   └── unauthorized.js
+├── format/
+│   ├── currency.js
+│   ├── date.js
+│   └── email.js
+├── network/
+│   ├── middleware.js
+│   ├── request.js
+│   ├── response.js
+│   └── transport.js
+├── stylesheets/
+│   └── global.css
+├── helpers/
+│   ├── lists.js
+│   ├── qr-image.js
+│   ├── qr-upload.js
+│   └── records.js
+├── validation/
+│   ├── email.js
+│   ├── password.js
+│   └── request.js
 └── stores/
     ├── app.store.js
     ├── audit-logs.store.js

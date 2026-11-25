@@ -13,7 +13,7 @@
 
 ## Development workflow
 - The app is **web-only** (Expo Router, Metro, static web output with API routes). Do not assume native platforms are configured.
-- Edit source in the root-level directories (`app/`, `components/`, `shared/`, etc.) and root config (`app.config.js`, `metro.config.js`, `tailwind.config.js`, etc.). Do not edit generated artifacts in `build/` or `node_modules/`.
+- Edit source in the root-level directories (`app/`, `components/`, `constants/`, etc.) and root config (`app.config.js`, `metro.config.js`, `tailwind.config.js`, etc.). Do not edit generated artifacts in `build/` or `node_modules/`.
 - Keep `screens/` mirroring `app/` route paths (page/API routes map to corresponding screen modules where applicable).
 - Dev server: `bun run expo:start`. Tunnel: `bun run expo:start:tunnel`. The launcher injects `--port` from `URL_PORT` because Expo ignores the port env var.
 - Start the local Supabase stack before developing against data: `bun run supabase:start`; stop it with `bun run supabase:stop`. Use `bun run supabase:status` for local URLs/keys and `bun run supabase:reset` to re-apply migrations + seed.
@@ -114,7 +114,7 @@ flowchart TD
   F --> J["domain"]
   B --> J
   H --> J
-  J --> K["shared"]
+  J --> K["utility modules"]
   I --> K
 ```
 
@@ -124,20 +124,22 @@ Imports only point downward:
 
 | Layer | May import |
 | --- | --- |
-| `app` | `app`, `screens`, `components`, `endpoints`, `services`, `stores`, `domain`, `shared` |
-| `screens` | `screens`, `components`, `stores`, `services`, `domain`, `shared` |
-| `components` | `components`, `stores`, `domain`, `shared` |
-| `stores` | `stores`, `services`, `domain`, `shared` |
-| `services` | `services`, `database` (realtime client), `domain`, `shared` |
-| `endpoints` | `endpoints`, `interceptors`, `repositories`, `domain`, `shared` |
-| `interceptors` | `interceptors`, `repositories`, `domain`, `shared` |
-| `repositories` | `repositories`, `database`, `domain`, `shared` |
-| `database` | `database`, `shared` |
-| `domain` | `domain`, `shared` |
-| `shared` | `shared` |
+| `app` | `app`, `screens`, `components`, `endpoints`, `services`, `stores`, `domain`, `utilities` |
+| `screens` | `screens`, `components`, `stores`, `services`, `domain`, `utilities` |
+| `components` | `components`, `stores`, `domain`, `utilities` |
+| `stores` | `stores`, `services`, `domain`, `utilities` |
+| `services` | `services`, `database` (realtime client), `domain`, `utilities` |
+| `endpoints` | `endpoints`, `interceptors`, `repositories`, `domain`, `utilities` |
+| `interceptors` | `interceptors`, `repositories`, `domain`, `utilities` |
+| `repositories` | `repositories`, `database`, `domain`, `utilities` |
+| `database` | `database`, `utilities` |
+| `domain` | `domain`, `utilities` |
+| `utilities` | `utilities` |
+
+Here `utilities` means the root-level leaf directories `cipher/`, `constants/`, `errors/`, `format/`, `helpers/`, `network/`, `stylesheets/`, and `validation/`.
 
 - `domain/*` holds pure business rules, constants, and Zod schemas. It must not import Supabase, React, HTTP, fetch, or browser APIs.
-- `shared/*` is a leaf layer of generic utilities; it must not import business or UI layers.
+- The utility directories are a leaf layer of generic modules; they must not import business or UI layers.
 - `repositories/*` perform data access only. Put business rules in `domain/*`.
 - `endpoints/*` compose request validation, interceptors, repositories, and responses.
 - `screens/*` must not import Supabase or server-only modules.
@@ -154,7 +156,7 @@ Imports only point downward:
 2. Add the route to the **Routes & endpoints** table in `README.md`.
 
 ### Adding an API route
-1. Create an endpoint composition module in `endpoints/` (mirroring the `app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`shared/network/middleware.js`, `interceptors/*`), parse requests with `readJsonBody`, validate/normalize with **Zod** schemas via `shared/validation/*` helpers, call repositories (`repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `endpoints/items/index.js`, `endpoints/items/[id].js`).
+1. Create an endpoint composition module in `endpoints/` (mirroring the `app/api/*` route structure) that implements the API lifecycle: compose the middleware pipeline (`network/middleware.js`, `interceptors/*`), parse requests with `readJsonBody`, validate/normalize with **Zod** schemas via `validation/*` helpers, call repositories (`repositories/*`), and shape responses, then export the HTTP method handlers (e.g. `endpoints/items/index.js`, `endpoints/items/[id].js`).
 2. Create a thin Expo Router `+api` wrapper under `app/api/` that only exports those HTTP methods. Use subdirectory `+api.js` for route segment indexes (consistent with UI `subdirectory/index.js` routing), e.g. `app/api/items/+api.js` → `export { GET, POST, PUT, PATCH, DELETE } from "../../../endpoints/items.js"`. Dynamic/specific route files may remain as direct `+api` files without a dedicated subdirectory when appropriate, e.g. `app/api/items/[id]+api.js`.
 2. Set a correct `Content-Type` and sensible cache semantics.
 3. Add the endpoint to the **Routes & endpoints** table in `README.md`.
@@ -196,16 +198,20 @@ flowchart LR
 - **`screens/`**: UI screens; make API calls through services and render/update from stores.
 - **`services/`**: client-to-API contracts used by the UI (`auth.js`, `audit.js`, `items.js`, `admin.js`, `orders.js`, `staff.js`); send requests via shared HTTP utilities, parse/normalize API responses, and surface errors.
 
-- **`interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `shared/network/middleware.js` (pipeline and request context).
+- **`interceptors/`**: cross-cutting interceptors `log.interceptor.js`, `error.interceptor.js`, `authentication.interceptor.js`, `authorization.interceptor.js`, `method.interceptor.js`, and `body.interceptor.js`. Compose routes with `network/middleware.js` (pipeline and request context).
 - **`repositories/`**: API-to-database/auth contracts and server-side data access/orchestration (`auth.repository.js`, `item.repository.js`, `profile.repository.js`).
 
 - **`stores/`**: client state and DTO-style values/fields in Zustand (`auth.store.js`, `app.store.js`), updated from service/screen flows.
-- **`shared/errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
-- **`shared/network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `transport.js` client transport).
-- **`shared/cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
+- **`errors/`**: global error modules, one file per error type (each exports an error class and factory), plus `normalize.js`. Covers network/API, database/Supabase, crypto/cipher, and other domain errors. Throw typed errors in layers and map them centrally to responses.
+- **`network/`**: network pipeline/primitives (`middleware.js`, `context.js`, `request.js`, `response.js`, `transport.js` client transport).
+- **`cipher/`**: cryptographic/encoding utilities (`encrypt.js`, `decrypt.js`, `encode.js`, `decode.js`, `hash.js`, `token.js`, `id.js`).
+- **`helpers/`**: generic list, record, and QR helpers (`lists.js`, `records.js`, `qr-image.js`, `qr-upload.js`).
+- **`format/`**: currency, date, and email formatting.
+- **`validation/`**: reusable Zod and request-validation helpers.
+- **`stylesheets/`**: global CSS entry (`global.css`), wired in `metro.config.js`.
 - **`database/`**: database/Supabase client instance and runtime selection (`instance.js`).
-- **`shared/constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.
-- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `shared/constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Profile emails are readable by authenticated users; never expose access tokens or staff credentials. |
+- **`constants/`**: `config.js` (single source of truth for app/API/Supabase config), `theme.js` (global theme colors), and `http.js` (HTTP status constants). No barrel `index.js` files in `interceptors/` or `endpoints/`.
+- Server-side Supabase access uses anon key + forwarded user tokens so RLS applies (`EXPO_PUBLIC_SUPABASE_TARGET` selects local vs hosted, no fallback; config composed in `constants/config.js`). In Docker, local routes reach Kong via `SUPABASE_LOCAL_SERVER_URL`. Never expose a service-role key. Profile emails are readable by authenticated users; never expose access tokens or staff credentials. |
 
 ```mermaid
 flowchart LR
@@ -214,19 +220,19 @@ flowchart LR
 ```
 
 ## Styling, state & config
-- Use Zod for all request validation. Put reusable schemas/helpers in `shared/validation/` and domain-specific schemas next to their endpoints (e.g. `endpoints/items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
+- Use Zod for all request validation. Put reusable schemas/helpers in `validation/` and domain-specific schemas next to their endpoints (e.g. `endpoints/items/validation.js`). Map parse failures to typed 4xx errors through `parseWithSchema`; never return raw Zod errors to clients.
 - Build screens from reusable primitives in `components/`. Use `DataTable` for audit tables, `SectionHeader` for consistent section titles/syncing state, `StatGrid`/`StatCard` for metrics, `StatusPill` for statuses, and `FormActions` for form buttons. Interactive components must expose `disabled`/`loading` consistently and include accessibility roles/labels.
-- Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `shared/constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `shared/stylesheets/global.css`.
+- Use NativeWind/Tailwind classes (`className`) with React Native Web primitives. Visual tokens are defined in `constants/theme.js` and documented in `DESIGN.md`; use them instead of raw colors or ad-hoc typography/spacing. Global CSS is `stylesheets/global.css`.
 - Support wearable (`<640px`), phone (`sm:`), and tablet (`md:`+) viewports by following the responsive rules in `DESIGN.md`.
 - Audit events are written by database triggers on profiles, items, orders, and order items. Only admins can read `audit_logs` through `/api/admin/audit-logs`; do not add client-side write paths.
 - Use Zustand stores under `stores/` for shared client state. The `(customer)` group enforces the `customer` role, `(staff)` enforces `staff` (`/staff/order` and `/staff/records`), and `(admin)` enforces `admin` (analytics, audit logs, and edit screens). The profiles audit page lists every profile, including seeded accounts.
 - Keep only `/` and `/signin` public. Customers use one shared guest profile via "Continue as guest"; do not add customer sign-up, account, or recovery flows back into the MVP. `/api/checkout` requires the guest token.
 - Tailwind content scans the root-level app directories (see `tailwind.config.js`); dark mode is `class`-based.
-- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `shared/constants/config.js`, `app.config.js`). `shared/constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
+- Client-visible config comes from `EXPO_PUBLIC_*` vars (see `constants/config.js`, `app.config.js`). `constants/config.js` is the single source of truth for composed app/API configuration (metadata and API endpoints/base path). Keep secrets out of `EXPO_PUBLIC_*`.
 
 ## Documentation conventions
-- Name utility modules after their actual contents (for example `shared/format/email.js` for email normalization, `shared/utils/records.js` for record comparison/update helpers). Avoid generic names like `string.js`, `misc.js`, or `utils.js`.
-- Use dotted role suffixes: `*.screen.js`, `*.component.js`, `*.store.js`, `*.repository.js`, and `*.interceptor.js`. Error modules in `shared/errors/` keep plain names (no `*.error.js` suffix).
+- Name utility modules after their actual contents (for example `format/email.js` for email normalization, `helpers/records.js` for record comparison/update helpers). Avoid generic names like `string.js`, `misc.js`, or `utils.js`.
+- Use dotted role suffixes: `*.screen.js`, `*.component.js`, `*.store.js`, `*.repository.js`, and `*.interceptor.js`. Error modules in `errors/` keep plain names (no `*.error.js` suffix).
 - Always include JSDoc for modules with a top-level `@module` tag.
 - Always add JSDoc for top-level exported functions and variables.
 - Never include the `@example` tag in JSDoc.

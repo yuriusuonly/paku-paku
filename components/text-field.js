@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import { alpha, cx } from "../shared/constants/theme.js";
+import { alpha, cx } from "../constants/theme.js";
 
 /**
  * Labeled text input component.

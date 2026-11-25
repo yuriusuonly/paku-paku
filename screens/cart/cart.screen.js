@@ -11,7 +11,7 @@ import { useNotificationStore } from "../../stores/notification.store.js";
 import { placeOrder } from "../../services/checkout.js";
 import { PAYMENT_METHODS } from "../../domain/orders/constants.js";
 import { calculateOrderTotals } from "../../domain/orders/pricing.js";
-import { cx } from "../../shared/constants/theme.js";
+import { cx } from "../../constants/theme.js";
 import { CartItemsSection } from "./cart-items.component.js";
 
 /**
