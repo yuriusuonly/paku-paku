@@ -225,6 +225,20 @@
       "skillPath": "plugins/expo/skills/expo-web-to-native/SKILL.md",
       "computedHash": "65528c78dbfdd32470b4f7f68960fd3545e6589d381c04fab44876466dd7c9d8"
     },
+    "extract-errors": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/extract-errors/SKILL.md",
+      "computedHash": "b5ea11de701e8935d118ac3e4b00da4d98895897a3381f4bf4df767d28ad87d7"
+    },
+    "feature-flags": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/feature-flags/SKILL.md",
+      "computedHash": "4d718ff846e942b9d9a74789f2958fbd0cf995f4b7876bea1d65cdf384e2740b"
+    },
     "figma-3d-transforms": {
       "source": "figma/mcp-server-guide",
       "commit": "5e4790847aedd4312fff65a11f7695c9c9382be0",
@@ -351,6 +365,27 @@
       "skillPath": "skills/figma-weave-workflows/SKILL.md",
       "computedHash": "a9e6b9b30d949bfae979313c4fd76a17969bd0766f13dcd9b3559eac835f1700"
     },
+    "fix": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/fix/SKILL.md",
+      "computedHash": "4a8e87d11ea5e71af0c44f8c3a367ca6ec3bfa9acc9d7cccf0360a3314bd7776"
+    },
+    "flags": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/flags/SKILL.md",
+      "computedHash": "9f852e5e3d52536abea257b018a1ba6a4ea51f70de007e3c582b83a15f7b1b67"
+    },
+    "flow": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/flow/SKILL.md",
+      "computedHash": "5c4a8342cfeb141c9480c97cf84b714d313fa3cbd2906f950dba4fbb2665290d"
+    },
     "github-actions-efficiency": {
       "source": "github/awesome-copilot",
       "commit": "f10fdb8b2660ce85c98f220b2f1ca24653768a5c",
@@ -392,6 +427,13 @@
       "sourceType": "github",
       "skillPath": "pkg/skills/catalog/skills/label-scheme-management/SKILL.md",
       "computedHash": "e4a6a50c8b2ac596ef49d4a700cd66fbdb36e3c92776f57555711faaad20c200"
+    },
+    "modern-web-guidance": {
+      "source": "GoogleChrome/modern-web-guidance",
+      "commit": "2b4aa13a72dd47cd135b06ce5abfccd92e19b24f",
+      "sourceType": "github",
+      "skillPath": "skills/modern-web-guidance/SKILL.md",
+      "computedHash": "1a97aea5d1c5abbf1b7b022ae7a2833a014627f741ba3cbd8cb6249a3ab359db"
     },
     "notification-triage": {
       "source": "github/github-mcp-server",
@@ -504,6 +546,34 @@
       "sourceType": "github",
       "skillPath": "pkg/skills/catalog/skills/security-alert-triage/SKILL.md",
       "computedHash": "8cd95c2d21fcd03bcc81fc23666e153e2569b7b27ffbf7e08796c960a407fe4d"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "2fbff32fd63b7d31585cacf0ed43e5bf8d05dd20d6c0c751d256cb967a00eec1"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505"
+    },
+    "test": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/test/SKILL.md",
+      "computedHash": "ad00637b274a030e294b2b0c90f139630eb3d39bf5dac11bd2c954449ddea27a"
+    },
+    "verify": {
+      "source": "react/react",
+      "commit": "92bb0678c52133a47b3095f6e54da883ea0d6cff",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/verify/SKILL.md",
+      "computedHash": "6e2754cf5cdbbba852c75c98257d99c9c4321e243094c627af60c1406f340a7f"
     },
     "verify-agent-action": {
       "source": "github/awesome-copilot",
