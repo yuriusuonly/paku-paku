@@ -149,10 +149,11 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 (once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
 `bun run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI).
 
-OpenCode connects to the hosted Supabase and GitHub MCP servers declared in
-`opencode.json`; the GitHub one authenticates with `GITHUB_TOKEN`. Launch
-OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate via
-`/mcps` if a server reports that it needs authentication.
+OpenCode connects to the hosted Supabase, GitHub, and official Figma MCP
+servers declared in `opencode.json`; the GitHub one authenticates with
+`GITHUB_TOKEN`, while Figma uses OpenCode's OAuth flow (no token in `.env`).
+Launch OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate
+via `/mcps` if a server reports that it needs authentication.
 
 ## Build & serve (static)
 

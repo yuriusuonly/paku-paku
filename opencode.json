@@ -17,6 +17,10 @@
           "Authorization": "Bearer {env:GITHUB_TOKEN}"
         },
         "oauth": false
+      },
+      "figma": {
+        "type": "remote",
+        "url": "https://mcp.figma.com/mcp"
       }
     }
   },
