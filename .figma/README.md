@@ -17,15 +17,7 @@ File key: `JBtJT3o2nXKsZaOscDcUNr`
 ## Still to do
 
 - Admin items, orders, profiles and audit-log frames.
-- A local `.fig` copy and PNG screenshots of the frames in this directory.
+- PNG screenshots of the frames in this directory.
 
-The Figma MCP Starter plan allows 20 tool calls per month; that limit was
-reached while building the eighth screen, before screenshots could be
-captured. Once the allowance resets (or the plan is upgraded), capture each
-top-level frame with the Figma MCP `get_screenshot` tool and save the returned
-PNG URLs here.
-
-`.fig` is Figma's proprietary desktop file format and cannot be produced by
-the MCP server. To add it, open the design file in the Figma desktop app and
-choose **File → Save local copy…**, then place the downloaded `.fig` in this
-directory.
+Capture each top-level frame with the Figma MCP `get_screenshot` tool and save
+the returned PNG URLs here.
