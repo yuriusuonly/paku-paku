@@ -2,6 +2,7 @@ import {
   arch as nodeArch,
   hostname as nodeHostname,
   platform as nodePlatform,
+  tmpdir as nodeTmpdir,
   uptime as nodeUptime
 } from "node:os";
 
@@ -33,9 +34,17 @@ const hostname = () => nodeHostname();
  */
 const uptime = () => nodeUptime();
 
+/**
+ * Returns the system temporary directory.
+ *
+ * @returns {string} Temporary directory path.
+ */
+const tmpdir = () => nodeTmpdir();
+
 export {
   platform,
   architecture,
   hostname,
-  uptime
+  uptime,
+  tmpdir
 };

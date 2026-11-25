@@ -1,4 +1,12 @@
 import { expect, test } from "@playwright/test";
+import config from "../../constants/config.js";
+
+/**
+ * Route glob for the sign-in API endpoint.
+ *
+ * @type {string}
+ */
+const SIGNIN_ROUTE = `**${config.api.endpoints.signin}`;
 
 /**
  * Mocking data for the guest sign-in route.
@@ -25,7 +33,7 @@ const GUEST_SESSION = {
 test("validates credentials before sending a sign-in request", async ({ page }) => {
   let requests = 0;
 
-  await page.route("**/api/signin", (route) => {
+  await page.route(SIGNIN_ROUTE, (route) => {
     requests += 1;
     return route.fulfill({
       status: 200,
@@ -58,7 +66,7 @@ test("validates credentials before sending a sign-in request", async ({ page }) 
 });
 
 test("shows the server message and restores the button after a failed sign-in", async ({ page }) => {
-  await page.route("**/api/signin", (route) => route.fulfill({
+  await page.route(SIGNIN_ROUTE, (route) => route.fulfill({
     status: 401,
     contentType: "application/json",
     body: JSON.stringify({
@@ -79,7 +87,7 @@ test("shows the server message and restores the button after a failed sign-in", 
 });
 
 test("keeps the guest action busy and redirects after a successful sign-in", async ({ page }) => {
-  await page.route("**/api/signin", async (route) => {
+  await page.route(SIGNIN_ROUTE, async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
     await route.fulfill({
       status: 200,

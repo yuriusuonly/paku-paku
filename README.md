@@ -46,7 +46,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
-| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `constants/config.js`. |
+| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path without a leading slash (e.g. `api`); `constants/config.js` adds the slash when composing endpoint URLs. |
 | `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
@@ -167,7 +167,7 @@ bun run playwright      # Playwright CLI (e.g. `bun run playwright -- install ch
 bun run playwright:test # E2E specs in test/app/*.e2e.js
 ```
 
-- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages.
+- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages. E2E runs over HTTPS through the Caddy proxy on `$URL_PROXY_PORT`; the config starts both the dev server and Caddy. Playwright artifacts go to the system temp directory, never into the workspace.
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1.4.5-alpine`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static

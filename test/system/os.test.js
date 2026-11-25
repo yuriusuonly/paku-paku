@@ -3,6 +3,7 @@ import {
   architecture,
   hostname,
   platform,
+  tmpdir,
   uptime
 } from "../../system/os.js";
 
@@ -14,4 +15,9 @@ test("platform, architecture, and hostname return strings", () => {
 
 test("uptime returns a number", () => {
   expect(typeof uptime()).toBe("number");
+});
+
+test("tmpdir returns the system temporary directory", () => {
+  expect(typeof tmpdir()).toBe("string");
+  expect(tmpdir().length).toBeGreaterThan(0);
 });

@@ -53,7 +53,8 @@
  * @property {{email: string | undefined, password: string | undefined}} guest
  */
 
-const apiBasePath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "/api";
+const apiPath = process.env.EXPO_PUBLIC_URL_API_BASE_PATH || "api";
+const apiBasePath = `/${apiPath.replace(/^\/+/, "")}`;
 const databaseTarget = process.env.EXPO_PUBLIC_SUPABASE_TARGET === "hosted" ? "hosted" : "local";
 const isHosted = databaseTarget === "hosted";
 
