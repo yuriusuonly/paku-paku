@@ -186,6 +186,9 @@ bun run caddy        # https://localhost:$URL_PROXY_PORT -> localhost:$URL_PORT
 bun run caddy:trust  # trust Caddy's local CA (needed for service workers)
 ```
 
+Caddy sets HSTS, `X-Content-Type-Options`, `Referrer-Policy` and
+`X-Frame-Options` on every response.
+
 ## Deployment (Expo Hosting)
 
 One-time setup:

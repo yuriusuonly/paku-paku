@@ -12,6 +12,7 @@
   "scripts": {
     "bun": "bun ./scripts/bun.js",
     "bun:test": "bun ./scripts/bun.js test",
+    "check": "bun ./scripts/check.js",
     "caddy": "bun ./scripts/caddy.js run --config Caddyfile",
     "caddy:trust": "bun ./scripts/caddy.js trust",
     "docker": "bun run docker:build && bun run docker:up && bun run docker:logs",

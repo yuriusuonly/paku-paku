@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { generateId } from "../cipher/id.js";
 import { badRequest } from "../errors/bad-request.js";
 import { notFound } from "../errors/not-found.js";
 import { databaseUnconfigured } from "../errors/database-unconfigured.js";
@@ -135,8 +135,8 @@ export async function createCheckoutOrder(client, input) {
   const items = normalizeOrderItems(input.items);
   const totals = calculateOrderTotals(items);
   const paymentMethod = input.payment_method || "cash";
-  const id = randomUUID();
-  const orderNumber = `ORD-${randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+  const id = generateId();
+  const orderNumber = `ORD-${generateId().replace(/-/g, "").slice(0, 10).toUpperCase()}`;
   const now = new Date().toISOString();
 
   const qrPayload = buildQrPayload({
