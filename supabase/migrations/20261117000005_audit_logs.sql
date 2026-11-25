@@ -73,8 +73,9 @@ end;
 $$;
 
 comment on function public.write_audit_log() is 'Appends INSERT/UPDATE/DELETE audit records for tracked tables.';
-revoke all on function public.write_audit_log() from public, anon;
-grant execute on function public.write_audit_log() to authenticated, anon;
+-- Trigger functions are invoked by the engine, not by clients. Keep direct
+-- execution closed so no role can append audit rows outside a trigger.
+revoke all on function public.write_audit_log() from public, anon, authenticated;
 
 drop trigger if exists audit_profiles on public.profiles;
 create trigger audit_profiles
