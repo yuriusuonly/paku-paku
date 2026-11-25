@@ -3,7 +3,7 @@
 ## Prerequisites
 - Bun ≥1.4.5 is the only runtime (`bun install`, `bun run ...`, `bun run bun:test`); Docker image and CI use Bun 1.4.5 too.
 - Docker + Compose for containerized runs and the local Supabase stack (PostgreSQL)
-- `eas-cli` and the Supabase CLI are invoked on demand via `bun x --bun` by the `eas:*` / `supabase:*` launchers; `gh` (GitHub CLI) is used by the `github:*` launchers (authenticated via `GITHUB_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands
+- `eas-cli` and the Supabase CLI are invoked on demand via `bun x --bun` by the `eas:*` / `supabase:*` launchers; `gh` (GitHub CLI) is used by the `gh:*` launchers (authenticated via `GITHUB_TOKEN` in `.env`); Caddy is bundled in the Docker runtime, so use a local Caddy install for local Caddy commands
 
 ## Setup
 1. `bun install`

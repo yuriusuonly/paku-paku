@@ -60,8 +60,8 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_TOKEN` | Expo/EAS access token used by the `eas:*` scripts and `eas-cli`. |
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `bun run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
-| `GITHUB_REPOSITORY` | HTTPS repository URL used by the `github:*` scripts. |
-| `GITHUB_TOKEN` | GitHub token used by the `github:*` scripts. |
+| `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
+| `GITHUB_TOKEN` | GitHub token used by the `gh:*` scripts. |
 
 Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
 
@@ -143,7 +143,7 @@ const { data, error } = await getSupabase()
 
 Hosted setup: create a Supabase project, copy its URL and anon key into
 `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY`, and refresh the
-`DOT_ENV` secret (`bun run github:secrets`) so production builds bake in the
+`DOT_ENV` secret (`bun run gh:secrets`) so production builds bake in the
 hosted values. `bun run eas:deploy` refuses to run without those hosted values.
 Apply local migrations to the hosted database with `bun x --bun supabase login`
 (once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
@@ -191,8 +191,8 @@ One-time setup:
 1. Put an Expo/EAS access token in `EXPO_TOKEN` (expo.dev → Account settings → Access tokens).
 2. Run `bun run eas:initialize` and paste the printed project id into
    `EAS_PROJECT_ID` in `.env`.
-3. Create the GitHub repository, then run `bun run github:remote` and
-   `bun run github:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
+3. Create the GitHub repository, then run `bun run gh:remote` and
+   `bun run gh:secrets` (stores `.env` as the `DOT_ENV` secret). The secret
    must contain the hosted Supabase values (`EXPO_PUBLIC_SUPABASE_URL`,
    `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF`); `eas:deploy` overrides the target to
    `hosted`, and production never uses the local URL.
@@ -202,7 +202,7 @@ One-time setup:
 locally (or on the runner), and uploads the finished `build/` artifact with
 `eas deploy --non-interactive --prod --environment production`; EAS runs no
 builds. The `--environment production` flag makes EAS production environment
-variables available to server-side API routes. Use `bun run github:deploy` to
+variables available to server-side API routes. Use `bun run gh:deploy` to
 refresh the `DOT_ENV` secret and push the current branch.
 
 ## Docker (all-in-one compose)
