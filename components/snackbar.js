@@ -35,7 +35,12 @@ export function SnackbarHost() {
     >
       <View className={`mx-auto w-full max-w-xl px-4 ${cx.spacing.sm}`}>
         {items.map((item) => (
-          <Pressable key={item.id} onPress={() => dismiss(item.id)}>
+          <Pressable
+            key={item.id}
+            onPress={() => dismiss(item.id)}
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss notification"
+          >
             <View className={`flex-row items-center ${cx.radius.md} border px-4 py-3 shadow-lg ${styles[item.variant] || styles.info}`}>
               <View className={`mr-3 h-2.5 w-2.5 rounded-full ${dot[item.variant] || dot.info}`} />
               <Text className={`${cx.typography.body} flex-1 ${cx.textWhite}`}>{item.message}</Text>

@@ -157,7 +157,11 @@ export default function AdminScreen() {
               <StatGrid stats={card.stats} className="mb-0" />
               <View className="mt-5 items-start sm:mt-6 md:mt-8">
                 <Link href={card.href} asChild>
-                  <Pressable>
+                  <Pressable
+                    accessibilityRole="link"
+                    accessibilityLabel={card.linkLabel}
+                    className="min-h-[44px] items-center justify-center"
+                  >
                     <Text className={`font-outfit text-xs font-semibold sm:text-sm ${cx.textPrimary}`}>
                       {card.linkLabel}
                     </Text>

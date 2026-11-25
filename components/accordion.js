@@ -18,7 +18,13 @@ import { cx } from "../constants/theme.js";
 export function AccordionSection({ title, expanded, onToggle, children, className = "" }) {
   return (
     <View className={`${cx.radius.lg} border ${cx.borderSubtle} ${cx.bgSurface} ${cx.spacing.cardPad} ${className}`}>
-      <Pressable onPress={onToggle} className="flex-row items-center justify-between py-1">
+      <Pressable
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityLabel={`${expanded ? "Hide" : "Show"} ${title}`}
+        accessibilityState={{ expanded }}
+        className="flex-row min-h-[44px] items-center justify-between py-1"
+      >
         <Text className={`${cx.typography.sectionTitle} ${cx.textInk}`}>{title}</Text>
         <Text className={`${cx.typography.label} ${cx.textPrimary}`}>{expanded ? "Hide" : "Show"}</Text>
       </Pressable>
