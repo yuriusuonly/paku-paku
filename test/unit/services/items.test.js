@@ -23,7 +23,7 @@ describe("services/items", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { getItems } = await import("../../../src/services/items.js");
+    const { getItems } = await import("../../../services/items.js");
     expect(await getItems()).toEqual(payload);
   });
 
@@ -38,7 +38,7 @@ describe("services/items", () => {
       return jsonResponse(payload, 201);
     });
 
-    const { createItem } = await import("../../../src/services/items.js");
+    const { createItem } = await import("../../../services/items.js");
     expect(await createItem("admin", input)).toEqual(payload);
   });
 
@@ -52,7 +52,7 @@ describe("services/items", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { updateItem } = await import("../../../src/services/items.js");
+    const { updateItem } = await import("../../../services/items.js");
     expect(await updateItem("admin", "m1", { name: "New" })).toEqual(payload);
   });
 
@@ -65,7 +65,7 @@ describe("services/items", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { deleteItem } = await import("../../../src/services/items.js");
+    const { deleteItem } = await import("../../../services/items.js");
     expect(await deleteItem("admin", "m1")).toEqual(payload);
   });
 });

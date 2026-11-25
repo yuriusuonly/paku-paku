@@ -8,7 +8,7 @@ import {
   requireObjectBody,
   requireString,
   requireUpdateFields
-} from "../../../../src/shared/validation/request.js";
+} from "../../../../shared/validation/request.js";
 
 /**
  * Tests for request validation helpers.

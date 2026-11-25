@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { createContext, withMiddleware } from "../../../../src/shared/network/middleware.js";
-import { jsonResponse } from "../../../../src/shared/network/response.js";
+import { createContext, withMiddleware } from "../../../../shared/network/middleware.js";
+import { jsonResponse } from "../../../../shared/network/response.js";
 
 /**
  * Integration tests for middleware pipeline composition.

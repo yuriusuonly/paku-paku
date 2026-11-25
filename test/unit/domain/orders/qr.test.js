@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseQrPayload } from "../../../../src/domain/orders/qr.js";
+import { parseQrPayload } from "../../../../domain/orders/qr.js";
 
 /**
  * Tests for counter QR parsing.

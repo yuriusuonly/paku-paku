@@ -1,11 +1,11 @@
 import { describe, expect, spyOn, test } from "bun:test";
-import { errorInterceptor } from "../../src/interceptors/error.interceptor.js";
-import { logInterceptor } from "../../src/interceptors/log.interceptor.js";
-import { methodInterceptor } from "../../src/interceptors/method.interceptor.js";
-import { badRequest } from "../../src/shared/errors/bad-request.js";
-import { withMiddleware } from "../../src/shared/network/middleware.js";
-import { readJsonBody } from "../../src/shared/network/request.js";
-import { jsonResponse } from "../../src/shared/network/response.js";
+import { errorInterceptor } from "../../interceptors/error.interceptor.js";
+import { logInterceptor } from "../../interceptors/log.interceptor.js";
+import { methodInterceptor } from "../../interceptors/method.interceptor.js";
+import { badRequest } from "../../shared/errors/bad-request.js";
+import { withMiddleware } from "../../shared/network/middleware.js";
+import { readJsonBody } from "../../shared/network/request.js";
+import { jsonResponse } from "../../shared/network/response.js";
 
 /**
  * Integration tests for composed endpoint-style middleware flows.

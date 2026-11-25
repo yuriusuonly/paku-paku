@@ -6,7 +6,7 @@ import nativewindPreset from "nativewind/preset";
  */
 
 /**
- * Default Tailwind config: scans `src/**` sources, uses class-based dark mode,
+ * Default Tailwind config: scans app sources, uses class-based dark mode,
  * and exposes the Outfit font family via the `font-outfit` utility.
  *
  * @type {import('tailwindcss').Config}
@@ -14,7 +14,7 @@ import nativewindPreset from "nativewind/preset";
 export default {
   darkMode: "class",
   content: [
-    "src/**/*.{js,jsx,ts,tsx}"
+    "{app,components,database,domain,endpoints,interceptors,repositories,screens,services,shared,stores}/**/*.{js,jsx,ts,tsx}"
   ],
   presets: [
     nativewindPreset

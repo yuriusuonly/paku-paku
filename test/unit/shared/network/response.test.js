@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { errorResponse, jsonResponse, methodNotAllowed, noContent } from "../../../../src/shared/network/response.js";
+import { errorResponse, jsonResponse, methodNotAllowed, noContent } from "../../../../shared/network/response.js";
 
 /**
  * Tests for response helpers.

@@ -23,7 +23,7 @@ describe("services/auth", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { signIn } = await import("../../../src/services/auth.js");
+    const { signIn } = await import("../../../services/auth.js");
     const result = await signIn({ email: "admin@example.com", password: "secret1" });
     expect(result).toEqual(payload);
   });
@@ -37,7 +37,7 @@ describe("services/auth", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { getSession } = await import("../../../src/services/auth.js");
+    const { getSession } = await import("../../../services/auth.js");
     expect(await getSession("token-123")).toEqual(payload);
   });
 
@@ -49,7 +49,7 @@ describe("services/auth", () => {
       return new Response(null, { status: 204 });
     });
 
-    const { signOut } = await import("../../../src/services/auth.js");
+    const { signOut } = await import("../../../services/auth.js");
     expect(await signOut("token-123")).toBeNull();
   });
 
@@ -58,7 +58,7 @@ describe("services/auth", () => {
       jsonResponse({ error: { code: "invalid_credentials", message: "Invalid email or password." } }, 401)
     );
 
-    const { signIn } = await import("../../../src/services/auth.js");
+    const { signIn } = await import("../../../services/auth.js");
     await expect(signIn({ email: "x", password: "y" })).rejects.toEqual({
       status: 401,
       code: "invalid_credentials",

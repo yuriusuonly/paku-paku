@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { itemCreateSchema } from "../../../src/domain/items/schema.js";
-import { orderCreateSchema } from "../../../src/domain/orders/schema.js";
+import { itemCreateSchema } from "../../../domain/items/schema.js";
+import { orderCreateSchema } from "../../../domain/orders/schema.js";
 
 /**
  * Tests for shared domain schemas.

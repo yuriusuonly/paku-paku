@@ -1,5 +1,5 @@
 /**
- * robots.txt web API route (`src/app/robots.txt+api.js`): allows all user agents
+ * robots.txt web API route (`app/robots.txt+api.js`): allows all user agents
  * to crawl the site (an empty `Disallow`).
  * @module app/robots+api
  */

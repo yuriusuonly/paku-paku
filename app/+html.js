@@ -2,7 +2,7 @@ import { ScrollViewStyleReset, useServerDocumentContext } from "expo-router/html
 import config from "../shared/constants/config.js";
 
 /**
- * Custom server-rendered HTML document shell (`src/app/+html.js`): charset,
+ * Custom server-rendered HTML document shell (`app/+html.js`): charset,
  * viewport, meta description, and PWA manifest link.
  * @module app/+html
  */

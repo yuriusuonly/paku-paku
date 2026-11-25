@@ -22,7 +22,7 @@ describe("services/staff", () => {
       expect(options.headers.Authorization).toBe("Bearer staff");
       return jsonResponse(payload);
     });
-    const { getStaffOrders } = await import("../../../src/services/staff.js");
+    const { getStaffOrders } = await import("../../../services/staff.js");
     await expect(getStaffOrders("staff")).resolves.toEqual(payload);
   });
 
@@ -36,7 +36,7 @@ describe("services/staff", () => {
       expect(JSON.parse(options.body)).toEqual(input);
       return jsonResponse(payload, 201);
     });
-    const { createStaffOrder } = await import("../../../src/services/staff.js");
+    const { createStaffOrder } = await import("../../../services/staff.js");
     await expect(createStaffOrder("staff", input)).resolves.toEqual(payload);
   });
 
@@ -49,7 +49,7 @@ describe("services/staff", () => {
       expect(JSON.parse(options.body)).toEqual({ reference: "ORD-1" });
       return jsonResponse(payload);
     });
-    const { verifyOrder } = await import("../../../src/services/staff.js");
+    const { verifyOrder } = await import("../../../services/staff.js");
     await expect(verifyOrder("staff", "ORD-1")).resolves.toEqual(payload);
   });
 
@@ -60,7 +60,7 @@ describe("services/staff", () => {
       expect(JSON.parse(options.body)).toEqual({ status: "Paid" });
       return jsonResponse({ order: { id: "o1", status: "Paid" } });
     });
-    const { updateOrderStatus } = await import("../../../src/services/staff.js");
+    const { updateOrderStatus } = await import("../../../services/staff.js");
     await expect(updateOrderStatus("staff", "o1", "Paid")).resolves.toEqual({ order: { id: "o1", status: "Paid" } });
   });
 });

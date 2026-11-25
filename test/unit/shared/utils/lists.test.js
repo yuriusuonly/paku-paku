@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { sortByCreatedDesc, sortByOrder, sortByString } from "../../../../src/shared/utils/lists.js";
+import { sortByCreatedDesc, sortByOrder, sortByString } from "../../../../shared/utils/lists.js";
 
 /**
  * Tests for list sorting helpers.

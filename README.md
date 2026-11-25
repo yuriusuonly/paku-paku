@@ -40,13 +40,13 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EXPO_PUBLIC_TITLE` | App/site title (client-visible): Expo `name`, UI, document title, PWA manifest. |
 | `EXPO_PUBLIC_DESCRIPTION` | Kiosk storefront description (client-visible): landing page, HTML meta description, PWA manifest. |
 | `EXPO_PUBLIC_VERSION` | App version string (client-visible). |
-| `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `src/shared/constants/config.js`. |
-| `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `src/shared/constants/config.js`. |
+| `EXPO_PUBLIC_CURRENCY_CODE` | Currency code (client-visible, e.g. `PHP`); available via `currency` in `shared/constants/config.js`. |
+| `EXPO_PUBLIC_CURRENCY_SYMBOL` | Currency symbol (client-visible, e.g. `₱`); available via `currency` in `shared/constants/config.js`. |
 | `EXPO_PUBLIC_GUEST_EMAIL` / `EXPO_PUBLIC_GUEST_PASSWORD` | Shared public customer credentials used by "Continue as guest" on `/signin`; no signup exists. |
 | `URL_PROTOCOL` / `URL_HOST` / `URL_PORT` | Local dev and static server protocol/host/port (`3000` here). |
 | `URL_PROXY_PROTOCOL` / `URL_PROXY_HOST` / `URL_PROXY_PORT` | Caddy TLS edge (`8443` here). |
 | `URL_BASE` | Project-level base URL path. |
-| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `src/shared/constants/config.js`. |
+| `EXPO_PUBLIC_URL_API_BASE_PATH` | Client-visible API base path (e.g. `/api`); composed into API endpoint config in `shared/constants/config.js`. |
 | `EXPO_PUBLIC_SUPABASE_TARGET` | Supabase environment selector: `local` for development and local builds; `eas:deploy` overrides it to `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_URL` | Local Supabase API URL (`http://127.0.0.1:54321`); used whenever the target is not `hosted`. |
 | `EXPO_PUBLIC_SUPABASE_LOCAL_ANON_KEY` | Local Supabase anon key (`supabase status`); used whenever the target is not `hosted`. |
@@ -84,7 +84,7 @@ Development and local static builds use a local Supabase stack (PostgreSQL in
 Docker) only. Only `bun run eas:deploy` sets
 `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo Hosting build uses the hosted
 project. There is no cross-environment fallback:
-`src/database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
+`database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
 the target is exactly `hosted`, in which case it reads
 `EXPO_PUBLIC_SUPABASE_*`.
 
@@ -127,9 +127,9 @@ Migrations live in `supabase/migrations/`; local seed data lives in
 `bun run supabase:migration -- <name>`, then verify it with
 `bun run supabase:reset`.
 
-Server API routes in `src/app/api/` select Supabase at runtime with
-`src/database/instance.js` (local stack vs hosted project, no fallback).
-Browser and server code use `getSupabase()`, `getSupabaseServerConfig()`, and `createSupabaseServerClient()` from `src/database/instance.js`.
+Server API routes in `app/api/` select Supabase at runtime with
+`database/instance.js` (local stack vs hosted project, no fallback).
+Browser and server code use `getSupabase()`, `getSupabaseServerConfig()`, and `createSupabaseServerClient()` from `database/instance.js`.
 
 ```js
 import { getSupabase } from "../database/instance.js";
@@ -231,38 +231,38 @@ three seeded roles:
 
 | Route | Source | Purpose |
 | --- | --- | --- |
-| `/` | `src/app/index.js` → `src/screens/root.js` | Storefront landing with a link to the menu. |
-| `/menu` | `src/app/(customer)/menu.js` → `src/screens/menu/menu.screen.js` | Customer menu with add-to-cart controls. |
-| `/cart` | `src/app/(customer)/cart.js` → `src/screens/cart/cart.screen.js` | Customer cart: payment selection and order placement. |
-| `/checkout` | `src/app/(customer)/checkout.js` → `src/screens/checkout/checkout.screen.js` | Confirmation and counter QR after placement; save the QR as a PNG image. |
-| `/signin` | `src/app/signin.js` → `src/screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
-| `/staff` | `src/app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order`. |
-| `/staff/order` | `src/app/(staff)/staff/order.js` → `src/screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup (camera scanning or QR image upload via jsQR, manual entry fallback); shows a confirmation snackbar and clears the form after success (staff role only). |
-| `/staff/records` | `src/app/(staff)/staff/records.js` → `src/screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
-| `/admin` | `src/app/(admin)/admin/index.js` → `src/screens/admin/admin.screen.js` | Admin dashboard (protected). |
-| `/admin/items` | `src/app/(admin)/admin/items.js` → `src/screens/admin/items/items.screen.js` | Admin menu management (protected). |
-| `/admin/orders` | `src/app/(admin)/admin/orders.js` → `src/screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
-| `/admin/profiles` | `src/app/(admin)/admin/profiles.js` → `src/screens/admin/profiles/profiles.screen.js` | Read-only profile audit (protected). |
-| `/admin/audit-logs` | `src/app/(admin)/admin/audit-logs.js` → `src/screens/admin/audit-logs/audit-logs.screen.js` | Admin audit trail (protected). |
-| 404 fallback | `src/app/+not-found.js` | Not-found screen. |
-| document shell | `src/app/+html.js` | HTML metadata and PWA manifest link. |
-| `/api/health` | `src/app/api/health+api.js` | JSON health probe used by Docker. |
-| `/api/items` | `src/app/api/items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
-| `/api/items/[id]` | `src/app/api/items/[id]+api.js` | Admin item update/delete (`PATCH`/`DELETE`). |
-| `/api/checkout` | `src/app/api/checkout+api.js` | Customer checkout (`POST`), returns order + counter QR; requires guest token. |
-| `/api/signin` | `src/app/api/signin+api.js` | Sign-in for guest, staff, and admin profiles. |
-| `/api/session` | `src/app/api/session+api.js` | Validates bearer token and returns the current profile. |
-| `/api/signout` | `src/app/api/signout+api.js` | Revokes the current session. |
-| `/api/admin/orders` | `src/app/api/admin/orders/+api.js` | Admin orders listing and create (`GET`/`POST`). |
-| `/api/admin/orders/[id]` | `src/app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
-| `/api/admin/profiles` | `src/app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
-| `/api/admin/audit-logs` | `src/app/api/admin/audit-logs/+api.js` | Admin audit trail listing (`GET`). |
-| `/api/staff/orders` | `src/app/api/staff/orders/+api.js` | Staff order logs and manual order taking (`GET`/`POST`). |
-| `/api/staff/orders/verify` | `src/app/api/staff/orders/verify+api.js` | Staff order verification (`POST`). |
-| `/api/staff/orders/[id]` | `src/app/api/staff/orders/[id]+api.js` | Staff order status update (`PATCH`). |
-| `/manifest.json` | `src/app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
-| `/robots.txt` | `src/app/robots.txt+api.js` | Allows all crawlers. |
-| `/service-worker.js` | `src/app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
+| `/` | `app/index.js` → `screens/root.js` | Storefront landing with a link to the menu. |
+| `/menu` | `app/(customer)/menu.js` → `screens/menu/menu.screen.js` | Customer menu with add-to-cart controls. |
+| `/cart` | `app/(customer)/cart.js` → `screens/cart/cart.screen.js` | Customer cart: payment selection and order placement. |
+| `/checkout` | `app/(customer)/checkout.js` → `screens/checkout/checkout.screen.js` | Confirmation and counter QR after placement; save the QR as a PNG image. |
+| `/signin` | `app/signin.js` → `screens/signin/signin.screen.js` | Public sign-in: "Continue as guest" or staff/admin credentials; redirects by role. |
+| `/staff` | `app/(staff)/staff/index.js` | Protected staff area; redirects to `/staff/order`. |
+| `/staff/order` | `app/(staff)/staff/order.js` → `screens/staff/order-taking/order-taking.screen.js` | Unified order form with optional QR/order-number lookup (camera scanning or QR image upload via jsQR, manual entry fallback); shows a confirmation snackbar and clears the form after success (staff role only). |
+| `/staff/records` | `app/(staff)/staff/records.js` → `screens/staff/logs/logs.screen.js` | Order logs and status updates (staff role only). |
+| `/admin` | `app/(admin)/admin/index.js` → `screens/admin/admin.screen.js` | Admin dashboard (protected). |
+| `/admin/items` | `app/(admin)/admin/items.js` → `screens/admin/items/items.screen.js` | Admin menu management (protected). |
+| `/admin/orders` | `app/(admin)/admin/orders.js` → `screens/admin/orders/orders.screen.js` | Admin order audit (protected). |
+| `/admin/profiles` | `app/(admin)/admin/profiles.js` → `screens/admin/profiles/profiles.screen.js` | Read-only profile audit (protected). |
+| `/admin/audit-logs` | `app/(admin)/admin/audit-logs.js` → `screens/admin/audit-logs/audit-logs.screen.js` | Admin audit trail (protected). |
+| 404 fallback | `app/+not-found.js` | Not-found screen. |
+| document shell | `app/+html.js` | HTML metadata and PWA manifest link. |
+| `/api/health` | `app/api/health+api.js` | JSON health probe used by Docker. |
+| `/api/items` | `app/api/items/+api.js` | Public menu listing (`GET`); admin create (`POST`). |
+| `/api/items/[id]` | `app/api/items/[id]+api.js` | Admin item update/delete (`PATCH`/`DELETE`). |
+| `/api/checkout` | `app/api/checkout+api.js` | Customer checkout (`POST`), returns order + counter QR; requires guest token. |
+| `/api/signin` | `app/api/signin+api.js` | Sign-in for guest, staff, and admin profiles. |
+| `/api/session` | `app/api/session+api.js` | Validates bearer token and returns the current profile. |
+| `/api/signout` | `app/api/signout+api.js` | Revokes the current session. |
+| `/api/admin/orders` | `app/api/admin/orders/+api.js` | Admin orders listing and create (`GET`/`POST`). |
+| `/api/admin/orders/[id]` | `app/api/admin/orders/[id]+api.js` | Admin order read/update/delete (`GET`/`PATCH`/`DELETE`). |
+| `/api/admin/profiles` | `app/api/admin/profiles+api.js` | Read-only admin profile listing (`GET`) and status update (`PATCH`). |
+| `/api/admin/audit-logs` | `app/api/admin/audit-logs/+api.js` | Admin audit trail listing (`GET`). |
+| `/api/staff/orders` | `app/api/staff/orders/+api.js` | Staff order logs and manual order taking (`GET`/`POST`). |
+| `/api/staff/orders/verify` | `app/api/staff/orders/verify+api.js` | Staff order verification (`POST`). |
+| `/api/staff/orders/[id]` | `app/api/staff/orders/[id]+api.js` | Staff order status update (`PATCH`). |
+| `/manifest.json` | `app/manifest.json+api.js` | PWA manifest with `any` and `maskable` icons. |
+| `/robots.txt` | `app/robots.txt+api.js` | Allows all crawlers. |
+| `/service-worker.js` | `app/service-worker.js+api.js` | Minimal service worker, registered on mount. |
 
 ## Project structure
 
@@ -278,239 +278,238 @@ three seeded roles:
 ├── png/
 │   ├── logo-maskable.png
 │   └── logo.png
-├── src/
-│   ├── app/
-│   │   ├── (admin)/
-│   │   │   ├── admin/
-│   │   │   │   ├── audit-logs.js
-│   │   │   │   ├── index.js
-│   │   │   │   ├── items.js
-│   │   │   │   ├── orders.js
-│   │   │   │   └── profiles.js
-│   │   │   └── _layout.js
-│   │   ├── (customer)/
-│   │   │   ├── cart.js
-│   │   │   ├── checkout.js
-│   │   │   ├── menu.js
-│   │   │   └── _layout.js
-│   │   ├── (staff)/
-│   │   │   ├── staff/
-│   │   │   │   ├── index.js
-│   │   │   │   ├── order.js
-│   │   │   │   └── records.js
-│   │   │   └── _layout.js
-│   │   ├── api/
-│   │   │   ├── admin/
-│   │   │   │   ├── audit-logs/
-│   │   │   │   │   └── +api.js
-│   │   │   │   ├── orders/
-│   │   │   │   │   ├── +api.js
-│   │   │   │   │   └── [id]+api.js
-│   │   │   │   └── profiles+api.js
-│   │   │   ├── items/
+├── app/
+│   ├── (admin)/
+│   │   ├── admin/
+│   │   │   ├── audit-logs.js
+│   │   │   ├── index.js
+│   │   │   ├── items.js
+│   │   │   ├── orders.js
+│   │   │   └── profiles.js
+│   │   └── _layout.js
+│   ├── (customer)/
+│   │   ├── cart.js
+│   │   ├── checkout.js
+│   │   ├── menu.js
+│   │   └── _layout.js
+│   ├── (staff)/
+│   │   ├── staff/
+│   │   │   ├── index.js
+│   │   │   ├── order.js
+│   │   │   └── records.js
+│   │   └── _layout.js
+│   ├── api/
+│   │   ├── admin/
+│   │   │   ├── audit-logs/
+│   │   │   │   └── +api.js
+│   │   │   ├── orders/
 │   │   │   │   ├── +api.js
 │   │   │   │   └── [id]+api.js
-│   │   │   ├── staff/
-│   │   │   │   └── orders/
-│   │   │   │       ├── [id]+api.js
-│   │   │   │       └── verify+api.js
-│   │   │   ├── checkout+api.js
-│   │   │   ├── health+api.js
-│   │   │   ├── session+api.js
-│   │   │   ├── signin+api.js
-│   │   │   └── signout+api.js
-│   │   ├── +html.js
-│   │   ├── +not-found.js
-│   │   ├── _layout.js
-│   │   ├── index.js
-│   │   ├── manifest.json+api.js
-│   │   ├── robots.txt+api.js
-│   │   ├── service-worker.js+api.js
-│   │   └── signin.js
-│   ├── components/
-│   │   ├── accordion.js
-│   │   ├── alert.js
-│   │   ├── button.js
-│   │   ├── circular-progress.js
-│   │   ├── container.js
-│   │   ├── empty-state.js
-│   │   ├── form-actions.js
-│   │   ├── header.js
-│   │   ├── inline-editable-cell.js
-│   │   ├── inline-select.js
-│   │   ├── qr-code.js
-│   │   ├── qr-scanner.js
-│   │   ├── section-header.js
-│   │   ├── snackbar.js
-│   │   ├── stat-card.js
-│   │   ├── stat-grid.js
-│   │   ├── status-pill.js
-│   │   ├── table.js
-│   │   └── text-field.js
-│   ├── database/
-│   │   └── instance.js
-│   ├── domain/
-│   │   ├── audit/
-│   │   │   └── summary.js
-│   │   ├── auth/
-│   │   │   └── roles.js
+│   │   │   └── profiles+api.js
 │   │   ├── items/
-│   │   │   └── schema.js
-│   │   ├── menu/
-│   │   │   └── sections.js
-│   │   ├── orders/
-│   │   │   ├── constants.js
-│   │   │   ├── items.js
-│   │   │   ├── pricing.js
-│   │   │   ├── qr.js
-│   │   │   ├── schema.js
-│   │   │   ├── status.js
-│   │   │   └── totals.js
-│   │   └── profiles/
-│   ├── endpoints/
-│   │   ├── admin/
-│   │   │   ├── audit-logs/
-│   │   │   │   └── index.js
-│   │   │   ├── orders/
-│   │   │   │   ├── [id].js
-│   │   │   │   └── index.js
-│   │   │   └── profiles.js
-│   │   ├── checkout/
-│   │   │   └── index.js
-│   │   ├── items/
-│   │   │   ├── [id].js
-│   │   │   ├── index.js
-│   │   │   └── validation.js
-│   │   ├── session/
-│   │   │   └── index.js
-│   │   ├── signin/
-│   │   │   └── index.js
-│   │   ├── signout/
-│   │   │   └── index.js
+│   │   │   ├── +api.js
+│   │   │   └── [id]+api.js
 │   │   ├── staff/
 │   │   │   └── orders/
-│   │   │       ├── [id].js
-│   │   │       ├── index.js
-│   │   │       └── verify.js
-│   │   └── health.js
-│   ├── interceptors/
-│   │   ├── authentication.interceptor.js
-│   │   ├── authorization.interceptor.js
-│   │   ├── body.interceptor.js
-│   │   ├── customer-authorization.interceptor.js
-│   │   ├── error.interceptor.js
-│   │   ├── log.interceptor.js
-│   │   ├── method.interceptor.js
-│   │   └── staff-authorization.interceptor.js
-│   ├── repositories/
-│   │   ├── audit.repository.js
-│   │   ├── auth.repository.js
-│   │   ├── item.repository.js
-│   │   ├── order.repository.js
-│   │   └── profile.repository.js
-│   ├── screens/
-│   │   ├── admin/
-│   │   │   ├── audit-logs/
-│   │   │   │   └── audit-logs.screen.js
-│   │   │   ├── items/
-│   │   │   │   ├── item-form.component.js
-│   │   │   │   ├── items-table.component.js
-│   │   │   │   └── items.screen.js
-│   │   │   ├── orders/
-│   │   │   │   ├── orders-form.component.js
-│   │   │   │   ├── orders-table.component.js
-│   │   │   │   └── orders.screen.js
-│   │   │   ├── profiles/
-│   │   │   │   ├── profiles-table.component.js
-│   │   │   │   └── profiles.screen.js
-│   │   │   └── admin.screen.js
-│   │   ├── cart/
-│   │   │   ├── cart-items.component.js
-│   │   │   └── cart.screen.js
-│   │   ├── checkout/
-│   │   │   ├── checkout-order.component.js
-│   │   │   └── checkout.screen.js
-│   │   ├── menu/
-│   │   │   └── menu.screen.js
-│   │   ├── signin/
-│   │   │   └── signin.screen.js
-│   │   ├── staff/
-│   │   │   ├── logs/
-│   │   │   │   └── logs.screen.js
-│   │   │   └── order-taking/
-│   │   │       ├── manual-order.component.js
-│   │   │       └── order-taking.screen.js
-│   │   └── root.js
-│   ├── services/
-│   │   ├── admin.js
-│   │   ├── audit.js
-│   │   ├── auth.js
-│   │   ├── checkout.js
+│   │   │       ├── [id]+api.js
+│   │   │       └── verify+api.js
+│   │   ├── checkout+api.js
+│   │   ├── health+api.js
+│   │   ├── session+api.js
+│   │   ├── signin+api.js
+│   │   └── signout+api.js
+│   ├── +html.js
+│   ├── +not-found.js
+│   ├── _layout.js
+│   ├── index.js
+│   ├── manifest.json+api.js
+│   ├── robots.txt+api.js
+│   ├── service-worker.js+api.js
+│   └── signin.js
+├── components/
+│   ├── accordion.js
+│   ├── alert.js
+│   ├── button.js
+│   ├── circular-progress.js
+│   ├── container.js
+│   ├── empty-state.js
+│   ├── form-actions.js
+│   ├── header.js
+│   ├── inline-editable-cell.js
+│   ├── inline-select.js
+│   ├── qr-code.js
+│   ├── qr-scanner.js
+│   ├── section-header.js
+│   ├── snackbar.js
+│   ├── stat-card.js
+│   ├── stat-grid.js
+│   ├── status-pill.js
+│   ├── table.js
+│   └── text-field.js
+├── database/
+│   └── instance.js
+├── domain/
+│   ├── audit/
+│   │   └── summary.js
+│   ├── auth/
+│   │   └── roles.js
+│   ├── items/
+│   │   └── schema.js
+│   ├── menu/
+│   │   └── sections.js
+│   ├── orders/
+│   │   ├── constants.js
 │   │   ├── items.js
-│   │   ├── orders.js
-│   │   ├── realtime.js
-│   │   └── staff.js
-│   ├── shared/
-│   │   ├── cipher/
-│   │   │   ├── decode.js
-│   │   │   ├── decrypt.js
-│   │   │   ├── encode.js
-│   │   │   ├── encrypt.js
-│   │   │   ├── hash.js
-│   │   │   ├── id.js
-│   │   │   └── token.js
-│   │   ├── constants/
-│   │   │   ├── config.js
-│   │   │   ├── http.js
-│   │   │   ├── layout.js
-│   │   │   └── theme.js
-│   │   ├── errors/
-│   │   │   ├── bad-gateway.js
-│   │   │   ├── bad-request.js
-│   │   │   ├── database-unconfigured.js
-│   │   │   ├── database-upstream.js
-│   │   │   ├── decrypt-error.js
-│   │   │   ├── encrypt-error.js
-│   │   │   ├── forbidden.js
-│   │   │   ├── hash-error.js
-│   │   │   ├── internal.js
-│   │   │   ├── message.js
-│   │   │   ├── normalize.js
-│   │   │   ├── not-found.js
-│   │   │   ├── service-unavailable.js
-│   │   │   ├── too-many-requests.js
-│   │   │   └── unauthorized.js
-│   │   ├── format/
-│   │   │   ├── currency.js
-│   │   │   ├── date.js
-│   │   │   └── email.js
-│   │   ├── network/
-│   │   │   ├── middleware.js
-│   │   │   ├── request.js
-│   │   │   ├── response.js
-│   │   │   └── transport.js
-│   │   ├── stylesheets/
-│   │   │   └── global.css
-│   │   ├── utils/
-│   │   │   ├── lists.js
-│   │   │   ├── qr-image.js
-│   │   │   ├── qr-upload.js
-│   │   │   └── records.js
-│   │   └── validation/
-│   │       ├── email.js
-│   │       ├── password.js
-│   │       └── request.js
-│   └── stores/
-│       ├── app.store.js
-│       ├── audit-logs.store.js
-│       ├── auth.store.js
-│       ├── cart.store.js
-│       ├── checkout.store.js
-│       ├── items.store.js
-│       ├── notification.store.js
-│       ├── orders.store.js
-│       ├── profiles.store.js
-│       └── staff-orders.store.js
+│   │   ├── pricing.js
+│   │   ├── qr.js
+│   │   ├── schema.js
+│   │   ├── status.js
+│   │   └── totals.js
+│   └── profiles/
+├── endpoints/
+│   ├── admin/
+│   │   ├── audit-logs/
+│   │   │   └── index.js
+│   │   ├── orders/
+│   │   │   ├── [id].js
+│   │   │   └── index.js
+│   │   └── profiles.js
+│   ├── checkout/
+│   │   └── index.js
+│   ├── items/
+│   │   ├── [id].js
+│   │   ├── index.js
+│   │   └── validation.js
+│   ├── session/
+│   │   └── index.js
+│   ├── signin/
+│   │   └── index.js
+│   ├── signout/
+│   │   └── index.js
+│   ├── staff/
+│   │   └── orders/
+│   │       ├── [id].js
+│   │       ├── index.js
+│   │       └── verify.js
+│   └── health.js
+├── interceptors/
+│   ├── authentication.interceptor.js
+│   ├── authorization.interceptor.js
+│   ├── body.interceptor.js
+│   ├── customer-authorization.interceptor.js
+│   ├── error.interceptor.js
+│   ├── log.interceptor.js
+│   ├── method.interceptor.js
+│   └── staff-authorization.interceptor.js
+├── repositories/
+│   ├── audit.repository.js
+│   ├── auth.repository.js
+│   ├── item.repository.js
+│   ├── order.repository.js
+│   └── profile.repository.js
+├── screens/
+│   ├── admin/
+│   │   ├── audit-logs/
+│   │   │   └── audit-logs.screen.js
+│   │   ├── items/
+│   │   │   ├── item-form.component.js
+│   │   │   ├── items-table.component.js
+│   │   │   └── items.screen.js
+│   │   ├── orders/
+│   │   │   ├── orders-form.component.js
+│   │   │   ├── orders-table.component.js
+│   │   │   └── orders.screen.js
+│   │   ├── profiles/
+│   │   │   ├── profiles-table.component.js
+│   │   │   └── profiles.screen.js
+│   │   └── admin.screen.js
+│   ├── cart/
+│   │   ├── cart-items.component.js
+│   │   └── cart.screen.js
+│   ├── checkout/
+│   │   ├── checkout-order.component.js
+│   │   └── checkout.screen.js
+│   ├── menu/
+│   │   └── menu.screen.js
+│   ├── signin/
+│   │   └── signin.screen.js
+│   ├── staff/
+│   │   ├── logs/
+│   │   │   └── logs.screen.js
+│   │   └── order-taking/
+│   │       ├── manual-order.component.js
+│   │       └── order-taking.screen.js
+│   └── root.js
+├── services/
+│   ├── admin.js
+│   ├── audit.js
+│   ├── auth.js
+│   ├── checkout.js
+│   ├── items.js
+│   ├── orders.js
+│   ├── realtime.js
+│   └── staff.js
+├── shared/
+│   ├── cipher/
+│   │   ├── decode.js
+│   │   ├── decrypt.js
+│   │   ├── encode.js
+│   │   ├── encrypt.js
+│   │   ├── hash.js
+│   │   ├── id.js
+│   │   └── token.js
+│   ├── constants/
+│   │   ├── config.js
+│   │   ├── http.js
+│   │   ├── layout.js
+│   │   └── theme.js
+│   ├── errors/
+│   │   ├── bad-gateway.js
+│   │   ├── bad-request.js
+│   │   ├── database-unconfigured.js
+│   │   ├── database-upstream.js
+│   │   ├── decrypt-error.js
+│   │   ├── encrypt-error.js
+│   │   ├── forbidden.js
+│   │   ├── hash-error.js
+│   │   ├── internal.js
+│   │   ├── message.js
+│   │   ├── normalize.js
+│   │   ├── not-found.js
+│   │   ├── service-unavailable.js
+│   │   ├── too-many-requests.js
+│   │   └── unauthorized.js
+│   ├── format/
+│   │   ├── currency.js
+│   │   ├── date.js
+│   │   └── email.js
+│   ├── network/
+│   │   ├── middleware.js
+│   │   ├── request.js
+│   │   ├── response.js
+│   │   └── transport.js
+│   ├── stylesheets/
+│   │   └── global.css
+│   ├── utils/
+│   │   ├── lists.js
+│   │   ├── qr-image.js
+│   │   ├── qr-upload.js
+│   │   └── records.js
+│   └── validation/
+│       ├── email.js
+│       ├── password.js
+│       └── request.js
+└── stores/
+    ├── app.store.js
+    ├── audit-logs.store.js
+    ├── auth.store.js
+    ├── cart.store.js
+    ├── checkout.store.js
+    ├── items.store.js
+    ├── notification.store.js
+    ├── orders.store.js
+    ├── profiles.store.js
+    └── staff-orders.store.js
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261117000000_extensions.sql

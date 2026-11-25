@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getMenuSections } from "../../../../src/domain/menu/sections.js";
+import { getMenuSections } from "../../../../domain/menu/sections.js";
 
 /**
  * Tests for storefront menu section rules.

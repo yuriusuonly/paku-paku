@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getAuditActor, getAuditSummary } from "../../../../src/domain/audit/summary.js";
+import { getAuditActor, getAuditSummary } from "../../../../domain/audit/summary.js";
 
 /**
  * Tests for audit presentation helpers.

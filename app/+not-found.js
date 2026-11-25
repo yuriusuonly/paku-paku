@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { cx } from "../shared/constants/theme.js";
 
 /**
- * Fallback route (`src/app/+not-found.js`) rendered when no route matches.
+ * Fallback route (`app/+not-found.js`) rendered when no route matches.
  * @module app/+not-found
  */
 

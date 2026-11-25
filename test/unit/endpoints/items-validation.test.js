@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeItemInput } from "../../../src/endpoints/items/validation.js";
+import { normalizeItemInput } from "../../../endpoints/items/validation.js";
 
 /**
  * Tests for item request validation.

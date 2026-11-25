@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeOrderItems } from "../../../../src/domain/orders/items.js";
+import { normalizeOrderItems } from "../../../../domain/orders/items.js";
 
 /**
  * Tests for order item normalization.

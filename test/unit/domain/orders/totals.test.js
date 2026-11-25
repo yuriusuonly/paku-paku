@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildQrPayload, calculateOrderSubtotal } from "../../../../src/domain/orders/totals.js";
+import { buildQrPayload, calculateOrderSubtotal } from "../../../../domain/orders/totals.js";
 
 /**
  * Tests for order total rules.

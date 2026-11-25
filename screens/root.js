@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { Image, Text, View } from "react-native";
-import logo from "../../png/logo.png";
+import logo from "../png/logo.png";
 import { Header } from "../components/header.js";
 import { Button } from "../components/button.js";
 import { ScreenContainer } from "../components/container.js";

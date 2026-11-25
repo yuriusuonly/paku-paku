@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatCurrencyCents } from "../../../../src/shared/format/currency.js";
+import { formatCurrencyCents } from "../../../../shared/format/currency.js";
 
 /**
  * Tests for currency formatting helpers.

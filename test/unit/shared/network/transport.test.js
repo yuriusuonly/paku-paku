@@ -25,7 +25,7 @@ describe("shared/network/transport apiRequest", () => {
       return jsonResponse({ ok: true }, 200);
     });
 
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/items", { method: "POST", body: { name: "A" }, token: "token-1" })).resolves.toEqual({ ok: true });
   });
 
@@ -38,25 +38,25 @@ describe("shared/network/transport apiRequest", () => {
       return jsonResponse({ items: [] }, 200);
     });
 
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/items")).resolves.toEqual({ items: [] });
   });
 
   test("returns null for 204 responses", async () => {
     globalThis.fetch = mock(async () => new Response(null, { status: 204 }));
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/signout", { method: "POST" })).resolves.toBeNull();
   });
 
   test("throws normalized error for non-ok JSON error payloads", async () => {
     globalThis.fetch = mock(async () => jsonResponse({ error: { code: "forbidden", message: "Nope" } }, 403));
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/admin")).rejects.toEqual({ status: 403, code: "forbidden", message: "Nope" });
   });
 
   test("throws fallback normalized error for non-ok non-JSON responses", async () => {
     globalThis.fetch = mock(async () => new Response("bad", { status: 500, headers: { "Content-Type": "text/plain" } }));
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/x")).rejects.toEqual({ status: 500, code: "request_failed", message: "The request could not be completed." });
   });
 
@@ -64,7 +64,7 @@ describe("shared/network/transport apiRequest", () => {
     globalThis.fetch = mock(async () => {
       throw new Error("offline");
     });
-    const { apiRequest } = await import("../../../../src/shared/network/transport.js");
+    const { apiRequest } = await import("../../../../shared/network/transport.js");
     await expect(apiRequest("/api/health")).rejects.toEqual({ status: 0, code: "network_error", message: "Unable to reach the server." });
   });
 });

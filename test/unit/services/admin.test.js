@@ -23,7 +23,7 @@ describe("services/admin", () => {
       return jsonResponse(payload, 200);
     });
 
-    const { getProfiles } = await import("../../../src/services/admin.js");
+    const { getProfiles } = await import("../../../services/admin.js");
     expect(await getProfiles("admin-token")).toEqual(payload);
   });
 
@@ -32,7 +32,7 @@ describe("services/admin", () => {
       jsonResponse({ error: { code: "forbidden", message: "Administrator access required." } }, 403)
     );
 
-    const { getProfiles } = await import("../../../src/services/admin.js");
+    const { getProfiles } = await import("../../../services/admin.js");
     await expect(getProfiles("user-token")).rejects.toEqual({
       status: 403,
       code: "forbidden",

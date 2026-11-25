@@ -27,7 +27,7 @@ describe("services/checkout", () => {
       return jsonResponse({ order: { id: "t1", qr_payload: "ORD:1|PAY:card" } }, 201);
     });
 
-    const { placeOrder } = await import("../../../src/services/checkout.js");
+    const { placeOrder } = await import("../../../services/checkout.js");
     await expect(placeOrder(input, "guest")).resolves.toEqual({
       order: { id: "t1", qr_payload: "ORD:1|PAY:card" }
     });
@@ -37,7 +37,7 @@ describe("services/checkout", () => {
     globalThis.fetch = mock(async () =>
       jsonResponse({ error: { code: "invalid_checkout", message: "Invalid order." } }, 400)
     );
-    const { placeOrder } = await import("../../../src/services/checkout.js");
+    const { placeOrder } = await import("../../../services/checkout.js");
     await expect(placeOrder({ items: [] })).rejects.toEqual({
       status: 400,
       code: "invalid_checkout",

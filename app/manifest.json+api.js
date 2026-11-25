@@ -1,9 +1,9 @@
 import config from "../shared/constants/config.js";
-import logo from "../../png/logo.png";
-import maskableLogo from "../../png/logo-maskable.png";
+import logo from "../png/logo.png";
+import maskableLogo from "../png/logo-maskable.png";
 
 /**
- * PWA manifest web API route (`src/app/manifest.json+api.js`): serves a
+ * PWA manifest web API route (`app/manifest.json+api.js`): serves a
  * Web App Manifest generated from shared config and the app icons.
  * @module app/manifest+api
  */

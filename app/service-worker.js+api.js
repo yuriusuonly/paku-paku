@@ -1,7 +1,7 @@
 /**
- * Service worker web API route (`src/app/service-worker.js+api.js`): serves a
+ * Service worker web API route (`app/service-worker.js+api.js`): serves a
  * minimal service worker that claims clients immediately after install/activate.
- * Registered client-side on mount by `src/app/_layout.js`.
+ * Registered client-side on mount by `app/_layout.js`.
  * @module app/service-worker+api
  */
 

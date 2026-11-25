@@ -22,7 +22,7 @@ describe("services/orders (admin)", () => {
       expect(options.headers.Authorization).toBe("Bearer admin");
       return jsonResponse(payload);
     });
-    const { getAdminOrders } = await import("../../../src/services/orders.js");
+    const { getAdminOrders } = await import("../../../services/orders.js");
     await expect(getAdminOrders("admin")).resolves.toEqual(payload);
   });
 
@@ -34,7 +34,7 @@ describe("services/orders (admin)", () => {
       expect(JSON.parse(options.body)).toEqual(input);
       return jsonResponse({ order: { id: "t1" } }, 201);
     });
-    const { createAdminOrder } = await import("../../../src/services/orders.js");
+    const { createAdminOrder } = await import("../../../services/orders.js");
     await expect(createAdminOrder("admin", input)).resolves.toEqual({ order: { id: "t1" } });
   });
 
@@ -45,7 +45,7 @@ describe("services/orders (admin)", () => {
       expect(JSON.parse(options.body)).toEqual({ status: "Paid" });
       return jsonResponse({ order: { id: "t1", status: "Paid" } });
     });
-    const { updateAdminOrder } = await import("../../../src/services/orders.js");
+    const { updateAdminOrder } = await import("../../../services/orders.js");
     await expect(updateAdminOrder("admin", "t1", { status: "Paid" })).resolves.toEqual({
       order: { id: "t1", status: "Paid" }
     });
@@ -57,7 +57,7 @@ describe("services/orders (admin)", () => {
       expect(options.method).toBe("DELETE");
       return jsonResponse({ id: "t1" });
     });
-    const { deleteAdminOrder } = await import("../../../src/services/orders.js");
+    const { deleteAdminOrder } = await import("../../../services/orders.js");
     await expect(deleteAdminOrder("admin", "t1")).resolves.toEqual({ id: "t1" });
   });
 });

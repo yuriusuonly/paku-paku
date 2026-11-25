@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { calculateOrderTotals, getMealDiscountCents, hasMealPair, MEAL_DISCOUNT_CENTS } from "../../../../src/domain/orders/pricing.js";
+import { calculateOrderTotals, getMealDiscountCents, hasMealPair, MEAL_DISCOUNT_CENTS } from "../../../../domain/orders/pricing.js";
 
 /**
  * Tests for order pricing rules.

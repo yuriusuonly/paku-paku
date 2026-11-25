@@ -21,7 +21,7 @@ describe("services/audit", () => {
       expect(options.headers.Authorization).toBe("Bearer admin");
       return jsonResponse(payload);
     });
-    const { getAuditLogs } = await import("../../../src/services/audit.js");
+    const { getAuditLogs } = await import("../../../services/audit.js");
     await expect(getAuditLogs("admin", { limit: 25 })).resolves.toEqual(payload);
   });
 
@@ -29,7 +29,7 @@ describe("services/audit", () => {
     globalThis.fetch = mock(async () =>
       jsonResponse({ error: { code: "forbidden", message: "Administrator access required." } }, 403)
     );
-    const { getAuditLogs } = await import("../../../src/services/audit.js");
+    const { getAuditLogs } = await import("../../../services/audit.js");
     await expect(getAuditLogs("bad")).rejects.toEqual({
       status: 403,
       code: "forbidden",

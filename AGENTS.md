@@ -1,9 +1,9 @@
 # AGENTS.md
 
 ## Stack & scope
-- Expo (SDK ~58) + Expo Router app targeting **web only** (`app.config.js`: `platforms: ["web"]`, `web.output: "static"`, `bundler: "metro"`, `apiRoutes: true`). UI/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand. Global CSS: `src/shared/stylesheets/global.css` (wired in `metro.config.js`).
+- Expo (SDK ~58) + Expo Router app targeting **web only** (`app.config.js`: `platforms: ["web"]`, `web.output: "static"`, `bundler: "metro"`, `apiRoutes: true`). UI/state: React 19, React Native Web, NativeWind v4 + Tailwind v3, Zustand. Global CSS: `shared/stylesheets/global.css` (wired in `metro.config.js`).
 - Plain JavaScript only (no TypeScript). JSDoc for modules/exports (`@module`, `@typedef`/`@type`, `@param`, `@returns` — never `@example`).
-- Supabase-backed: **local** stack for dev/local builds, **hosted** only for Expo Hosting deploys. No cross-environment fallback. Server routes use anon key + forwarded user bearer tokens via `src/database/instance.js` (RLS enforced); never use/expose a service-role key.
+- Supabase-backed: **local** stack for dev/local builds, **hosted** only for Expo Hosting deploys. No cross-environment fallback. Server routes use anon key + forwarded user bearer tokens via `database/instance.js` (RLS enforced); never use/expose a service-role key.
 - **Bun (≥1.4.5) is the only runtime.** Install, scripts, tests, CI and Docker all use Bun; there is no npm/`package-lock.json`. The app is a static export, so Bun runs the toolchain.
 
 ## Commands
@@ -24,12 +24,12 @@
 
 ## Architecture & conventions
 - **No absolute paths** in source/config/docs (except `node_modules/`). Do not create `public/`; static icons stay in `png/` (sources in `svg/`).
-- Only `/` and `/signin` are public pages. Protected customer UI routes use `src/app/(customer)/` (`/menu`, `/cart`, `/checkout`) with a `customer`-role guard; visitors sign in with the single shared guest profile (no signup).
-- Protected staff UI routes use `src/app/(staff)/` with a `staff`-role layout guard: `/staff/order` for order taking and `/staff/records` for order logs.
-- Protected admin UI routes use `src/app/(admin)/` with an auth guard (URLs remain `/admin/*`). The profiles audit page lists every seeded profile.
-- Routing: Expo Router under `src/app/` (`api/**/+api.js`, `+not-found.js`, `+html.js`, special `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`). Screens in `src/screens/` mirror route paths (`*.screen.js` layout modules); reusable UI in `src/components/`.
-- Layers: `src/app/api/*` thin method wrappers → `src/endpoints/*` compose middleware/validation/repos/response → `src/interceptors/*` → `src/repositories/*` → `src/database/instance.js`. Client: `src/services/*` → `src/stores/*`. Shared: `src/shared/{constants,network,cipher,errors,stylesheets}`. No barrel `index.js` in `interceptors/` or `endpoints/`.
-- DB config/clients: `src/shared/constants/config.js` is the single source of truth (API endpoints incl. `checkout`, DB target/URLs). `src/database/instance.js` exports `getDatabaseClient()`, `getDatabaseServerConfig()`, `createDatabaseClient({ accessToken })`.
+- Only `/` and `/signin` are public pages. Protected customer UI routes use `app/(customer)/` (`/menu`, `/cart`, `/checkout`) with a `customer`-role guard; visitors sign in with the single shared guest profile (no signup).
+- Protected staff UI routes use `app/(staff)/` with a `staff`-role layout guard: `/staff/order` for order taking and `/staff/records` for order logs.
+- Protected admin UI routes use `app/(admin)/` with an auth guard (URLs remain `/admin/*`). The profiles audit page lists every seeded profile.
+- Routing: Expo Router under `app/` (`api/**/+api.js`, `+not-found.js`, `+html.js`, special `manifest.json+api.js`, `robots.txt+api.js`, `service-worker.js+api.js`). Screens in `screens/` mirror route paths (`*.screen.js` layout modules); reusable UI in `components/`.
+- Layers: `app/api/*` thin method wrappers → `endpoints/*` compose middleware/validation/repos/response → `interceptors/*` → `repositories/*` → `database/instance.js`. Client: `services/*` → `stores/*`. Shared: `shared/{constants,network,cipher,errors,stylesheets}`. No barrel `index.js` in `interceptors/` or `endpoints/`.
+- DB config/clients: `shared/constants/config.js` is the single source of truth (API endpoints incl. `checkout`, DB target/URLs). `database/instance.js` exports `getDatabaseClient()`, `getDatabaseServerConfig()`, `createDatabaseClient({ accessToken })`.
 - Supabase data lives in `supabase/config.toml`, `migrations/*.sql`, `seeds/*.sql` (items + seeded `admin@`, `staff@`, shared `guest@paku-paku.official` accounts). Do not edit `supabase/.temp/` or `.branches/`. Verify schema changes with `bun run supabase:reset` and `bun run expo:build`.
 - Local Supabase ports are private: API `54321`, PostgreSQL `54322`, Studio `54323`, Mailpit `54324` — never proxy/tunnel. Dockerized routes reach Kong via `SUPABASE_LOCAL_SERVER_URL` (`http://api.supabase.internal:8000`) on external network `supabase_network_paku-paku` (start `supabase:start` before `docker:up`).
 - MCP: `opencode.json` keeps the remote Supabase MCP and adds the GitHub MCP authenticated with `GITHUB_TOKEN` (`oauth: false`), plus `instructions: ["CONTRIBUTING.md"]` and disabled compaction.

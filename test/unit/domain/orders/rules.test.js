@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isPaid, isPending, isRefunded, isVoided } from "../../../../src/domain/orders/status.js";
+import { isPaid, isPending, isRefunded, isVoided } from "../../../../domain/orders/status.js";
 
 /**
  * Tests for pure order status rules.

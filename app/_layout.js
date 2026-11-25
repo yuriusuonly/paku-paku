@@ -12,7 +12,7 @@ import { colors, cx } from "../shared/constants/theme.js";
 import "../shared/stylesheets/global.css";
 
 /**
- * Root layout route (`src/app/_layout.js`): loads fonts, bootstraps session
+ * Root layout route (`app/_layout.js`): loads fonts, bootstraps session
  * state, registers the service worker, and renders the app navigator.
  * @module app/_layout
  */
@@ -24,7 +24,7 @@ import "../shared/stylesheets/global.css";
  */
 export default function Layout() {
   const [loaded] = useFonts({
-    Outfit: require("../../ttf/Outfit-VariableFont_wght.ttf")
+    Outfit: require("../ttf/Outfit-VariableFont_wght.ttf")
   });
   const hydrate = useAuthStore((state) => state.hydrate);
 

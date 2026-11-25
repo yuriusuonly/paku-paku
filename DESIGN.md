@@ -1,6 +1,6 @@
 # Design system
 
-This document is the source of truth for visual tokens and responsive behavior in Paku Paku. UI code must use the tokens exported from `src/shared/constants/theme.js` instead of raw colors, hardcoded spacing patterns, or one-off typography.
+This document is the source of truth for visual tokens and responsive behavior in Paku Paku. UI code must use the tokens exported from `shared/constants/theme.js` instead of raw colors, hardcoded spacing patterns, or one-off typography.
 
 ## Principles
 
@@ -19,7 +19,7 @@ This document is the source of truth for visual tokens and responsive behavior i
 | Tablet | `>= 768px` | `md:` | Multi-column grids; wider content padding; larger headings. |
 | Desktop | `>= 1024px` | `lg:` | Same as tablet with wider max content width. |
 
-Breakpoint values are mirrored in `src/shared/constants/layout.js`.
+Breakpoint values are mirrored in `shared/constants/layout.js`.
 
 ## Color tokens
 

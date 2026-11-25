@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getBearerToken, readJsonBody } from "../../../../src/shared/network/request.js";
+import { getBearerToken, readJsonBody } from "../../../../shared/network/request.js";
 
 /**
  * Tests for request parsing helpers.

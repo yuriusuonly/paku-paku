@@ -6,7 +6,7 @@ import {
   isAdminRole,
   isCustomerRole,
   isStaffRole
-} from "../../../../src/domain/auth/roles.js";
+} from "../../../../domain/auth/roles.js";
 
 /**
  * Tests for app role rules.
