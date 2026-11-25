@@ -22,6 +22,10 @@
         "type": "remote",
         "url": "https://mcp.figma.com/mcp"
       },
+      "expo": {
+        "type": "remote",
+        "url": "https://mcp.expo.dev/mcp"
+      },
       "playwright": {
         "type": "local",
         "command": [

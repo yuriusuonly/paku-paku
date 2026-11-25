@@ -149,7 +149,7 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 (once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
 `bun run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI).
 
-OpenCode connects to the hosted Supabase, GitHub, and official Figma MCP
+OpenCode connects to the hosted Supabase, Expo, GitHub, and official Figma MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
 `GITHUB_TOKEN`, while Figma uses OpenCode's OAuth flow (no token in `.env`).
 The official local Playwright MCP (`@playwright/mcp`) is also configured but
