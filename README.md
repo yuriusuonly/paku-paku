@@ -152,6 +152,8 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 OpenCode connects to the hosted Supabase, GitHub, and official Figma MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
 `GITHUB_TOKEN`, while Figma uses OpenCode's OAuth flow (no token in `.env`).
+The official local Playwright MCP (`@playwright/mcp`) is also configured but
+not used yet; E2E tests run through the `playwright` scripts instead.
 Launch OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate
 via `/mcps` if a server reports that it needs authentication.
 
@@ -272,6 +274,8 @@ three seeded roles:
 
 ```text
 ./
+├── .figma/
+│   └── README.md
 ├── .github/
 │   └── workflows/
 │       ├── ci.yaml

@@ -21,6 +21,17 @@
       "figma": {
         "type": "remote",
         "url": "https://mcp.figma.com/mcp"
+      },
+      "playwright": {
+        "type": "local",
+        "command": [
+          "bun",
+          "x",
+          "--bun",
+          "@playwright/mcp@latest",
+          "--isolated",
+          "--ignore-https-errors"
+        ]
       }
     }
   },
