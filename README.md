@@ -274,358 +274,59 @@ three seeded roles:
 
 ```text
 ./
-├── .figma/
-│   └── README.md
-├── .github/
-│   └── workflows/
-│       ├── ci.yaml
-│       ├── deploy-expo.yml
-│       └── deploy-supabase.yml
 ├── .agents/
 │   └── skills/
-│       └── <24 GitHub workflow skills>/
-├── png/
-│   ├── logo-maskable.png
-│   └── logo.png
+├── .expo/                  (generated)
+├── .figma/
+├── .github/
+│   └── workflows/
 ├── app/
 │   ├── (admin)/
-│   │   ├── admin/
-│   │   │   ├── audit-logs.js
-│   │   │   ├── index.js
-│   │   │   ├── items.js
-│   │   │   ├── orders.js
-│   │   │   └── profiles.js
-│   │   └── _layout.js
 │   ├── (customer)/
-│   │   ├── cart.js
-│   │   ├── checkout.js
-│   │   ├── menu.js
-│   │   └── _layout.js
 │   ├── (staff)/
-│   │   ├── staff/
-│   │   │   ├── index.js
-│   │   │   ├── order.js
-│   │   │   └── records.js
-│   │   └── _layout.js
-│   ├── api/
-│   │   ├── admin/
-│   │   │   ├── audit-logs/
-│   │   │   │   └── +api.js
-│   │   │   ├── orders/
-│   │   │   │   ├── +api.js
-│   │   │   │   └── [id]+api.js
-│   │   │   └── profiles+api.js
-│   │   ├── items/
-│   │   │   ├── +api.js
-│   │   │   └── [id]+api.js
-│   │   ├── staff/
-│   │   │   └── orders/
-│   │   │       ├── [id]+api.js
-│   │   │       └── verify+api.js
-│   │   ├── checkout+api.js
-│   │   ├── health+api.js
-│   │   ├── session+api.js
-│   │   ├── signin+api.js
-│   │   └── signout+api.js
-│   ├── +html.js
-│   ├── +not-found.js
-│   ├── _layout.js
-│   ├── index.js
-│   ├── manifest.json+api.js
-│   ├── robots.txt+api.js
-│   ├── service-worker.js+api.js
-│   └── signin.js
-├── components/
-│   ├── accordion.js
-│   ├── alert.js
-│   ├── button.js
-│   ├── circular-progress.js
-│   ├── container.js
-│   ├── empty-state.js
-│   ├── form-actions.js
-│   ├── header.js
-│   ├── inline-editable-cell.js
-│   ├── inline-select.js
-│   ├── qr-code.js
-│   ├── qr-scanner.js
-│   ├── section-header.js
-│   ├── snackbar.js
-│   ├── stat-card.js
-│   ├── stat-grid.js
-│   ├── status-pill.js
-│   ├── table.js
-│   └── text-field.js
-├── database/
-│   └── instance.js
-├── domain/
-│   ├── audit/
-│   │   └── summary.js
-│   ├── auth/
-│   │   └── roles.js
-│   ├── items/
-│   │   └── schema.js
-│   ├── menu/
-│   │   └── sections.js
-│   ├── orders/
-│   │   ├── constants.js
-│   │   ├── items.js
-│   │   ├── pricing.js
-│   │   ├── qr.js
-│   │   ├── schema.js
-│   │   ├── status.js
-│   │   └── totals.js
-│   └── profiles/
-├── endpoints/
-│   ├── admin/
-│   │   ├── audit-logs/
-│   │   │   └── index.js
-│   │   ├── orders/
-│   │   │   ├── [id].js
-│   │   │   └── index.js
-│   │   └── profiles.js
-│   ├── checkout/
-│   │   └── index.js
-│   ├── items/
-│   │   ├── [id].js
-│   │   ├── index.js
-│   │   └── validation.js
-│   ├── session/
-│   │   └── index.js
-│   ├── signin/
-│   │   └── index.js
-│   ├── signout/
-│   │   └── index.js
-│   ├── staff/
-│   │   └── orders/
-│   │       ├── [id].js
-│   │       ├── index.js
-│   │       └── verify.js
-│   └── health.js
-├── interceptors/
-│   ├── authentication.interceptor.js
-│   ├── authorization.interceptor.js
-│   ├── body.interceptor.js
-│   ├── customer-authorization.interceptor.js
-│   ├── error.interceptor.js
-│   ├── log.interceptor.js
-│   ├── method.interceptor.js
-│   └── staff-authorization.interceptor.js
-├── repositories/
-│   ├── audit.repository.js
-│   ├── auth.repository.js
-│   ├── item.repository.js
-│   ├── order.repository.js
-│   └── profile.repository.js
-├── screens/
-│   ├── admin/
-│   │   ├── audit-logs/
-│   │   │   └── audit-logs.screen.js
-│   │   ├── items/
-│   │   │   ├── item-form.component.js
-│   │   │   ├── items-table.component.js
-│   │   │   └── items.screen.js
-│   │   ├── orders/
-│   │   │   ├── orders-form.component.js
-│   │   │   ├── orders-table.component.js
-│   │   │   └── orders.screen.js
-│   │   ├── profiles/
-│   │   │   ├── profiles-table.component.js
-│   │   │   └── profiles.screen.js
-│   │   └── admin.screen.js
-│   ├── cart/
-│   │   ├── cart-items.component.js
-│   │   └── cart.screen.js
-│   ├── checkout/
-│   │   ├── checkout-order.component.js
-│   │   └── checkout.screen.js
-│   ├── menu/
-│   │   └── menu.screen.js
-│   ├── signin/
-│   │   └── signin.screen.js
-│   ├── staff/
-│   │   ├── logs/
-│   │   │   └── logs.screen.js
-│   │   └── order-taking/
-│   │       ├── manual-order.component.js
-│   │       └── order-taking.screen.js
-│   └── root.js
-├── services/
-│   ├── admin.js
-│   ├── audit.js
-│   ├── auth.js
-│   ├── checkout.js
-│   ├── items.js
-│   ├── orders.js
-│   ├── realtime.js
-│   └── staff.js
+│   └── api/
+├── build/                  (generated)
 ├── cipher/
-│   ├── decode.js
-│   ├── decrypt.js
-│   ├── encode.js
-│   ├── encrypt.js
-│   ├── hash.js
-│   ├── id.js
-│   └── token.js
+├── components/
 ├── constants/
-│   ├── config.js
-│   ├── http.js
-│   ├── layout.js
-│   └── theme.js
+├── database/
+├── domain/
+├── endpoints/
 ├── errors/
-│   ├── argument.js
-│   ├── bad-gateway.js
-│   ├── bad-request.js
-│   ├── console.js
-│   ├── database-unconfigured.js
-│   ├── database-upstream.js
-│   ├── decrypt-error.js
-│   ├── encrypt-error.js
-│   ├── environment.js
-│   ├── forbidden.js
-│   ├── hash-error.js
-│   ├── internal.js
-│   ├── io.js
-│   ├── message.js
-│   ├── normalize.js
-│   ├── not-found.js
-│   ├── path.js
-│   ├── process.js
-│   ├── service-unavailable.js
-│   ├── too-many-requests.js
-│   ├── unauthorized.js
-│   └── uri.js
 ├── format/
-│   ├── currency.js
-│   ├── date.js
-│   └── email.js
-├── network/
-│   ├── middleware.js
-│   ├── request.js
-│   ├── response.js
-│   └── transport.js
-├── stylesheets/
-│   └── global.css
 ├── helpers/
-│   ├── lists.js
-│   ├── qr-image.js
-│   ├── qr-upload.js
-│   └── records.js
-├── validation/
-│   ├── email.js
-│   ├── password.js
-│   └── request.js
-└── stores/
-    ├── app.store.js
-    ├── audit-logs.store.js
-    ├── auth.store.js
-    ├── cart.store.js
-    ├── checkout.store.js
-    ├── items.store.js
-    ├── notification.store.js
-    ├── orders.store.js
-    ├── profiles.store.js
-    └── staff-orders.store.js
+├── interceptors/
+├── network/
+├── node_modules/           (generated)
+├── png/
+├── repositories/
+├── screens/
+├── scripts/
+├── services/
+├── stores/
+├── stylesheets/
 ├── supabase/
 │   ├── migrations/
-│   │   ├── 20261117000000_extensions.sql
-│   │   ├── 20261117000001_profiles.sql
-│   │   ├── 20261117000002_items.sql
-│   │   ├── 20261117000003_orders.sql
-│   │   ├── 20261117000004_order_items.sql
-│   │   └── 20261117000005_audit_logs.sql
 │   ├── seeds/
-│   │   ├── 00_admin.sql
-│   │   ├── 01_staff.sql
-│   │   ├── 02_guest.sql
-│   │   └── 03_items.sql
-│   ├── snippets/
-│   ├── .gitignore
 │   └── config.toml
 ├── svg/
-│   ├── logo-maskable.svg
-│   └── logo.svg
-├── scripts/
-│   ├── bun.js
-│   ├── caddy.js
-│   ├── docker.js
-│   ├── eas.js
-│   ├── expo.js
-│   ├── gh.js
-│   ├── git.js
-│   ├── opencode.js
-│   ├── playwright.js
-│   ├── skill.js
-│   └── supabase.js
 ├── system/
-│   ├── argument.js
-│   ├── console.js
-│   ├── date.js
-│   ├── environment.js
-│   ├── io.js
-│   ├── os.js
-│   ├── path.js
-│   ├── process.js
-│   ├── signal.js
-│   └── uri.js
 ├── test/
 │   ├── app/
-│   │   └── signin.e2e.js
 │   ├── cipher/
-│   │   ├── decode.test.js
-│   │   ├── decrypt.test.js
-│   │   ├── encode.test.js
-│   │   ├── encrypt.test.js
-│   │   ├── hash.test.js
-│   │   ├── id.test.js
-│   │   └── token.test.js
 │   ├── domain/
-│   │   ├── audit/
-│   │   │   └── summary.test.js
-│   │   ├── auth/
-│   │   │   └── roles.test.js
-│   │   ├── items/
-│   │   │   └── schema.test.js
-│   │   ├── menu/
-│   │   │   └── sections.test.js
-│   │   ├── orders/
-│   │   │   ├── items.test.js
-│   │   │   ├── pricing.test.js
-│   │   │   ├── qr.test.js
-│   │   │   ├── schema.test.js
-│   │   │   ├── status.test.js
-│   │   │   └── totals.test.js
 │   ├── endpoints/
-│   │   └── items/
-│   │       └── validation.test.js
+│   ├── errors/
 │   ├── format/
-│   │   ├── currency.test.js
-│   │   ├── date.test.js
-│   │   └── email.test.js
 │   ├── helpers/
-│   │   ├── lists.test.js
-│   │   └── records.test.js
 │   ├── network/
-│   │   ├── middleware.test.js
-│   │   ├── request.test.js
-│   │   ├── response.test.js
-│   │   └── transport.test.js
 │   ├── services/
-│   │   ├── admin.test.js
-│   │   ├── audit.test.js
-│   │   ├── auth.test.js
-│   │   ├── checkout.test.js
-│   │   ├── items.test.js
-│   │   ├── orders.test.js
-│   │   └── staff.test.js
 │   ├── system/
-│   │   └── <10 *.test.js files>
 │   └── validation/
-│       ├── email.test.js
-│       ├── password.test.js
-│       └── request.test.js
 ├── ttf/
-│   └── Outfit-VariableFont_wght.ttf
+├── validation/
 ├── .dockerignore
+├── .env                    (gitignored)
 ├── .gitignore
 ├── AGENTS.md
 ├── CONTRIBUTING.md
@@ -636,14 +337,14 @@ three seeded roles:
 ├── README.md
 ├── app.config.js
 ├── babel.config.js
+├── bun.lock
 ├── bunfig.toml
 ├── docker-compose.yml
 ├── eas.json
 ├── metro.config.js
 ├── opencode.json
-├── playwright.config.js
-├── bun.lock
 ├── package.json
+├── playwright.config.js
 ├── skills-lock.json
 └── tailwind.config.js
 ```
