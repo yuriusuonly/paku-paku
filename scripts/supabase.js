@@ -39,6 +39,8 @@ const invoke = async (command) => {
     "x",
     "--bun",
     "supabase",
+    "--workdir",
+    ".supabase",
     ...command
   ], {
     cwd: root,

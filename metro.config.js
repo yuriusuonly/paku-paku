@@ -16,9 +16,9 @@ const config = getDefaultConfig(__dirname);
  * @type {RegExp[]}
  */
 const blockedPaths = [
-  /[/\\]supabase[/\\]\.temp[/\\].*/,
-  /[/\\]supabase[/\\]\.branches[/\\].*/,
-  /[/\\]supabase[/\\]snippets[/\\].*/
+  /[/\\]\.supabase[/\\]supabase[/\\]\.temp[/\\].*/,
+  /[/\\]\.supabase[/\\]supabase[/\\]\.branches[/\\].*/,
+  /[/\\]\.supabase[/\\]supabase[/\\]snippets[/\\].*/
 ];
 
 config.resolver.blockList = [

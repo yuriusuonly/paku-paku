@@ -10,4 +10,4 @@ playwright-report/
 *.log
 .env
 .opencode/
-supabase/
+.supabase/

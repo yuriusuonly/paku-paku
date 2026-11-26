@@ -12,9 +12,9 @@
   "scripts": {
     "bun": "bun ./scripts/bun.js",
     "bun:test": "bun ./scripts/bun.js test",
-    "check": "bun ./scripts/check.js",
     "caddy": "bun ./scripts/caddy.js run --config Caddyfile",
     "caddy:trust": "bun ./scripts/caddy.js trust",
+    "check": "bun ./scripts/check.js",
     "docker": "bun run docker:build && bun run docker:up && bun run docker:logs",
     "docker:build": "bun ./scripts/docker.js compose --profile app build --no-cache",
     "docker:down": "bun ./scripts/docker.js compose --profile app --profile build --profile test down --remove-orphans",
@@ -38,6 +38,7 @@
     "git:push": "bun ./scripts/git.js push origin HEAD",
     "opencode": "bun ./scripts/opencode.js",
     "penpot": "bun ./scripts/penpot.js",
+    "penpot:export": "bun ./scripts/penpot.js export",
     "penpot:remote": "bun ./scripts/penpot.js --remote",
     "playwright": "bun ./scripts/playwright.js",
     "playwright:test": "bun ./scripts/playwright.js test",

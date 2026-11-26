@@ -64,6 +64,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `PENPOT_MCP_TOKEN` | Penpot MCP key written by `bun run penpot` into the gitignored `.opencode/opencode.json` override. |
 | `PENPOT_MCP_BACKEND_URI` | Penpot base URL used for workspace API calls and by the MCP server in remote mode. |
 | `PENPOT_PROJECT_ID` | ID of the `paku-paku` project in your personal Penpot workspace, created by `bun run penpot`. |
+| `PENPOT_FILE_ID` | Penpot file exported by `bun run penpot:export` into `.penpot/paku-paku.penpot`. |
 | `PENPOT_MCP_REMOTE_MODE` | Set by `bun run penpot:remote` to link the local MCP to the remote backend. |
 | `PENPOT_TOKEN` | Penpot personal access token used by `bun run penpot` for workspace API calls. |
 | `GITHUB_TOKEN` | GitHub token used by the `gh:*` scripts. |
@@ -129,8 +130,8 @@ Local endpoints are addressed over localhost; keep them private:
 
 Do not expose these ports through Caddy, the public URL, or a tunnel.
 
-Migrations live in `supabase/migrations/`; local seed data lives in
-`supabase/seeds/`. Add a migration with
+Migrations live in `.supabase/supabase/migrations/`; local seed data lives in
+`.supabase/supabase/seeds/`. Add a migration with
 `bun run supabase:migration -- <name>`, then verify it with
 `bun run supabase:reset`.
 
@@ -232,7 +233,7 @@ docker compose --profile build run --rm build
 docker compose --profile test run --rm test-unit
 ```
 
-- **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` project in your personal workspace through the Penpot API.
+- **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` project in your personal workspace through the Penpot API; `bun run penpot:export` downloads the native `.penpot` file.
 - **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
@@ -290,6 +291,12 @@ three seeded roles:
 ├── .expo/                          # generated Expo cache
 ├── .github/                        # CI tests + deploys → workflows/
 │   └── workflows/
+├── .penpot/                        # native paku-paku.penpot export
+├── .supabase/
+│   └── supabase/                   # schema and seeds → database/
+│       ├── migrations/             # one migration per table
+│       ├── seeds/                  # admin, staff, guest and menu items
+│       └── config.toml             # local ports and auth config
 ├── app/                            # Expo Router pages → screens/ ; api/ → endpoints/
 │   ├── (admin)/                    # auth-guarded admin routes
 │   ├── (customer)/                 # guest-role customer routes
@@ -315,10 +322,6 @@ three seeded roles:
 ├── services/                       # → HTTP /api/* ; ← stores/
 ├── stores/                         # Zustand state → services/ ; ← screens/
 ├── stylesheets/                    # global.css ← metro.config.js
-├── supabase/                       # schema and seeds → database/
-│   ├── migrations/                 # one migration per table
-│   ├── seeds/                      # admin, staff, guest and menu items
-│   └── config.toml                 # local ports and auth config
 ├── svg/                            # icon sources → png/
 ├── system/                         # ← scripts/ ; wraps node:* built-ins
 ├── test/                           # mirrors root modules ; app/*.e2e.js → playwright
