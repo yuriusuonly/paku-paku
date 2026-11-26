@@ -238,7 +238,7 @@ flowchart LR
 - Never include the `@example` tag in JSDoc.
 
 ## Verification
-- Run `bun run bun:test` before finishing any change to `lib/system/*` or `bin/*`; scripts are verified by running them. CI runs the suite with `--coverage --coverage-threshold=95`. `bun run playwright:test` runs the E2E specs over HTTPS through Caddy (both servers start automatically) against the local app; every API route is mocked by default in `test/src/app/setup.js`, so CI needs no Supabase stack and never touches production. Install browsers once with `bun run playwright -- install chromium`.
+- Run `bun run bun:test` before finishing any change to `lib/system/*` or `bin/*`; scripts are verified by running them. CI runs the suite with `--coverage --coverage-threshold=95`. `bun run playwright:test` runs the E2E specs over HTTPS through Caddy (both servers start automatically) against the local app; each spec embeds its own API/data mocks, so CI needs no Supabase stack and never touches production. Install browsers once with `bun run playwright -- install chromium`.
 - `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
 - Manually verify changes with `bun run expo:build` (and `bun run expo:start`), and `bun run docker:build` / `bun run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.

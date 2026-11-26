@@ -13,7 +13,6 @@ const baseURL = `https://localhost:${proxyPort}`;
 export default defineConfig({
   testDir: "./test/src/app",
   testMatch: "**/*.e2e.js",
-  setupFiles: ["./test/src/app/setup.js"],
   outputDir: ".playwright",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
