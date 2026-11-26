@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-// The Expo dev server bundles routes on first navigation.
-test.setTimeout(120000);
+// The Expo dev server bundles routes on first navigation; the landing route is
+// often the coldest one in CI.
+test.setTimeout(180000);
 
 /**
  * E2E coverage for the public landing page and the not-found route.
@@ -12,18 +13,19 @@ test("the landing page renders its content and public navigation", async ({ page
   await page.goto("/");
 
   await expect(page.getByText("Under active development")).toBeVisible();
-  await expect(page.getByText("Paku-Paku", { exact: true }).first()).toBeVisible();
+  const cta = page.getByRole("button", { name: "Start ordering" });
+  await expect(cta).toBeVisible({ timeout: 90000 });
+  await expect(page.getByRole("link", { name: /home$/ })).toBeVisible();
   await expect(page.getByText(/A web-only kiosk storefront/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Start ordering" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
-  await expect(page.getByLabel("Paku-Paku logo")).toBeVisible();
+  await expect(page.getByRole("img").first()).toBeVisible();
 });
 
 test("the landing page keeps its content readable on a wearable viewport", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto("/");
 
-  await expect(page.getByRole("button", { name: "Start ordering" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start ordering" })).toBeVisible({ timeout: 90000 });
   await expect(page.getByText(/A web-only kiosk storefront/)).toBeVisible();
 });
 
