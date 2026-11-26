@@ -180,7 +180,7 @@ bun run playwright      # Playwright CLI (e.g. `bun run playwright -- install ch
 bun run playwright:test # E2E specs in test/app/*.e2e.js
 ```
 
-- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). CI gates on 95% overall coverage. Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages. E2E runs over HTTPS through the Caddy proxy on `$URL_PROXY_PORT`; the config starts both the dev server and Caddy. Playwright artifacts go to the system temp directory, never into the workspace.
+- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). CI gates on 95% overall coverage. Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages. E2E runs over HTTPS through the Caddy proxy on `$URL_PROXY_PORT`; the config starts both the dev server and Caddy. Playwright artifacts go to gitignored `.playwright/` in the workspace root.
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1.4.5-alpine`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
@@ -292,6 +292,7 @@ three seeded roles:
 ├── .github/                        # CI tests + deploys → workflows/
 │   └── workflows/
 ├── .penpot/                        # native paku-paku.penpot export
+├── .playwright/                    # generated E2E/MCP artifacts (gitignored)
 ├── .supabase/
 │   └── supabase/                   # schema and seeds → database/
 │       ├── migrations/             # one migration per table

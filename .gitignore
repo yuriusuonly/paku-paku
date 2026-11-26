@@ -4,6 +4,7 @@ build/
 test-results/
 coverage/
 playwright-report/
+.playwright/
 .DS_Store
 *.log
 .env

@@ -20,10 +20,7 @@
       },
       "penpot": {
         "type": "remote",
-        "url": "https://design.penpot.app/mcp/stream?userToken={env:PENPOT_MCP_TOKEN}",
-        "headers": {
-          "Authorization": "Bearer {env:PENPOT_MCP_TOKEN}"
-        }
+        "url": "https://design.penpot.app/mcp/stream?userToken={env:PENPOT_MCP_TOKEN}"
       },
       "expo": {
         "type": "remote",
@@ -37,7 +34,9 @@
           "--bun",
           "@playwright/mcp@latest",
           "--isolated",
-          "--ignore-https-errors"
+          "--ignore-https-errors",
+          "--output-dir",
+          ".playwright"
         ]
       }
     }

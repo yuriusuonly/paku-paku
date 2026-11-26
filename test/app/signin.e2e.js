@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 import config from "../../constants/config.js";
 
+// The Expo dev server bundles routes on first navigation.
+test.setTimeout(120000);
+
 /**
  * Route glob for the sign-in API endpoint.
  *

@@ -1,7 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
 import config from "./constants/config.js";
-import { tmpdir } from "./system/os.js";
-import { join } from "./system/path.js";
 
 /**
  * Playwright configuration for reactive-flow E2E tests under `test/app/`.
@@ -15,7 +13,7 @@ const baseURL = `https://localhost:${proxyPort}`;
 export default defineConfig({
   testDir: "./test/app",
   testMatch: "**/*.e2e.js",
-  outputDir: join(tmpdir(), "paku-paku-playwright"),
+  outputDir: ".playwright",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,

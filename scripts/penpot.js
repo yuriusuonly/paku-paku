@@ -59,10 +59,7 @@ const syncOpenCodeConfig = () => {
       servers: {
         penpot: {
           type: "remote",
-          url: `${baseUrl}/mcp/stream?userToken=${mcpToken}`,
-          headers: {
-            Authorization: `Bearer ${mcpToken}`
-          }
+          url: `${baseUrl}/mcp/stream?userToken=${mcpToken}`
         }
       }
     }

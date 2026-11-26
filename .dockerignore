@@ -4,6 +4,7 @@ build/
 test-results/
 coverage/
 playwright-report/
+.playwright/
 .git/
 .github/
 .DS_Store
