@@ -103,7 +103,6 @@ try {
 
   if (remote) {
     setVariable("PENPOT_MCP_REMOTE_MODE", "true");
-    setVariable("PENPOT_MCP_BACKEND_URI", baseUrl);
   }
 
   logInfo(`${existing ? "Linked" : "Created"} Penpot workspace ${workspaceName} (${team.id}).`);
