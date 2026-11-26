@@ -238,6 +238,56 @@ docker compose --profile test run --rm test-unit
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
 
+## Architecture
+
+The app is a layered modular monolith: thin HTTP routes, server-side use-case
+composition, repository data access, and a small pure domain layer. Imports
+point downward; leaf utilities depend on nothing above them.
+
+```mermaid
+flowchart TD
+  subgraph Browser["Browser · React Native Web"]
+    R["src/app/* — web-only Expo Router pages"] --> SC["src/screens/* — role-guarded screens"]
+    SC --> C["src/components/* — NativeWind UI primitives"]
+    SC --> ST["src/stores/* — Zustand state"]
+    ST --> SV["src/services/* — client API contracts"]
+    SV --> T["src/network/transport.js — fetch + bearer token"]
+    C --> TH["src/constants/theme.js — design tokens"]
+  end
+
+  T -->|"HTTP /api/*"| API
+
+  subgraph Server["Server · Expo Router API routes"]
+    API["src/app/api/**/+api.js — thin method wrappers"] --> EP["src/endpoints/* — validation + composition"]
+    EP --> IC["src/interceptors/* — auth, method, error, log"]
+    IC --> RP["src/repositories/* — data access"]
+    RP --> DB["src/database/instance.js — anon key + forwarded token"]
+    EP --> D["src/domain/* — pure rules and Zod schemas"]
+    RP --> D
+  end
+
+  DB --> SB[("Supabase · local dev / hosted deploy")]
+
+  subgraph Leaf["Shared leaf utilities"]
+    U["src/constants · cipher · format · helpers · validation<br/>lib/errors · lib/system"]
+  end
+
+  U -.-> Browser
+  U -.-> Server
+
+  subgraph Tooling["Bun toolchain"]
+    BIN["bin/* launchers"] --> SYS["lib/system/* wrappers"]
+    SYS --> EX["Expo — start / static export"]
+    SYS --> CA["Caddy — HTTPS edge"]
+    SYS --> SU["Supabase CLI — migrations and seeds"]
+    SYS --> PW["Playwright E2E — local app, per-spec mocked APIs"]
+  end
+```
+
+Tests under `test/src/` and `test/lib/` mirror the modules above. E2E specs
+run against the local app over HTTPS through Caddy; each spec embeds its own
+API/data mocks, so CI needs no Supabase stack and never touches production.
+
 ## Routes & endpoints
 
 Only `/` and `/signin` are public pages. Everything else requires one of the
