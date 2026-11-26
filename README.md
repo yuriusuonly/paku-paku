@@ -157,8 +157,8 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 OpenCode connects to the hosted Supabase, Expo, GitHub, and Penpot MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
 `GITHUB_TOKEN`, while Penpot's `userToken` is substituted from the gitignored
-`.penpot-token` file (copied from `PENPOT_MCP_TOKEN` in `.env`). `bun run penpot` creates the remote `paku-paku` workspace
-with `PENPOT_TOKEN`; `bun run penpot:remote` links the local MCP server to it.
+`.penpot-token` file (copied from `PENPOT_MCP_TOKEN` in `.env`). `bun run penpot` creates the `paku-paku` project in your personal workspace
+with `PENPOT_TOKEN`; `bun run penpot:remote` links the remote project and backend URI.
 The official local Playwright MCP (`@playwright/mcp`) is also configured but
 not used yet; E2E tests run through the `playwright` scripts instead.
 Launch OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate
