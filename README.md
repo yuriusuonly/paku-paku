@@ -61,6 +61,8 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `bun run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
+| `PENPOT_MCP_TOKEN` | Penpot MCP key for the self-hosted instance; stored in `.env`, not in `opencode.json`. |
+| `PENPOT_PAT` | Penpot personal access token for the self-hosted instance; stored in `.env`. |
 | `GITHUB_TOKEN` | GitHub token used by the `gh:*` scripts. |
 
 Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
@@ -149,9 +151,10 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 (once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
 `bun run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI).
 
-OpenCode connects to the hosted Supabase, Expo, GitHub, and official Figma MCP
+OpenCode connects to the hosted Supabase, Expo, GitHub, and local Penpot MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
-`GITHUB_TOKEN`, while Figma uses OpenCode's OAuth flow (no token in `.env`).
+`GITHUB_TOKEN`, while Penpot runs at `http://localhost:4401/mcp` against the
+self-hosted instance (`PENPOT_MCP_TOKEN` and `PENPOT_PAT` are in `.env`).
 The official local Playwright MCP (`@playwright/mcp`) is also configured but
 not used yet; E2E tests run through the `playwright` scripts instead.
 Launch OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate
@@ -277,10 +280,9 @@ three seeded roles:
 
 ```text
 ./
-├── .agents/                        # installed skills → GitHub, Figma, Expo, Playwright
+├── .agents/                        # installed skills → GitHub, Expo, Playwright, Google, React, Supabase
 │   └── skills/
 ├── .expo/                          # generated Expo cache
-├── .figma/                         # Figma design reference and screenshots
 ├── .github/                        # CI tests + deploys → workflows/
 │   └── workflows/
 ├── app/                            # Expo Router pages → screens/ ; api/ → endpoints/

@@ -18,9 +18,9 @@
         },
         "oauth": false
       },
-      "figma": {
+      "penpot": {
         "type": "remote",
-        "url": "https://mcp.figma.com/mcp"
+        "url": "http://localhost:4401/mcp"
       },
       "expo": {
         "type": "remote",
