@@ -38,7 +38,6 @@
     "git:push": "bun ./scripts/git.js push origin HEAD",
     "opencode": "bun ./scripts/opencode.js",
     "penpot": "bun ./scripts/penpot.js",
-    "penpot:local": "bun ./scripts/docker.js compose -f docker-compose.penpot.yml up -d penpot",
     "penpot:remote": "bun ./scripts/penpot.js --remote",
     "playwright": "bun ./scripts/playwright.js",
     "playwright:test": "bun ./scripts/playwright.js test",
@@ -77,7 +76,6 @@
   },
   "devDependencies": {
     "@opencode/cli": "^2.4.1",
-    "@penpot/mcp": "^2.15.4",
     "@playwright/test": "^1.65.1",
     "skills": "^1.9.0"
   },

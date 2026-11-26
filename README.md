@@ -219,13 +219,12 @@ refresh the `DOT_ENV` secret and push the current branch.
 
 ## Docker (all-in-one compose)
 
-`Dockerfile`, `docker-compose.yml` and `docker-compose.penpot.yml` are the single source of truth for containerized build, local run, test, and Penpot design workflows.
+`Dockerfile` and `docker-compose.yml` are the single source of truth for containerized build, local run, and test workflows.
 
 ```bash
 bun run docker:build  # build app image (profile: app)
 bun run docker:up     # start server + caddy (profile: app)
 bun run docker:logs   # follow app logs
-bun run penpot:local  # start the local Penpot MCP (docker-compose.penpot.yml)
 bun run docker:down   # stop/remove app/build/test services
 
 # one-shot containerized build/tests (via docker-compose.yml)
@@ -233,7 +232,7 @@ docker compose --profile build run --rm build
 docker compose --profile test run --rm test-unit
 ```
 
-- **Design sync**: `docker-compose.penpot.yml` runs the official `penpotapp/mcp` image on ports `4400` (plugin manifest), `4401` (MCP) and `4402` (plugin WebSocket). `PENPOT_MCP_REMOTE_MODE` and `PENPOT_MCP_BACKEND_URI` come from `.env`; create/link the workspace with `bun run penpot` / `bun run penpot:remote`.
+- **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` workspace through the Penpot API.
 - **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
@@ -351,7 +350,6 @@ three seeded roles:
 ├── bun.lock
 ├── bunfig.toml                     # test root → test/
 ├── docker-compose.yml
-├── docker-compose.penpot.yml        # local Penpot MCP service
 ├── eas.json
 ├── metro.config.js                 # bundles stylesheets/global.css
 ├── opencode.json                   # instructions + MCP servers

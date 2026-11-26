@@ -102,14 +102,13 @@ try {
   setVariable("PENPOT_WORKSPACE_ID", team.id);
 
   if (remote) {
-    setVariable("PENPOT_MCP_REMOTE_MODE", "true");
     setVariable("PENPOT_MCP_BACKEND_URI", baseUrl);
   }
 
   logInfo(`${existing ? "Linked" : "Created"} Penpot workspace ${workspaceName} (${team.id}).`);
   logInfo(remote
-    ? "Local MCP configured in remote mode against the workspace backend."
-    : "Use --remote to also link the local MCP server to this workspace.");
+    ? "Remote workspace and backend URI are linked."
+    : "Use --remote to also persist the backend URI for the remote workspace.");
 } catch (error) {
   logError(error instanceof Error ? error.message : String(error));
   exit(1);

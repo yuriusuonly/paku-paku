@@ -24,7 +24,6 @@
       },
       "devDependencies": {
         "@opencode/cli": "^2.4.1",
-        "@penpot/mcp": "^2.15.4",
         "@playwright/test": "^1.65.1",
         "skills": "^1.9.0",
       },
@@ -323,8 +322,6 @@
     "@opencode/cli-windows-x64-baseline": ["@opencode/cli-windows-x64-baseline@2.4.1", "", { "os": "win32", "cpu": "x64" }, "sha512-gQLFm/PG4x9SU4RXQ2/X2hU9SFP4wNkml9Q3u61KAqT9S+8oUdwltpDRpL98j3CKt1Y3mjJBm1HP7Eppu7Q7vw=="],
 
     "@oxc-project/types": ["@oxc-project/types@0.154.0", "", {}, "sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA=="],
-
-    "@penpot/mcp": ["@penpot/mcp@2.15.4", "", { "bin": { "penpot-mcp": "bin/mcp-local.js" } }, "sha512-BjqqLNGd4diFgBNOkEofDlDavCHptsNthH88ANy/69LrSAuoeg08DJgfqZMrjnyIsrbI7Sc2MDJPVLzCQbpdoQ=="],
 
     "@playwright/test": ["@playwright/test@1.65.1", "", { "dependencies": { "playwright": "1.65.1" }, "bin": { "playwright": "cli.js" } }, "sha512-y+NCIRm2LvY4slUVWvGh1nujJ8RF/hEisIsq2mtUPgdQC4L701bq5hZGMhrpeXjACvwvO9tj5dJqhvM6TP9lbw=="],
 
