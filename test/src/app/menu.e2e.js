@@ -24,50 +24,32 @@ const GUEST = {
 
 /**
  * E2E flows for the customer menu route.
+ * Each test declares its own API responses so no global setup or route
+ * overriding is needed.
  * @module test/app/menu.e2e
  */
 
-test.beforeEach(async ({ page }) => {
-  await page.route(`**${config.api.endpoints.signin}`, (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify(GUEST)
-  }));
-  await page.route(`**${config.api.endpoints.session}`, (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({ user: GUEST.user })
-  }));
-  await page.route(`**${config.api.endpoints.items}`, (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({
-      items: [{
-        id: "i1",
-        name: "Ramen",
-        description: "Rich broth with noodles",
-        price_cents: 18000,
-        is_available: true,
-        is_best_seller: false,
-        sort_order: 0
-      }]
-    })
-  }));
-  await page.route(`**${config.api.endpoints.checkout}`, (route) => route.fulfill({
-    status: 201,
-    contentType: "application/json",
-    body: JSON.stringify({
-      order: {
-        id: "o1",
-        reference: "PP-1042",
-        status: "Pending",
-        total_cents: 18000
-      }
-    })
-  }));
-});
+/**
+ * Registers the guest/session/checkout API mocks and a configurable items response.
+ *
+ * @param {import("@playwright/test").Page} page - Playwright page.
+ * @param {{items?: unknown, status?: number, delay?: number}} [options] - Items response options.
+ * @returns {Promise<void>} Resolves once the routes are registered.
+ */
+async function mockMenu(page, { items, status = 200, delay = 0 } = {}) {
+  const payload = items === undefined
+    ? { items: [{ id: "i1", name: "Ramen", description: "Rich broth with noodles", price_cents: 18000, is_available: true, is_best_seller: false, sort_order: 0 }] }
+    : items;
+  await routeJson(page, config.api.endpoints.signin, GUEST);
+  await routeJson(page, config.api.endpoints.session, { user: GUEST.user });
+  await routeJson(page, config.api.endpoints.items, payload, { status, delay });
+  await routeJson(page, config.api.endpoints.checkout, {
+    order: { id: "o1", reference: "PP-1042", status: "Pending", total_cents: 18000 }
+  }, { status: 201 });
+}
 
 test("a guest can add an item, review the cart and place an order", async ({ page }) => {
+  await mockMenu(page);
   await page.goto("/signin");
   await page.getByRole("button", { name: "Continue as guest" }).click();
   await expect(page).toHaveURL(/\/menu$/);
@@ -86,6 +68,7 @@ test("a guest can add an item, review the cart and place an order", async ({ pag
 });
 
 test("the menu is responsive and keeps 44px touch targets", async ({ page }) => {
+  await mockMenu(page);
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto("/signin");
   await page.getByRole("button", { name: "Continue as guest" }).click();
@@ -101,7 +84,7 @@ test("the menu is responsive and keeps 44px touch targets", async ({ page }) => 
 });
 
 test("shows a loading state while the items request is pending", async ({ page }) => {
-  await routeJson(page, config.api.endpoints.items, { items: [] }, { delay: 600 });
+  await mockMenu(page, { items: { items: [] }, delay: 600 });
   await page.goto("/signin");
   await page.getByRole("button", { name: "Continue as guest" }).click();
 
@@ -110,16 +93,23 @@ test("shows a loading state while the items request is pending", async ({ page }
 });
 
 test("shows an alert when the items request fails", async ({ page }) => {
-  await page.unrouteAll();
-  await page.route(`**${config.api.endpoints.signin}`, (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify(GUEST)
-  }));
-  await routeJson(page, config.api.endpoints.items, {
-    error: { code: "service_unavailable", message: "Menu unavailable." }
-  }, { status: 503 });
-
+  await mockMenu(page);
+  // A realtime SUBSCRIBED event clears the store error, so keep the socket out
+  // of this state-specific test. CI has no local Supabase; this makes local runs
+  // behave the same way.
+  await page.routeWebSocket("**/realtime/v1/websocket*", (socket) => socket.close());
+  await page.addInitScript(() => {
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      const url = typeof input === "string" ? input : input.url;
+      if (url.includes("/api/items")) {
+        return new Response(JSON.stringify({
+          error: { code: "service_unavailable", message: "Menu unavailable." }
+        }), { status: 503, headers: { "Content-Type": "application/json" } });
+      }
+      return originalFetch(input, init);
+    };
+  });
   await page.goto("/signin");
   await page.getByRole("button", { name: "Continue as guest" }).click();
 
@@ -127,7 +117,7 @@ test("shows an alert when the items request fails", async ({ page }) => {
 });
 
 test("shows the empty menu state when no items are available", async ({ page }) => {
-  await routeJson(page, config.api.endpoints.items, { items: [] });
+  await mockMenu(page, { items: { items: [] } });
   await page.goto("/signin");
   await page.getByRole("button", { name: "Continue as guest" }).click();
 
