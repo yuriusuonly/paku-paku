@@ -59,28 +59,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Design sync: official Penpot MCP server from the `penpot` Dockerfile stage.
-  # The workspace is created by `bun run penpot`; this service is optional and
-  # runs only with the `design` profile.
-  penpot:
-    profiles: ["design"]
-    build:
-      context: .
-      target: penpot
-    image: paku-paku-penpot:local
-    environment:
-      PENPOT_MCP_SERVER_HOST: 0.0.0.0
-      PENPOT_MCP_SERVER_PORT: "4401"
-      PENPOT_MCP_WEBSOCKET_PORT: "4402"
-      PENPOT_MCP_PLUGIN_SERVER_HOST: 0.0.0.0
-      PENPOT_MCP_REMOTE_MODE: ${PENPOT_MCP_REMOTE_MODE:-true}
-      PENPOT_MCP_BACKEND_URI: ${PENPOT_MCP_BACKEND_URI:-https://design.penpot.app}
-    ports:
-      - "4400:4400"
-      - "4401:4401"
-      - "4402:4402"
-    restart: unless-stopped
-
   # One-shot: build static web export into ./build on the host.
   build:
     profiles: ["build"]
