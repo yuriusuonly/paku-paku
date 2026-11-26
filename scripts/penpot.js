@@ -35,7 +35,7 @@ const environment = {
   ...values
 };
 
-const baseUrl = (environment.PENPOT_URL || "https://design.penpot.app").replace(/\/+$/, "");
+const baseUrl = (environment.PENPOT_MCP_BACKEND_URI || "https://design.penpot.app").replace(/\/+$/, "");
 const token = environment.PENPOT_TOKEN;
 const workspaceName = "paku-paku";
 const remote = args.includes("--remote");
@@ -103,6 +103,7 @@ try {
 
   if (remote) {
     setVariable("PENPOT_MCP_REMOTE_MODE", "true");
+    setVariable("PENPOT_MCP_BACKEND_URI", baseUrl);
   }
 
   logInfo(`${existing ? "Linked" : "Created"} Penpot workspace ${workspaceName} (${team.id}).`);

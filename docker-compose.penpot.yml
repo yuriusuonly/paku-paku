@@ -11,7 +11,7 @@ services:
       PENPOT_MCP_WEBSOCKET_PORT: "4402"
       PENPOT_MCP_PLUGIN_SERVER_HOST: 0.0.0.0
       PENPOT_MCP_REMOTE_MODE: ${PENPOT_MCP_REMOTE_MODE:-true}
-      PENPOT_MCP_BACKEND_URI: ${PENPOT_URL:-https://design.penpot.app}
+      PENPOT_MCP_BACKEND_URI: ${PENPOT_MCP_BACKEND_URI:-https://design.penpot.app}
     ports:
       - "4400:4400"
       - "4401:4401"

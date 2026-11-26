@@ -62,7 +62,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
 | `PENPOT_MCP_TOKEN` | Penpot MCP key substituted into the `userToken` query parameter of the MCP URL in `opencode.json`. |
-| `PENPOT_URL` | Penpot base URL for workspace API and MCP backend calls. |
+| `PENPOT_MCP_BACKEND_URI` | Penpot base URL used for workspace API calls and by the MCP server in remote mode. |
 | `PENPOT_WORKSPACE_ID` | ID of the remote `paku-paku` workspace created by `bun run penpot`. |
 | `PENPOT_MCP_REMOTE_MODE` | Set by `bun run penpot:remote` to link the local MCP to the remote backend. |
 | `PENPOT_TOKEN` | Penpot personal access token used by `bun run penpot` for workspace API calls. |
@@ -233,7 +233,7 @@ docker compose --profile build run --rm build
 docker compose --profile test run --rm test-unit
 ```
 
-- **Design sync**: `docker-compose.penpot.yml` runs the official `penpotapp/mcp` image on ports `4400` (plugin manifest), `4401` (MCP) and `4402` (plugin WebSocket). `PENPOT_MCP_REMOTE_MODE` comes from `.env`, and Compose maps `PENPOT_URL` to the MCP server's `PENPOT_MCP_BACKEND_URI`; create/link the workspace with `bun run penpot` / `bun run penpot:remote`.
+- **Design sync**: `docker-compose.penpot.yml` runs the official `penpotapp/mcp` image on ports `4400` (plugin manifest), `4401` (MCP) and `4402` (plugin WebSocket). `PENPOT_MCP_REMOTE_MODE` and `PENPOT_MCP_BACKEND_URI` come from `.env`; create/link the workspace with `bun run penpot` / `bun run penpot:remote`.
 - **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
