@@ -7,6 +7,6 @@ playwright-report/
 .DS_Store
 *.log
 .env
-.penpot-token
+.opencode/
 .env.local
 .env.*.local

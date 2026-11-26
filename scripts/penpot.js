@@ -13,6 +13,7 @@ import {
   write
 } from "../system/io.js";
 import {
+  create,
   join,
   parent,
   resolve
@@ -37,8 +38,36 @@ const environment = {
 
 const baseUrl = (environment.PENPOT_MCP_BACKEND_URI || "https://design.penpot.app").replace(/\/+$/, "");
 const token = environment.PENPOT_TOKEN;
+const mcpToken = environment.PENPOT_MCP_TOKEN;
 const projectName = "paku-paku";
 const remote = args.includes("--remote");
+
+/**
+ * Writes the gitignored local OpenCode override so the MCP connection uses
+ * the token from .env without committing it to the project config.
+ *
+ * @returns {void}
+ */
+const syncOpenCodeConfig = () => {
+  if (!mcpToken) return;
+
+  const directory = create(join(root, ".opencode"), { directory: true });
+  const file = join(directory, "opencode.json");
+  const config = {
+    mcp: {
+      servers: {
+        penpot: {
+          type: "remote",
+          url: `${baseUrl}/mcp/stream?userToken=${mcpToken}`,
+          headers: {
+            Authorization: `Bearer ${mcpToken}`
+          }
+        }
+      }
+    }
+  };
+  write(file, `${JSON.stringify(config, null, 2)}\n`);
+};
 
 /**
  * Calls a Penpot RPC command with the personal access token.
@@ -87,6 +116,8 @@ try {
   if (!token) {
     throw new Error("Missing PENPOT_TOKEN in .env");
   }
+
+  syncOpenCodeConfig();
 
   const teamsPayload = await rpc("get-teams");
   const teams = Array.isArray(teamsPayload)
