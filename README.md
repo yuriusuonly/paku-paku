@@ -61,7 +61,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `bun run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
-| `PENPOT_MCP_TOKEN` | Penpot MCP key substituted into the `userToken` query parameter of the MCP URL in `opencode.json`. |
+| `PENPOT_MCP_TOKEN` | Penpot MCP key; copied into gitignored `.penpot-token`, which `opencode.json` substitutes into the `userToken` query parameter. |
 | `PENPOT_MCP_BACKEND_URI` | Penpot base URL used for workspace API calls and by the MCP server in remote mode. |
 | `PENPOT_PROJECT_ID` | ID of the `paku-paku` project in your personal Penpot workspace, created by `bun run penpot`. |
 | `PENPOT_MCP_REMOTE_MODE` | Set by `bun run penpot:remote` to link the local MCP to the remote backend. |
@@ -156,8 +156,8 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 
 OpenCode connects to the hosted Supabase, Expo, GitHub, and Penpot MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
-`GITHUB_TOKEN`, while Penpot's `userToken` is substituted from
-`PENPOT_MCP_TOKEN`. `bun run penpot` creates the remote `paku-paku` workspace
+`GITHUB_TOKEN`, while Penpot's `userToken` is substituted from the gitignored
+`.penpot-token` file (copied from `PENPOT_MCP_TOKEN` in `.env`). `bun run penpot` creates the remote `paku-paku` workspace
 with `PENPOT_TOKEN`; `bun run penpot:remote` links the local MCP server to it.
 The official local Playwright MCP (`@playwright/mcp`) is also configured but
 not used yet; E2E tests run through the `playwright` scripts instead.
