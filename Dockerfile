@@ -22,6 +22,11 @@ ENV EXPO_PUBLIC_SUPABASE_TARGET=${EXPO_PUBLIC_SUPABASE_TARGET} \
     EXPO_PUBLIC_SUPABASE_ANON_KEY=${EXPO_PUBLIC_SUPABASE_ANON_KEY}
 RUN bun run expo:build
 
+# --- Design sync: official Penpot MCP server (used by the `penpot` service) ---
+# The image exposes the Streamable HTTP MCP endpoint on 4401, its plugin
+# WebSocket on 4402 and the plugin manifest on 4400.
+FROM penpotapp/mcp:latest AS penpot
+
 # --- Runtime image, shared by the two `docker-compose.yml` services ---
 FROM oven/bun:1.4.5-alpine
 

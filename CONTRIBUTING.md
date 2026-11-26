@@ -239,7 +239,7 @@ flowchart LR
 
 ## Verification
 - Run `bun run check` and `bun run bun:test` before finishing any change to `system/*` or `scripts/*`; scripts are verified by running them. CI runs the suite with `--coverage --coverage-threshold=95`. `bun run playwright:test` runs the E2E specs over HTTPS through Caddy (both servers start automatically); install browsers once with `bun run playwright -- install chromium`.
-- `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export).
+- `Dockerfile` and `docker-compose.yml` are the single source of truth for containerized test/build/run: use `docker compose --profile test run --rm test-unit` (and `--profile build run --rm build` for static export). The `design` profile runs the official Penpot MCP image from the Dockerfile's `penpot` stage.
 - Manually verify changes with `bun run expo:build` (and `bun run expo:start`), and `bun run docker:build` / `bun run docker:up` if touching container/runtime/build config.
 - `/api/health` should return `{ status: "ok", timestamp, uptime }` with `Cache-Control: no-store`.
 - With the local Supabase stack running, `GET /api/items` should list seeded items, `POST /api/signin` with `{"email":"admin@paku-paku.official","password":"admin"}` (or staff `staff@paku-paku.official` / `staff`) should return a session/profile, `GET /api/session` and `GET /api/admin/profiles` should require a valid bearer token (admin role for profiles), and `POST /api/signout` should revoke the session.
