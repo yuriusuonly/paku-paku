@@ -37,7 +37,7 @@ const environment = {
 
 const baseUrl = (environment.PENPOT_MCP_BACKEND_URI || "https://design.penpot.app").replace(/\/+$/, "");
 const token = environment.PENPOT_TOKEN;
-const workspaceName = "paku-paku";
+const projectName = "paku-paku";
 const remote = args.includes("--remote");
 
 /**
@@ -92,23 +92,36 @@ try {
   const teams = Array.isArray(teamsPayload)
     ? teamsPayload
     : teamsPayload?.teams || [];
-  const existing = teams.find((team) => team?.name === workspaceName);
-  const team = existing || await rpc("create-team", { name: workspaceName });
+  const personal = teams.find((team) => team?.isDefault || team?.is_default);
 
-  if (!team?.id) {
-    throw new Error(`Could not resolve a workspace id for ${workspaceName}`);
+  if (!personal?.id) {
+    throw new Error("Could not resolve the personal workspace.");
   }
 
-  setVariable("PENPOT_WORKSPACE_ID", team.id);
+  const projectsPayload = await rpc("get-projects", { teamId: personal.id });
+  const projects = Array.isArray(projectsPayload)
+    ? projectsPayload
+    : projectsPayload?.projects || [];
+  const existing = projects.find((project) => project?.name === projectName);
+  const project = existing || await rpc("create-project", {
+    teamId: personal.id,
+    name: projectName
+  });
+
+  if (!project?.id) {
+    throw new Error(`Could not resolve a project id for ${projectName}`);
+  }
+
+  setVariable("PENPOT_PROJECT_ID", project.id);
 
   if (remote) {
     setVariable("PENPOT_MCP_BACKEND_URI", baseUrl);
   }
 
-  logInfo(`${existing ? "Linked" : "Created"} Penpot workspace ${workspaceName} (${team.id}).`);
+  logInfo(`${existing ? "Linked" : "Created"} Penpot project ${projectName} in the personal workspace (${project.id}).`);
   logInfo(remote
-    ? "Remote workspace and backend URI are linked."
-    : "Use --remote to also persist the backend URI for the remote workspace.");
+    ? "Remote project and backend URI are linked."
+    : "Use --remote to also persist the backend URI for the remote project.");
 } catch (error) {
   logError(error instanceof Error ? error.message : String(error));
   exit(1);

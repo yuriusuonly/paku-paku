@@ -63,7 +63,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
 | `PENPOT_MCP_TOKEN` | Penpot MCP key substituted into the `userToken` query parameter of the MCP URL in `opencode.json`. |
 | `PENPOT_MCP_BACKEND_URI` | Penpot base URL used for workspace API calls and by the MCP server in remote mode. |
-| `PENPOT_WORKSPACE_ID` | ID of the remote `paku-paku` workspace created by `bun run penpot`. |
+| `PENPOT_PROJECT_ID` | ID of the `paku-paku` project in your personal Penpot workspace, created by `bun run penpot`. |
 | `PENPOT_MCP_REMOTE_MODE` | Set by `bun run penpot:remote` to link the local MCP to the remote backend. |
 | `PENPOT_TOKEN` | Penpot personal access token used by `bun run penpot` for workspace API calls. |
 | `GITHUB_TOKEN` | GitHub token used by the `gh:*` scripts. |
@@ -232,7 +232,7 @@ docker compose --profile build run --rm build
 docker compose --profile test run --rm test-unit
 ```
 
-- **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` workspace through the Penpot API.
+- **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` project in your personal workspace through the Penpot API.
 - **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
