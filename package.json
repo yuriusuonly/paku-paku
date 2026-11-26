@@ -37,6 +37,8 @@
     "git": "bun ./scripts/git.js",
     "git:push": "bun ./scripts/git.js push origin HEAD",
     "opencode": "bun ./scripts/opencode.js",
+    "penpot": "bun ./scripts/penpot.js",
+    "penpot:remote": "bun ./scripts/penpot.js --remote",
     "playwright": "bun ./scripts/playwright.js",
     "playwright:test": "bun ./scripts/playwright.js test",
     "skill": "bun ./scripts/skill.js",
@@ -74,6 +76,7 @@
   },
   "devDependencies": {
     "@opencode/cli": "^2.4.1",
+    "@penpot/mcp": "^2.15.4",
     "@playwright/test": "^1.65.1",
     "skills": "^1.9.0"
   },

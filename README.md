@@ -61,8 +61,12 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 | `EAS_PROJECT_ID` | Expo Hosting project id printed by `bun run eas:initialize`. |
 | `EAS_PROJECT_SLUG` | EAS project slug; must match the remote project. |
 | `GITHUB_REPOSITORY` | HTTPS repository URL used by the `gh:*` scripts. |
-| `PENPOT_MCP_TOKEN` | Penpot MCP key for the self-hosted instance; stored in `.env`, not in `opencode.json`. |
-| `PENPOT_PAT` | Penpot personal access token for the self-hosted instance; stored in `.env`. |
+| `PENPOT_MCP_TOKEN` | Penpot MCP key substituted into the `userToken` query parameter of the MCP URL in `opencode.json`. |
+| `PENPOT_URL` | Penpot base URL for workspace API and MCP backend calls. |
+| `PENPOT_WORKSPACE_ID` | ID of the remote `paku-paku` workspace created by `bun run penpot`. |
+| `PENPOT_MCP_REMOTE_MODE` | Set by `bun run penpot:remote` to link the local MCP to the remote backend. |
+| `PENPOT_MCP_BACKEND_URI` | Penpot backend URI used by the MCP server in remote mode. |
+| `PENPOT_TOKEN` | Penpot personal access token used by `bun run penpot` for workspace API calls. |
 | `GITHUB_TOKEN` | GitHub token used by the `gh:*` scripts. |
 
 Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
@@ -151,10 +155,11 @@ Apply local migrations to the hosted database with `bun x --bun supabase login`
 (once), `bun run supabase:link` (reads `SUPABASE_PROJECT_REF` from `.env`), and
 `bun run supabase:push` (`SUPABASE_ACCESS_TOKEN` authenticates the Supabase CLI).
 
-OpenCode connects to the hosted Supabase, Expo, GitHub, and local Penpot MCP
+OpenCode connects to the hosted Supabase, Expo, GitHub, and Penpot MCP
 servers declared in `opencode.json`; the GitHub one authenticates with
-`GITHUB_TOKEN`, while Penpot runs at `http://localhost:4401/mcp` against the
-self-hosted instance (`PENPOT_MCP_TOKEN` and `PENPOT_PAT` are in `.env`).
+`GITHUB_TOKEN`, while Penpot's `userToken` is substituted from
+`PENPOT_MCP_TOKEN`. `bun run penpot` creates the remote `paku-paku` workspace
+with `PENPOT_TOKEN`; `bun run penpot:remote` links the local MCP server to it.
 The official local Playwright MCP (`@playwright/mcp`) is also configured but
 not used yet; E2E tests run through the `playwright` scripts instead.
 Launch OpenCode with `bun run opencode` (so `.env` is loaded) and authenticate

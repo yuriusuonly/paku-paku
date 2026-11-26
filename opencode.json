@@ -20,7 +20,7 @@
       },
       "penpot": {
         "type": "remote",
-        "url": "http://localhost:4401/mcp"
+        "url": "https://design.penpot.app/mcp/stream?userToken={env:PENPOT_MCP_TOKEN}"
       },
       "expo": {
         "type": "remote",
