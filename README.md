@@ -72,7 +72,7 @@ gitignored; CI restores it from the `DOT_ENV` repository secret.
 Refresh `DOT_ENV` after changing `EXPO_PUBLIC_DESCRIPTION` or the shared guest credentials so hosted static builds pick up the new copy and sign-in values.
 
 Keep `.env` POSIX-compatible (`KEY=value` lines): every launcher parses it
-through `system/environment.js`, Compose interpolates it for ports/build args,
+through `lib/system/environment.js`, Compose interpolates it for ports/build args,
 and Caddy receives it via the process environment.
 `EXPO_PUBLIC_*` values are bundled into the client — never put secrets there.
 Supabase anon/publishable keys are meant for browser use; service-role keys
@@ -90,7 +90,7 @@ bun run expo:start:tunnel # tunnel mode
 
 Development and local static builds use a local Supabase stack (PostgreSQL in
 Docker) only. Only the hosted export (`bun run eas:deploy`, which passes `--hosted` to
-`scripts/expo.js`) sets `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo
+`bin/expo.js`) sets `EXPO_PUBLIC_SUPABASE_TARGET=hosted`, so the Expo
 Hosting bundle uses the hosted project. There is no cross-environment fallback:
 `database/instance.js` reads the `EXPO_PUBLIC_SUPABASE_LOCAL_*` values unless
 the target is exactly `hosted`, in which case it reads
@@ -177,10 +177,10 @@ bun run expo:serve  # serves build/ on $URL_PORT
 ```bash
 bun run bun:test        # Bun tests under test/, mirroring root modules
 bun run playwright      # Playwright CLI (e.g. `bun run playwright -- install chromium`)
-bun run playwright:test # E2E specs in test/app/*.e2e.js
+bun run playwright:test # E2E specs in test/src/app/*.e2e.js
 ```
 
-- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). CI gates on 95% overall coverage. Playwright specs use `*.e2e.js` under `test/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages. E2E runs over HTTPS through the Caddy proxy on `$URL_PROXY_PORT`; the config starts both the dev server and Caddy. Playwright artifacts go to gitignored `.playwright/` in the workspace root.
+- Test files mirror workspace root modules (for example `test/domain/items/schema.test.js` covers `domain/items/schema.js`). CI gates on 95% overall coverage. Playwright specs use `*.e2e.js` under `test/src/app/` so Bun's runner ignores them; they drive real app flows and assert reactive behavior, not whole rendered pages. E2E runs over HTTPS through the Caddy proxy on `$URL_PROXY_PORT`; the config starts both the dev server and Caddy. Playwright artifacts go to gitignored `.playwright/` in the workspace root.
 - Docker-based test runs are defined in `docker-compose.yml` (single source of truth): `docker compose --profile test run --rm test-unit` (Bun, `oven/bun:1.4.5-alpine`).
 
 `build/` is generated and gitignored — do not edit it by hand. Local static
@@ -234,7 +234,7 @@ docker compose --profile test run --rm test-unit
 ```
 
 - **Design sync**: uses the official remote Penpot MCP configured in `opencode.json`; `bun run penpot` / `bun run penpot:remote` create and link the `paku-paku` project in your personal workspace through the Penpot API; `bun run penpot:export` downloads the native `.penpot` file.
-- **Local run (`app`)**: `server` runs `bun ./scripts/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
+- **Local run (`app`)**: `server` runs `bun ./bin/expo.js serve build` (the launcher appends `--port` from `URL_PORT`) and `caddy` terminates HTTPS on `$URL_PROXY_PORT` (healthcheck: `/api/health`). For local Supabase-backed routes, start `bun run supabase:start` first; the app joins external network `${SUPABASE_DOCKER_NETWORK:-supabase_network_paku-paku}` to reach Kong at `http://api.supabase.internal:8000`.
 - **Build (`build`)**: one-shot container installs with Bun and exports the static web app into `./build`.
 - **Tests (`test`)**: `test-unit` runs Bun tests in `oven/bun:1.4.5-alpine`.
 
@@ -298,54 +298,57 @@ three seeded roles:
 │       ├── migrations/             # one migration per table
 │       ├── seeds/                  # admin, staff, guest and menu items
 │       └── config.toml             # local ports and auth config
-├── app/                            # Expo Router pages → screens/ ; api/ → endpoints/
-│   ├── (admin)/                    # auth-guarded admin routes
-│   ├── (customer)/                 # guest-role customer routes
-│   ├── (staff)/                    # staff-role routes
-│   └── api/                        # thin HTTP wrappers → endpoints/
+├── bin/                            # bun run launchers → lib/system/ wrappers
 ├── build/                          # generated static export
-├── cipher/                         # leaf encoding/hashing/token utilities
-├── components/                     # ← screens/ ; theme tokens ← constants/
-├── constants/                      # leaf config → app/, database/, services/, screens/
-├── database/                       # ← repositories/ ; config ← constants/
-├── domain/                         # pure rules ← endpoints/, repositories/, screens/
-├── endpoints/                      # → interceptors/ → repositories/ → database/
-├── errors/                         # typed errors ← repositories/, endpoints/, services/
-├── format/                         # leaf currency/date/email helpers
-├── helpers/                        # leaf list/record/QR helpers
-├── interceptors/                   # between endpoints/ and repositories/
-├── network/                        # middleware ← endpoints/ ; transport ← services/
+├── lib/
+│   ├── errors/                     # typed errors ← src/, lib/system/
+│   └── system/                     # ← bin/ ; wraps node:* built-ins
+├── src/
+│   ├── app/                        # Expo Router pages → screens/ ; api/ → endpoints/
+│   │   ├── (admin)/                # auth-guarded admin routes
+│   │   ├── (customer)/             # guest-role customer routes
+│   │   ├── (staff)/                # staff-role routes
+│   │   └── api/                    # thin HTTP wrappers → endpoints/
+│   ├── cipher/                     # encoding/hashing/id utilities
+│   ├── components/                 # ← screens/ ; theme tokens ← constants/
+│   ├── constants/                  # leaf config → app/, database/, services/, screens/
+│   ├── database/                   # ← repositories/ ; config ← constants/
+│   ├── domain/                     # pure rules ← endpoints/, repositories/, screens/
+│   ├── endpoints/                  # → interceptors/ → repositories/ → database/
+│   ├── format/                     # leaf currency/date/email helpers
+│   ├── helpers/                    # leaf list/record/QR helpers
+│   ├── interceptors/               # between endpoints/ and repositories/
+│   ├── network/                    # middleware ← endpoints/ ; transport ← services/
+│   ├── repositories/               # → database/ and domain/ ; ← endpoints/
+│   ├── screens/                    # → components/, stores/, services/ ; ← app/
+│   ├── services/                   # → HTTP /api/* ; ← stores/
+│   ├── stores/                     # Zustand state → services/ ; ← screens/
+│   ├── stylesheets/                # global.css ← metro.config.js
+│   └── validation/                 # leaf Zod/request validators
+├── test/                           # mirrors src/ and lib/ modules
+│   ├── src/
+│   │   ├── app/                    # *.e2e.js → playwright (local app, mocked APIs)
+│   │   ├── cipher/                 # src/cipher/ tests
+│   │   ├── domain/                 # src/domain/ tests
+│   │   ├── endpoints/              # src/endpoints/ tests
+│   │   ├── format/                 # src/format/ tests
+│   │   ├── helpers/                # src/helpers/ tests
+│   │   ├── network/                # src/network/ tests
+│   │   ├── services/               # src/services/ tests
+│   │   ├── stores/                 # src/stores/ tests
+│   │   └── validation/             # src/validation/ tests
+│   └── lib/system/                 # lib/system/ tests
 ├── node_modules/                   # generated Bun dependencies
-├── png/                            # static icons for the app/ shell
-├── repositories/                   # → database/ and domain/ ; ← endpoints/
-├── screens/                        # → components/, stores/, services/ ; ← app/
-├── scripts/                        # bun run launchers → system/ wrappers
-├── services/                       # → HTTP /api/* ; ← stores/
-├── stores/                         # Zustand state → services/ ; ← screens/
-├── stylesheets/                    # global.css ← metro.config.js
+├── png/                            # static icons for the app shell
 ├── svg/                            # icon sources → png/
-├── system/                         # ← scripts/ ; wraps node:* built-ins
-├── test/                           # mirrors root modules ; app/*.e2e.js → playwright
-│   ├── app/                        # E2E flows against app/ routes
-│   ├── cipher/                     # cipher/ tests
-│   ├── domain/                     # domain/ tests
-│   ├── endpoints/                  # endpoints/ tests
-│   ├── format/                     # format/ tests
-│   ├── helpers/                    # helpers/ tests
-│   ├── network/                    # network/ tests
-│   ├── services/                   # services/ tests
-│   ├── stores/                     # stores/ tests
-│   ├── system/                     # system/ tests
-│   └── validation/                 # validation/ tests
-├── ttf/                            # Outfit font ← constants/theme.js
-├── validation/                     # leaf Zod/request validators
+├── ttf/                            # Outfit font ← src/constants/theme.js
 ├── .dockerignore
 ├── .env                            # gitignored config source for every launcher
 ├── .gitignore
 ├── AGENTS.md                       # agent instructions
 ├── CONTRIBUTING.md                 # conventions and guides
 ├── Caddyfile                       # HTTPS proxy → $URL_PORT (dev server)
-├── DESIGN.md                       # visual tokens ← constants/theme.js
+├── DESIGN.md                       # visual tokens ← src/constants/theme.js
 ├── Dockerfile                      # Bun 1.4.5 export/runtime image
 ├── LICENSE.txt
 ├── README.md
@@ -355,10 +358,10 @@ three seeded roles:
 ├── bunfig.toml                     # test root → test/
 ├── docker-compose.yml
 ├── eas.json
-├── metro.config.js                 # bundles stylesheets/global.css
+├── metro.config.js                 # bundles src/stylesheets/global.css
 ├── opencode.json                   # instructions + MCP servers
-├── package.json                    # scripts → scripts/*
-├── playwright.config.js            # Caddy HTTPS + test/app/*.e2e.js
+├── package.json                    # scripts → bin/*
+├── playwright.config.js            # Caddy HTTPS + test/src/app/*.e2e.js
 ├── skills-lock.json
-└── tailwind.config.js              # scans root-level app directories
+└── tailwind.config.js              # scans src/**/*.{js,jsx,ts,tsx}
 ```

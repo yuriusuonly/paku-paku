@@ -41,8 +41,8 @@ COPY package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY Caddyfile ./
-COPY scripts ./scripts
-COPY system ./system
+COPY bin ./bin
+COPY lib ./lib
 
 # No CMD: both service commands are plain argv arrays in `docker-compose.yml` —
 # the image is only the built artifact ("build once, define commands at the

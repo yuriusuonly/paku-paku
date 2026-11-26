@@ -34,7 +34,7 @@ services:
     # The launcher reads URL_PORT from the container env and appends `--port`
     # (expo serve ignores the env var itself), so no shell interpolation is
     # needed in this argv.
-    command: ["bun", "./scripts/expo.js", "serve", "build"]
+    command: ["bun", "./bin/expo.js", "serve", "build"]
     healthcheck:
       # wget busybox binary present in the bun alpine image; port comes from env
       test: ["CMD", "wget", "-qO-", "http://localhost:${URL_PORT}/api/health"]
