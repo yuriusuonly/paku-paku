@@ -12,7 +12,8 @@ test.setTimeout(180000);
 test("the landing page renders its content and public navigation", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByText("Under active development")).toBeVisible();
+  await expect(page.getByRole("link", { name: "GitHub repository" })).toBeVisible();
+  await expect(page.getByText("github.com/yuriusuonly/paku-paku")).toBeVisible();
   const cta = page.getByRole("button", { name: "Start ordering" });
   await expect(cta).toBeVisible({ timeout: 90000 });
   await expect(page.getByRole("link", { name: /home$/ })).toBeVisible();

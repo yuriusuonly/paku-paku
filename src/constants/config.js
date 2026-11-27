@@ -50,6 +50,7 @@
  * @property {ApiConfig} api
  * @property {DatabaseConfig} database
  * @property {CurrencyConfig} currency
+ * @property {string} repository - Public GitHub repository URL.
  * @property {{email: string | undefined, password: string | undefined}} guest
  */
 
@@ -116,6 +117,13 @@ export const currency = {
 };
 
 /**
+ * Public GitHub repository URL shown in the global banner.
+ *
+ * @type {string}
+ */
+export const repository = "https://github.com/yuriusuonly/paku-paku";
+
+/**
  * Default shared app config.
  *
  * @type {AppConfig}
@@ -127,6 +135,7 @@ const config = {
   api,
   database,
   currency,
+  repository,
   guest: {
     email: process.env.EXPO_PUBLIC_GUEST_EMAIL,
     password: process.env.EXPO_PUBLIC_GUEST_PASSWORD

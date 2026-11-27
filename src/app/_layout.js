@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import Head from "expo-router/head";
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { useFonts } from "expo-font";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import config from "../constants/config.js";
 import { CircularProgress } from "../components/circular-progress.js";
 import { SnackbarHost } from "../components/snackbar.js";
@@ -58,9 +58,17 @@ export default function Layout() {
           className={`w-full border-b ${cx.borderSubtle} ${cx.bgPrimarySoft} px-4 py-2`}
           style={{ position: "sticky", top: 0, zIndex: 50 }}
         >
-          <Text className={`font-outfit text-center text-sm font-semibold ${cx.textPrimary}`}>
-            Under active development
-          </Text>
+          <Link href={config.repository} asChild>
+            <Pressable
+              accessibilityRole="link"
+              accessibilityLabel="GitHub repository"
+              className="min-h-[24px] items-center justify-center"
+            >
+              <Text className={`font-outfit text-center text-sm font-semibold ${cx.textPrimary}`}>
+                {config.repository.replace(/^https:\/\//, "")}
+              </Text>
+            </Pressable>
+          </Link>
         </View>
         <View className="flex-1">
           <Stack
